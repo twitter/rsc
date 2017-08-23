@@ -5,17 +5,18 @@ Reasonable Scala compiler (`rsc`) is an experimental Scala compiler
 focused on compilation speed. This project is developed by Eugene Burmako
 and his team at Twitter.
 
-At Twitter, we have one of the biggest Scala codebases on the planet,
-and compilation time is consistently among the top asks from our engineers.
-With `rsc`, we seek to foster innovation in compilation performance,
-openly prototyping performance-focused designs and making our findings
-available to the Scala community at large.
+`rsc` is not a fork, but a clean-room reimplementation of a Scala compiler.
+We believe that a performance-oriented rewrite will provide a unique perspective
+on compilation costs introduced by various Scala features and idioms -
+something that is currently very hard to quantify in existing compilers.
 
-Our project is inspired by the work of Martin Odersky and Grzegorz Kossakowski.
-Martin showed us that in this day and age it is still possible to
-[write a Scala compiler from scratch](https://github.com/lampepfl/dotty).
-Greg showed us that
-[compiling Scala can be blazingly fast](https://github.com/gkossakowski/kentuckymule).
+With `rsc`, our mission is to complement official compilers and assist with their
+evolution through our experiments. We are aiming to discover actionable
+insight into Scala compiler architecture and language design that will help
+compiler developers at Lightbend and EPFL to optimize their compilers
+for the benefit of the entire Scala community. Check out
+[relatedwork.md](relatedwork.md) to learn more about how we compare
+with other compilers and compiler technology research in Scala.
 
 Goals
 =====
@@ -37,6 +38,15 @@ Non-goals
 (consider [Dotty](https://github.com/lampepfl/dotty) and
 [Typelevel Scala](https://github.com/typelevel/scala) instead)
 * Runtime performance (will be addressed independently)
+
+Credits
+=====
+
+Our project is inspired by the work of Martin Odersky and Grzegorz Kossakowski.
+Martin showed us that in this day and age it is still possible to
+[write a Scala compiler from scratch](https://github.com/lampepfl/dotty).
+Greg showed us that
+[compiling Scala can be blazingly fast](https://github.com/gkossakowski/kentuckymule).
 
 FAQ
 ===
@@ -80,10 +90,16 @@ Scala, so codebases that have been migrated will be crosscompilable.
 Details will become clearer down the line, but keep in mind that we are
 a large Scala shop, so we take compatibility extremely seriously.
 
-What about existing compilers?
-------------------------------
 
-[relatedwork.md](relatedwork.md)
+How do I learn more?
+--------------------
+
+We don't have any further official documentation, but there has been
+a great discussion of our announcement on Reddit and Hacker News.
+Check out the links below if you're interested in details:
+  * [/r/scala](https://www.reddit.com/r/scala/comments/6ubuix/twitter_announces_reasonable_scala_compiler_an/)
+  * [/r/programming](https://www.reddit.com/r/programming/comments/6ubuk0/twitter_announces_reasonable_scala_compiler_an/)
+  * [Hacker News](https://news.ycombinator.com/item?id=15043316)
 
 How do I get started?
 ---------------------
