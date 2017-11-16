@@ -1,13 +1,14 @@
-Related Work
-============
+<!-- Copyright (c) 2017 Twitter, Inc. -->
+<!-- Licensed under the Apache License, Version 2.0 (see LICENSE.md). -->
+
+# Related work
 
 Scala compilation technology is an active field of research.
 At the time of writing, there are at least four actively developed Scala compilers.
 In this document, we will compare Reasonable Scala compiler with publicly
 available related work (presented in chronological order).
 
-[Lightbend Scala](https://github.com/scala/scala)
--------------------------------------------------
+## [Lightbend Scala](https://github.com/scala/scala)
 
 Lightbend Scala is the official Scala compiler developed by Lightbend
 and a big community of open-source contributors. It is a mature product
@@ -21,8 +22,7 @@ hope that our results will create new opportunities for the official compiler.
 We are planning to keep in contact with Lightbend to discuss our findings and
 facilitate technology transfer.
 
-[Dotty](https://github.com/lampepfl/dotty)
-------------------------------------------
+## [Dotty](https://github.com/lampepfl/dotty)
 
 Dotty is a rewrite of Lightbend Scala, scheduled to become Scala 3 sometime
 after the Scala 2.15 release. It is developed by Martin Odersky,
@@ -40,8 +40,7 @@ a one-trick pony, willing to go to the extreme to reach our target in compilatio
 performance. We believe that Dotty and Reasonable Scala have complementary goals,
 so we will be definitely staying in touch with Martin and his team to exchange ideas.
 
-[Typelevel Scala](https://github.com/typelevel/scala)
------------------------------------------------------
+## [Typelevel Scala](https://github.com/typelevel/scala)
 
 To quote its readme, Typelevel Scala is a conservative, collaborative
 and binary compatible fork of Lightbend Scala. The intention is for it to
@@ -55,15 +54,13 @@ Unlike Typelevel Scala, we are not a fork of Lightbend Scala. As discussed above
 we believe that we need the freedom to aggressively experiment in order to fully
 explore ways to speed up Scala compilation.
 
-[Policy](https://github.com/paulp/policy)
------------------------------------------
+## [Policy](https://github.com/paulp/policy)
 
 Policy was an experimental fork of the Lightbend Scala compiler
 started by Paul Phillips. At the moment, the GitHub page of Policy
 is no longer available, and the fate of the project is unclear.
 
-[Kentucky Mule](https://github.com/gkossakowski/kentuckymule)
--------------------------------------------------------------
+## [Kentucky Mule](https://github.com/gkossakowski/kentuckymule)
 
 Kentucky Mule is an experimental typechecker for Scala developed by
 Grzegorz Kossakowski in a very peculiar style. It only does a subset
@@ -82,8 +79,7 @@ Thanks to the recent technological breakthroughs in
 this is easier than ever, so we're willing to go the extra mile to gather more
 performance-oriented insight for the community.
 
-[Hydra](https://triplequote.com/hydra)
---------------------------------------
+## [Hydra](https://triplequote.com/hydra)
 
 Hydra is a closed-source Scala compiler developed by Triplequote Sàrl.
 It is a drop-in replacement for the Lightbend Scala compiler that achieves

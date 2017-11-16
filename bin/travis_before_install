@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+sudo find /usr -name "*libunwind*" -delete
+sudo apt-get install -y -qq clang++-3.9 libunwind8-dev make
+export CXX=clang++-3.9
+git clone https://code.googlesource.com/re2
+pushd re2
+git checkout 2017-03-01
+make -j4 test
+sudo make install prefix=/usr
+make testinstall prefix=/usr
+popd

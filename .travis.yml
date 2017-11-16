@@ -1,0 +1,24 @@
+sudo: required
+
+scala:
+  - 2.11.11
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      jdk: oraclejdk8
+      language: scala
+
+before_install:
+  - bin/travis_before_install
+
+script:
+  - java -version
+  - sbt ci
+
+cache:
+  directories:
+    - $HOME/.coursier
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot

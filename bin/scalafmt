@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+VERSION="1.2.0"
+CACHE="$HOME/.scalafmt"
+COURSIER="$CACHE/coursier"
+SCALAFMT="$CACHE/scalafmt-$VERSION"
+
+if [ ! -d $CACHE ]; then
+  mkdir -p $CACHE
+fi
+
+if [ ! -f $COURSIER ]; then
+  curl -L -o $COURSIER https://git.io/vgvpD
+  chmod +x $COURSIER
+fi
+
+if [ ! -f $SCALAFMT ]; then
+  $COURSIER bootstrap com.geirsson:scalafmt-cli_2.11:$VERSION --main org.scalafmt.cli.Cli -o $SCALAFMT
+  chmod +x $SCALAFMT
+fi
+
+$SCALAFMT "$@"
