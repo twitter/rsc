@@ -16,7 +16,7 @@ final class Typechecker private (
   def apply(env: Env, tree: Typeable): Type = {
     if (tree.pos != NoPosition) {
       val oldPos = reporter.pos
-      reporter.pos = tree.point
+      reporter.pos = treePoint(tree)
       val result = tree match {
         case tree: Init => init(env, tree)
         case tree: TermApply => termApply(env, tree)
