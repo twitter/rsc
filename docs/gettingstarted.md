@@ -13,6 +13,8 @@ In addition to being compiled into JVM bytecode, Rsc is compiled with Scala
 Native. If you'd like to compile native binaries or run native tests, check out
 Scala Native documentation for
 [additional instructions](http://www.scala-native.org/en/latest/user/setup.html).
+When installing Scala Native install the optional `bdw-gc` and `re2` packages, as they
+are required by the build.
 
 At the moment, IntelliJ doesn't work well on the Rsc codebase. After opening
 our project in IntelliJ, you may experience incomplete code intelligence,
