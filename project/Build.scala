@@ -68,9 +68,10 @@ object Build extends AutoPlugin {
       val benchRscNativeTypecheck = "benchCliRscNativeTypecheck"
       private val rscTyper = List("ColdRscTypecheck", "HotRscTypecheck")
       private val scalaTyper = List("ColdScalacTypecheck", "HotScalacTypecheck")
+      private val scalaNamer = List("ColdScalacNamer", "HotScalacNamer")
       private val scalaCompile = List("ColdScalacCompile", "HotScalacCompile")
       private val javaCompile = List("ColdJavacCompile", "HotScalacCompile")
-      private val all = rscTyper ++ scalaTyper ++ scalaCompile ++ javaCompile
+      private val all = rscTyper ++ scalaNamer ++ scalaTyper ++ scalaCompile ++ javaCompile
       val benchRscScalacJavac = "benchJVM/jmh:run " + all.mkString(" ")
       val benches = s"$benchRscNativeTypecheck ;$benchRscScalacJavac"
     }
