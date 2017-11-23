@@ -90,12 +90,15 @@ To reproduce, run `sbt bench` (this will take a while).
 |--------------------|----------------------|----------------------|
 | RscNativeTypecheck | 300.146 ms           | 282.468 ms           |
 | RscTypecheck       | 476.843 ± 0.822 ms   | 33.685 ± 0.024 ms    |
+| ScalacNamer 2.12.4 | 1843.751 ± 14.930 ms | 29.825 ± 0.090 ms    |
+| ScalacNamer 2.11.11| 1423.331 ± 37.056 ms | 71.100 ± 0.318 ms    |
 | ScalacTypecheck    | 4326.812 ± 28.763 ms | 712.872 ± 3.554 ms   |
 | ScalacCompile      | 8098.704 ± 47.390 ms | 1691.732 ± 12.205 ms |
 | JavacCompile       | 851.787 ± 3.460 ms   | 76.164 ± 0.169 ms    |
 
 ## Comments
-
+  * Compared to the Scala namer in Scala 2.11.11, our prototype type-checker is about 2x faster.
+    However, compared to the namer in 2.12.4 we are about 10% slower.
   * First and foremost, we are happy to announce that typechecking in Rsc
     is currently way faster than in Scalac. Cold typechecking is ~9x faster and
     hot typechecking is a whopping ~21x faster at ~330kloc/s.
