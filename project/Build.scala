@@ -33,14 +33,16 @@ object Build extends AutoPlugin {
     object nightly {
       private val benchRscNative = "benchRscJVM/benchCliRscNativeTypecheck"
       private val benchRsc = {
+        val schedule = List("ColdRscSchedule", "HotRscSchedule")
         val typecheck = List("ColdRscTypecheck", "HotRscTypecheck")
-        val benches = typecheck
+        val benches = schedule ++ typecheck
         s"benchRscJVM/jmh:run ${benches.mkString(" ")}"
       }
       private def benchScalac(version: String) = {
+        val name = List("ColdScalacName", "HotScalacName")
         val typecheck = List("ColdScalacTypecheck", "HotScalacTypecheck")
         val compile = List("ColdScalacCompile", "HotScalacCompile")
-        val benches = typecheck ++ compile
+        val benches = name ++ typecheck ++ compile
         s"benchScalac${version}/jmh:run ${benches.mkString(" ")}"
       }
       private val benchScalac211 = benchScalac("211")
