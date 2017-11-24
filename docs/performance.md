@@ -107,22 +107,22 @@ To reproduce, run `sbt bench` (this will take a while).
     <td width="208px">RscNativeSchedule</td>
     <td width="208px">134.118 ms</td>
     <td width="208px">121.640 ms</td>
-  </th>
+  </tr>
   <tr>
     <td>RscSchedule</td>
     <td>344.909 ± 0.771 ms</td>
     <td>10.945 ± 0.008 ms</td>
-  </th>
+  </tr>
   <tr>
     <td>ScalacName211</td>
     <td>1179.715 ± 2.818 ms</td>
     <td>62.111 ± 0.099 ms</td>
-  </th>
+  </tr>
   <tr>
     <td>ScalacName212</td>
     <td>1642.299 ± 2.927 ms</td>
     <td>27.683 ± 0.029 ms</td>
-  </th>
+  </tr>
 </table>
 
 <table>
@@ -134,22 +134,22 @@ To reproduce, run `sbt bench` (this will take a while).
     <td width="208px">RscNativeTypecheck</td>
     <td width="208px">302.570 ms</td>
     <td width="208px">284.908 ms</td>
-  </th>
+  </tr>
   <tr>
     <td>RscTypecheck</td>
     <td>467.265 ± 0.860 ms</td>
     <td>33.650 ± 0.016 ms</td>
-  </th>
+  </tr>
   <tr>
     <td>ScalacTypecheck211</td>
     <td>4295.242 ± 24.084 ms</td>
     <td>707.156 ± 1.441 ms</td>
-  </th>
+  </tr>
   <tr>
     <td>ScalacTypecheck212</td>
     <td>5167.287 ± 24.531 ms</td>
     <td>610.896 ± 1.594 ms</td>
-  </th>
+  </tr>
 </table>
 
 <table>
@@ -161,15 +161,15 @@ To reproduce, run `sbt bench` (this will take a while).
     <td width="208px">ScalacCompile211</td>
     <td width="208px">8047.402 ± 43.037 ms</td>
     <td width="208px">1702.511 ± 10.349 ms</td>
-  </th>
+  </tr>
   <tr>
     <td>ScalacCompile212</td>
     <td>9456.717 ± 45.414 ms</td>
     <td>1630.761 ± 10.607 ms</td>
-  </th>
+  </tr>
   <tr>
     <td>JavacCompile</td>
     <td>801.029 ± 4.258 ms</td>
     <td>73.772 ± 0.153 ms</td>
-  </th>
+  </tr>
 </table>
