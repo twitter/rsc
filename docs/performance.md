@@ -170,6 +170,6 @@ To reproduce, run `sbt bench` (this will take a while).
   <tr>
     <td>JavacCompile</td>
     <td>801.029 ± 4.258 ms</td>
-    <td>N/A</td>
+    <td>73.772 ± 0.153 ms</td>
   </th>
 </table>
