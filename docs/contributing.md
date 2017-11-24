@@ -57,7 +57,8 @@
     e.g. `42` for a branch that addresses the issue 42, to clearly
     correlate the proposed changes with an existing design discussion.
     If your changes don't have an associated issue, you should create one.
-    If your changes address multiple issues, feel free to pick any.
+    If your changes address multiple issues, you should pick a descriptive
+    branch name that encompasses all those issues.
     * Pull requests should be issued from a branch other than master,
     or they won't be considered for review.
   * Commits
