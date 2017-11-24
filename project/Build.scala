@@ -20,8 +20,8 @@ object Build extends AutoPlugin {
   object autoImport {
     def benchCliRscNative(bench: String) = {
       val project = ProjectRef(file("."), "benchRscNative")
-      val taskName = "benchCliRscNative" + bench
-      val objectName = "rsc.bench.CliRscNative" + bench
+      val taskName = "benchRscNative" + bench
+      val objectName = "rsc.bench.RscNative" + bench
       val taskKey = TaskKey[Unit](taskName)
       taskKey := (Def.taskDyn {
         val _ = (nativeLink in Compile in project).value
@@ -32,8 +32,8 @@ object Build extends AutoPlugin {
 
     object nightly {
       private val benchRscNative = {
-        val schedule = "benchRscJVM/benchCliRscNativeSchedule"
-        val typecheck = "benchRscJVM/benchCliRscNativeTypecheck"
+        val schedule = "benchRscJVM/benchRscNativeSchedule"
+        val typecheck = "benchRscJVM/benchRscNativeTypecheck"
         s"$schedule ;$typecheck"
       }
       private val benchRsc = {

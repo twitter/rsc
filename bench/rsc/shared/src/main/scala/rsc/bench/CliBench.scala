@@ -3,7 +3,7 @@
 package rsc.bench
 
 trait CliBench {
-  def run(command: List[String], runs: Int, iters: Int): Unit = {
+  def run(name: String, command: List[String], runs: Int, iters: Int): Unit = {
     println(s"Running ${command.mkString(" ")} $runs x $iters times...")
     val times = 1.to(runs).map { i =>
       val start = System.nanoTime()
@@ -21,7 +21,32 @@ trait CliBench {
       println(s"Run $i: $result ms")
       result
     }
-    val result = times.sum / runs
-    println(s"Average: " + result + " ms")
+    val score = times.sum / (runs * iters)
+    val s_score = "%.3f".format(score)
+    val s_error = "???"
+
+    println()
+    println("Result \"" + "rsc.bench." + name + ".run\":")
+    println(s"  N = $runs")
+    println(s"  mean = $s_score ms/op")
+    println("")
+
+    val header = List("Benchmark", "Mode", "Cnt", "Score", "Units")
+    val results = List(name + ".run", "cli", runs.toString, s_score, "ms/op")
+    val table = List[List[String]](header, results)
+    val widths = 0.to(header.length - 1).map(i => table.map(_(i).length).max)
+    table.map(_.zip(widths).zipWithIndex).zipWithIndex.foreach {
+      case (row, i) =>
+        row.foreach {
+          case ((cell, width), j) =>
+            if (i == 0 && j == 0) {
+              print(cell.padTo(width, ' '))
+            } else {
+              print(cell.reverse.padTo(width, ' ').reverse)
+            }
+            print("  ")
+        }
+        println("")
+    }
   }
 }
