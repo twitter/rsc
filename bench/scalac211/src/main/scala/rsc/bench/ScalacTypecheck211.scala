@@ -8,17 +8,18 @@ import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.annotations.Mode._
 import scala.tools.nsc._
 import scala.tools.nsc.reporters._
-import rsc.bench.ScalacCompile._
+import rsc.bench.ScalacTypecheck211._
 
-object ScalacCompile {
+object ScalacTypecheck211 {
   @State(Scope.Benchmark)
   class BenchmarkState extends FileFixtures
 }
 
-trait ScalacCompile {
+trait ScalacTypecheck211 {
   def runImpl(bs: BenchmarkState): Unit = {
     val settings = new Settings
     settings.outdir.value = Files.createTempDirectory("scalac_").toString
+    settings.stopAfter.value = List("typer")
     settings.usejavacp.value = true
     val reporter = new StoreReporter
     val global = Global(settings, reporter)
@@ -26,7 +27,7 @@ trait ScalacCompile {
     run.compile(bs.re2sScalacFiles.map(_.toString))
     if (reporter.hasErrors) {
       reporter.infos.foreach(println)
-      sys.error("compile failed")
+      sys.error("typecheck failed")
     }
   }
 }
@@ -34,7 +35,7 @@ trait ScalacCompile {
 @BenchmarkMode(Array(SingleShotTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Fork(value = 128, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class ColdScalacCompile extends ScalacCompile {
+class ColdScalacTypecheck211 extends ScalacTypecheck211 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -46,7 +47,7 @@ class ColdScalacCompile extends ScalacCompile {
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 1, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class WarmScalacCompile extends ScalacCompile {
+class WarmScalacTypecheck211 extends ScalacTypecheck211 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -58,7 +59,7 @@ class WarmScalacCompile extends ScalacCompile {
 @Warmup(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 3, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class HotScalacCompile extends ScalacCompile {
+class HotScalacTypecheck211 extends ScalacTypecheck211 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)

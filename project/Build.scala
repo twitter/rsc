@@ -42,7 +42,8 @@ object Build extends AutoPlugin {
         val name = List("ColdScalacName", "HotScalacName")
         val typecheck = List("ColdScalacTypecheck", "HotScalacTypecheck")
         val compile = List("ColdScalacCompile", "HotScalacCompile")
-        val benches = name ++ typecheck ++ compile
+        val unversionedBenches = name ++ typecheck ++ compile
+        val benches = unversionedBenches.map(name => name + version)
         s"benchScalac${version}/jmh:run ${benches.mkString(" ")}"
       }
       private val benchScalac211 = benchScalac("211")

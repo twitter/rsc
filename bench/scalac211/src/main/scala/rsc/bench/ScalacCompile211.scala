@@ -8,18 +8,17 @@ import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.annotations.Mode._
 import scala.tools.nsc._
 import scala.tools.nsc.reporters._
-import rsc.bench.ScalacName._
+import rsc.bench.ScalacCompile211._
 
-object ScalacName {
+object ScalacCompile211 {
   @State(Scope.Benchmark)
   class BenchmarkState extends FileFixtures
 }
 
-trait ScalacName {
+trait ScalacCompile211 {
   def runImpl(bs: BenchmarkState): Unit = {
     val settings = new Settings
     settings.outdir.value = Files.createTempDirectory("scalac_").toString
-    settings.stopAfter.value = List("namer")
     settings.usejavacp.value = true
     val reporter = new StoreReporter
     val global = Global(settings, reporter)
@@ -27,7 +26,7 @@ trait ScalacName {
     run.compile(bs.re2sScalacFiles.map(_.toString))
     if (reporter.hasErrors) {
       reporter.infos.foreach(println)
-      sys.error("name failed")
+      sys.error("compile failed")
     }
   }
 }
@@ -35,7 +34,7 @@ trait ScalacName {
 @BenchmarkMode(Array(SingleShotTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Fork(value = 128, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class ColdScalacName extends ScalacName {
+class ColdScalacCompile211 extends ScalacCompile211 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -47,7 +46,7 @@ class ColdScalacName extends ScalacName {
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 1, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class WarmScalacName extends ScalacName {
+class WarmScalacCompile211 extends ScalacCompile211 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -59,7 +58,7 @@ class WarmScalacName extends ScalacName {
 @Warmup(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 3, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class HotScalacName extends ScalacName {
+class HotScalacCompile211 extends ScalacCompile211 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
