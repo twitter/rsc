@@ -31,7 +31,11 @@ object Build extends AutoPlugin {
     }
 
     object nightly {
-      private val benchRscNative = "benchRscJVM/benchCliRscNativeTypecheck"
+      private val benchRscNative = {
+        val schedule = "benchRscJVM/benchCliRscNativeSchedule"
+        val typecheck = "benchRscJVM/benchCliRscNativeTypecheck"
+        s"$schedule ;$typecheck"
+      }
       private val benchRsc = {
         val schedule = List("ColdRscSchedule", "HotRscSchedule")
         val typecheck = List("ColdRscTypecheck", "HotRscTypecheck")

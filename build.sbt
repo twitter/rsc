@@ -42,7 +42,10 @@ lazy val benchRsc = crossProject(JVMPlatform, NativePlatform)
   .dependsOn(rsc)
   .enablePlugins(BuildInfoPlugin)
   .enablePlugins(JmhPlugin)
-  .jvmSettings(benchCliRscNative("Typecheck"))
+  .jvmSettings(
+    benchCliRscNative("Schedule"),
+    benchCliRscNative("Typecheck")
+  )
   .settings(benchSettings)
 lazy val benchRscJVM = benchRsc.jvm
 lazy val benchRscNative = benchRsc.native
