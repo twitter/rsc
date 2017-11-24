@@ -6,28 +6,48 @@ import java.nio.file._
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.annotations.Mode._
+import scala.reflect.io._
+import scala.reflect.internal.util._
 import scala.tools.nsc._
+import scala.tools.nsc.ast.parser.Tokens._
 import scala.tools.nsc.reporters._
-import rsc.bench.ScalacTypecheck._
+import rsc.bench.ScalacScan211._
 
-object ScalacTypecheck {
+object ScalacScan211 {
   @State(Scope.Benchmark)
-  class BenchmarkState extends FileFixtures
-}
-
-trait ScalacTypecheck {
-  def runImpl(bs: BenchmarkState): Unit = {
+  class BenchmarkState extends FileFixtures {
     val settings = new Settings
     settings.outdir.value = Files.createTempDirectory("scalac_").toString
-    settings.stopAfter.value = List("typer")
     settings.usejavacp.value = true
     val reporter = new StoreReporter
     val global = Global(settings, reporter)
     val run = new global.Run
-    run.compile(bs.re2sScalacFiles.map(_.toString))
-    if (reporter.hasErrors) {
-      reporter.infos.foreach(println)
-      sys.error("typecheck failed")
+    val abstractFiles = re2sScalacFiles.map(f => AbstractFile.getFile(f))
+    val sourceFiles = abstractFiles.map(f => new BatchSourceFile(f)).toArray
+  }
+}
+
+trait ScalacScan211 {
+  def runImpl(bs: BenchmarkState): Unit = {
+    var i = 0
+    while (i < bs.sourceFiles.length) {
+      val sourceFile = bs.sourceFiles(i)
+      try {
+        val scanner = new bs.global.syntaxAnalyzer.SourceFileScanner(sourceFile)
+        scanner.init()
+        while (scanner.token != EOF) {
+          scanner.nextToken()
+        }
+      } catch {
+        case mi: bs.global.syntaxAnalyzer.MalformedInput =>
+          val pos = Position.offset(sourceFile, mi.offset)
+          bs.reporter.error(pos, mi.msg)
+      }
+      i += 1
+    }
+    if (bs.reporter.hasErrors) {
+      bs.reporter.infos.foreach(println)
+      sys.error("scan failed")
     }
   }
 }
@@ -35,7 +55,7 @@ trait ScalacTypecheck {
 @BenchmarkMode(Array(SingleShotTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Fork(value = 128, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class ColdScalacTypecheck extends ScalacTypecheck {
+class ColdScalacScan211 extends ScalacScan211 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -47,7 +67,7 @@ class ColdScalacTypecheck extends ScalacTypecheck {
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 1, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class WarmScalacTypecheck extends ScalacTypecheck {
+class WarmScalacScan211 extends ScalacScan211 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -59,7 +79,7 @@ class WarmScalacTypecheck extends ScalacTypecheck {
 @Warmup(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 3, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class HotScalacTypecheck extends ScalacTypecheck {
+class HotScalacScan211 extends ScalacScan211 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)

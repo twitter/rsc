@@ -8,14 +8,14 @@ import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.annotations.Mode._
 import scala.tools.nsc._
 import scala.tools.nsc.reporters._
-import rsc.bench.ScalacTypecheck._
+import rsc.bench.ScalacTypecheck212._
 
-object ScalacTypecheck {
+object ScalacTypecheck212 {
   @State(Scope.Benchmark)
   class BenchmarkState extends FileFixtures
 }
 
-trait ScalacTypecheck {
+trait ScalacTypecheck212 {
   def runImpl(bs: BenchmarkState): Unit = {
     val settings = new Settings
     settings.outdir.value = Files.createTempDirectory("scalac_").toString
@@ -35,7 +35,7 @@ trait ScalacTypecheck {
 @BenchmarkMode(Array(SingleShotTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Fork(value = 128, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class ColdScalacTypecheck extends ScalacTypecheck {
+class ColdScalacTypecheck212 extends ScalacTypecheck212 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -47,7 +47,7 @@ class ColdScalacTypecheck extends ScalacTypecheck {
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 1, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class WarmScalacTypecheck extends ScalacTypecheck {
+class WarmScalacTypecheck212 extends ScalacTypecheck212 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -59,7 +59,7 @@ class WarmScalacTypecheck extends ScalacTypecheck {
 @Warmup(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 3, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class HotScalacTypecheck extends ScalacTypecheck {
+class HotScalacTypecheck212 extends ScalacTypecheck212 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)

@@ -8,14 +8,14 @@ import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.annotations.Mode._
 import scala.tools.nsc._
 import scala.tools.nsc.reporters._
-import rsc.bench.ScalacName._
+import rsc.bench.ScalacName212._
 
-object ScalacName {
+object ScalacName212 {
   @State(Scope.Benchmark)
   class BenchmarkState extends FileFixtures
 }
 
-trait ScalacName {
+trait ScalacName212 {
   def runImpl(bs: BenchmarkState): Unit = {
     val settings = new Settings
     settings.outdir.value = Files.createTempDirectory("scalac_").toString
@@ -35,7 +35,7 @@ trait ScalacName {
 @BenchmarkMode(Array(SingleShotTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Fork(value = 128, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class ColdScalacName extends ScalacName {
+class ColdScalacName212 extends ScalacName212 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -47,7 +47,7 @@ class ColdScalacName extends ScalacName {
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 1, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class WarmScalacName extends ScalacName {
+class WarmScalacName212 extends ScalacName212 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -59,7 +59,7 @@ class WarmScalacName extends ScalacName {
 @Warmup(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 3, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class HotScalacName extends ScalacName {
+class HotScalacName212 extends ScalacName212 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)

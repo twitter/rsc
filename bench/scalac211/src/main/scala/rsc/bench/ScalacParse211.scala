@@ -10,9 +10,9 @@ import scala.reflect.io._
 import scala.reflect.internal.util._
 import scala.tools.nsc._
 import scala.tools.nsc.reporters._
-import rsc.bench.ScalacParse._
+import rsc.bench.ScalacParse211._
 
-object ScalacParse {
+object ScalacParse211 {
   @State(Scope.Benchmark)
   class BenchmarkState extends FileFixtures {
     val settings = new Settings
@@ -26,7 +26,7 @@ object ScalacParse {
   }
 }
 
-trait ScalacParse {
+trait ScalacParse211 {
   def runImpl(bs: BenchmarkState): Unit = {
     var i = 0
     while (i < bs.sourceFiles.length) {
@@ -45,7 +45,7 @@ trait ScalacParse {
 @BenchmarkMode(Array(SingleShotTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Fork(value = 128, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class ColdScalacParse extends ScalacParse {
+class ColdScalacParse211 extends ScalacParse211 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -57,7 +57,7 @@ class ColdScalacParse extends ScalacParse {
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 1, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class WarmScalacParse extends ScalacParse {
+class WarmScalacParse211 extends ScalacParse211 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -69,7 +69,7 @@ class WarmScalacParse extends ScalacParse {
 @Warmup(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 3, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class HotScalacParse extends ScalacParse {
+class HotScalacParse211 extends ScalacParse211 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)

@@ -9,11 +9,10 @@ import org.openjdk.jmh.annotations.Mode._
 import scala.reflect.io._
 import scala.reflect.internal.util._
 import scala.tools.nsc._
-import scala.tools.nsc.ast.parser.Tokens._
 import scala.tools.nsc.reporters._
-import rsc.bench.ScalacScan._
+import rsc.bench.ScalacParse212._
 
-object ScalacScan {
+object ScalacParse212 {
   @State(Scope.Benchmark)
   class BenchmarkState extends FileFixtures {
     val settings = new Settings
@@ -27,27 +26,18 @@ object ScalacScan {
   }
 }
 
-trait ScalacScan {
+trait ScalacParse212 {
   def runImpl(bs: BenchmarkState): Unit = {
     var i = 0
     while (i < bs.sourceFiles.length) {
       val sourceFile = bs.sourceFiles(i)
-      try {
-        val scanner = new bs.global.syntaxAnalyzer.SourceFileScanner(sourceFile)
-        scanner.init()
-        while (scanner.token != EOF) {
-          scanner.nextToken()
-        }
-      } catch {
-        case mi: bs.global.syntaxAnalyzer.MalformedInput =>
-          val pos = Position.offset(sourceFile, mi.offset)
-          bs.reporter.error(pos, mi.msg)
-      }
+      val parser = new bs.global.syntaxAnalyzer.SourceFileParser(sourceFile)
+      parser.parse()
       i += 1
     }
     if (bs.reporter.hasErrors) {
       bs.reporter.infos.foreach(println)
-      sys.error("scan failed")
+      sys.error("parse failed")
     }
   }
 }
@@ -55,7 +45,7 @@ trait ScalacScan {
 @BenchmarkMode(Array(SingleShotTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Fork(value = 128, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class ColdScalacScan extends ScalacScan {
+class ColdScalacParse212 extends ScalacParse212 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -67,7 +57,7 @@ class ColdScalacScan extends ScalacScan {
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 1, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class WarmScalacScan extends ScalacScan {
+class WarmScalacParse212 extends ScalacParse212 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -79,7 +69,7 @@ class WarmScalacScan extends ScalacScan {
 @Warmup(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 3, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class HotScalacScan extends ScalacScan {
+class HotScalacParse212 extends ScalacParse212 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
