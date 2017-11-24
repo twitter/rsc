@@ -50,7 +50,7 @@ object Build extends AutoPlugin {
       private val benchJavac18 = {
         val javacVersion = classOf[Runtime].getPackage.getSpecificationVersion
         if (javacVersion != "1.8") sys.error(s"unsupported JVM: $javacVersion")
-        val compile = List("ColdJavacCompile", "HotScalacCompile")
+        val compile = List("ColdJavacCompile", "HotJavacCompile")
         val benches = compile
         s"benchJavac18/jmh:run ${benches.mkString(" ")}"
       }
