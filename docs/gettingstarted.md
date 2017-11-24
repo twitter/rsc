@@ -67,10 +67,9 @@ an automated benchmark suite that can be invoked via `bench`.
 [info] Produced 54 files
 [info] Compiling to native code (1149 ms)
 [info] Linking native code (233 ms)
-[info] Running rsc.bench.CliRscNativeTypecheck ~/Projects/rsc/bench/native/target/scala-2.11/benchnative-out
+[info] Running rsc.bench.CliRscNativeTypecheck ~/Projects/rsc/bench/native/target/scala-2.11/benchrscnative-out
 ...
-[info] Running org.openjdk.jmh.Main ColdRscTypecheck HotRscTypecheck ColdScalacTypecheck HotScalacTypecheck
-ColdScalacCompile HotScalacCompile ColdJavacCompile HotScalacCompile
+[info] Running org.openjdk.jmh.Main ColdRscTypecheck HotRscTypecheck
 [info] # JMH version: 1.19
 [info] # VM version: JDK 1.8.0_111, VM 25.111-b14
 [info] # VM invoker: /Library/Java/JavaVirtualMachines/jdk1.8.0_111.jdk/Contents/Home/jre/bin/java

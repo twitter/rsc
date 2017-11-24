@@ -8,7 +8,7 @@ import rsc.tests._
 object Re2sTests extends RscTests {
   val tests = Tests {
     "typecheck re2s" - {
-      val compiler = mkCompiler("-Ystop-after:typecheck", re2sFiles)
+      val compiler = mkCompiler("-Ystop-after:typecheck", re2sRscFiles)
       assertRun(compiler)
     }
   }

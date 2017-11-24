@@ -19,60 +19,48 @@ object Build extends AutoPlugin {
   import autoImport._
   object autoImport {
     def benchCliRscNative(bench: String) = {
-      val benchNative = ProjectRef(file("."), "benchNative")
+      val project = ProjectRef(file("."), "benchRscNative")
       val taskName = "benchCliRscNative" + bench
       val objectName = "rsc.bench.CliRscNative" + bench
       val taskKey = TaskKey[Unit](taskName)
       taskKey := (Def.taskDyn {
-        val _ = (nativeLink in Compile in benchNative).value
-        val exe = (artifactPath in nativeLink in Compile in benchNative).value
+        val _ = (nativeLink in Compile in project).value
+        val exe = (artifactPath in nativeLink in Compile in project).value
         (runMain in Compile).toTask(s" $objectName $exe")
       }).value
     }
 
-    def benchCliRsc(bench: String) = {
-      val benchJVM = ProjectRef(file("."), "benchJVM")
-      val taskName = "benchCliRsc" + bench
-      val objectName = "rsc.bench.CliRsc" + bench
-      val taskKey = TaskKey[Unit](taskName)
-      taskKey := (Def.taskDyn {
-        val attributeds = (fullClasspath in Compile in benchJVM).value
-        val filenames = attributeds.map(_.data.getAbsoluteFile.toString)
-        val classpath = filenames.mkString(java.io.File.pathSeparator)
-        (runMain in Compile).toTask(s" $objectName $classpath")
-      }).value
-    }
-
-    def benchCliScalac(bench: String) = {
-      val bench = ProjectRef(file("."), "benchJVM")
-      val taskName = "benchCliScalac" + bench
-      val objectName = "rsc.bench.CliScalac" + bench
-      val taskKey = TaskKey[Unit](taskName)
-      taskKey := (Def.taskDyn {
-        val scalacVersion = (scalaVersion in bench).value.toString
-        (runMain in Compile).toTask(s" $objectName $scalacVersion")
-      }).value
-    }
-
-    def benchCliJavac(bench: String) = {
-      val taskName = "benchCliJavac" + bench
-      val objectName = "rsc.bench.CliJavac" + bench
-      val taskKey = TaskKey[Unit](taskName)
-      taskKey := (Def.taskDyn {
-        val javacVersion = System.getProperty("java.version")
-        (runMain in Compile).toTask(s" $objectName $javacVersion")
-      }).value
-    }
-
     object nightly {
-      val benchRscNativeTypecheck = "benchCliRscNativeTypecheck"
-      private val rscTyper = List("ColdRscTypecheck", "HotRscTypecheck")
-      private val scalaTyper = List("ColdScalacTypecheck", "HotScalacTypecheck")
-      private val scalaCompile = List("ColdScalacCompile", "HotScalacCompile")
-      private val javaCompile = List("ColdJavacCompile", "HotScalacCompile")
-      private val all = rscTyper ++ scalaTyper ++ scalaCompile ++ javaCompile
-      val benchRscScalacJavac = "benchJVM/jmh:run " + all.mkString(" ")
-      val benches = s"$benchRscNativeTypecheck ;$benchRscScalacJavac"
+      private val benchRscNative = "benchRscJVM/benchCliRscNativeTypecheck"
+      private val benchRsc = {
+        val typecheck = List("ColdRscTypecheck", "HotRscTypecheck")
+        val benches = typecheck
+        s"benchRscJVM/jmh:run ${benches.mkString(" ")}"
+      }
+      private def benchScalac(version: String) = {
+        val typecheck = List("ColdScalacTypecheck", "HotScalacTypecheck")
+        val compile = List("ColdScalacCompile", "HotScalacCompile")
+        val benches = typecheck ++ compile
+        s"benchScalac${version}/jmh:run ${benches.mkString(" ")}"
+      }
+      private val benchScalac211 = benchScalac("211")
+      private val benchScalac212 = benchScalac("212")
+      private val benchJavac18 = {
+        val javacVersion = classOf[Runtime].getPackage.getSpecificationVersion
+        if (javacVersion != "1.8") sys.error(s"unsupported JVM: $javacVersion")
+        val compile = List("ColdJavacCompile", "HotScalacCompile")
+        val benches = compile
+        s"benchJavac18/jmh:run ${benches.mkString(" ")}"
+      }
+      val benches = {
+        val commands = List(
+          benchRscNative,
+          benchRsc,
+          benchScalac211,
+          benchScalac212,
+          benchJavac18)
+        commands.mkString(" ;")
+      }
     }
 
     val scalafmtTest = taskKey[Unit]("Test formatting with Scalafmt")

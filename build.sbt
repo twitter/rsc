@@ -1,5 +1,6 @@
 val versions = new {
-  val scala = "2.11.11"
+  val scala211 = "2.11.11"
+  val scala212 = "2.12.4"
   val uTest = "0.6.0"
 }
 
@@ -10,7 +11,7 @@ lazy val isCI = sys.props.getOrElse("CI", default = "false") == "true"
 lazy val commonSettings = Seq(
   organization := "org.twitter",
   version := version.value.replace("+", "-"),
-  scalaVersion := versions.scala,
+  scalaVersion := versions.scala211,
   scalacOptions ++= Seq("-Ypatmat-exhaust-depth", "off"),
   scalacOptions += "-deprecation",
   scalacOptions += "-unchecked",
@@ -21,30 +22,50 @@ lazy val commonSettings = Seq(
   cancelable := true
 )
 
-lazy val bench = crossProject(JVMPlatform, NativePlatform)
-  .crossType(CrossType.Full)
-  .in(file("bench"))
-  .dependsOn(rsc, tests)
-  .enablePlugins(JmhPlugin)
+lazy val benchSettings = commonSettings ++ Seq(
+  buildInfoPackage := "rsc.bench",
+  buildInfoUsePackageAsPath := true,
+  buildInfoKeys := Seq[BuildInfoKey](
+    "sourceRoot" -> (baseDirectory in ThisBuild).value
+  )
+)
+
+lazy val benchJavac18 = project
+  .in(file("bench/javac18"))
   .enablePlugins(BuildInfoPlugin)
-  .jvmSettings(
-    libraryDependencies += "org.scala-lang" % "scala-compiler" % versions.scala,
-    benchCliRscNative("Typecheck"),
-    benchCliRsc("Typecheck"),
-    benchCliScalac("Typecheck"),
-    benchCliScalac("Compile"),
-    benchCliJavac("Compile")
-  )
+  .enablePlugins(JmhPlugin)
+  .settings(benchSettings)
+
+lazy val benchRsc = crossProject(JVMPlatform, NativePlatform)
+  .crossType(CrossType.Full)
+  .in(file("bench/rsc"))
+  .dependsOn(rsc)
+  .enablePlugins(BuildInfoPlugin)
+  .enablePlugins(JmhPlugin)
+  .jvmSettings(benchCliRscNative("Typecheck"))
+  .settings(benchSettings)
+lazy val benchRscJVM = benchRsc.jvm
+lazy val benchRscNative = benchRsc.native
+
+lazy val benchScalac211 = project
+  .in(file("bench/scalac211"))
+  .enablePlugins(BuildInfoPlugin)
+  .enablePlugins(JmhPlugin)
   .settings(
-    commonSettings,
-    buildInfoPackage := "rsc.bench",
-    buildInfoUsePackageAsPath := true,
-    buildInfoKeys := Seq[BuildInfoKey](
-      "sourceRoot" -> (baseDirectory in ThisBuild).value
-    )
+    benchSettings,
+    scalaVersion := versions.scala211,
+    libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
   )
-lazy val benchJVM = bench.jvm
-lazy val benchNative = bench.native
+
+lazy val benchScalac212 = project
+  .in(file("bench/scalac212"))
+  .enablePlugins(BuildInfoPlugin)
+  .enablePlugins(JmhPlugin)
+  .settings(
+    benchSettings,
+    scalaVersion := versions.scala212,
+    libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
+  )
 
 lazy val re2s = project
   .in(file("examples/re2s"))
@@ -72,8 +93,7 @@ lazy val rscNative = rsc.native
 lazy val tests = crossProject(JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("tests"))
-  .dependsOn(rsc)
-  .enablePlugins(BuildInfoPlugin)
+  .dependsOn(rsc, benchRsc)
   .jvmSettings(
     libraryDependencies += "com.lihaoyi" %% "utest" % versions.uTest,
     libraryDependencies += "com.lihaoyi" %% "utest" % versions.uTest % "test"
@@ -86,17 +106,12 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
   )
   .settings(
     commonSettings,
-    testFrameworks += new TestFramework("utest.runner.Framework"),
-    buildInfoPackage := "rsc.tests",
-    buildInfoUsePackageAsPath := true,
-    buildInfoKeys := Seq[BuildInfoKey](
-      "sourceRoot" -> (baseDirectory in ThisBuild).value
-    )
+    testFrameworks += new TestFramework("utest.runner.Framework")
   )
 lazy val testsJVM = tests.jvm
 lazy val testsNative = tests.native
 
 lazy val root = project
   .in(file("."))
-  .aggregate(rscJVM, testsJVM, benchJVM)
+  .aggregate(rscJVM, testsJVM)
   .settings(commonSettings)

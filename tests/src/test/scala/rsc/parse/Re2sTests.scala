@@ -9,7 +9,7 @@ import rsc.tests._
 object Re2sTests extends RscTests {
   val tests = Tests {
     "parse re2s" - {
-      val files1 = re2sFiles
+      val files1 = re2sRscFiles
       val compiler1 = mkCompiler("-Ystop-after:parse", files1)
       assertRun(compiler1)
       val trees1 = compiler1.trees

@@ -3,11 +3,12 @@
 package rsc.tests
 
 import utest._
+import rsc.bench._
 import rsc.Compiler
 import rsc.report._
 import rsc.syntax._
 
-trait RscTests extends TestSuite with RscFixtures {
+trait RscTests extends TestSuite with RscFixtures with FileFixtures {
   def assertEquals[A](actual: A, expect: A): Unit =
     assert(actual == expect)
 
