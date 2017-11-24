@@ -1,0 +1,124 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import collections, os, re, string, sys
+
+if len(sys.argv) != 2:
+  print "usage: " + sys.argv[0] + " <sbt_bench_stdout>"
+  sys.exit(1)
+
+sbt_bench_stdout = ""
+with open(sys.argv[1], "r") as sbt_bench_stdout_file:
+  sbt_bench_stdout = sbt_bench_stdout_file.read()
+
+results_section_template = string.Template("""
+## Results
+
+To reproduce, run `sbt bench` (this will take a while).
+
+<table>
+  <th>
+    <td>Cold</td>
+    <td>Hot</td>
+  </th>
+  <tr>
+    <td width="208px">RscNativeSchedule</td>
+    <td width="208px">$ColdRscNativeSchedule</td>
+    <td width="208px">$HotRscNativeSchedule</td>
+  </tr>
+  <tr>
+    <td>RscSchedule</td>
+    <td>$ColdRscSchedule</td>
+    <td>$HotRscSchedule</td>
+  </tr>
+  <tr>
+    <td>ScalacName211</td>
+    <td>$ColdScalacName211</td>
+    <td>$HotScalacName211</td>
+  </tr>
+  <tr>
+    <td>ScalacName212</td>
+    <td>$ColdScalacName212</td>
+    <td>$HotScalacName212</td>
+  </tr>
+</table>
+
+<table>
+  <th>
+    <td>Cold</td>
+    <td>Hot</td>
+  </th>
+  <tr>
+    <td width="208px">RscNativeTypecheck</td>
+    <td width="208px">302.570 ms</td>
+    <td width="208px">284.908 ms</td>
+  </tr>
+  <tr>
+    <td>RscTypecheck</td>
+    <td>$ColdRscTypecheck</td>
+    <td>$HotRscTypecheck</td>
+  </tr>
+  <tr>
+    <td>ScalacTypecheck211</td>
+    <td>$ColdScalacTypecheck211</td>
+    <td>$HotScalacTypecheck211</td>
+  </tr>
+  <tr>
+    <td>ScalacTypecheck212</td>
+    <td>$ColdScalacTypecheck212</td>
+    <td>$HotScalacTypecheck212</td>
+  </tr>
+</table>
+
+<table>
+  <th>
+    <td>Cold</td>
+    <td>Hot</td>
+  </th>
+  <tr>
+    <td width="208px">ScalacCompile211</td>
+    <td width="208px">$ColdScalacCompile211</td>
+    <td width="208px">$HotScalacCompile211</td>
+  </tr>
+  <tr>
+    <td>ScalacCompile212</td>
+    <td>$ColdScalacCompile212</td>
+    <td>$HotScalacCompile212</td>
+  </tr>
+  <tr>
+    <td>JavacCompile</td>
+    <td>$ColdJavacCompile</td>
+    <td>$HotJavacCompile</td>
+  </tr>
+</table>
+""")
+
+results_keys = re.findall("\$(\w+)", results_section_template.template)
+results_dict = {}
+for results_key in results_keys:
+  m = re.search(results_key + "\.run\s+\w+\s+\d+(.*?)ms/op", sbt_bench_stdout)
+  results_value = m.groups()[0].strip() + " ms" if m else "N/A"
+  results_value = results_value.replace("  ", " ")
+  results_dict[results_key] = results_value
+
+results_dict = collections.defaultdict(lambda: "N/A", results_dict)
+results_section = results_section_template.substitute(results_dict)
+
+repo_root = os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0])))
+performance_md_path = os.path.join(repo_root, "docs", "performance.md")
+performance_md_lines = []
+with open(performance_md_path, "r") as performance_md_file:
+  skip_section = False
+  for line in performance_md_file:
+    if skip_section and not line.startswith("#"):
+      pass
+    else:
+      skip_section = False
+      if line == "## Results\n":
+        skip_section = True
+        performance_md_lines.append(results_section.strip() + "\n")
+      else:
+        performance_md_lines.append(line)
+
+with open(performance_md_path, "w") as performance_md_file:
+  for line in performance_md_lines:
+    performance_md_file.write(line)
