@@ -43,7 +43,7 @@ as a tractable foundation for our performance work
 [Kentucky Mule](https://github.com/gkossakowski/kentuckymule)-inspired
 architecture
 * We benchmarked our typechecker, and it turned out to be
-[more than 20x faster than the full Scalac typechecker](docs/performance.md)
+[significantly faster than the full Scalac typechecker](docs/performance.md)
 * We will be carefully expanding the scope of Rsc
 according to [our roadmap](../../milestones)
 
