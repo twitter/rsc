@@ -105,8 +105,8 @@ To reproduce, run `sbt bench` (this will take a while).
   </th>
   <tr>
     <td width="208px">RscNativeSchedule</td>
-    <td width="208px">N/A</td>
-    <td width="208px">N/A</td>
+    <td width="208px">134.118 ms</td>
+    <td width="208px">121.640 ms</td>
   </th>
   <tr>
     <td>RscSchedule</td>
