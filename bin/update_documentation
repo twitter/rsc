@@ -32,13 +32,13 @@ To reproduce, run `sbt bench` (this will take a while).
   </tr>
   <tr>
     <td>ScalacNamer211</td>
-    <td>$ColdScalacNamer211</td>
-    <td>$HotScalacNamer211</td>
+    <td>1179.715 ± 2.818 ms</td>
+    <td>62.111 ± 0.099 ms</td>
   </tr>
   <tr>
     <td>ScalacNamer212</td>
-    <td>$ColdScalacNamer212</td>
-    <td>$HotScalacNamer212</td>
+    <td>1642.299 ± 2.927 ms</td>
+    <td>27.683 ± 0.029 ms</td>
   </tr>
 </table>
 
@@ -59,13 +59,13 @@ To reproduce, run `sbt bench` (this will take a while).
   </tr>
   <tr>
     <td>ScalacTyper211</td>
-    <td>$ColdScalacTyper211</td>
-    <td>$HotScalacTyper211</td>
+    <td>4295.242 ± 24.084 ms</td>
+    <td>707.156 ± 1.441 ms</td>
   </tr>
   <tr>
     <td>ScalacTyper212</td>
-    <td>$ColdScalacTyper212</td>
-    <td>$HotScalacTyper212</td>
+    <td>5167.287 ± 24.531 ms</td>
+    <td>610.896 ± 1.594 ms</td>
   </tr>
 </table>
 
@@ -76,18 +76,18 @@ To reproduce, run `sbt bench` (this will take a while).
   </th>
   <tr>
     <td width="208px">ScalacCompile211</td>
-    <td width="208px">$ColdScalacCompile211</td>
-    <td width="208px">$HotScalacCompile211</td>
+    <td width="208px">8047.402 ± 43.037 ms</td>
+    <td width="208px">1702.511 ± 10.349 ms</td>
   </tr>
   <tr>
     <td>ScalacCompile212</td>
-    <td>$ColdScalacCompile212</td>
-    <td>$HotScalacCompile212</td>
+    <td>9456.717 ± 45.414 ms</td>
+    <td>1630.761 ± 10.607 ms</td>
   </tr>
   <tr>
     <td>JavacCompile</td>
-    <td>$ColdJavacCompile</td>
-    <td>$HotJavacCompile</td>
+    <td>801.029 ± 4.258 ms</td>
+    <td>73.772 ± 0.153 ms</td>
   </tr>
 </table>
 """)
