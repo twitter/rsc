@@ -598,3 +598,73 @@ pre-typechecking.
 We decided to postpone generation of executable code until we implement
 typechecking for a sizable subset of the language. Therefore, there is nothing
 to see in this section. Please come back later.
+
+## Summary
+
+At this point, Rsc is just a prototype, which means that:
+A) it only supports [a small subset of Scala](language.md),
+B) even on the supported subset of the language, its functionality is a subset
+of functionality provided by Scalac. This section summarizes similarities
+and differences between Rsc and Scalac.
+
+<table>
+  <th>
+    <td>Rsc</td>
+    <td>Scalac</td>
+  </th>
+  <tr>
+    <td width="200px">Tokenize sources</td>
+    <td width="250px">+ (parse)</td>
+    <td width="250px">+ (parser)</td>
+  </tr>
+  <tr>
+    <td>Parse sources</td>
+    <td>+ (parse)</td>
+    <td>+ (parser)</td>
+  </tr>
+  <tr>
+    <td>Create toplevel symbols</td>
+    <td>+ (schedule)</td>
+    <td>+ (namer/packageobjects)</td>
+  </tr>
+  <tr>
+    <td>Create global symbols</td>
+    <td>+ (schedule)</td>
+    <td>+ (typer)</td>
+  </tr>
+  <tr>
+    <td>Create other symbols</td>
+    <td>+ (typecheck)</td>
+    <td>+ (typer)</td>
+  </tr>
+  <tr>
+    <td>Compute signatures</td>
+    <td>+ (scope/outline)</td>
+    <td>+ (typer)</td>
+  </tr>
+  <tr>
+    <td>Load classpath</td>
+    <td>-</td>
+    <td>+ (typer)</td>
+  </tr>
+  <tr>
+    <td>Resolve names</td>
+    <td>+ (scope/outline/typecheck)</td>
+    <td>+ (typer)</td>
+  </tr>
+  <tr>
+    <td>Infer implicits</td>
+    <td>-</td>
+    <td>+ (typer)</td>
+  </tr>
+  <tr>
+    <td>Perform typechecks</td>
+    <td>-</td>
+    <td>+ (typer/post-typer phases)</td>
+  </tr>
+  <tr>
+    <td>Generate bytecode</td>
+    <td>-</td>
+    <td>+ (post-typer phases)</td>
+  </tr>
+</table>
