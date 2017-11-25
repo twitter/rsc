@@ -30,25 +30,25 @@ object Build extends AutoPlugin {
       }).value
     }
 
-    object nightly {
+    object benches {
       private val benchRscNative = {
         val schedule = "benchRscJVM/benchRscNativeSchedule"
         val typecheck = "benchRscJVM/benchRscNativeTypecheck"
-        s"$schedule ;$typecheck"
+        s";rscNative/clean ;benchRscNative/clean ;$schedule; $typecheck"
       }
       private val benchRsc = {
         val schedule = List("ColdRscSchedule", "HotRscSchedule")
         val typecheck = List("ColdRscTypecheck", "HotRscTypecheck")
-        val benches = schedule ++ typecheck
-        s"benchRscJVM/jmh:run ${benches.mkString(" ")}"
+        val benches = (schedule ++ typecheck).mkString(" ")
+        s";rscJVM/clean ;benchRscJVM/clean ;benchRscJVM/jmh:run $benches"
       }
       private def benchScalac(version: String) = {
         val namer = List("ColdScalacNamer", "HotScalacNamer")
         val typer = List("ColdScalacTyper", "HotScalacTyper")
         val compile = List("ColdScalacCompile", "HotScalacCompile")
-        val unversionedBenches = namer ++ typer ++ compile
-        val benches = unversionedBenches.map(bench => bench + version)
-        s"benchScalac${version}/jmh:run ${benches.mkString(" ")}"
+        val unversioned = namer ++ typer ++ compile
+        val benches = unversioned.map(bench => bench + version).mkString(" ")
+        s";benchScalac${version}/clean ;benchScalac${version}/jmh:run $benches"
       }
       private val benchScalac211 = benchScalac("211")
       private val benchScalac212 = benchScalac("212")
@@ -56,17 +56,29 @@ object Build extends AutoPlugin {
         val javacVersion = classOf[Runtime].getPackage.getSpecificationVersion
         if (javacVersion != "1.8") sys.error(s"unsupported JVM: $javacVersion")
         val compile = List("ColdJavacCompile", "HotJavacCompile")
-        val benches = compile
-        s"benchJavac18/jmh:run ${benches.mkString(" ")}"
+        val benches = compile.mkString(" ")
+        s";benchJavac18/clean ;benchJavac18/jmh:run $benches"
       }
-      val benches = {
+      val all = {
         val commands = List(
           benchRscNative,
           benchRsc,
           benchScalac211,
           benchScalac212,
           benchJavac18)
-        commands.mkString(" ;")
+        commands.mkString("")
+      }
+      val jvm = {
+        val benches = "WarmRscTypecheck"
+        s";rscJVM/clean ;benchRscJVM/clean ;benchRscJVM/jmh:run $benches"
+      }
+      val native = {
+        val benches = "benchRscJVM/benchRscNativeTypecheck"
+        s";rscNative/clean ;benchRscNative/clean ;$benches"
+      }
+      val nightly = {
+        val commands = List(benchRscNative, benchRsc)
+        commands.mkString("")
       }
     }
 
