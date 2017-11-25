@@ -120,5 +120,5 @@ lazy val testsNative = tests.native
 
 lazy val root = project
   .in(file("."))
-  .aggregate(rscJVM, testsJVM)
+  .aggregate(rscJVM, rscNative, testsJVM, testsNative)
   .settings(commonSettings)
