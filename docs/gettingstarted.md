@@ -18,10 +18,9 @@ are required by the build.
 
 At the moment, IntelliJ doesn't work well on the Rsc codebase. After opening
 our project in IntelliJ, you may experience incomplete code intelligence,
-spurious red squiggles and other unpleasant issues. We believe that this
-is the case because of insufficient support for sbt-crossproject that we use
-to crosscompile Rsc to both JVM and Native. We haven't yet found a good
-workaround for this problem.
+spurious red squiggles and other unpleasant issues. If you encounter these
+issues, please follow
+[the workaround suggested by Nikolay Tropin](https://github.com/twitter/reasonable-scala/issues/13#issuecomment-345429964).
 
 ## Playing with Rsc
 
