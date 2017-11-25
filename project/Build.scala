@@ -69,7 +69,7 @@ object Build extends AutoPlugin {
         commands.mkString("")
       }
       val jvm = {
-        val benches = "WarmRscTypecheck"
+        val benches = "QuickRscTypecheck"
         s";rscJVM/clean ;benchRscJVM/clean ;benchRscJVM/jmh:run $benches"
       }
       val native = {
