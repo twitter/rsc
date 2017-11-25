@@ -447,8 +447,9 @@ final class Scanner private (
   }
 
   private def emitIdOrKeyword(): Unit = {
-    val token = keywords.getOrElse(lexeme, ID)
-    val value = if (token == ID) lexeme else null
+    val element = lexeme
+    val token = keywords.getOrElse(element, ID)
+    val value = if (token == ID) element else null
     emit(token, value)
   }
 }
