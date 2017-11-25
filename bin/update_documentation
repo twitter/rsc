@@ -49,8 +49,8 @@ To reproduce, run `sbt bench` (this will take a while).
   </th>
   <tr>
     <td width="208px">RscNativeTypecheck</td>
-    <td width="208px">302.570 ms</td>
-    <td width="208px">284.908 ms</td>
+    <td width="208px">$ColdRscNativeTypecheck</td>
+    <td width="208px">$HotRscNativeTypecheck</td>
   </tr>
   <tr>
     <td>RscTypecheck</td>
