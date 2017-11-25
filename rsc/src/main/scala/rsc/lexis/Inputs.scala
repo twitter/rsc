@@ -9,7 +9,9 @@ import rsc.pretty._
 sealed class Input protected (val file: File) extends Pretty {
   lazy val string: String = {
     val codec = scala.io.Codec.UTF8
-    scala.io.Source.fromFile(file)(codec).mkString
+    val source = scala.io.Source.fromFile(file)(codec)
+    try source.mkString
+    finally source.close()
   }
 
   lazy val chars: Array[Char] = {
