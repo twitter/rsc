@@ -31,14 +31,14 @@ To reproduce, run `sbt bench` (this will take a while).
     <td>$HotRscSchedule</td>
   </tr>
   <tr>
-    <td>ScalacName211</td>
-    <td>$ColdScalacName211</td>
-    <td>$HotScalacName211</td>
+    <td>ScalacNamer211</td>
+    <td>$ColdScalacNamer211</td>
+    <td>$HotScalacNamer211</td>
   </tr>
   <tr>
-    <td>ScalacName212</td>
-    <td>$ColdScalacName212</td>
-    <td>$HotScalacName212</td>
+    <td>ScalacNamer212</td>
+    <td>$ColdScalacNamer212</td>
+    <td>$HotScalacNamer212</td>
   </tr>
 </table>
 
@@ -58,14 +58,14 @@ To reproduce, run `sbt bench` (this will take a while).
     <td>$HotRscTypecheck</td>
   </tr>
   <tr>
-    <td>ScalacTypecheck211</td>
-    <td>$ColdScalacTypecheck211</td>
-    <td>$HotScalacTypecheck211</td>
+    <td>ScalacTyper211</td>
+    <td>$ColdScalacTyper211</td>
+    <td>$HotScalacTyper211</td>
   </tr>
   <tr>
-    <td>ScalacTypecheck212</td>
-    <td>$ColdScalacTypecheck212</td>
-    <td>$HotScalacTypecheck212</td>
+    <td>ScalacTyper212</td>
+    <td>$ColdScalacTyper212</td>
+    <td>$HotScalacTyper212</td>
   </tr>
 </table>
 

@@ -8,18 +8,18 @@ import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.annotations.Mode._
 import scala.tools.nsc._
 import scala.tools.nsc.reporters._
-import rsc.bench.ScalacName212._
+import rsc.bench.ScalacTyper212._
 
-object ScalacName212 {
+object ScalacTyper212 {
   @State(Scope.Benchmark)
   class BenchmarkState extends FileFixtures
 }
 
-trait ScalacName212 {
+trait ScalacTyper212 {
   def runImpl(bs: BenchmarkState): Unit = {
     val settings = new Settings
     settings.outdir.value = Files.createTempDirectory("scalac_").toString
-    settings.stopAfter.value = List("namer")
+    settings.stopAfter.value = List("typer")
     settings.usejavacp.value = true
     val reporter = new StoreReporter
     val global = Global(settings, reporter)
@@ -27,7 +27,7 @@ trait ScalacName212 {
     run.compile(bs.re2sScalacFiles.map(_.toString))
     if (reporter.hasErrors) {
       reporter.infos.foreach(println)
-      sys.error("name failed")
+      sys.error("typecheck failed")
     }
   }
 }
@@ -35,7 +35,7 @@ trait ScalacName212 {
 @BenchmarkMode(Array(SingleShotTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Fork(value = 128, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class ColdScalacName212 extends ScalacName212 {
+class ColdScalacTyper212 extends ScalacTyper212 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -47,7 +47,7 @@ class ColdScalacName212 extends ScalacName212 {
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 1, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class WarmScalacName212 extends ScalacName212 {
+class WarmScalacTyper212 extends ScalacTyper212 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -59,7 +59,7 @@ class WarmScalacName212 extends ScalacName212 {
 @Warmup(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 3, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class HotScalacName212 extends ScalacName212 {
+class HotScalacTyper212 extends ScalacTyper212 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
