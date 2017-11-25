@@ -40,17 +40,17 @@ We have run 11 families of benchmarks:
     and Stdlib.scala with -Ystop-after:schedule.
   * RscSchedule: run the output of rscJVM/compile on re2s and Stdlib.scala
     with -Ystop-after:schedule.
-  * ScalacName211: run Scalac 2.11.11 on re2s
+  * ScalacNamer211: run Scalac 2.11.11 on re2s
     with -d tempdir -usejavacp -Ystop-after:namer.
-  * ScalacName212: run Scalac 2.12.4 on re2s
+  * ScalacNamer212: run Scalac 2.12.4 on re2s
     with -d tempdir -usejavacp -Ystop-after:namer.
   * RscNativeTypecheck: run the output of rscNative/nativeLink on re2s
     and Stdlib.scala with -Ystop-after:typecheck.
   * RscTypecheck: run the output of rscJVM/compile on re2s and Stdlib.scala
     with -Ystop-after:typecheck.
-  * ScalacTypecheck211: run Scalac 2.11.11 on re2s
+  * ScalacTyper211: run Scalac 2.11.11 on re2s
     with -d tempdir -usejavacp -Ystop-after:typer.
-  * ScalacTypecheck212: run Scalac 2.12.4 on re2s
+  * ScalacTyper212: run Scalac 2.12.4 on re2s
     with -d tempdir -usejavacp -Ystop-after:typer.
   * ScalacCompile211: run Scalac 2.11.11 on re2s
     with -d tempdir -usejavacp.
@@ -110,12 +110,12 @@ To reproduce, run `sbt bench` (this will take a while).
     <td>10.945 ± 0.008 ms</td>
   </tr>
   <tr>
-    <td>ScalacName211</td>
+    <td>ScalacNamer211</td>
     <td>1179.715 ± 2.818 ms</td>
     <td>62.111 ± 0.099 ms</td>
   </tr>
   <tr>
-    <td>ScalacName212</td>
+    <td>ScalacNamer212</td>
     <td>1642.299 ± 2.927 ms</td>
     <td>27.683 ± 0.029 ms</td>
   </tr>
@@ -137,12 +137,12 @@ To reproduce, run `sbt bench` (this will take a while).
     <td>33.650 ± 0.016 ms</td>
   </tr>
   <tr>
-    <td>ScalacTypecheck211</td>
+    <td>ScalacTyper211</td>
     <td>4295.242 ± 24.084 ms</td>
     <td>707.156 ± 1.441 ms</td>
   </tr>
   <tr>
-    <td>ScalacTypecheck212</td>
+    <td>ScalacTyper212</td>
     <td>5167.287 ± 24.531 ms</td>
     <td>610.896 ± 1.594 ms</td>
   </tr>

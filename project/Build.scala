@@ -43,11 +43,11 @@ object Build extends AutoPlugin {
         s"benchRscJVM/jmh:run ${benches.mkString(" ")}"
       }
       private def benchScalac(version: String) = {
-        val name = List("ColdScalacName", "HotScalacName")
-        val typecheck = List("ColdScalacTypecheck", "HotScalacTypecheck")
+        val namer = List("ColdScalacNamer", "HotScalacNamer")
+        val typer = List("ColdScalacTyper", "HotScalacTyper")
         val compile = List("ColdScalacCompile", "HotScalacCompile")
-        val unversionedBenches = name ++ typecheck ++ compile
-        val benches = unversionedBenches.map(name => name + version)
+        val unversionedBenches = namer ++ typer ++ compile
+        val benches = unversionedBenches.map(bench => bench + version)
         s"benchScalac${version}/jmh:run ${benches.mkString(" ")}"
       }
       private val benchScalac211 = benchScalac("211")

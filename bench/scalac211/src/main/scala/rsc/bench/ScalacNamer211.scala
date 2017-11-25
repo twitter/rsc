@@ -8,18 +8,18 @@ import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.annotations.Mode._
 import scala.tools.nsc._
 import scala.tools.nsc.reporters._
-import rsc.bench.ScalacTypecheck212._
+import rsc.bench.ScalacNamer211._
 
-object ScalacTypecheck212 {
+object ScalacNamer211 {
   @State(Scope.Benchmark)
   class BenchmarkState extends FileFixtures
 }
 
-trait ScalacTypecheck212 {
+trait ScalacNamer211 {
   def runImpl(bs: BenchmarkState): Unit = {
     val settings = new Settings
     settings.outdir.value = Files.createTempDirectory("scalac_").toString
-    settings.stopAfter.value = List("typer")
+    settings.stopAfter.value = List("namer")
     settings.usejavacp.value = true
     val reporter = new StoreReporter
     val global = Global(settings, reporter)
@@ -27,7 +27,7 @@ trait ScalacTypecheck212 {
     run.compile(bs.re2sScalacFiles.map(_.toString))
     if (reporter.hasErrors) {
       reporter.infos.foreach(println)
-      sys.error("typecheck failed")
+      sys.error("name failed")
     }
   }
 }
@@ -35,7 +35,7 @@ trait ScalacTypecheck212 {
 @BenchmarkMode(Array(SingleShotTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Fork(value = 128, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class ColdScalacTypecheck212 extends ScalacTypecheck212 {
+class ColdScalacNamer211 extends ScalacNamer211 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -47,7 +47,7 @@ class ColdScalacTypecheck212 extends ScalacTypecheck212 {
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 1, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class WarmScalacTypecheck212 extends ScalacTypecheck212 {
+class WarmScalacNamer211 extends ScalacNamer211 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
@@ -59,7 +59,7 @@ class WarmScalacTypecheck212 extends ScalacTypecheck212 {
 @Warmup(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 3, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class HotScalacTypecheck212 extends ScalacTypecheck212 {
+class HotScalacNamer211 extends ScalacNamer211 {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
