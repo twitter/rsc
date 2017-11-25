@@ -40,7 +40,7 @@ class ColdRscTypecheck extends RscTypecheck {
 @Warmup(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 1, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 1, jvmArgs = Array("-Xms2G", "-Xmx2G"))
-class WarmRscTypecheck extends RscTypecheck {
+class QuickRscTypecheck extends RscTypecheck {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
     runImpl(bs)
