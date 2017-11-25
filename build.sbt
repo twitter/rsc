@@ -4,7 +4,10 @@ val versions = new {
   val uTest = "0.6.0"
 }
 
-addCommandAlias("bench", s";clean ;${nightly.benches}")
+addCommandAlias("bench", benches.all)
+addCommandAlias("benchJvm", benches.jvm)
+addCommandAlias("benchNative", benches.native)
+addCommandAlias("benchNightly", benches.nightly)
 addCommandAlias("ci", ";scalafmtTest ;clean ;testsJVM/test ;testsNative/test")
 lazy val isCI = sys.props.getOrElse("CI", default = "false") == "true"
 
