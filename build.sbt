@@ -107,6 +107,7 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
   )
   .nativeSettings(
     nativeSettings,
+    nativeMode := "debug",
     libraryDependencies += "com.lihaoyi" %%% "utest" % versions.uTest,
     libraryDependencies += "com.lihaoyi" %%% "utest" % versions.uTest % "test"
   )
