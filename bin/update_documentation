@@ -39,16 +39,37 @@ props["Generator"] = os.path.relpath(binary_path, repo_path)
 print "Computing hardware props..."
 if sys.platform == "darwin":
   props["Cpu"] = shell("sysctl -n machdep.cpu.brand_string")
-  props["TurboBoost"] = "Turbo Boost enabled"
   props["PhysicalCores"] = shell("sysctl -n hw.physicalcpu")
   props["LogicalCores"] = shell("sysctl -n hw.logicalcpu")
   props["L1dCache"] = str(int(shell("sysctl -n hw.l1dcachesize"))/1024) + "KB"
   props["L1iCache"] = str(int(shell("sysctl -n hw.l1icachesize"))/1024) + "KB"
   props["L2Cache"] = str(int(shell("sysctl -n hw.l2cachesize"))/1024) + "KB"
-  props["L3Cache"] = str(int(shell("sysctl -n hw.l3cachesize"))/(1024*1024)) + "MB"
+  props["L3Cache"] = str(int(shell("sysctl -n hw.l3cachesize"))/1024) + "KB"
+  props["TurboBoost"] = "Turbo Boost enabled"
   props["Ram"] = str(int(shell("sysctl -n hw.memsize"))/(1024*1024*1024)) + "GB"
   props["DiskDrive"] = shell("system_profiler SPSerialATADataType | grep Model | awk -F':' '{print $2}'")
   props["OperatingSystem"] = "macOS " + shell("defaults read loginwindow SystemVersionStampAsString")
+elif sys.platform.startswith("linux"):
+  props["Cpu"] = shell("lscpu | grep '^Model name' | awk -F':' '{print $2}'")
+  props["PhysicalCores"] = shell("lscpu | grep '^CPU(s):' | awk -F':' '{print $2}'")
+  threads_per_core = shell("lscpu | grep '^Thread(s) per core:' | awk -F':' '{print $2}'")
+  props["LogicalCores"] = str(int(props["PhysicalCores"]) * int(threads_per_core))
+  props["L1dCache"] = shell("lscpu | grep '^L1d cache:' | awk -F':' '{print $2}'") + "B"
+  props["L1iCache"] = shell("lscpu | grep '^L1i cache:' | awk -F':' '{print $2}'") + "B"
+  props["L2Cache"] = shell("lscpu | grep '^L2 cache:' | awk -F':' '{print $2}'") + "B"
+  props["L3Cache"] = shell("lscpu | grep '^L3 cache:' | awk -F':' '{print $2}'") + "B"
+  def turbo_boost():
+    curr_core = 0
+    max_cores = int(props["PhysicalCores"])
+    while curr_core < max_cores:
+      turbo_boost_off = shell("sudo rdmsr -p" + str(curr_core) + " 0x1a0 -f 38:38")
+      if turbo_boost_off == "0": return "Turbo Boost enabled"
+      curr_core += 1
+    return "Turbo Boost disabled"
+  props["TurboBoost"] = turbo_boost()
+  props["Ram"] = "{0:.0f}".format(int(shell("cat /proc/meminfo | grep '^MemTotal:' | awk -F' ' '{print $2}'"))/(1024 * 1024)) + "GB"
+  props["DiskDrive"] = shell("cat /sys/class/block/sda/device/model")
+  props["OperatingSystem"] = shell("lsb_release -a 2>&1 | grep '^Description:' | awk -F':' '{print $2}'")
 else:
   raise Exception("unsupported platform " + sys.platform)
 
