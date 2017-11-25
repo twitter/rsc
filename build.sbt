@@ -30,6 +30,12 @@ lazy val benchSettings = commonSettings ++ Seq(
   )
 )
 
+lazy val nativeSettings = Seq(
+  nativeGC := "immix",
+  nativeMode := "release",
+  nativeLinkStubs := true
+)
+
 lazy val benchJavac18 = project
   .in(file("bench/javac18"))
   .enablePlugins(BuildInfoPlugin)
@@ -46,6 +52,7 @@ lazy val benchRsc = crossProject(JVMPlatform, NativePlatform)
     benchCliRscNative("Schedule"),
     benchCliRscNative("Typecheck")
   )
+  .nativeSettings(nativeSettings)
   .settings(benchSettings)
 lazy val benchRscJVM = benchRsc.jvm
 lazy val benchRscNative = benchRsc.native
@@ -78,10 +85,7 @@ lazy val rsc = crossProject(JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("rsc"))
   .enablePlugins(BuildInfoPlugin)
-  .nativeSettings(
-    nativeLinkStubs := true,
-    nativeGC := "immix"
-  )
+  .nativeSettings(nativeSettings)
   .settings(
     commonSettings,
     buildInfoPackage := "rsc.internal",
@@ -102,10 +106,9 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
     libraryDependencies += "com.lihaoyi" %% "utest" % versions.uTest % "test"
   )
   .nativeSettings(
+    nativeSettings,
     libraryDependencies += "com.lihaoyi" %%% "utest" % versions.uTest,
-    libraryDependencies += "com.lihaoyi" %%% "utest" % versions.uTest % "test",
-    nativeLinkStubs := true,
-    nativeGC := "immix"
+    libraryDependencies += "com.lihaoyi" %%% "utest" % versions.uTest % "test"
   )
   .settings(
     commonSettings,
