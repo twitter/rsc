@@ -1,124 +1,156 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import collections, os, re, string, sys
+import os, re, string, sys
+from subprocess import check_output
 
 if len(sys.argv) != 2:
   print "usage: " + sys.argv[0] + " <sbt_bench_stdout>"
   sys.exit(1)
+def slurp(path):
+  with open(path, "r") as file: return file.read()
+sbt_bench_path = sys.argv[1]
+print "Reading " + sbt_bench_path + "..."
+sbt_bench_stdout = slurp(sbt_bench_path)
 
-sbt_bench_stdout = ""
-with open(sys.argv[1], "r") as sbt_bench_stdout_file:
-  sbt_bench_stdout = sbt_bench_stdout_file.read()
+def check_exists(path):
+  if not os.path.exists(path): raise Exception(path + " does not exist")
+  return path
+binary_path = check_exists(os.path.abspath(sys.argv[0]))
+repo_path = check_exists(os.path.dirname(os.path.dirname(binary_path)))
+bench_path = check_exists(os.path.join(repo_path, "bench"))
+clibench_path = check_exists(os.path.join(repo_path, "bench/rsc/shared/src/main/scala/rsc/bench/CliBench.scala"))
+docs_path = check_exists(os.path.join(repo_path, "docs"))
+re2j_path = check_exists(os.path.join(repo_path, "examples/re2j/src/main/java/java/util/regex"))
+re2s_path = check_exists(os.path.join(repo_path, "examples/re2s/src/main/scala/java/util/regex"))
+properties_path = check_exists(os.path.join(repo_path, "project", "build.properties"))
+plugins_path = check_exists(os.path.join(repo_path, "project", "plugins.sbt"))
+stdlib_path = check_exists(os.path.join(repo_path, "stdlib/src/main/scala/Stdlib.scala"))
+build_path = check_exists(os.path.join(repo_path, "build.sbt"))
 
-results_section_template = string.Template("""
-## Results
+def shell(command):
+  result = check_output(command, shell=True, cwd=repo_path).strip()
+  if not result: raise Exception("empty output of " + command)
+  return result
 
-To reproduce, run `sbt bench` (this will take a while).
+props = {}
+props["Generator"] = os.path.relpath(binary_path, repo_path)
+# props["Template"] is set elsewhere
 
-<table>
-  <th>
-    <td>Cold</td>
-    <td>Hot</td>
-  </th>
-  <tr>
-    <td width="208px">RscNativeSchedule</td>
-    <td width="208px">$ColdRscNativeSchedule</td>
-    <td width="208px">$HotRscNativeSchedule</td>
-  </tr>
-  <tr>
-    <td>RscSchedule</td>
-    <td>$ColdRscSchedule</td>
-    <td>$HotRscSchedule</td>
-  </tr>
-  <tr>
-    <td>ScalacNamer211</td>
-    <td>1179.715 ± 2.818 ms</td>
-    <td>62.111 ± 0.099 ms</td>
-  </tr>
-  <tr>
-    <td>ScalacNamer212</td>
-    <td>1642.299 ± 2.927 ms</td>
-    <td>27.683 ± 0.029 ms</td>
-  </tr>
-</table>
+print "Computing hardware props..."
+if sys.platform == "darwin":
+  props["Cpu"] = shell("sysctl -n machdep.cpu.brand_string")
+  props["TurboBoost"] = "Turbo Boost enabled"
+  props["PhysicalCores"] = shell("sysctl -n hw.physicalcpu")
+  props["LogicalCores"] = shell("sysctl -n hw.logicalcpu")
+  props["L1dCache"] = str(int(shell("sysctl -n hw.l1dcachesize"))/1024) + "KB"
+  props["L1iCache"] = str(int(shell("sysctl -n hw.l1icachesize"))/1024) + "KB"
+  props["L2Cache"] = str(int(shell("sysctl -n hw.l2cachesize"))/1024) + "KB"
+  props["L3Cache"] = str(int(shell("sysctl -n hw.l3cachesize"))/(1024*1024)) + "MB"
+  props["Ram"] = str(int(shell("sysctl -n hw.memsize"))/(1024*1024*1024)) + "GB"
+  props["DiskDrive"] = shell("system_profiler SPSerialATADataType | grep Model | awk -F':' '{print $2}'")
+  props["OperatingSystem"] = "macOS " + shell("defaults read loginwindow SystemVersionStampAsString")
+else:
+  raise Exception("unsupported platform " + sys.platform)
 
-<table>
-  <th>
-    <td>Cold</td>
-    <td>Hot</td>
-  </th>
-  <tr>
-    <td width="208px">RscNativeTypecheck</td>
-    <td width="208px">$ColdRscNativeTypecheck</td>
-    <td width="208px">$HotRscNativeTypecheck</td>
-  </tr>
-  <tr>
-    <td>RscTypecheck</td>
-    <td>$ColdRscTypecheck</td>
-    <td>$HotRscTypecheck</td>
-  </tr>
-  <tr>
-    <td>ScalacTyper211</td>
-    <td>4295.242 ± 24.084 ms</td>
-    <td>707.156 ± 1.441 ms</td>
-  </tr>
-  <tr>
-    <td>ScalacTyper212</td>
-    <td>5167.287 ± 24.531 ms</td>
-    <td>610.896 ± 1.594 ms</td>
-  </tr>
-</table>
+print "Computing software props..."
+props["Jre"] = shell("java -version 2>&1 | head -n 2 | tail -1")
+props["Scalac211"] = "Scalac " + shell("grep scala211 " + build_path + " | head -n 1 | awk -F'\"' '{print $2}'")
+props["Scalac212"] = "Scalac " + shell("grep scala212 " + build_path + " | head -n 1 | awk -F'\"' '{print $2}'")
+props["Javac"] = shell("javac -version 2>&1")
+props["CliBenchPath"] = os.path.relpath(clibench_path, docs_path)
+props["Sbt"] = "sbt " + shell("grep sbt.version " + properties_path + " | awk -F'=' '{print $2}'")
+props["SbtJmh"] = "sbt-jmh " + shell("grep sbt-jmh " + plugins_path + " | awk -F'\"' '{print $6}'")
 
-<table>
-  <th>
-    <td>Cold</td>
-    <td>Hot</td>
-  </th>
-  <tr>
-    <td width="208px">ScalacCompile211</td>
-    <td width="208px">8047.402 ± 43.037 ms</td>
-    <td width="208px">1702.511 ± 10.349 ms</td>
-  </tr>
-  <tr>
-    <td>ScalacCompile212</td>
-    <td>9456.717 ± 45.414 ms</td>
-    <td>1630.761 ± 10.607 ms</td>
-  </tr>
-  <tr>
-    <td>JavacCompile</td>
-    <td>801.029 ± 4.258 ms</td>
-    <td>73.772 ± 0.153 ms</td>
-  </tr>
-</table>
-""")
+print "Computing miscellaneous props..."
+props["Re2jPath"] = os.path.relpath(re2j_path, docs_path)
+props["Re2jLoc"] = shell("cloc --quiet --csv " + re2j_path + " | grep Java | awk -F',' '{print $3+$4+$5}'")
+props["Re2sPath"] = os.path.relpath(re2s_path, docs_path)
+props["StdlibPath"] = os.path.relpath(stdlib_path, docs_path)
+props["Re2sScalacLoc"] = shell("cloc --quiet --csv " + re2s_path + " | grep Scala | awk -F',' '{print $3+$4+$5}'")
+props["StdlibLoc"] = shell("cloc --quiet --csv " + stdlib_path + " | grep Scala | awk -F',' '{print $3+$4+$5}'")
+props["Re2sRscLoc"] = str(int(props["Re2sScalacLoc"]) + int(props["StdlibLoc"]))
+props["BenchCommand"] = "sbt bench"
 
-results_keys = re.findall("\$(\w+)", results_section_template.template)
-results_dict = {}
-for results_key in results_keys:
-  m = re.search(results_key + "\.run\s+\w+\s+\d+(.*?)ms/op", sbt_bench_stdout)
-  results_value = m.groups()[0].strip() + " ms" if m else "N/A"
-  results_value = results_value.replace("  ", " ")
-  results_dict[results_key] = results_value
-
-results_dict = collections.defaultdict(lambda: "N/A", results_dict)
-results_section = results_section_template.substitute(results_dict)
-
-repo_root = os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0])))
-performance_md_path = os.path.join(repo_root, "docs", "performance.md")
-performance_md_lines = []
-with open(performance_md_path, "r") as performance_md_file:
-  skip_section = False
-  for line in performance_md_file:
-    if skip_section and not line.startswith("#"):
-      pass
+def find_bench_path(bench):
+  paths = shell("find " + bench_path + " -name '" + bench + ".scala'").split("\n")
+  if len(paths) == 1: return paths[0]
+  else: raise Exception("can't find " + bench + ".scala in " + bench_path)
+def find_bench_result(mode, bench):
+  name = mode + bench
+  m = re.search(name + "\.run\s+\w+\s+\d+(.*?)ms/op", sbt_bench_stdout)
+  if m:
+    return m.groups()[0].strip() + " ms"
+  else:
+    precomputed_results = {}
+    precomputed_results["ColdScalacNamer211"] = "1179.715 ± 2.818 ms"
+    precomputed_results["HotScalacNamer211"] = "62.111 ± 0.099 ms"
+    precomputed_results["ColdScalacNamer212"] = "1642.299 ± 2.927 ms"
+    precomputed_results["HotScalacNamer212"] = "27.683 ± 0.029 ms"
+    precomputed_results["ColdScalacTyper211"] = "4295.242 ± 24.084 ms"
+    precomputed_results["HotScalacTyper211"] = "707.156 ± 1.441 ms"
+    precomputed_results["ColdScalacTyper212"] = "5167.287 ± 24.531 ms"
+    precomputed_results["HotScalacTyper212"] = "610.896 ± 1.594 ms"
+    precomputed_results["ColdScalacCompile211"] = "8047.402 ± 43.037 ms"
+    precomputed_results["HotScalacCompile211"] = "1702.511 ± 10.349 ms"
+    precomputed_results["ColdScalacCompile212"] = "9456.717 ± 45.414 ms"
+    precomputed_results["HotScalacCompile212"] = "1630.761 ± 10.607 ms"
+    precomputed_results["ColdJavacCompile"] = "801.029 ± 4.258 ms"
+    precomputed_results["HotJavacCompile"] = "73.772 ± 0.153 ms"
+    if name in precomputed_results:
+      print "Using precomputed result for " + name + "..."
+      return precomputed_results[name]
     else:
-      skip_section = False
-      if line == "## Results\n":
-        skip_section = True
-        performance_md_lines.append(results_section.strip() + "\n")
-      else:
-        performance_md_lines.append(line)
+      raise Exception("can't find " + name + " in " + sbt_bench_path)
+def populate_bench_props(bench):
+  props[bench + "Bench"] = bench
+  props[bench + "Path"] = os.path.relpath(find_bench_path(bench), docs_path)
+  props["Cold" + bench + "Result"] = find_bench_result("Cold", bench)
+  props["Hot" + bench + "Result"] = find_bench_result("Hot", bench)
+print "Computing benchmark props..."
+populate_bench_props("RscNativeSchedule")
+populate_bench_props("RscSchedule")
+populate_bench_props("ScalacNamer211")
+populate_bench_props("ScalacNamer212")
+populate_bench_props("RscNativeTypecheck")
+populate_bench_props("RscTypecheck")
+populate_bench_props("ScalacTyper211")
+populate_bench_props("ScalacTyper212")
+populate_bench_props("ScalacCompile211")
+populate_bench_props("ScalacCompile212")
+populate_bench_props("JavacCompile")
 
-with open(performance_md_path, "w") as performance_md_file:
-  for line in performance_md_lines:
-    performance_md_file.write(line)
+print "Computing summary props..."
+def compute_bench_score(name):
+  result = props[name + "Result"]
+  m = re.search("^(.*?)\s", result)
+  if m: return float(m.groups()[0])
+  else: raise Exception("can't compute " + name + " from props")
+cold_rsc_native_typecheck = compute_bench_score("ColdRscNativeTypecheck")
+cold_rsc_typecheck = compute_bench_score("ColdRscTypecheck")
+hot_rsc_typecheck = compute_bench_score("HotRscTypecheck")
+hot_scalac_typer211 = compute_bench_score("HotScalacTyper211")
+hot_scalac_typer212 = compute_bench_score("HotScalacTyper212")
+hot_scalac_typer = (hot_scalac_typer211 + hot_scalac_typer212) / 2
+hot_javac_compile = compute_bench_score("HotJavacCompile")
+speedup_over_scalac_typer = hot_scalac_typer/hot_rsc_typecheck
+if speedup_over_scalac_typer >= 5: props["SpeedupOverScalacTyper"] = "{0:.0f}".format(speedup_over_scalac_typer)
+else: raise Exception("rsc typecheck is less than 5x faster than scalac typer; time to update README.md and the summary in docs/performance.tmpl?")
+speedup_over_rsc_jvm = cold_rsc_typecheck/cold_rsc_native_typecheck
+if speedup_over_rsc_jvm > 1: props["SpeedupOverRscJVM"] = "{0:.1f}".format(speedup_over_rsc_jvm)
+else: raise Exception("rsc native typecheck is slower than rsc typecheck; time to update the summary in docs/performance.tmpl?")
+speedup_over_javac_compile = hot_javac_compile/hot_rsc_typecheck
+if speedup_over_javac_compile > 1: props["SpeedupOverJavacCompile"] = "{0:.0f}".format(speedup_over_javac_compile)
+else: raise Exception("rsc typecheck is slower than javac compile; time to update the summary in docs/performance.tmpl?")
+
+for file_name in os.listdir(docs_path):
+  file_path = os.path.join(docs_path, file_name)
+  (file_base, file_ext) = os.path.splitext(file_path)
+  if file_ext == ".tmpl":
+    tmpl_path = file_path
+    print "Reading " + tmpl_path + "..."
+    tmpl_contents = slurp(tmpl_path)
+    props["Template"] = os.path.relpath(tmpl_path, repo_path)
+    doc_path = file_base + ".md"
+    doc_contents = string.Template(tmpl_contents).substitute(props)
+    print "Writing " + doc_path + "..."
+    with open(doc_path, "w") as doc_file: doc_file.write(doc_contents)
