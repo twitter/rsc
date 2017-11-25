@@ -106,8 +106,8 @@ To reproduce, run `sbt bench` (this will take a while).
   </th>
   <tr>
     <td width="208px">RscNativeSchedule</td>
-    <td width="208px">134.118 ms</td>
-    <td width="208px">121.640 ms</td>
+    <td width="208px">84.909 ms</td>
+    <td width="208px">51.713 ms</td>
   </tr>
   <tr>
     <td>RscSchedule</td>
@@ -133,8 +133,8 @@ To reproduce, run `sbt bench` (this will take a while).
   </th>
   <tr>
     <td width="208px">RscNativeTypecheck</td>
-    <td width="208px">302.570 ms</td>
-    <td width="208px">284.908 ms</td>
+    <td width="208px">299.959 ms</td>
+    <td width="208px">239.156 ms</td>
   </tr>
   <tr>
     <td>RscTypecheck</td>
@@ -184,7 +184,7 @@ To reproduce, run `sbt bench` (this will take a while).
   * Scala Native has clearly succeeded in its goal of speeding
     up startup time of Scala applications. In cold benchmarks that are
     representative of running programs in command line, Rsc Native has a
-    up to a ~2.5x edge over vanilla Rsc.
+    up to a ~4x edge over vanilla Rsc.
   * In the benchmarks above, all compilers are run in single-threaded mode.
     However, unlike Scalac and Javac that are inherently single-threaded,
     [Rsc was designed to enable massive parallelism](compiler.md). In the near
