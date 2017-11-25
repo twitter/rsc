@@ -5,7 +5,7 @@ val versions = new {
 }
 
 addCommandAlias("bench", benches.all)
-addCommandAlias("benchJvm", benches.jvm)
+addCommandAlias("benchJVM", benches.jvm)
 addCommandAlias("benchNative", benches.native)
 addCommandAlias("benchNightly", benches.nightly)
 addCommandAlias("ci", ";scalafmtTest ;clean ;testsJVM/test ;testsNative/test")
