@@ -11,16 +11,16 @@ this goal.
 ## Hardware
 
 All benchmarks run on a computer with
-Intel(R) Core(TM) i7-4980HQ CPU @ 2.80GHz (4x32KB+32KB L1 cache,
-4x256KB L2 cache, 6MB L3 cache,
+Intel(R) Core(TM) i7-4770 CPU @ 3.40GHz (4x32KB+32KB L1 cache,
+4x256KB L2 cache, 8192KB L3 cache,
 configured to run 4 physical cores and
-8 logical cores with Turbo Boost enabled),
-16GB RAM and APPLE SSD SM0256G disk drive.
+4 logical cores with Turbo Boost disabled),
+31GB RAM and Crucial_CT240M50 disk drive.
 
 ## Software
 
-In our benchmarks, we use macOS 10.11.6 and Java(TM) SE Runtime Environment (build 1.8.0_111-b14)
-to run the current version of Rsc, Scalac 2.11.11, Scalac 2.12.4 and javac 1.8.0_111.
+In our benchmarks, we use Debian GNU/Linux 9.2 (stretch) and Java(TM) SE Runtime Environment (build 1.8.0_151-b12)
+to run the current version of Rsc, Scalac 2.11.11, Scalac 2.12.4 and javac 1.8.0_151.
 To benchmark native applications, we use [our own microbenchmark harness](../bench/rsc/shared/src/main/scala/rsc/bench/CliBench.scala).
 To benchmark JVM applications, we use sbt-jmh 0.2.25 that runs in sbt 0.13.16.
 
