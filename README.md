@@ -42,7 +42,7 @@ as a tractable foundation for our performance work
 [Scalameta](https://github.com/scalameta/scalameta)-inspired trees and
 [Kentucky Mule](https://github.com/gkossakowski/kentuckymule)-inspired
 architecture
-* We benchmarked our typechecker, and it turned out to be
+* We benchmarked our prototype typechecker, and it turned out to be
 [significantly faster than the full Scalac typechecker](docs/performance.md)
 * We will be carefully expanding the scope of Rsc
 according to [our roadmap](../../milestones)
