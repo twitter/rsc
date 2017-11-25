@@ -83,16 +83,12 @@ well as JMH configurations for all benchmarks were inspired by
 
 ## Disclaimer
 
-At this point, Rsc only supports [a small subset of Scala](language.md).
-Moreover, Rsc only loads stubs instead of fully loading metadata from
-the standard library jars. Finally, [our typechecker](compiler.md) is just
-a prototype that only resolves names instead of fully typechecking code
-
-Therefore, performance numbers that you will see below may significantly
-deteriorate as we will be implementing more and more functionality of
-the Scala compiler. Nonetheless, we believe that these numbers are
-very much worth sharing, as they represent a novel take on measuring
-the limits of Scala compilation speed.
+At this point, [Rsc only implements a subset of functionality provided by the
+Scala compiler](compiler.md#summary). Therefore, performance numbers found below
+may significantly deteriorate as we will be implementing more and more
+functionality of the Scala compiler. Moreover, direct comparisons
+of Rsc and Scalac performance numbers must take into account the difference
+in provided functionality as explained above.
 
 ## Results
 
