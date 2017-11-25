@@ -20,7 +20,7 @@ configured to run 4 physical cores and
 ## Software
 
 In our benchmarks, we use Debian GNU/Linux 9.2 (stretch) and Java(TM) SE Runtime Environment (build 1.8.0_151-b12)
-to run the current version of Rsc, Scalac 2.11.11, Scalac 2.12.4 and javac 1.8.0_151.
+to run the current version of Rsc, Scalac 2.11.12, Scalac 2.12.4 and javac 1.8.0_151.
 To benchmark native applications, we use [our own microbenchmark harness](../bench/rsc/shared/src/main/scala/rsc/bench/CliBench.scala).
 To benchmark JVM applications, we use sbt-jmh 0.2.25 that runs in sbt 0.13.16.
 
@@ -64,13 +64,13 @@ To reproduce, run `bin/bench` (this will take a while).
   </th>
   <tr>
     <td width="208px"><a href="../bench/rsc/jvm/src/main/scala/rsc/bench/RscNativeSchedule.scala">RscNativeSchedule</a></td>
-    <td width="208px">52.243 ms</td>
-    <td width="208px">38.617 ms</td>
+    <td width="208px">52.206 ms</td>
+    <td width="208px">38.896 ms</td>
   </tr>
   <tr>
     <td><a href="../bench/rsc/jvm/src/main/scala/rsc/bench/RscSchedule.scala">RscSchedule</a></td>
-    <td>336.474 ± 1.364 ms</td>
-    <td>10.596 ± 0.007 ms</td>
+    <td>336.952 ± 1.266 ms</td>
+    <td>10.408 ± 0.007 ms</td>
   </tr>
   <tr>
     <td><a href="../bench/scalac211/src/main/scala/rsc/bench/ScalacNamer211.scala">ScalacNamer211</a></td>
@@ -91,13 +91,13 @@ To reproduce, run `bin/bench` (this will take a while).
   </th>
   <tr>
     <td width="208px"><a href="../bench/rsc/jvm/src/main/scala/rsc/bench/RscNativeTypecheck.scala">RscNativeTypecheck</a></td>
-    <td width="208px">97.738 ms</td>
-    <td width="208px">70.501 ms</td>
+    <td width="208px">96.047 ms</td>
+    <td width="208px">69.400 ms</td>
   </tr>
   <tr>
     <td><a href="../bench/rsc/jvm/src/main/scala/rsc/bench/RscTypecheck.scala">RscTypecheck</a></td>
-    <td>446.065 ± 2.206 ms</td>
-    <td>26.824 ± 0.011 ms</td>
+    <td>445.059 ± 2.189 ms</td>
+    <td>27.205 ± 0.016 ms</td>
   </tr>
   <tr>
     <td><a href="../bench/scalac211/src/main/scala/rsc/bench/ScalacTyper211.scala">ScalacTyper211</a></td>
@@ -137,7 +137,7 @@ To reproduce, run `bin/bench` (this will take a while).
 
   * First and foremost, the current prototype of Rsc is significantly faster
     than full Scalac in both cold and hot benchmarks. Most impressively,
-    hot typechecking is ~25x faster
+    hot typechecking is ~24x faster
     [with the disclaimer provided above](performance.md#disclaimer).
   * Scala Native has clearly succeeded in its goal of speeding
     up startup time of Scala applications. In cold benchmarks that are
