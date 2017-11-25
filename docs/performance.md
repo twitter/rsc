@@ -83,12 +83,17 @@ well as JMH configurations for all benchmarks were inspired by
 
 ## Disclaimer
 
-At this point, [Rsc only implements a subset of functionality provided by the
-Scala compiler](compiler.md#summary). Therefore, performance numbers found below
-may significantly deteriorate as we will be implementing more and more
-functionality of the Scala compiler. Moreover, direct comparisons
-of Rsc and Scalac performance numbers must take into account the difference
-in provided functionality as explained above.
+At this point, Rsc only implements a subset of functionality provided by the
+Scala compiler. This means that the benchmark results provided below must
+be interpreted with utmost care. Concretely:
+  * Performance numbers may significantly deteriorate as we will be
+    implementing more and more functionality of the Scala compiler.
+    For example, adding support for classpath loading or implicit search
+    is very likely to slow down our compiler by a significant factor.
+  * Direct comparisons of Rsc and Scalac performance numbers should take
+    into account similarities and differences in provided functionality.
+    Consult [the summary in the "Compiler" document](compiler.md#summary)
+    for more information.
 
 ## Results
 
@@ -169,3 +174,24 @@ To reproduce, run `sbt bench` (this will take a while).
     <td>73.772 ± 0.153 ms</td>
   </tr>
 </table>
+
+## Comments
+
+  * First and foremost, the current prototype of Rsc is significantly faster
+    than full Scalac in both cold and hot benchmarks. Most impressively,
+    hot typechecking is ~20x faster
+    [with the disclaimer provided above](performance.md#disclaimer).
+  * Scala Native has clearly succeeded in its goal of speeding
+    up startup time of Scala applications. In cold benchmarks that are
+    representative of running programs in command line, Rsc Native has a
+    up to a ~2.5x edge over vanilla Rsc.
+  * In the benchmarks above, all compilers are run in single-threaded mode.
+    However, unlike Scalac and Javac that are inherently single-threaded,
+    [Rsc was designed to enable massive parallelism](compiler.md). In the near
+    future, we plan to leverage this unique feature of Rsc and parallelize
+    its pipeline.
+  * Finally, it was interesting to see that the current prototype of Rsc
+    typechecks re2s significantly faster than Javac compiles re2j,
+    [given the disclaimer provided above](performance.md#disclaimer).
+    As we will be adding more features to Rsc, we will be keeping an eye on how
+    this will affect compilation performance relative to Javac.
