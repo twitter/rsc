@@ -13,12 +13,10 @@ final class Outliner private (
     reporter: Reporter,
     symtab: Symtab) {
   def apply(env: Env, tpt: Tpt): Unit = {
-    reporter.pos = tpt.point
     assignUids(env, tpt.atoms)
   }
 
   def apply(env: Env, mod: Mod): Unit = {
-    reporter.pos = mod.point
     mod match {
       case ModPrivate(Some(id: SomeId)) =>
         assignUids(env, id.atoms)

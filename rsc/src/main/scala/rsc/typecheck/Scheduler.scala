@@ -14,7 +14,6 @@ final class Scheduler private (
     symtab: Symtab,
     todo: Todo) {
   def apply(env: Env, tree: Tree): Env = {
-    reporter.pos = tree.point
     tree match {
       case tree: DefnDef => defnDef(env, tree)
       case tree: DefnField => defnField(env, tree)

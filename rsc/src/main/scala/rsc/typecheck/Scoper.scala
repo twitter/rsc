@@ -19,14 +19,12 @@ final class Scoper private (
     }
     scope match {
       case scope: ImporterScope =>
-        reporter.pos = scope.tree.point
         trySucceed(env, scope)
       case scope: FlatScope =>
         unreachable(scope)
       case scope: PackageScope =>
         scope.succeed()
       case scope: TemplateScope =>
-        reporter.pos = scope.tree.point
         trySucceed(env, scope)
       case scope: SuperScope =>
         unreachable(scope)

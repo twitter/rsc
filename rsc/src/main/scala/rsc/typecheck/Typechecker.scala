@@ -14,38 +14,30 @@ final class Typechecker private (
     reporter: Reporter,
     symtab: Symtab) {
   def apply(env: Env, tree: Typeable): Type = {
-    if (tree.pos != NoPosition) {
-      val oldPos = reporter.pos
-      reporter.pos = tree.point
-      val result = tree match {
-        case tree: Init => init(env, tree)
-        case tree: TermApply => termApply(env, tree)
-        case tree: TermApplyInfix => termApplyInfix(env, tree)
-        case tree: TermApplyPrefix => termApplyPrefix(env, tree)
-        case tree: TermApplyType => termApplyType(env, tree)
-        case tree: TermAssign => termAssign(env, tree)
-        case tree: TermBlock => termBlock(env, tree)
-        case tree: TermFunction => termFunction(env, tree)
-        case tree: TermId => termId(env, tree)
-        case tree: TermIf => termIf(env, tree)
-        case tree: TermLit => termLit(env, tree)
-        case tree: TermMatch => termMatch(env, tree)
-        case tree: TermNew => termNew(env, tree)
-        case tree: TermReturn => termReturn(env, tree)
-        case tree: TermSelect => termSelect(env, tree)
-        case tree: TermSuper => termSuper(env, tree)
-        case tree: TermThis => termThis(env, tree)
-        case tree: TermThrow => termThrow(env, tree)
-        case tree: TermWhile => termWhile(env, tree)
-        case tree: TptApply => tptApply(env, tree)
-        case tree: TptId => tptId(env, tree)
-        case tree: TptSelect => tptSelect(env, tree)
-        case _ => unreachable(tree)
-      }
-      reporter.pos = oldPos
-      result
-    } else {
-      unreachable(tree)
+    tree match {
+      case tree: Init => init(env, tree)
+      case tree: TermApply => termApply(env, tree)
+      case tree: TermApplyInfix => termApplyInfix(env, tree)
+      case tree: TermApplyPrefix => termApplyPrefix(env, tree)
+      case tree: TermApplyType => termApplyType(env, tree)
+      case tree: TermAssign => termAssign(env, tree)
+      case tree: TermBlock => termBlock(env, tree)
+      case tree: TermFunction => termFunction(env, tree)
+      case tree: TermId => termId(env, tree)
+      case tree: TermIf => termIf(env, tree)
+      case tree: TermLit => termLit(env, tree)
+      case tree: TermMatch => termMatch(env, tree)
+      case tree: TermNew => termNew(env, tree)
+      case tree: TermReturn => termReturn(env, tree)
+      case tree: TermSelect => termSelect(env, tree)
+      case tree: TermSuper => termSuper(env, tree)
+      case tree: TermThis => termThis(env, tree)
+      case tree: TermThrow => termThrow(env, tree)
+      case tree: TermWhile => termWhile(env, tree)
+      case tree: TptApply => tptApply(env, tree)
+      case tree: TptId => tptId(env, tree)
+      case tree: TptSelect => tptSelect(env, tree)
+      case _ => unreachable(tree)
     }
   }
 
@@ -233,7 +225,6 @@ final class Typechecker private (
       case caseDef @ Case(pat, cond, stats) =>
         val scope = FlatScope("case")
         def loop(pat: Pat): Unit = {
-          reporter.pos = pat.point
           pat match {
             case pat: PatAlternative =>
               pat.pats.foreach(loop)
@@ -269,7 +260,6 @@ final class Typechecker private (
           }
         }
         loop(pat)
-        reporter.pos = caseDef.point
         scope.succeed()
         val env1 = scope :: env
         cond.foreach(apply(env1, _))
