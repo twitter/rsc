@@ -21,15 +21,13 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Pretty {
     for ((taskName, taskFn) <- tasks) {
       val start = System.nanoTime()
       try {
-        reporter.pos = NoPosition
         taskFn()
       } catch {
         case crash @ CrashException(pos, message, ex) =>
-          val pos1 = if (pos != NoPosition) pos else reporter.pos
           val ex1 = if (ex != null) ex else crash
-          reporter.append(CrashMessage(pos1, message, ex1))
+          reporter.append(CrashMessage(pos, message, ex1))
         case ex: Throwable =>
-          reporter.append(CrashMessage(reporter.pos, ex.getMessage, ex))
+          reporter.append(CrashMessage(NoPosition, ex.getMessage, ex))
       }
       val end = System.nanoTime()
       val ms = (end - start) / 1000000
@@ -83,7 +81,6 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Pretty {
   }
 
   private def link(): Unit = {
-    reporter.pos = NoPosition
     val linker = Linker(settings, reporter, symtab, todo)
     linker.apply(trees, settings.classpath)
   }
@@ -145,16 +142,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Pretty {
     val typechecker = Typechecker(settings, reporter, symtab)
     while (!todo.terms.isEmpty) {
       val (env, term) = todo.terms.remove()
-      try {
-        typechecker.apply(env, term)
-      } catch {
-        case crash @ CrashException(pos, message, ex) =>
-          val pos1 = if (pos != NoPosition) pos else reporter.pos
-          val ex1 = if (ex != null) ex else crash
-          reporter.append(CrashMessage(pos1, message, ex1))
-        case ex: Throwable =>
-          reporter.append(CrashMessage(reporter.pos, ex.getMessage, ex))
-      }
+      typechecker.apply(env, term)
     }
   }
 
