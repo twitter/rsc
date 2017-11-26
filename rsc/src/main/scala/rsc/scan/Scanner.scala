@@ -261,6 +261,7 @@ final class Scanner private (
       nextChar()
     }
     val parsee = {
+      val lexeme = this.lexeme
       if (lexeme.startsWith("-")) "-" + lexeme.substring(3)
       else lexeme.substring(2)
     }
