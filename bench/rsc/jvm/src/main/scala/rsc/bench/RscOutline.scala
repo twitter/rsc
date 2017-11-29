@@ -39,7 +39,7 @@ class ColdRscOutline extends RscOutline {
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
-@Fork(value = 3, jvmArgs = Array("-Xms2G", "-Xmx2G"))
+@Fork(value = 5, jvmArgs = Array("-Xms2G", "-Xmx2G"))
 class HotRscOutline extends RscOutline {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
