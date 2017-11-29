@@ -155,8 +155,9 @@ final class ImporterScope private (uid: Uid, val tree: Importer)
 
   private def remap(sid: Sid): Sid = {
     val value1 = {
-      if (_wildcard && !_mappings.containsKey(sid.value)) sid.value
-      else _mappings.get(sid.value)
+      val mapValue = _mappings.get(sid.value)
+      if (_wildcard && (mapValue == null)) sid.value
+      else mapValue
     }
     if (value1 != null) {
       sid match {
