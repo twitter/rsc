@@ -51,7 +51,7 @@ class QuickRscTypecheck extends RscTypecheck {
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
-@Fork(value = 3, jvmArgs = Array("-Xms2G", "-Xmx2G"))
+@Fork(value = 5, jvmArgs = Array("-Xms2G", "-Xmx2G"))
 class HotRscTypecheck extends RscTypecheck {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {

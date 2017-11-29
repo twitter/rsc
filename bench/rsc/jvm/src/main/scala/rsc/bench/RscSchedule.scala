@@ -39,7 +39,7 @@ class ColdRscSchedule extends RscSchedule {
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 10, time = 10, timeUnit = TimeUnit.SECONDS)
-@Fork(value = 3, jvmArgs = Array("-Xms2G", "-Xmx2G"))
+@Fork(value = 5, jvmArgs = Array("-Xms2G", "-Xmx2G"))
 class HotRscSchedule extends RscSchedule {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
