@@ -10,6 +10,12 @@ sealed trait Sid extends Pretty with Product {
   def printRepl(p: Printer): Unit = PrettySid.repl(p, this)
 }
 
-final case class SomeSid(value: String) extends Sid
-final case class TermSid(value: String) extends Sid
-final case class TypeSid(value: String) extends Sid
+final case class SomeSid(value: String) extends Sid {
+  override val hashCode: Int = value.hashCode * 3
+}
+final case class TermSid(value: String) extends Sid {
+  override val hashCode: Int = value.hashCode * 5
+}
+final case class TypeSid(value: String) extends Sid {
+  override val hashCode: Int = value.hashCode * 7
+}
