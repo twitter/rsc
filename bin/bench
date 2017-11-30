@@ -1,0 +1,56 @@
+#!/usr/bin/env python
+import os, re, subprocess, signal, sys, tempfile, time
+
+def fail():
+  print "usage: " + sys.argv[0] + " <suite>"
+  print ""
+  print "Supported bench suites:"
+  print "  * All: reproduces docs/performance.md"
+  print "  * CI: Rsc-specific subset of All that is run for every commit in CI"
+  print "  * Quick: Lightweight subset of CI that should be used for sanity checks"
+  sys.exit(1)
+if len(sys.argv) != 2: fail()
+suite = sys.argv[1]
+supported_suites = ["All", "CI", "Quick"]
+if not suite in supported_suites: fail()
+
+def check_exists(path):
+  if not os.path.exists(path): raise Exception(path + " does not exist")
+  return path
+binary_path = check_exists(os.path.abspath(sys.argv[0]))
+repo_path = check_exists(os.path.dirname(os.path.dirname(binary_path)))
+update_documentation_path = check_exists(os.path.join(repo_path, "bin", "update_documentation"))
+
+def call(command):
+  print "Running " + command + "..."
+  try:
+    code = subprocess.call(command, shell = True, cwd = repo_path)
+    if code != 0: raise Exception(command + " exited with code " + str(code))
+  except KeyboardInterrupt:
+    sys.exit(1)
+start = time.time()
+_, sbt_bench_log_path = tempfile.mkstemp(prefix = "sbt_bench" + suite + "_")
+call("sbt bench" + suite + " | tee " + sbt_bench_log_path)
+end = time.time()
+print ""
+print "Benchmarks completed in {0:.3f} ms".format(end - start)
+print "You can update documentation by running: " + update_documentation_path + " " + sbt_bench_log_path
+print ""
+
+rows = []
+rows.append(("Benchmark", "Mode", "Cnt", "Score"))
+lengths = [0] * 255
+with open(sbt_bench_log_path, "r") as sbt_bench_log:
+  for line in sbt_bench_log:
+    m = re.search("(?:0m)?(\w+)\.run\s+(\w+)\s+(\d+)\s+(.*?\s+ms/op)", line)
+    if m:
+      row = m.groups()
+      for j, cell in enumerate(row): lengths[j] = max(len(cell), lengths[j])
+      rows.append(row)
+
+for row in rows:
+  for i, cell in enumerate(row):
+    fmt = "{0:<" + str(lengths[i] + 2) + "}"
+    text = cell.replace("  ", " ")
+    sys.stdout.write(fmt.format(text))
+  sys.stdout.write("\n")

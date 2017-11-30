@@ -15,7 +15,7 @@ before_install:
 
 script:
   - java -version
-  - sbt ci
+  - bin/ci
 
 cache:
   directories:
