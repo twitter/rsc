@@ -49,6 +49,17 @@
   This strategy has worked well for Scala.js, and we intend to follow it too.
   * All contributions should be formatted with `./bin/scalafmt`.
 
+## Testing style
+
+  * In order to better reason about the evolution of the compiler,
+  we require that every commit in your pull request passes `bin/ci`.
+  * Moreover, in the near future, [we will start collecting benchmark data
+  for every commit](https://github.com/twitter/reasonable-scala/issues/3).
+  While we are setting up the infrastructure, please help us tracking
+  compiler performance by running `bin/bench Quick` before the first commit
+  and after the last commit of your pull request - and posting the results
+  (the last few lines of the output) in a comment on the pull request page.
+
 ## Git style
 
   * Branches

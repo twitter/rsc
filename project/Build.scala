@@ -20,66 +20,102 @@ object Build extends AutoPlugin {
   object autoImport {
     def benchCliRscNative(bench: String) = {
       val project = ProjectRef(file("."), "benchRscNative")
-      val taskName = "benchRscNative" + bench
-      val objectName = "rsc.bench.RscNative" + bench
-      val taskKey = TaskKey[Unit](taskName)
-      taskKey := (Def.taskDyn {
-        val _ = (nativeLink in Compile in project).value
-        val exe = (artifactPath in nativeLink in Compile in project).value
-        (runMain in Compile).toTask(s" $objectName $exe")
-      }).value
+      def benchSetting(bench: String, mode: String) = {
+        val objectName = "rsc.bench." + mode + "RscNative" + bench
+        val taskKey = TaskKey[Unit]("bench" + mode + "RscNative" + bench)
+        taskKey := (Def.taskDyn {
+          val exe = (artifactPath in nativeLink in Compile in project).value
+          (runMain in Compile).toTask(s" $objectName $exe")
+        }).value
+      }
+      Seq(
+        benchSetting(bench, "Cold"),
+        benchSetting(bench, "Hot")
+      )
     }
 
-    object benches {
-      private val benchRscNative = {
-        val schedule = "benchRscJVM/benchRscNativeSchedule"
-        val typecheck = "benchRscJVM/benchRscNativeTypecheck"
-        s";rscNative/clean ;benchRscNative/clean ;$schedule; $typecheck"
+    trait BenchSuite {
+      def rscNativeBenches: List[String]
+      def rscNativeCommands: List[String] = {
+        val init = List(
+          "rscNative/clean",
+          "benchRscNative/clean",
+          "benchRscNative/nativeLink")
+        val benches = rscNativeBenches
+        val commands = benches.map(bench => s"benchRscJVM/bench$bench")
+        if (commands.nonEmpty) init ++ commands else Nil
       }
-      private val benchRsc = {
-        val schedule = List("ColdRscSchedule", "HotRscSchedule")
-        val typecheck = List("ColdRscTypecheck", "HotRscTypecheck")
-        val benches = (schedule ++ typecheck).mkString(" ")
-        s";rscJVM/clean ;benchRscJVM/clean ;benchRscJVM/jmh:run $benches"
+
+      def rscBenches: List[String]
+      def rscCommands: List[String] = {
+        val init = List("rscJVM/clean", "benchRscJVM/clean")
+        val benches = rscBenches
+        val commands = benches.map(bench => s"benchRscJVM/jmh:run $bench")
+        if (commands.nonEmpty) init ++ commands else Nil
       }
-      private def benchScalac(version: String) = {
-        val namer = List("ColdScalacNamer", "HotScalacNamer")
-        val typer = List("ColdScalacTyper", "HotScalacTyper")
-        val compile = List("ColdScalacCompile", "HotScalacCompile")
-        val unversioned = namer ++ typer ++ compile
-        val benches = unversioned.map(bench => bench + version).mkString(" ")
-        s";benchScalac${version}/clean ;benchScalac${version}/jmh:run $benches"
+
+      def scalacBenches: List[String]
+      def scalacCommands(version: String): List[String] = {
+        val init = List(s"benchScalac${version}/clean")
+        val benches = scalacBenches.map(_ + version)
+        val commands = benches.map(b => s"benchScalac${version}/jmh:run $b")
+        if (commands.nonEmpty) init ++ commands else Nil
       }
-      private val benchScalac211 = benchScalac("211")
-      private val benchScalac212 = benchScalac("212")
-      private val benchJavac18 = {
+
+      def javacBenches: List[String]
+      def javacCommands: List[String] = {
         val javacVersion = classOf[Runtime].getPackage.getSpecificationVersion
         if (javacVersion != "1.8") sys.error(s"unsupported JVM: $javacVersion")
-        val compile = List("ColdJavacCompile", "HotJavacCompile")
-        val benches = compile.mkString(" ")
-        s";benchJavac18/clean ;benchJavac18/jmh:run $benches"
+        val init = List("benchJavac18/clean")
+        val benches = javacBenches
+        val commands = benches.map(bench => s"benchJavac18/jmh:run $bench")
+        if (commands.nonEmpty) init ++ commands else Nil
       }
-      val all = {
-        val commands = List(
-          benchRscNative,
-          benchRsc,
-          benchScalac211,
-          benchScalac212,
-          benchJavac18)
-        commands.mkString("")
+
+      final def command: String = {
+        val allRscCommands = rscNativeCommands ++ rscCommands
+        val allScalacCommands = scalacCommands("211") ++ scalacCommands("212")
+        val commands = allRscCommands ++ allScalacCommands ++ javacCommands
+        commands.map(command => s";$command ").mkString("")
       }
-      val jvm = {
-        val benches = "QuickRscTypecheck"
-        s";rscJVM/clean ;benchRscJVM/clean ;benchRscJVM/jmh:run $benches"
-      }
-      val native = {
-        val benches = "benchRscJVM/benchRscNativeTypecheck"
-        s";rscNative/clean ;benchRscNative/clean ;$benches"
-      }
-      val nightly = {
-        val commands = List(benchRscNative, benchRsc)
-        commands.mkString("")
-      }
+    }
+
+    object benchAll extends BenchSuite {
+      def rscNativeBenches = List(
+        "ColdRscNativeSchedule",
+        "HotRscNativeSchedule",
+        "ColdRscNativeTypecheck",
+        "HotRscNativeTypecheck"
+      )
+      def rscBenches = List(
+        "ColdRscSchedule",
+        "HotRscSchedule",
+        "ColdRscTypecheck",
+        "HotRscTypecheck"
+      )
+      def scalacBenches = List(
+        "ColdScalacNamer",
+        "HotScalacNamer",
+        "ColdScalacTyper",
+        "HotScalacTyper",
+        "ColdScalacCompile",
+        "HotScalacCompile"
+      )
+      def javacBenches = List("ColdJavacCompile", "HotJavacCompile")
+    }
+
+    object benchCI extends BenchSuite {
+      def rscNativeBenches = benchAll.rscNativeBenches
+      def rscBenches = benchAll.rscBenches
+      def scalacBenches = Nil
+      def javacBenches = Nil
+    }
+
+    object benchQuick extends BenchSuite {
+      def rscNativeBenches = List("ColdRscNativeTypecheck")
+      def rscBenches = List("QuickRscTypecheck")
+      def scalacBenches = Nil
+      def javacBenches = Nil
     }
 
     val scalafmtTest = taskKey[Unit]("Test formatting with Scalafmt")

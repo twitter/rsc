@@ -90,7 +90,7 @@ props["StdlibPath"] = os.path.relpath(stdlib_path, docs_path)
 props["Re2sScalacLoc"] = shell("cloc --quiet --csv " + re2s_path + " | grep Scala | awk -F',' '{print $3+$4+$5}'")
 props["StdlibLoc"] = shell("cloc --quiet --csv " + stdlib_path + " | grep Scala | awk -F',' '{print $3+$4+$5}'")
 props["Re2sRscLoc"] = str(int(props["Re2sScalacLoc"]) + int(props["StdlibLoc"]))
-props["BenchCommand"] = "sbt bench"
+props["BenchCommand"] = "bin/bench"
 
 def find_bench_path(bench):
   paths = shell("find " + bench_path + " -name '" + bench + ".scala'").split("\n")

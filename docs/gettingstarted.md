@@ -55,10 +55,10 @@ Tests: 1, Passed: 1, Failed: 0
 The ultimate goal of our project is to achieve dramatic improvements
 in compilation performance. Therefore, we are trying to be extremely careful
 about measuring carefully and responsibly. To that end, we have set up
-an automated benchmark suite that can be invoked via `bench`.
+an automated benchmark suite that can be invoked via `bin/bench`.
 
 ```
-> bench
+$ bin/bench
 ...
 ```
 
