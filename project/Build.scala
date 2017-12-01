@@ -11,6 +11,7 @@ import sbt._
 import sbt.Keys._
 import sbt.plugins._
 import scala.scalanative.sbtplugin.ScalaNativePlugin.AutoImport._
+import complete.DefaultParsers._
 
 object Build extends AutoPlugin {
   override def requires: Plugins = JvmPlugin
@@ -35,6 +36,8 @@ object Build extends AutoPlugin {
     }
 
     trait BenchSuite {
+      def initCommands: List[String]
+
       def rscNativeBenches: List[String]
       def rscNativeCommands: List[String] = {
         val init = List(
@@ -75,12 +78,13 @@ object Build extends AutoPlugin {
       final def command: String = {
         val allRscCommands = rscNativeCommands ++ rscCommands
         val allScalacCommands = scalacCommands("211") ++ scalacCommands("212")
-        val commands = allRscCommands ++ allScalacCommands ++ javacCommands
-        commands.map(command => s";$command ").mkString("")
+        val benchCommands = allRscCommands ++ allScalacCommands ++ javacCommands
+        (initCommands ++ benchCommands).map(c => s";$c ").mkString("")
       }
     }
 
     object benchAll extends BenchSuite {
+      def initCommands = Nil
       def rscNativeBenches = List(
         "ColdRscNativeSchedule",
         "HotRscNativeSchedule",
@@ -105,6 +109,7 @@ object Build extends AutoPlugin {
     }
 
     object benchCI extends BenchSuite {
+      def initCommands = List("rscJVM/shell bin/bench_ci_environment check")
       def rscNativeBenches = benchAll.rscNativeBenches
       def rscBenches = benchAll.rscBenches
       def scalacBenches = Nil
@@ -112,6 +117,7 @@ object Build extends AutoPlugin {
     }
 
     object benchQuick extends BenchSuite {
+      def initCommands = Nil
       def rscNativeBenches = List("ColdRscNativeTypecheck")
       def rscBenches = List("QuickRscTypecheck")
       def scalacBenches = Nil
@@ -119,6 +125,8 @@ object Build extends AutoPlugin {
     }
 
     val scalafmtTest = taskKey[Unit]("Test formatting with Scalafmt")
+
+    val shell = inputKey[Unit]("Run shell command")
   }
 
   override def globalSettings: Seq[Def.Setting[_]] = List(
@@ -143,6 +151,12 @@ object Build extends AutoPlugin {
         case Nil =>
           sys.error("Scalafmt binary not found")
       }
+    },
+    shell := {
+      val args = spaceDelimited("<arg>").parsed
+      val command = args.mkString(" ")
+      val retcode = command.!
+      if (retcode != 0) sys.error(s"$command returned $retcode")
     }
   )
 }
