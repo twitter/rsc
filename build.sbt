@@ -1,5 +1,5 @@
 val versions = new {
-  val scala211 = "2.11.11"
+  val scala211 = "2.11.12"
   val scala212 = "2.12.4"
   val uTest = "0.6.0"
 }
