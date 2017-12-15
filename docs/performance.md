@@ -55,7 +55,7 @@ be interpreted with utmost care. Concretely:
 
 ## Results
 
-To reproduce, run `sbt bench` (this will take a while).
+To reproduce, run `bin/bench` (this will take a while).
 
 <table>
   <th>
