@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 cpuFrequency=3400
-cpuShield=1-3
 kernelRelease="4.9.0-4-amd64"
 
 # These cannot be written (IO Error)
@@ -140,49 +139,6 @@ function resetFrequency() {
   logOk "CPU frequency scaling governor set to 'ondemand'"
 }
 
-# CPU Shield
-
-function checkNoShield() {
-  local shield=$(sudo cset shield)
-  [[ "$shield" =~ ^.*shielding\ not\ active\ on\ system$ ]] ||
-    err "expected no shielding" $shield
-  logOk "shielding is disabled"
-}
-
-function checkShield() {
-  local userSet=$(sudo cset shield -s | grep '"user"')
-  [[ "$userSet" =~ ^.*CPUSPEC\($cpuShield\)\ with\ 0\ tasks.*$ ]] ||
-    err "expected empty user CPU set: $userSet"
-  logOk "CPU set 'user' is empty"
-
-  local sysSet=$(sudo cset shield -u | grep '"system"')
-  [[ "$sysSet" =~ ^.*CPUSPEC\(0\)\ with\ [0-9]+\ tasks.*$ ]] ||
-    err "expected system CPU set: $sysSet"
-  logOk "CPU set 'system' exists"
-}
-
-function setupShield() {
-  resetShield
-
-  local log
-  log=$(sudo cset shield -c $cpuShield)
-  checkFail $? "create shield" "$log"
-  logOk "created CPU shield $cpuShield"
-
-  log=$(sudo cset shield -k on)
-  checkFail $? "shield kernel processes" "$log"
-  logOk "moved kernel processes to 'system' CPU set"
-
-  checkShield
-}
-
-function resetShield() {
-  local log
-  sudo cset shield -r > /dev/null || true
-  logOk "removed CPU shield"
-  checkNoShield
-}
-
 # Interrupt Affinity
 
 function checkIrqAffinity() {
@@ -252,7 +208,6 @@ function usage() {
 cat << EOM
 Usage: $1 [set|reset] [opts]
   -nf: do not set a fixed CPU frequency ($cpuFrequency)
-  -nl: do not set up a shielded CPU set ($cpuShield)
   -ni: do not set the affinity for interrupt handlers to CPU 1
 EOM
   exit 42
@@ -264,16 +219,12 @@ function parseArgs() {
   shift
 
   optFrequency=1
-  optShield=1
   optIrqAffinity=1
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -nf)
         optFrequency=0
-        ;;
-      -nl)
-        optShield=0
         ;;
       -ni)
         optIrqAffinity=0
@@ -298,21 +249,18 @@ case $mode in
     checkNoNuma
     checkNoPstate
     [[ $optFrequency   -eq 1 ]] && checkFrequency
-    [[ $optShield      -eq 1 ]] && checkShield
     [[ $optIrqAffinity -eq 1 ]] && checkIrqAffinity
     ;;
 
   set)
     echo "Setting benchmarking environment"
     [[ $optFrequency   -eq 1 ]] && setFrequency
-    [[ $optShield      -eq 1 ]] && setupShield
     [[ $optIrqAffinity -eq 1 ]] && setupIrqAffinity
     ;;
 
   reset)
     echo "Resetting benchmarking environment"
     resetIrqAffinity
-    resetShield
     resetFrequency
     ;;
 
