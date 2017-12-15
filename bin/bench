@@ -33,7 +33,7 @@ _, sbt_bench_log_path = tempfile.mkstemp(prefix = "sbt_bench" + suite + "_")
 call("sbt bench" + suite + " | tee " + sbt_bench_log_path)
 end = time.time()
 print ""
-print "Benchmarks completed in {0:.3f} ms".format(end - start)
+print "Benchmarks completed in {0:.3f} s".format(end - start)
 print "You can update documentation by running: " + update_documentation_path + " " + sbt_bench_log_path
 print ""
 
