@@ -86,7 +86,7 @@ object Build extends AutoPlugin {
     object benchAll extends BenchSuite {
       def initCommands = List(
         "rscJVM/shell git status",
-        "rscJVM/shell git rev-parse HEAD",
+        "rscJVM/shell git log -5",
         "rscJVM/shell bin/bench_ci_environment check"
       )
       def rscNativeBenches = List(
