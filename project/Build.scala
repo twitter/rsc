@@ -84,7 +84,7 @@ object Build extends AutoPlugin {
     }
 
     object benchAll extends BenchSuite {
-      def initCommands = Nil
+      def initCommands = List("rscJVM/shell bin/bench_ci_environment check")
       def rscNativeBenches = List(
         "ColdRscNativeSchedule",
         "HotRscNativeSchedule",
@@ -109,7 +109,7 @@ object Build extends AutoPlugin {
     }
 
     object benchCI extends BenchSuite {
-      def initCommands = List("rscJVM/shell bin/bench_ci_environment check")
+      def initCommands = benchAll.initCommands
       def rscNativeBenches = benchAll.rscNativeBenches
       def rscBenches = benchAll.rscBenches
       def scalacBenches = Nil
