@@ -12,10 +12,15 @@ sealed trait Sid extends Pretty with Product {
 
 final case class SomeSid(value: String) extends Sid {
   override val hashCode: Int = value.hashCode * 3
+  override def str: String = value
 }
+
 final case class TermSid(value: String) extends Sid {
   override val hashCode: Int = value.hashCode * 5
+  override def str: String = value + "."
 }
+
 final case class TypeSid(value: String) extends Sid {
   override val hashCode: Int = value.hashCode * 7
+  override def str: String = value + "#"
 }

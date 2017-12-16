@@ -5,7 +5,7 @@ package rsc.pretty
 trait Pretty {
   def printStr(p: Printer): Unit
 
-  final def str: String = {
+  def str: String = {
     val p = new Printer
     printStr(p)
     p.toString
@@ -13,7 +13,7 @@ trait Pretty {
 
   def printRepl(p: Printer): Unit
 
-  final def repl: String = {
+  def repl: String = {
     val p = new Printer
     printRepl(p)
     p.toString
