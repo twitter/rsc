@@ -64,13 +64,13 @@ To reproduce, run `bin/bench` (this will take a while).
   </th>
   <tr>
     <td width="208px"><a href="../bench/rsc/jvm/src/main/scala/rsc/bench/RscNativeSchedule.scala">RscNativeSchedule</a></td>
-    <td width="208px">84.720 ms</td>
-    <td width="208px">51.639 ms</td>
+    <td width="208px">52.243 ms</td>
+    <td width="208px">38.617 ms</td>
   </tr>
   <tr>
     <td><a href="../bench/rsc/jvm/src/main/scala/rsc/bench/RscSchedule.scala">RscSchedule</a></td>
-    <td>345.538 ± 0.965 ms</td>
-    <td>10.962 ± 0.009 ms</td>
+    <td>336.474 ± 1.364 ms</td>
+    <td>10.596 ± 0.007 ms</td>
   </tr>
   <tr>
     <td><a href="../bench/scalac211/src/main/scala/rsc/bench/ScalacNamer211.scala">ScalacNamer211</a></td>
@@ -91,13 +91,13 @@ To reproduce, run `bin/bench` (this will take a while).
   </th>
   <tr>
     <td width="208px"><a href="../bench/rsc/jvm/src/main/scala/rsc/bench/RscNativeTypecheck.scala">RscNativeTypecheck</a></td>
-    <td width="208px">299.444 ms</td>
-    <td width="208px">241.417 ms</td>
+    <td width="208px">97.738 ms</td>
+    <td width="208px">70.501 ms</td>
   </tr>
   <tr>
     <td><a href="../bench/rsc/jvm/src/main/scala/rsc/bench/RscTypecheck.scala">RscTypecheck</a></td>
-    <td>468.504 ± 0.957 ms</td>
-    <td>33.258 ± 0.017 ms</td>
+    <td>446.065 ± 2.206 ms</td>
+    <td>26.824 ± 0.011 ms</td>
   </tr>
   <tr>
     <td><a href="../bench/scalac211/src/main/scala/rsc/bench/ScalacTyper211.scala">ScalacTyper211</a></td>
@@ -137,14 +137,14 @@ To reproduce, run `bin/bench` (this will take a while).
 
   * First and foremost, the current prototype of Rsc is significantly faster
     than full Scalac in both cold and hot benchmarks. Most impressively,
-    hot typechecking is ~20x faster
+    hot typechecking is ~25x faster
     [with the disclaimer provided above](performance.md#disclaimer).
   * Scala Native has clearly succeeded in its goal of speeding
     up startup time of Scala applications. In cold benchmarks that are
     representative of running programs from command line, Rsc Native has
-    a ~1.6x edge over vanilla Rsc.
+    a ~4.6x edge over vanilla Rsc.
   * Finally, it was interesting to see that the current prototype of Rsc
-    typechecks re2s ~2x faster than Javac compiles re2j,
+    typechecks re2s ~3x faster than Javac compiles re2j,
     [given the disclaimer provided above](performance.md#disclaimer).
     As we will be adding more features to Rsc, we will be keeping an eye on how
     this will affect compilation performance relative to Javac.
