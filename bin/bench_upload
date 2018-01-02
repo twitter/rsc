@@ -1,0 +1,241 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import collections, json, os, re, string, sys
+from common import *
+
+if len(sys.argv) != 5:
+  print "usage: " + sys.argv[0] + " <target_user> <target_repo> <target_sha> <bin_bench_path>"
+  sys.exit(1)
+def slurp(path):
+  with open(path, "r") as file: return file.read()
+target_ref = GithubRef(sys.argv[1], sys.argv[2], sys.argv[3])
+bin_bench_path = sys.argv[4]
+print "Reading " + bin_bench_path + "..."
+bin_bench_stdout = slurp(bin_bench_path)
+
+cd(".")
+props = {}
+props["CurrentDate"] = utc(stdout("date +'" + date_format + "'"))
+
+print ""
+print "Computing generator props..."
+binary_path = os.path.abspath(sys.argv[0])
+root_ref = github_ref(os.path.dirname(binary_path))
+props["SoftwareGenerator"] = root_ref.resolve_remote(binary_path)
+
+print ""
+print "Computing paths..."
+target_ref.download_https()
+cd(target_ref.path)
+bench_path = target_ref.resolve_local("bench")
+clibench_path = target_ref.resolve_local("bench/rsc/shared/src/main/scala/rsc/bench/CliBench.scala")
+re2j_path = target_ref.resolve_local("examples/re2j/src/main/java/java/util/regex")
+re2s_path = target_ref.resolve_local("examples/re2s/src/main/scala/java/util/regex")
+properties_path = target_ref.resolve_local("project/build.properties")
+plugins_path = target_ref.resolve_local("project/plugins.sbt")
+stdlib_path = target_ref.resolve_local("stdlib/src/main/scala/Stdlib.scala")
+build_path = target_ref.resolve_local("build.sbt")
+
+print ""
+print "Computing git props..."
+props["GitUser"] = target_ref.user
+props["GitRepo"] = target_ref.repo
+props["GitSha"] = target_ref.sha
+props["GitFullSha"] = target_ref.sha
+props["GitShortSha"] = target_ref.sha[:8]
+props["GitDate"] = utc(stdout("git show -s --format=%ci " + target_ref.sha))
+
+print ""
+print "Computing hardware props..."
+if sys.platform == "darwin":
+  props["HardwareCpu"] = stdout("sysctl -n machdep.cpu.brand_string")
+  props["HardwarePhysicalCores"] = stdout("sysctl -n hw.physicalcpu")
+  props["HardwareLogicalCores"] = stdout("sysctl -n hw.logicalcpu")
+  props["HardwareL1dCache"] = str(int(stdout("sysctl -n hw.l1dcachesize"))/1024) + "KB"
+  props["HardwareL1iCache"] = str(int(stdout("sysctl -n hw.l1icachesize"))/1024) + "KB"
+  props["HardwareL2Cache"] = str(int(stdout("sysctl -n hw.l2cachesize"))/1024) + "KB"
+  props["HardwareL3Cache"] = str(int(stdout("sysctl -n hw.l3cachesize"))/1024) + "KB"
+  props["HardwareTurboBoost"] = "Turbo Boost enabled"
+  props["HardwareRam"] = str(int(stdout("sysctl -n hw.memsize"))/(1024*1024*1024)) + "GB"
+  props["HardwareDiskDrive"] = stdout("system_profiler SPSerialATADataType | grep Model | awk -F':' '{print $2}'")
+elif sys.platform.startswith("linux"):
+  props["HardwareCpu"] = stdout("lscpu | grep '^Model name' | awk -F':' '{print $2}'")
+  props["HardwarePhysicalCores"] = stdout("lscpu | grep '^CPU(s):' | awk -F':' '{print $2}'")
+  threads_per_core = stdout("lscpu | grep '^Thread(s) per core:' | awk -F':' '{print $2}'")
+  props["HardwareLogicalCores"] = str(int(props["HardwarePhysicalCores"]) * int(threads_per_core))
+  props["HardwareL1dCache"] = stdout("lscpu | grep '^L1d cache:' | awk -F':' '{print $2}'") + "B"
+  props["HardwareL1iCache"] = stdout("lscpu | grep '^L1i cache:' | awk -F':' '{print $2}'") + "B"
+  props["HardwareL2Cache"] = stdout("lscpu | grep '^L2 cache:' | awk -F':' '{print $2}'") + "B"
+  props["HardwareL3Cache"] = stdout("lscpu | grep '^L3 cache:' | awk -F':' '{print $2}'") + "B"
+  def turbo_boost():
+    # NOTE: We expect that Turbo Boost is disabled on our Linux benchbox.
+    # If that's not the case, bin/bench_ci_environment will let us know.
+    #
+    # curr_core = 0
+    # max_cores = int(props["HardwarePhysicalCores"])
+    # while curr_core < max_cores:
+    #   turbo_boost_off = stdout("sudo rdmsr -p" + str(curr_core) + " 0x1a0 -f 38:38")
+    #   if turbo_boost_off == "0": return "Turbo Boost enabled"
+    #   curr_core += 1
+    return "Turbo Boost disabled"
+  props["HardwareTurboBoost"] = turbo_boost()
+  props["HardwareRam"] = "{0:.0f}".format(int(stdout("cat /proc/meminfo | grep '^MemTotal:' | awk -F' ' '{print $2}'"))/(1024 * 1024)) + "GB"
+  props["HardwareDiskDrive"] = stdout("cat /sys/class/block/sda/device/model")
+else:
+  raise Exception("unsupported platform " + sys.platform)
+
+print ""
+print "Computing software props..."
+if sys.platform == "darwin": props["SoftwareOperatingSystem"] = "macOS " + stdout("defaults read loginwindow SystemVersionStampAsString")
+elif sys.platform.startswith("linux"): props["SoftwareOperatingSystem"] = stdout("lsb_release -a 2>&1 | grep '^Description:' | awk -F':' '{print $2}'")
+else: raise Exception("unsupported platform " + sys.platform)
+props["SoftwareJre"] = stdout("java -version 2>&1 | head -n 2 | tail -1")
+props["SoftwareRsc"] = "Rsc " + stdout("sbt -no-colors 'show rscJVM/version' | tail -n 1 | awk -F'] ' '{ print $2 }'")
+props["SoftwareScalac211"] = "Scalac " + stdout("grep scala211 " + build_path + " | head -n 1 | awk -F'\"' '{print $2}'")
+props["SoftwareScalac212"] = "Scalac " + stdout("grep scala212 " + build_path + " | head -n 1 | awk -F'\"' '{print $2}'")
+props["SoftwareJavac"] = stdout("javac -version 2>&1")
+props["SoftwareCliBench"] = "our own microbenchmark harness"
+props["SoftwareCliBenchUrl"] = target_ref.resolve_remote(clibench_path)
+props["SoftwareSbt"] = "sbt " + stdout("grep sbt.version " + properties_path + " | awk -F'=' '{print $2}'")
+props["SoftwareSbtJmh"] = "sbt-jmh " + stdout("grep sbt-jmh " + plugins_path + " | awk -F'\"' '{print $6}'")
+props["SoftwareRe2jUrl"] = target_ref.resolve_remote(re2j_path)
+props["SoftwareRe2jLoc"] = stdout("cloc --quiet --csv " + re2j_path + " | grep Java | awk -F',' '{print $3+$4+$5}'")
+props["SoftwareRe2sUrl"] = target_ref.resolve_remote(re2s_path)
+props["SoftwareStdlibUrl"] = target_ref.resolve_remote(stdlib_path)
+props["SoftwareRe2sScalacLoc"] = stdout("cloc --quiet --csv " + re2s_path + " | grep Scala | awk -F',' '{print $3+$4+$5}'")
+props["SoftwareStdlibLoc"] = stdout("cloc --quiet --csv " + stdlib_path + " | grep Scala | awk -F',' '{print $3+$4+$5}'")
+props["SoftwareRe2sRscLoc"] = str(int(props["SoftwareRe2sScalacLoc"]) + int(props["SoftwareStdlibLoc"]))
+
+def find_bench_path(bench):
+  paths = stdout("find " + bench_path + " -name '" + bench + ".scala'").split("\n")
+  if len(paths) == 1: return paths[0]
+  else: raise Exception("can't find " + bench + ".scala in " + bench_path)
+def find_bench_result(mode, bench):
+  name = mode + bench
+  m = re.search(name + r"\.run\s+\w+\s+\d+(.*?)ms/op", bin_bench_stdout)
+  if m:
+    return m.groups()[0].strip() + " ms"
+  else:
+    precomputed_results = {}
+    precomputed_results["ColdScalacNamer211"] = "1179.715 ± 2.818 ms"
+    precomputed_results["HotScalacNamer211"] = "62.111 ± 0.099 ms"
+    precomputed_results["ColdScalacNamer212"] = "1642.299 ± 2.927 ms"
+    precomputed_results["HotScalacNamer212"] = "27.683 ± 0.029 ms"
+    precomputed_results["ColdScalacTyper211"] = "4295.242 ± 24.084 ms"
+    precomputed_results["HotScalacTyper211"] = "707.156 ± 1.441 ms"
+    precomputed_results["ColdScalacTyper212"] = "5167.287 ± 24.531 ms"
+    precomputed_results["HotScalacTyper212"] = "610.896 ± 1.594 ms"
+    precomputed_results["ColdScalacCompile211"] = "8047.402 ± 43.037 ms"
+    precomputed_results["HotScalacCompile211"] = "1702.511 ± 10.349 ms"
+    precomputed_results["ColdScalacCompile212"] = "9456.717 ± 45.414 ms"
+    precomputed_results["HotScalacCompile212"] = "1630.761 ± 10.607 ms"
+    precomputed_results["ColdJavacCompile"] = "801.029 ± 4.258 ms"
+    precomputed_results["HotJavacCompile"] = "73.772 ± 0.153 ms"
+    if name in precomputed_results:
+      # print "Using precomputed result for " + name + "..."
+      return precomputed_results[name]
+    else:
+      raise Exception("can't find " + name + " in " + bin_bench_path)
+def parse_bench_result(mode, bench):
+  result = find_bench_result(mode, bench)
+  m1 = re.match(r"^(?P<score>[\d\.]+) ± (?P<error>[\d\.]+) (?P<unit>.*)$", result)
+  m2 = re.match(r"^(?P<score>[\d\.]+) (?P<unit>.*)$", result)
+  m = m1 or m2
+  if m:
+    d = collections.defaultdict(lambda: "", m.groupdict())
+    return (d["score"], d["error"], d["unit"])
+  else:
+    raise Exception("can't parse " + name + " in " + bin_bench_path)
+def populate_bench_props(bench):
+  props["Bench" + bench + "Label"] = bench
+  props["Bench" + bench + "Url"] = target_ref.resolve_remote(find_bench_path(bench))
+  (cold_score, cold_error, cold_unit) = parse_bench_result("Cold", bench)
+  props["Bench" + bench + "ColdScore"] = cold_score
+  props["Bench" + bench + "ColdError"] = cold_error
+  props["Bench" + bench + "ColdUnit"] = cold_unit
+  (hot_score, hot_error, hot_unit) = parse_bench_result("Hot", bench)
+  props["Bench" + bench + "HotScore"] = hot_score
+  props["Bench" + bench + "HotError"] = hot_error
+  props["Bench" + bench + "HotUnit"] = hot_unit
+print ""
+print "Computing bench props..."
+populate_bench_props("RscNativeSchedule")
+populate_bench_props("RscSchedule")
+populate_bench_props("ScalacNamer211")
+populate_bench_props("ScalacNamer212")
+populate_bench_props("RscNativeTypecheck")
+populate_bench_props("RscTypecheck")
+populate_bench_props("ScalacTyper211")
+populate_bench_props("ScalacTyper212")
+populate_bench_props("ScalacCompile211")
+populate_bench_props("ScalacCompile212")
+populate_bench_props("JavacCompile")
+
+print ""
+print "Computing document props..."
+props["LinkRsc"] = target_ref.url
+props["LinkCompilerDocument"] = target_ref.resolve_remote("docs/compiler.md")
+props["LinkCompilerSummary"] = target_ref.resolve_remote("docs/compiler.md#summary")
+props["LinkDisclaimer"] = "README.md#disclaimer"
+
+print ""
+print "Computing summary props..."
+cold_rsc_native_typecheck = float(props["BenchRscNativeTypecheckColdScore"])
+cold_rsc_typecheck = float(props["BenchRscTypecheckColdScore"])
+hot_rsc_typecheck = float(props["BenchRscTypecheckHotScore"])
+hot_scalac_typer211 = float(props["BenchScalacTyper211HotScore"])
+hot_scalac_typer212 = float(props["BenchScalacTyper212HotScore"])
+hot_scalac_typer = (hot_scalac_typer211 + hot_scalac_typer212) / 2
+hot_javac_compile = float(props["BenchJavacCompileHotScore"])
+speedup_over_scalac_typer = hot_scalac_typer/hot_rsc_typecheck
+if speedup_over_scalac_typer >= 5: props["SummarySpeedupOverScalacTyper"] = "{0:.0f}".format(speedup_over_scalac_typer)
+else: raise Exception("rsc typecheck is less than 5x faster than scalac typer; time to update README.md and the summary in docs/performance.tmpl?")
+speedup_over_rsc_jvm = cold_rsc_typecheck/cold_rsc_native_typecheck
+if speedup_over_rsc_jvm > 1: props["SummarySpeedupOverRscJVM"] = "{0:.1f}".format(speedup_over_rsc_jvm)
+else: raise Exception("rsc native typecheck is slower than rsc typecheck; time to update the summary in docs/performance.tmpl?")
+speedup_over_javac_compile = hot_javac_compile/hot_rsc_typecheck
+if speedup_over_javac_compile > 1: props["SummarySpeedupOverJavacCompile"] = "{0:.0f}".format(speedup_over_javac_compile)
+else: raise Exception("rsc typecheck is slower than javac compile; time to update the summary in docs/performance.tmpl?")
+
+print ""
+print "Downloading performance repository..."
+performance_ref = GithubRef(root_ref.user, root_ref.repo, "performance")
+performance_ref.download_ssh()
+cd(performance_ref.path)
+performance_json_path = performance_ref.resolve_local("performance.json")
+performance_json = []
+with open(performance_json_path, "r") as performance_json_file:
+  performance_json = json.load(performance_json_file)
+
+print ""
+print "Updating performance repository..."
+performance_json = filter(lambda json: json["GitFullSha"] != target_ref.sha, performance_json)
+performance_json.append(props)
+performance_json.sort(key=lambda json: json["GitDate"])
+latest_props = performance_json[-1]
+with open(performance_json_path, "w") as performance_json_file:
+  json.dump(performance_json, performance_json_file, indent=2, sort_keys=True, ensure_ascii=False)
+for file_name in os.listdir(root_ref.path):
+  (file_base, file_ext) = os.path.splitext(file_name)
+  if file_ext == ".tmpl":
+    tmpl_path = root_ref.resolve_local(file_name)
+    print "Reading " + tmpl_path + "..."
+    tmpl_contents = slurp(tmpl_path)
+    latest_props["CurrentTemplate"] = root_ref.resolve_remote(tmpl_path)
+    doc_path = performance_ref.resolve_local(file_base + ".md")
+    doc_contents = string.Template(tmpl_contents).substitute(latest_props)
+    print "Writing " + doc_path + "..."
+    with open(doc_path, "w") as doc_file: doc_file.write(doc_contents)
+run("git add -A")
+run("git commit -m '" + target_ref.url + "'")
+
+print ""
+print "Uploading performance repository..."
+run("git push origin performance")
+performance_ref.sha = stdout("git rev-parse HEAD")
+print "Uploaded to " + performance_ref.url
+
+print ""
+print "Cleaning up..."
+target_ref.cleanup()
+performance_ref.cleanup()

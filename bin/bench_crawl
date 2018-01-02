@@ -1,0 +1,158 @@
+#!/usr/bin/env python
+import json, os, re, subprocess, sys, tempfile
+from common import *
+
+if len(sys.argv) != 4:
+  print "usage: " + sys.argv[0] + " <root_user> <root_repo> <github_token>"
+  sys.exit(1)
+root_user = sys.argv[1]
+root_repo = sys.argv[2]
+github_token = sys.argv[3]
+github_api = GithubApi(github_token)
+todo = []
+
+print "Checking if crawler is already running..."
+cd(".")
+running_crawlers = stdout("ps aux | grep 'python " + sys.argv[0] + "' | grep -v grep").split("\n")
+running_crawlers = filter(lambda line: not str(os.getpid()) in line, running_crawlers)
+if running_crawlers:
+  print sys.argv[0] + " is already running:\n" + "\n".join(running_crawlers)
+  sys.exit(0)
+
+print ""
+print "Loading benchmarks..."
+def load_benchmarks():
+  with GithubRef(root_user, root_repo, "performance") as performance_ref:
+    performance_ref.download_https()
+    performance_json_path = performance_ref.resolve_local("performance.json")
+    performance_json = []
+    with open(performance_json_path, "r") as performance_json_file:
+      return json.load(performance_json_file)
+done = map(lambda json: json["GitFullSha"], load_benchmarks())
+print "Found " + str(len(done)) + " processed commits"
+
+print ""
+print "Analyzing pullrequests..."
+prs = github_api("https://api.github.com/repos/{}/{}/pulls".format(root_user, root_repo))
+index = {}
+print "Found " + str(len(prs)) + " pullrequests"
+for i, pr in enumerate(prs):
+  print "(" + str(i + 1) + "/" + str(len(prs)) + ") " + pr["html_url"]
+  base_ref = GithubRef(pr["base"]["repo"]["owner"]["login"], pr["base"]["repo"]["name"], pr["base"]["sha"])
+  head_ref = GithubRef(pr["head"]["repo"]["owner"]["login"], pr["head"]["repo"]["name"], pr["head"]["sha"])
+  index[pr["head"]["sha"]] = pr
+  print "Base: " + base_ref.url
+  print "Head: " + head_ref.url
+  comments = github_api(pr["comments_url"])
+  comments_blocked = False
+  comments_accepted = False
+  comments_finished = False
+  for comment in comments:
+    if comment["user"]["login"] == "rscbenchbox":
+      body = comment["body"]
+      if re.match(r"Blocked.*" + head_ref.sha, body): comments_blocked = True
+      if re.match(r"Accepted.*" + head_ref.sha, body): comments_accepted = True
+      if re.match(r"Finished.*" + head_ref.sha, body): comments_finished = True
+  if base_ref.sha in done:
+    if comments_finished:
+      print "Status: Finished"
+    else:
+      if comments_accepted:
+        print "Status: Accepted"
+      else:
+        print "Accepting benchmarking..."
+        body = "Accepted benchmarking {}. This may take a while.".format(head_ref.markdown)
+        github_api(pr["comments_url"], {"body": body})
+      todo.append(head_ref)
+  else:
+    if comments_blocked:
+      print "Status: Blocked"
+    else:
+      print "Blocking benchmarking..."
+      message = "Blocked benchmarking " + head_ref.markdown
+      reason = "First, I'm planning to benchmark " + base_ref.markdown
+      explanation = "and then I'll get back to this commit"
+      github_api(pr["comments_url"], {"body": "{}. {}, {}.".format(message, reason, explanation)})
+print "Detected " + str(len(todo)) + " todo commits"
+
+print ""
+print "Analyzing commits..."
+with GithubRef(root_user, root_repo, "master") as root_ref:
+  root_ref.download_https()
+  cd(root_ref.path)
+  parent_of_fix_bench_crawl_commit = stdout("git log -1 --format=%H ':/Fix a current directory bug in bin/bench_crawl'")
+  root_shas = stdout("git rev-list --ancestry-path " + parent_of_fix_bench_crawl_commit + "..HEAD").split("\n")
+  print "Found " + str(len(root_shas)) + " eligible commits"
+  root_shas = filter(lambda sha: not sha in done, root_shas)
+  blacklist = [
+    "386782e26160938924a9110e075fa691319db141" # unexpected kernel version, updated in the next commit
+  ]
+  print "Found " + str(len(blacklist)) + " blacklisted commits"
+  root_shas = filter(lambda sha: not sha in blacklist, root_shas)
+  print "Detected " + str(len(root_shas)) + " todo commits"
+  for root_sha in root_shas: todo.append(GithubRef(root_user, root_repo, root_sha))
+
+print ""
+print "Computing work queue..."
+for i, target_ref in enumerate(todo):
+  print "(" + str(i + 1) + "/" + str(len(todo)) + ") " + target_ref.url
+
+if todo:
+  print ""
+  print "Benchmarking work queue..."
+  for i, target_ref in enumerate(todo):
+    with target_ref:
+      print "========================================================================"
+      print "(" + str(i + 1) + "/" + str(len(todo)) + ") " + target_ref.url
+      target_ref.download_https()
+      cd(target_ref.path)
+      target_bin_bench = target_ref.resolve_local("bin/bench")
+      target_bin_bench_command = [target_bin_bench, "CI"]
+      print " ".join(target_bin_bench_command)
+      sys.stdout.flush()
+      target_bin_bench_process = subprocess.Popen(target_bin_bench_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
+      target_bin_bench_output = ""
+      while True:
+        line = target_bin_bench_process.stdout.readline()
+        if line != b'':
+          target_bin_bench_output += line
+          os.write(1, line)
+        else:
+          break
+      target_bin_bench_process.wait()
+      if target_bin_bench_process.returncode == 0:
+        print ""
+        print "Successfully benchmarked " + target_ref.url
+        _, target_bin_bench_path = tempfile.mkstemp(prefix="bench_")
+        with open(target_bin_bench_path, "w") as target_bin_bench_file:
+          target_bin_bench_file.write(target_bin_bench_output)
+        root_bin_bench_crawl = os.path.abspath(sys.argv[0])
+        root_bin_bench_upload = os.path.join(os.path.dirname(root_bin_bench_crawl), "bench_upload")
+        returncode = call(" ".join([root_bin_bench_upload, target_ref.user, target_ref.repo, target_ref.sha, target_bin_bench_path]))
+        if returncode == 0:
+          latest_performance = load_benchmarks()
+          target_pr = index[target_ref.sha]
+          target_base = target_pr["base"]["sha"]
+          before = next(entry for entry in latest_performance if entry["GitFullSha"] == target_base)
+          after = next(entry for entry in latest_performance if entry["GitFullSha"] == target_ref.sha)
+          before1 = "{} {}".format(before["BenchRscNativeTypecheckHotScore"], before["BenchRscNativeTypecheckHotUnit"])
+          after1 = "{} {}".format(after["BenchRscNativeTypecheckHotScore"], after["BenchRscNativeTypecheckHotUnit"])
+          before2 = "{} {}".format(before["BenchRscTypecheckHotScore"], before["BenchRscTypecheckHotUnit"])
+          after2 = "{} {}".format(after["BenchRscTypecheckHotScore"], after["BenchRscTypecheckHotUnit"])
+          latest_commit = github_api("https://api.github.com/repos/{}/{}/commits/performance".format(root_user, root_repo))
+          latest_url = latest_commit["html_url"]
+          body = """
+Finished benchmarking {}.
+
+| Benchmark          | Before | After |
+|--------------------|--------|-------|
+| RscNativeTypecheck | {}     | {}    |
+| RscTypecheck       | {}     | {}    |
+
+Full results are available at {}.""".strip().format(target_ref.markdown, before1, after1, before2, after2, latest_url)
+          github_api(target_pr["comments_url"], {"body": body})
+      else:
+        print ""
+        print "Error benchmarking " + target_ref.url
+        print "Nothing to upload for " + target_ref.url
+
