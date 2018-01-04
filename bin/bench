@@ -19,7 +19,7 @@ def check_exists(path):
   return path
 binary_path = check_exists(os.path.abspath(sys.argv[0]))
 repo_path = check_exists(os.path.dirname(os.path.dirname(binary_path)))
-update_documentation_path = check_exists(os.path.join(repo_path, "bin", "update_documentation"))
+bench_upload_path = check_exists(os.path.join(repo_path, "bin", "bench_upload"))
 
 def call(command):
   print "Running " + command + "..."
@@ -34,7 +34,7 @@ call("sbt bench" + suite + " | tee " + sbt_bench_log_path)
 end = time.time()
 print ""
 print "Benchmarks completed in {0:.3f} s".format(end - start)
-print "You can update documentation by running: " + update_documentation_path + " " + sbt_bench_log_path
+print "You can upload the results by running: " + bench_upload_path + " " + sbt_bench_log_path
 print ""
 
 rows = []
