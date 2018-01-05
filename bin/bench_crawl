@@ -1,0 +1,62 @@
+#!/usr/bin/env python
+import json, os, shutil, subprocess, sys, tempfile, time
+
+if len(sys.argv) != 2:
+  print "usage: " + sys.argv[0] + " <remote>"
+  sys.exit(1)
+remote = sys.argv[1]
+
+def stdout(command, cwd):
+  result = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, cwd=cwd).strip()
+  if not result: raise Exception("empty output of " + command)
+  return result
+def run(command, cwd):
+  subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, cwd=cwd)
+def call(command, cwd):
+  return subprocess.call(command, shell=True, stderr=subprocess.STDOUT, cwd=cwd)
+
+running_crawlers = stdout("ps aux | grep bench_crawl | grep -v grep", cwd=".").split("\n")
+running_crawlers = filter(lambda line: not str(os.getpid()) in line, running_crawlers)
+if running_crawlers:
+  print sys.argv[0] + " is already running:\n" + "\n".join(running_crawlers)
+  sys.exit(1)
+
+print "Cloning " + remote + "..."
+master_path = tempfile.mkdtemp(prefix = "master_")
+performance_path = tempfile.mkdtemp(prefix = "performance_")
+run("git clone --branch master " + remote + " " + master_path, cwd=".")
+run("git clone --branch performance " + remote + " " + performance_path, cwd=".")
+
+print "Computing work queue..."
+parent_of_add_bench_crawl_commit = "1d411a3a8b"
+todo = stdout("git rev-list --ancestry-path " + parent_of_add_bench_crawl_commit + "..HEAD", cwd=master_path).split("\n")
+print "Found " + str(len(todo)) + " eligible commits"
+performance_json_path = os.path.join(performance_path, "performance.json")
+performance_json = []
+with open(performance_json_path, "r") as performance_json_file:
+  performance_json = json.load(performance_json_file)
+done = map(lambda json: json["GitFullSha"], performance_json)
+print "Found " + str(len(done)) + " processed commits"
+todo = filter(lambda sha: not sha in done, todo)
+print "Detected " + str(len(todo)) + " todo commits"
+for i, sha in enumerate(todo):
+  print "(" + str(i + 1) + "/" + str(len(todo)) + ") " + sha
+shutil.rmtree(performance_path)
+
+print "Benchmarking work queue..."
+for i, sha in enumerate(todo):
+  print "(" + str(i + 1) + "/" + str(len(todo)) + ") " + sha
+  run("git reset --hard " + sha, cwd=master_path)
+  _, bench_ci_log_path = tempfile.mkstemp(prefix = "bench_ci_")
+  bench_ci_command = "bin/bench CI | tee " + bench_ci_log_path
+  print "Running " + bench_ci_command + "..."
+  call(bench_ci_command, cwd=master_path)
+  with open(bench_ci_log_path, "r") as bench_ci_log_file:
+    bench_ci_log = bench_ci_log_file.read()
+    if not "[error]" in bench_ci_log:
+      print "Successfully benchmarked " + sha
+      bench_upload = os.path.join(master_path, "bin/bench_upload")
+      call(bench_upload + " " + bench_ci_log_path, cwd=master_path)
+    else:
+      print "Error benchmarking " + sha
+shutil.rmtree(master_path)
