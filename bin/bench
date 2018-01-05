@@ -35,7 +35,6 @@ end = time.time()
 print ""
 print "Benchmarks completed in {0:.3f} s".format(end - start)
 print "You can upload the results by running: " + bench_upload_path + " " + sbt_bench_log_path
-print ""
 
 rows = []
 rows.append(("Benchmark", "Mode", "Cnt", "Score"))
@@ -48,9 +47,11 @@ with open(sbt_bench_log_path, "r") as sbt_bench_log:
       for j, cell in enumerate(row): lengths[j] = max(len(cell), lengths[j])
       rows.append(row)
 
-for row in rows:
-  for i, cell in enumerate(row):
-    fmt = "{0:<" + str(lengths[i] + 2) + "}"
-    text = cell.replace("  ", " ")
-    sys.stdout.write(fmt.format(text))
-  sys.stdout.write("\n")
+if len(rows) > 1:
+  print ""
+  for row in rows:
+    for i, cell in enumerate(row):
+      fmt = "{0:<" + str(lengths[i] + 2) + "}"
+      text = cell.replace("  ", " ")
+      sys.stdout.write(fmt.format(text))
+    sys.stdout.write("\n")
