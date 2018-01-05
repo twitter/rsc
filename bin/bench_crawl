@@ -23,11 +23,11 @@ def call(command):
   return subprocess.call(command, shell=True, stderr=subprocess.STDOUT, cwd=cwd)
 
 print "Checking if crawler is already running..."
-running_crawlers = stdout("ps aux | grep bench_crawl | grep -v grep").split("\n")
+running_crawlers = stdout("ps aux | grep 'python " + sys.argv[0] + "' | grep -v grep").split("\n")
 running_crawlers = filter(lambda line: not str(os.getpid()) in line, running_crawlers)
 if running_crawlers:
   print sys.argv[0] + " is already running:\n" + "\n".join(running_crawlers)
-  sys.exit(1)
+  sys.exit(0)
 
 print ""
 print "Cloning repository..."
