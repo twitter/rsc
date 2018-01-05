@@ -1,5 +1,9 @@
 sudo: required
 
+branches:
+  only:
+  - master
+
 scala:
   - 2.11.11
 
