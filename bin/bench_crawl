@@ -56,36 +56,37 @@ for i, sha in enumerate(todo):
   print "(" + str(i + 1) + "/" + str(len(todo)) + ") " + sha
 shutil.rmtree(performance_path)
 
-print ""
-print "Benchmarking work queue..."
-for i, sha in enumerate(todo):
-  print "========================================================================"
-  print "(" + str(i + 1) + "/" + str(len(todo)) + ") " + sha
-  run("git reset --hard " + sha)
-  bench_command = [os.path.join(master_path, "bin/bench"), "CI"]
-  print " ".join(bench_command)
-  sys.stdout.flush()
-  bench_process = subprocess.Popen(bench_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
-  bench_output = ""
-  while True:
-    line = bench_process.stdout.readline()
-    if line != b'':
-      bench_output += line
-      os.write(1, line)
+if todo:
+  print ""
+  print "Benchmarking work queue..."
+  for i, sha in enumerate(todo):
+    print "========================================================================"
+    print "(" + str(i + 1) + "/" + str(len(todo)) + ") " + sha
+    run("git reset --hard " + sha)
+    bench_command = [os.path.join(master_path, "bin/bench"), "CI"]
+    print " ".join(bench_command)
+    sys.stdout.flush()
+    bench_process = subprocess.Popen(bench_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
+    bench_output = ""
+    while True:
+      line = bench_process.stdout.readline()
+      if line != b'':
+        bench_output += line
+        os.write(1, line)
+      else:
+        break
+    bench_process.wait()
+    if bench_process.returncode == 0:
+      print ""
+      print "Successfully benchmarked " + sha
+      m_upload_command = re.search(r"You can upload the results by running: (.*)", bench_output)
+      if m_upload_command:
+        upload_command = m_upload_command.groups()[0]
+        call(upload_command)
+      else:
+        print "Don't know how to upload " + sha
     else:
-      break
-  bench_process.wait()
-  if bench_process.returncode == 0:
-    print ""
-    print "Successfully benchmarked " + sha
-    m_upload_command = re.search(r"You can upload the results by running: (.*)", bench_output)
-    if m_upload_command:
-      upload_command = m_upload_command.groups()[0]
-      call(upload_command)
-    else:
-      print "Don't know how to upload " + sha
-  else:
-    print ""
-    print "Error benchmarking " + sha
-    print "Nothing to upload for " + sha
+      print ""
+      print "Error benchmarking " + sha
+      print "Nothing to upload for " + sha
 shutil.rmtree(master_path)
