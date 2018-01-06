@@ -8,6 +8,7 @@ remote = sys.argv[1]
 
 cwd = os.path.abspath(".")
 def cd(path):
+  global cwd
   print "cd " + path
   cwd = path
 def stdout(command):
