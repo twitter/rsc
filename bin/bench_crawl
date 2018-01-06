@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import json, os, shutil, subprocess, sys, tempfile, time
+import json, os, re, shutil, subprocess, sys, tempfile, time
 
 if len(sys.argv) != 2:
   print "usage: " + sys.argv[0] + " <remote>"
@@ -21,6 +21,7 @@ def run(command):
   subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, cwd=cwd)
 def call(command):
   print command
+  sys.stdout.flush()
   return subprocess.call(command, shell=True, stderr=subprocess.STDOUT, cwd=cwd)
 
 print "Checking if crawler is already running..."
@@ -40,8 +41,8 @@ run("git clone --branch performance " + remote + " " + performance_path)
 print ""
 print "Computing work queue..."
 cd(master_path)
-parent_of_add_bench_crawl_commit = stdout("git log -1 --format=%H ':/Add bin/bench_crawl'")
-todo = stdout("git rev-list --ancestry-path " + parent_of_add_bench_crawl_commit + "..HEAD").split("\n")
+parent_of_fix_bench_crawl_commit = stdout("git log -1 --format=%H ':/Fix a current directory bug in bin/bench_crawl'")
+todo = stdout("git rev-list --ancestry-path " + parent_of_fix_bench_crawl_commit + "..HEAD").split("\n")
 print "Found " + str(len(todo)) + " eligible commits"
 performance_json_path = os.path.join(performance_path, "performance.json")
 performance_json = []
@@ -61,17 +62,30 @@ for i, sha in enumerate(todo):
   print "========================================================================"
   print "(" + str(i + 1) + "/" + str(len(todo)) + ") " + sha
   run("git reset --hard " + sha)
-  _, bench_ci_log_path = tempfile.mkstemp(prefix = "bench_ci_")
-  bench_ci_command = "bin/bench CI | tee " + bench_ci_log_path
-  call(bench_ci_command)
-  with open(bench_ci_log_path, "r") as bench_ci_log_file:
-    bench_ci_log = bench_ci_log_file.read()
-    if not "[error]" in bench_ci_log:
-      print ""
-      print "Successfully benchmarked " + sha
-      bench_upload = os.path.join(master_path, "bin/bench_upload")
-      call(bench_upload + " " + bench_ci_log_path)
+  bench_command = [os.path.join(master_path, "bin/bench"), "CI"]
+  print " ".join(bench_command)
+  sys.stdout.flush()
+  bench_process = subprocess.Popen(bench_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
+  bench_output = ""
+  while True:
+    line = bench_process.stdout.readline()
+    if line != b'':
+      bench_output += line
+      os.write(1, line)
     else:
-      print ""
-      print "Error benchmarking " + sha
+      break
+  bench_process.wait()
+  if bench_process.returncode == 0:
+    print ""
+    print "Successfully benchmarked " + sha
+    m_upload_command = re.search(r"You can upload the results by running: (.*)", bench_output)
+    if m_upload_command:
+      upload_command = m_upload_command.groups()[0]
+      call(upload_command)
+    else:
+      print "Don't know how to upload " + sha
+  else:
+    print ""
+    print "Error benchmarking " + sha
+    print "Nothing to upload for " + sha
 shutil.rmtree(master_path)
