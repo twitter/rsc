@@ -83,10 +83,8 @@
     * If your work consists of multiple independent changes, you should split
     them into multiple commits - one commit per change, each accompanied by
     a detailed commit message as described above.
-    * If your work consists of multiple commits, each commit should be usable
-    in isolation - that is, each commit must build and pass all tests.
   * History
-    * Pull requests are merged using rebase merge, which means that pull request
+    * Pull requests are merged using squash merge, which means that pull request
     branches should always be rebased on top of master. Therefore, it's
     strongly recommended to not perform any merges on branches that you are
     planning to use for pull requests.
