@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 cpuFrequency=3400
-kernelRelease="4.9.0-4-amd64"
+kernelRelease="4.9.0-5-amd64"
 
 # These cannot be written (IO Error)
 irqAffinitySkip=( /proc/irq/0/smp_affinity /proc/irq/2/smp_affinity )
@@ -109,6 +109,10 @@ function checkRunningProcesses() {
 # CPU Frequency
 
 function checkFrequency() {
+  # Rsc: for our benchbox, we do the following:
+  # 1) make sure that checkNoPstate passes
+  # 2) run the following bash script:
+  # for cpu in {0..3} ; do sudo cpufreq-set -c "$cpu" -g "userspace"; sudo cpufreq-set -c "$cpu" -f "${cpuFrequency}000"; done
   local freqs=$(cat /proc/cpuinfo | grep MHz)
   local c=$(echo "$freqs" | grep $cpuFrequency.000 | wc -l)
   [[ "$c" == "4" ]] ||
