@@ -210,7 +210,7 @@ function resetIrqAffinity() {
 
 function usage() {
 cat << EOM
-Usage: $1 [set|reset] [opts]
+Usage: $1 [check|set|reset] [opts]
   -nf: do not set a fixed CPU frequency ($cpuFrequency)
   -ni: do not set the affinity for interrupt handlers to CPU 1
 EOM
