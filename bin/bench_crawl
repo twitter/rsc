@@ -51,6 +51,11 @@ with open(performance_json_path, "r") as performance_json_file:
 done = map(lambda json: json["GitFullSha"], performance_json)
 print "Found " + str(len(done)) + " processed commits"
 todo = filter(lambda sha: not sha in done, todo)
+blacklist = [
+  "386782e26160938924a9110e075fa691319db141" # unexpected kernel version, updated in the next commit
+]
+print "Found " + str(len(blacklist)) + " blacklisted commits"
+todo = filter(lambda sha: not sha in blacklist, todo)
 print "Detected " + str(len(todo)) + " todo commits"
 for i, sha in enumerate(todo):
   print "(" + str(i + 1) + "/" + str(len(todo)) + ") " + sha
