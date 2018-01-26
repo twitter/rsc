@@ -19,7 +19,6 @@ def check_exists(path):
   return path
 binary_path = check_exists(os.path.abspath(sys.argv[0]))
 repo_path = check_exists(os.path.dirname(os.path.dirname(binary_path)))
-bench_upload_path = check_exists(os.path.join(repo_path, "bin", "bench_upload"))
 
 start = time.time()
 sbt_command = ["sbt", "bench" + suite]
@@ -41,7 +40,6 @@ if sbt_process.returncode == 0:
   end = time.time()
   print ""
   print "Benchmarks completed in {0:.3f} s".format(end - start)
-  print "You can upload the results by running: " + bench_upload_path + " " + sbt_log_path
   rows = []
   rows.append(("Benchmark", "Mode", "Cnt", "Score"))
   lengths = [0] * 255
