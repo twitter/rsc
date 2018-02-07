@@ -7,7 +7,11 @@ val versions = new {
 addCommandAlias("benchAll", benchAll.command)
 addCommandAlias("benchCI", benchCI.command)
 addCommandAlias("benchQuick", benchQuick.command)
-addCommandAlias("ci", ";scalafmtTest ;clean ;testsJVM/test ;testsNative/test")
+addCommandAlias("test", ";clean ;ci-all")
+addCommandAlias("ci-all", ";ci-fmt ;ci-jvm ;ci-native")
+addCommandAlias("ci-fmt", "scalafmtTest")
+addCommandAlias("ci-jvm", "testsJVM/test")
+addCommandAlias("ci-native", "testsNative/test")
 lazy val isCI = sys.props.getOrElse("CI", default = "false") == "true"
 
 lazy val commonSettings = Seq(
