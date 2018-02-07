@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 cd "$(dirname "$(dirname $0)")"
-sbt ci
+command="${1:-all}"
+sbt "ci-$command"

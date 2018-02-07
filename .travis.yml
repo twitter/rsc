@@ -1,25 +1,33 @@
-sudo: required
+sudo:
+  - required
 
 branches:
   only:
   - master
 
+language:
+  - scala
+
 scala:
-  - 2.11.11
+  - 2.11.12
+
+jdk:
+  - oraclejdk8
 
 matrix:
   include:
-    - os: linux
-      dist: trusty
-      jdk: oraclejdk8
-      language: scala
-
-before_install:
-  - bin/travis_before_install
+    - env:
+      - CI_COMMAND: fmt
+    - env:
+      - CI_COMMAND: jvm
+    - env:
+      - CI_COMMAND: native
+      before_install:
+        - bin/travis_before_install
 
 script:
   - java -version
-  - bin/ci
+  - bin/ci $CI_COMMAND
 
 cache:
   directories:
