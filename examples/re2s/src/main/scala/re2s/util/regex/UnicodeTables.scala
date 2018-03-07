@@ -2,7 +2,7 @@
 // go/src/pkg/unicode/maketables.go.  Yes it's awful, but frankly
 // it's quicker than porting 1300 more lines of Go.
 
-package java.util.regex
+package re2s.util.regex
 
 import java.util.HashMap
 import java.util.Map

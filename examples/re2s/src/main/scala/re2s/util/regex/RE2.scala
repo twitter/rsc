@@ -16,12 +16,12 @@
 // the primary input datatype, and the method names have been changed to
 // reflect this.
 
-package java.util.regex
+package re2s.util.regex
 
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.List
-import java.util.regex.RE2._
+import re2s.util.regex.RE2._
 
 /**
  * An RE2 class instance is a compiled representation of an RE2 regular

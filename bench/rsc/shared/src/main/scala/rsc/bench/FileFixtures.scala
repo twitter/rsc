@@ -12,7 +12,7 @@ trait FileFixtures {
   }
 
   lazy val re2sDir: File = {
-    new File(s"$buildRoot/examples/re2s/src/main/scala/java/util/regex")
+    new File(s"$buildRoot/examples/re2s/src/main/scala/re2s/util/regex")
   }
 
   lazy val re2sRscFiles: List[File] = {

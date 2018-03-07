@@ -5,11 +5,11 @@
 // Original Go source here:
 // http://code.google.com/p/go/source/browse/src/pkg/regexp/syntax/compile.go
 
-package java.util.regex
+package re2s.util.regex
 
-import java.util.regex.Compiler._
-import java.util.regex.Inst.{Op => IOP}
-import java.util.regex.Regexp.{Op => ROP}
+import re2s.util.regex.Compiler._
+import re2s.util.regex.Inst.{Op => IOP}
+import re2s.util.regex.Regexp.{Op => ROP}
 
 /**
  * Compiler from {@code Regexp} (RE2 abstract syntax) to {@code RE2}

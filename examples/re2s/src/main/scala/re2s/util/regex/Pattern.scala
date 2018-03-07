@@ -1,12 +1,12 @@
 // Copyright 2010 Google Inc. All Rights Reserved.
 
-package java.util.regex
+package re2s.util.regex
 
 import java.io.Serializable
 
 /**
  * A compiled representation of an RE2 regular expression, mimicking the
- * {@code java.util.regex.Pattern} API.
+ * {@code re2s.util.regex.Pattern} API.
  *
  * <p>The matching functions take {@code String} arguments instead of
  * the more general Java {@code CharSequence} since the latter doesn't

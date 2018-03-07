@@ -5,10 +5,10 @@
 // Original Go source here:
 // http://code.google.com/p/go/source/browse/src/pkg/regexp/syntax/prog.go
 
-package java.util.regex
+package re2s.util.regex
 
 import java.util.ArrayList
-import java.util.regex.Inst.{Op => IOP}
+import re2s.util.regex.Inst.{Op => IOP}
 
 /**
  * A Prog is a compiled regular expression program.

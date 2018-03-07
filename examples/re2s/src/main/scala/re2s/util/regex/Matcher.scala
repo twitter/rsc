@@ -1,11 +1,11 @@
 // Copyright 2010 Google Inc. All Rights Reserved.
 
-package java.util.regex
+package re2s.util.regex
 
 /**
  * A stateful iterator that interprets a regex {@code Pattern} on a
  * specific input.  Its interface mimics the JDK 1.4.2
- * {@code java.util.regex.Matcher}.
+ * {@code re2s.util.regex.Matcher}.
  *
  * <p>Conceptually, a Matcher consists of four parts:
  * <ol>
