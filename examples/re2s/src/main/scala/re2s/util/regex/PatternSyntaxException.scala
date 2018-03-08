@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package java.util.regex
+package re2s.util.regex
 
 /**
  * An exception thrown by the parser if the pattern was invalid.
  *
- * Following {@code java.util.regex.PatternSyntaxException}, this is an
+ * Following {@code re2s.util.regex.PatternSyntaxException}, this is an
  * unchecked exception.
  */
 class PatternSyntaxException(error: String, input: String)

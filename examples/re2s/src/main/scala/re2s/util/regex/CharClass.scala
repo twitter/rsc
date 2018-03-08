@@ -5,9 +5,9 @@
 // Original Go source here:
 // http://code.google.com/p/go/source/browse/src/pkg/regexp/syntax/parse.go
 
-package java.util.regex
+package re2s.util.regex
 
-import java.util.regex.CharClass._
+import re2s.util.regex.CharClass._
 
 /**
  * A "builder"-style helper class for manipulating character classes

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package java.util.regex
+package re2s.util.regex
 
 /**
  * Various constants and helper utilities.

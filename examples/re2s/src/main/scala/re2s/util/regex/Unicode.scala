@@ -5,7 +5,7 @@
 // Many of these were derived from the corresponding Go functions in
 // http://code.google.com/p/go/source/browse/src/pkg/unicode/letter.go
 
-package java.util.regex
+package re2s.util.regex
 
 /**
  * Utilities for dealing with Unicode better than Java does.

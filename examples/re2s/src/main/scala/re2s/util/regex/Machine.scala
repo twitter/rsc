@@ -5,13 +5,13 @@
 // Original Go source here:
 // http://code.google.com/p/go/source/browse/src/pkg/regexp/exec.go
 
-package java.util.regex
+package re2s.util.regex
 
 import java.util.ArrayList
 import java.util.Arrays
 import java.util.List
-import java.util.regex.Inst.{Op => IOP}
-import java.util.regex.Machine._
+import re2s.util.regex.Inst.{Op => IOP}
+import re2s.util.regex.Machine._
 
 // A Machine matches an input string of Unicode characters against an
 // RE2 instance using a simple NFA.

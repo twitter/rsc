@@ -9,11 +9,11 @@
 // - Eliminate allocations (new int[], new Regexp[], new ArrayList) by
 //   recycling old arrays on a freelist.
 
-package java.util.regex
+package re2s.util.regex
 
 import java.util.ArrayList
-import java.util.regex.Parser._
-import java.util.regex.Regexp.{Op => ROP}
+import re2s.util.regex.Parser._
+import re2s.util.regex.Regexp.{Op => ROP}
 
 /**
  * A parser of regular expression patterns.

@@ -5,10 +5,10 @@
 // Original Go source here:
 // http://code.google.com/p/go/source/browse/src/pkg/regexp/syntax/simplify.go
 
-package java.util.regex
+package re2s.util.regex
 
 import java.util.ArrayList
-import java.util.regex.Regexp.{Op => ROP}
+import re2s.util.regex.Regexp.{Op => ROP}
 
 object Simplify {
 

@@ -5,10 +5,10 @@
 // Original Go source here:
 // http://code.google.com/p/go/source/browse/src/pkg/regexp/syntax/regexp.go
 
-package java.util.regex
+package re2s.util.regex
 
 import java.util.Arrays
-import java.util.regex.Regexp._
+import re2s.util.regex.Regexp._
 
 /**
  * Regular expression abstract syntax tree.
