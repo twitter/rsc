@@ -133,6 +133,11 @@ object Build extends AutoPlugin {
     val shell = inputKey[Unit]("Run shell command")
   }
 
+  override def projectSettings: Seq[Def.Setting[_]] = List(
+    // NOTE: See https://youtrack.jetbrains.com/issue/SCL-13390.
+    SettingKey[Boolean]("ide-skip-project") := name.value.endsWith("Native")
+  )
+
   override def globalSettings: Seq[Def.Setting[_]] = List(
     scalafmtTest := {
       val projectRoot = Paths.get(".").toAbsolutePath
