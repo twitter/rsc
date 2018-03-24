@@ -84,7 +84,7 @@ def github_ref(path):
   m_url2 = re.match(r"https://github\.com/(.*?)/(.*?).git", remote)
   m_url = m_url1 or m_url2
   ref = GithubRef(m_url.groups()[0], m_url.groups()[1], sha)
-  ref.path = path
+  ref.path = root_path
   return ref
 
 class GithubApi(object):
