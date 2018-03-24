@@ -89,6 +89,7 @@ print "Computing software props..."
 if sys.platform == "darwin": props["SoftwareOperatingSystem"] = "macOS " + stdout("defaults read loginwindow SystemVersionStampAsString")
 elif sys.platform.startswith("linux"): props["SoftwareOperatingSystem"] = stdout("lsb_release -a 2>&1 | grep '^Description:' | awk -F':' '{print $2}'")
 else: raise Exception("unsupported platform " + sys.platform)
+props["SoftwareKernel"] = stdout("uname -rs")
 props["SoftwareJre"] = stdout("java -version 2>&1 | head -n 2 | tail -1")
 props["SoftwareRsc"] = "Rsc " + stdout("sbt -no-colors 'show rscJVM/version' | tail -n 1 | awk -F'] ' '{ print $2 }'")
 props["SoftwareScalac211"] = "Scalac " + stdout("grep scala211 " + build_path + " | head -n 1 | awk -F'\"' '{print $2}'")
