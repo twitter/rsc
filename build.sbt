@@ -1,4 +1,4 @@
-val versions = new {
+val V = new {
   val scala211 = "2.11.12"
   val scala212 = "2.12.4"
   val uTest = "0.6.0"
@@ -17,7 +17,7 @@ lazy val isCI = sys.props.getOrElse("CI", default = "false") == "true"
 lazy val commonSettings = Seq(
   organization := "org.twitter",
   version := version.value.replace("+", "-"),
-  scalaVersion := versions.scala211,
+  scalaVersion := V.scala211,
   scalacOptions ++= Seq("-Ypatmat-exhaust-depth", "off"),
   scalacOptions += "-deprecation",
   scalacOptions += "-unchecked",
@@ -69,7 +69,7 @@ lazy val benchScalac211 = project
   .enablePlugins(JmhPlugin)
   .settings(
     benchSettings,
-    scalaVersion := versions.scala211,
+    scalaVersion := V.scala211,
     libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
   )
 
@@ -79,7 +79,7 @@ lazy val benchScalac212 = project
   .enablePlugins(JmhPlugin)
   .settings(
     benchSettings,
-    scalaVersion := versions.scala212,
+    scalaVersion := V.scala212,
     libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
   )
 
@@ -108,14 +108,14 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
   .in(file("tests"))
   .dependsOn(rsc, benchRsc)
   .jvmSettings(
-    libraryDependencies += "com.lihaoyi" %% "utest" % versions.uTest,
-    libraryDependencies += "com.lihaoyi" %% "utest" % versions.uTest % "test"
+    libraryDependencies += "com.lihaoyi" %% "utest" % V.uTest,
+    libraryDependencies += "com.lihaoyi" %% "utest" % V.uTest % "test"
   )
   .nativeSettings(
     nativeSettings,
     nativeMode := "debug",
-    libraryDependencies += "com.lihaoyi" %%% "utest" % versions.uTest,
-    libraryDependencies += "com.lihaoyi" %%% "utest" % versions.uTest % "test"
+    libraryDependencies += "com.lihaoyi" %%% "utest" % V.uTest,
+    libraryDependencies += "com.lihaoyi" %%% "utest" % V.uTest % "test"
   )
   .settings(
     commonSettings,
