@@ -69,7 +69,7 @@ elif sys.platform.startswith("linux"):
   props["HardwareL3Cache"] = stdout("lscpu | grep '^L3 cache:' | awk -F':' '{print $2}'") + "B"
   def turbo_boost():
     # NOTE: We expect that Turbo Boost is disabled on our Linux benchbox.
-    # If that's not the case, bin/bench_ci_environment will let us know.
+    # If that's not the case, bin/bench_environment will let us know.
     #
     # curr_core = 0
     # max_cores = int(props["HardwarePhysicalCores"])

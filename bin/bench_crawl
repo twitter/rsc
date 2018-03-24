@@ -97,49 +97,52 @@ for i, target_ref in enumerate(todo):
 
 if todo:
   print ""
-  print "Benchmarking work queue..."
-  for i, target_ref in enumerate(todo):
-    with target_ref:
-      print "========================================================================"
-      print "(" + str(i + 1) + "/" + str(len(todo)) + ") " + target_ref.url
-      target_ref.download_https()
-      cd(target_ref.path)
-      target_bin_bench = target_ref.resolve_local("bin/bench")
-      target_bin_bench_command = [target_bin_bench, "CI"]
-      print " ".join(target_bin_bench_command)
-      sys.stdout.flush()
-      target_bin_bench_process = subprocess.Popen(target_bin_bench_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
-      target_bin_bench_output = ""
-      while True:
-        line = target_bin_bench_process.stdout.readline()
-        if line != b'':
-          target_bin_bench_output += line
-          os.write(1, line)
-        else:
-          break
-      target_bin_bench_process.wait()
-      if target_bin_bench_process.returncode == 0:
-        print ""
-        print "Successfully benchmarked " + target_ref.url
-        _, target_bin_bench_path = tempfile.mkstemp(prefix="bench_")
-        with open(target_bin_bench_path, "w") as target_bin_bench_file:
-          target_bin_bench_file.write(target_bin_bench_output)
-        root_bin_bench_crawl = os.path.abspath(sys.argv[0])
-        root_bin_bench_upload = os.path.join(os.path.dirname(root_bin_bench_crawl), "bench_upload")
-        returncode = call(" ".join([root_bin_bench_upload, target_ref.user, target_ref.repo, target_ref.sha, target_bin_bench_path]))
-        if returncode == 0:
-          latest_performance = load_benchmarks()
-          target_pr = index[target_ref.sha]
-          target_base = target_pr["base"]["sha"]
-          before = next(entry for entry in latest_performance if entry["GitFullSha"] == target_base)
-          after = next(entry for entry in latest_performance if entry["GitFullSha"] == target_ref.sha)
-          before1 = "{} {}".format(before["BenchRscNativeTypecheckHotScore"], before["BenchRscNativeTypecheckHotUnit"])
-          after1 = "{} {}".format(after["BenchRscNativeTypecheckHotScore"], after["BenchRscNativeTypecheckHotUnit"])
-          before2 = "{} {}".format(before["BenchRscTypecheckHotScore"], before["BenchRscTypecheckHotUnit"])
-          after2 = "{} {}".format(after["BenchRscTypecheckHotScore"], after["BenchRscTypecheckHotUnit"])
-          latest_commit = github_api("https://api.github.com/repos/{}/{}/commits/performance".format(root_user, root_repo))
-          latest_url = latest_commit["html_url"]
-          body = """
+  print "Checking benchmark environment..."
+  root_bin_bench_environment = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "bench_environment")
+  returncode = call(" ".join([root_bin_bench_environment, "check"]))
+  if returncode == 0:
+    print "Benchmarking work queue..."
+    for i, target_ref in enumerate(todo):
+      with target_ref:
+        print "========================================================================"
+        print "(" + str(i + 1) + "/" + str(len(todo)) + ") " + target_ref.url
+        target_ref.download_https()
+        cd(target_ref.path)
+        target_bin_bench = target_ref.resolve_local("bin/bench")
+        target_bin_bench_command = [target_bin_bench, "CI"]
+        print " ".join(target_bin_bench_command)
+        sys.stdout.flush()
+        target_bin_bench_process = subprocess.Popen(target_bin_bench_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
+        target_bin_bench_output = ""
+        while True:
+          line = target_bin_bench_process.stdout.readline()
+          if line != b'':
+            target_bin_bench_output += line
+            os.write(1, line)
+          else:
+            break
+        target_bin_bench_process.wait()
+        if target_bin_bench_process.returncode == 0:
+          print ""
+          print "Successfully benchmarked " + target_ref.url
+          _, target_bin_bench_path = tempfile.mkstemp(prefix="bench_")
+          with open(target_bin_bench_path, "w") as target_bin_bench_file:
+            target_bin_bench_file.write(target_bin_bench_output)
+          root_bin_bench_upload = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "bench_upload")
+          returncode = call(" ".join([root_bin_bench_upload, target_ref.user, target_ref.repo, target_ref.sha, target_bin_bench_path]))
+          if returncode == 0:
+            latest_performance = load_benchmarks()
+            target_pr = index[target_ref.sha]
+            target_base = target_pr["base"]["sha"]
+            before = next(entry for entry in latest_performance if entry["GitFullSha"] == target_base)
+            after = next(entry for entry in latest_performance if entry["GitFullSha"] == target_ref.sha)
+            before1 = "{} {}".format(before["BenchRscNativeTypecheckHotScore"], before["BenchRscNativeTypecheckHotUnit"])
+            after1 = "{} {}".format(after["BenchRscNativeTypecheckHotScore"], after["BenchRscNativeTypecheckHotUnit"])
+            before2 = "{} {}".format(before["BenchRscTypecheckHotScore"], before["BenchRscTypecheckHotUnit"])
+            after2 = "{} {}".format(after["BenchRscTypecheckHotScore"], after["BenchRscTypecheckHotUnit"])
+            latest_commit = github_api("https://api.github.com/repos/{}/{}/commits/performance".format(root_user, root_repo))
+            latest_url = latest_commit["html_url"]
+            body = """
 Finished benchmarking {}.
 
 | Benchmark          | Before | After |
@@ -148,9 +151,8 @@ Finished benchmarking {}.
 | RscTypecheck       | {}     | {}    |
 
 Full results are available at {}.""".strip().format(target_ref.markdown, before1, after1, before2, after2, latest_url)
-          github_api(target_pr["comments_url"], {"body": body})
-      else:
-        print ""
-        print "Error benchmarking " + target_ref.url
-        print "Nothing to upload for " + target_ref.url
-
+            github_api(target_pr["comments_url"], {"body": body})
+        else:
+          print ""
+          print "Error benchmarking " + target_ref.url
+          print "Nothing to upload for " + target_ref.url
