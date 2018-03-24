@@ -23,7 +23,7 @@ matrix:
     - env:
       - CI_COMMAND: native
       before_install:
-        - bin/travis_before_install
+        - curl https://raw.githubusercontent.com/scala-native/scala-native/master/scripts/travis_setup.sh | bash -x
 
 script:
   - java -version
