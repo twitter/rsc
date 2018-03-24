@@ -25,7 +25,8 @@ lazy val commonSettings = Seq(
   scalacOptions += "-Ywarn-unused-import",
   scalacOptions ++= { if (isCI) List("-Xfatal-warnings") else Nil },
   scalacOptions in (Compile, console) := Nil,
-  cancelable := true
+  cancelable := true,
+  publishArtifact in packageDoc := sys.env.contains("CI")
 )
 
 lazy val benchSettings = commonSettings ++ Seq(
