@@ -113,7 +113,7 @@ class TreeStr(val p: Printer) {
       case ModVar() =>
         p.str("var")
       case x @ NamedId(value) =>
-        if (x.uid != NoUid) p.str("<" + x.uid + ">")
+        if (x.sym != NoSymbol) p.str("<" + x.sym + ">")
         else p.str(value)
       case PatAlternative(pats) =>
         apply(pats, " | ")
@@ -150,7 +150,7 @@ class TreeStr(val p: Printer) {
           p.str(" ")
           p.Suffix(" ")(mods)(apply(_, " "))
         }
-        if (tree.id.uid != NoUid) p.str("<" + tree.id.uid + ">")
+        if (tree.id.sym != NoSymbol) p.str("<" + tree.id.sym + ">")
         else ()
         p.Parens(apply(params, ", "))
       case Source(stats) =>

@@ -8,12 +8,12 @@ import rsc.pretty._
 import rsc.syntax._
 import rsc.util._
 
-sealed abstract class Scope(val uid: Uid) extends Pretty {
+sealed abstract class Scope(val sym: Symbol) extends Pretty {
   var status: Status = PendingStatus
 
-  def enter(sid: Sid, uid: Uid): Uid
+  def enter(sid: Sid, sym: Symbol): Symbol
 
-  def lookup(sid: Sid): Uid
+  def lookup(sid: Sid): Symbol
 
   def resolve(sid: Sid): Resolution = {
     status match {
@@ -119,8 +119,8 @@ sealed abstract class Scope(val uid: Uid) extends Pretty {
   }
 }
 
-final class ImporterScope private (uid: Uid, val tree: Importer)
-    extends Scope(uid) {
+final class ImporterScope private (sym: Symbol, val tree: Importer)
+    extends Scope(sym) {
   var _parent: Scope = null
 
   def parent: Scope = {
@@ -139,7 +139,7 @@ final class ImporterScope private (uid: Uid, val tree: Importer)
     }
   }
 
-  override def enter(sid: Sid, uid: Uid): Uid = {
+  override def enter(sid: Sid, sym: Symbol): Symbol = {
     crash(this)
   }
 
@@ -170,11 +170,11 @@ final class ImporterScope private (uid: Uid, val tree: Importer)
     }
   }
 
-  override def lookup(sid: Sid): Uid = {
+  override def lookup(sid: Sid): Symbol = {
     if (status.isSucceeded) {
       val sid1 = remap(sid)
       if (sid1 != null) parent.lookup(sid1)
-      else NoUid
+      else NoSymbol
     } else {
       crash(this)
     }
@@ -208,20 +208,20 @@ final class ImporterScope private (uid: Uid, val tree: Importer)
 
 object ImporterScope {
   def apply(tree: Importer): ImporterScope = {
-    val uid = freshUid() + "::"
-    new ImporterScope(uid, tree)
+    val sym = freshSym() + "::"
+    new ImporterScope(sym, tree)
   }
 
   def apply(alias: String, tree: Importer): ImporterScope = {
-    val uid = alias + " " + freshUid() + "::"
-    new ImporterScope(uid, tree)
+    val sym = alias + " " + freshSym() + "::"
+    new ImporterScope(sym, tree)
   }
 }
 
-sealed abstract class OwnerScope(uid: Uid) extends Scope(uid) {
-  val _storage: Map[Sid, Uid] = new HashMap[Sid, Uid]
+sealed abstract class OwnerScope(sym: Symbol) extends Scope(sym) {
+  val _storage: Map[Sid, Symbol] = new HashMap[Sid, Symbol]
 
-  override def enter(sid: Sid, uid: Uid): Uid = {
+  override def enter(sid: Sid, sym: Symbol): Symbol = {
     if (status.isPending) {
       val existing = _storage.get(sid)
       if (existing != null) {
@@ -231,12 +231,12 @@ sealed abstract class OwnerScope(uid: Uid) extends Scope(uid) {
           case SomeSid(_) =>
             crash(sid)
           case _ =>
-            uid match {
-              case NoUid =>
+            sym match {
+              case NoSymbol =>
                 crash(sid)
               case _ =>
-                _storage.put(sid, uid)
-                NoUid
+                _storage.put(sid, sym)
+                NoSymbol
             }
         }
       }
@@ -245,7 +245,7 @@ sealed abstract class OwnerScope(uid: Uid) extends Scope(uid) {
     }
   }
 
-  override def lookup(sid: Sid): Uid = {
+  override def lookup(sid: Sid): Symbol = {
     if (status.isSucceeded) {
       val result = _storage.get(sid)
       if (result != null) {
@@ -255,7 +255,7 @@ sealed abstract class OwnerScope(uid: Uid) extends Scope(uid) {
           case SomeSid(value) =>
             crash(sid)
           case _ =>
-            NoUid
+            NoSymbol
         }
       }
     } else {
@@ -282,25 +282,25 @@ sealed abstract class OwnerScope(uid: Uid) extends Scope(uid) {
   }
 }
 
-final class FlatScope private (uid: Uid) extends OwnerScope(uid)
+final class FlatScope private (sym: Symbol) extends OwnerScope(sym)
 
 object FlatScope {
   def apply(alias: String): FlatScope = {
-    val uid = alias + freshUid() + "::"
-    new FlatScope(uid)
+    val sym = alias + freshSym() + "::"
+    new FlatScope(sym)
   }
 }
 
-final class PackageScope private (uid: Uid) extends OwnerScope(uid)
+final class PackageScope private (sym: Symbol) extends OwnerScope(sym)
 
 object PackageScope {
-  def apply(uid: Uid): PackageScope = {
-    new PackageScope(uid)
+  def apply(sym: Symbol): PackageScope = {
+    new PackageScope(sym)
   }
 }
 
-final class TemplateScope private (uid: Uid, val tree: DefnTemplate)
-    extends OwnerScope(uid) {
+final class TemplateScope private (sym: Symbol, val tree: DefnTemplate)
+    extends OwnerScope(sym) {
   var _parents: List[TemplateScope] = null
   var _env: Env = null
 
@@ -321,12 +321,12 @@ final class TemplateScope private (uid: Uid, val tree: DefnTemplate)
     }
   }
 
-  override def lookup(sid: Sid): Uid = {
+  override def lookup(sid: Sid): Symbol = {
     super.lookup(sid) match {
-      case NoUid =>
+      case NoSymbol =>
         _env.lookup(sid)
-      case uid =>
-        uid
+      case sym =>
+        sym
     }
   }
 
@@ -349,19 +349,19 @@ final class TemplateScope private (uid: Uid, val tree: DefnTemplate)
 
 object TemplateScope {
   def apply(tree: DefnTemplate): TemplateScope = {
-    new TemplateScope(tree.id.uid, tree)
+    new TemplateScope(tree.id.sym, tree)
   }
 }
 
-final class SuperScope private (uid: Uid, val underlying: TemplateScope)
-    extends Scope(uid) {
+final class SuperScope private (sym: Symbol, val underlying: TemplateScope)
+    extends Scope(sym) {
   status = SucceededStatus
 
-  override def enter(sid: Sid, uid: Uid): Uid = {
+  override def enter(sid: Sid, sym: Symbol): Symbol = {
     crash(this)
   }
 
-  override def lookup(sid: Sid): Uid = {
+  override def lookup(sid: Sid): Symbol = {
     underlying._env.lookup(sid)
   }
 
@@ -381,7 +381,7 @@ final class SuperScope private (uid: Uid, val underlying: TemplateScope)
 
 object SuperScope {
   def apply(underlying: TemplateScope): SuperScope = {
-    val uid = underlying.uid + "::super::"
-    new SuperScope(uid, underlying)
+    val sym = underlying.sym + "::super::"
+    new SuperScope(sym, underlying)
   }
 }

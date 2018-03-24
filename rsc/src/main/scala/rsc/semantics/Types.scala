@@ -11,10 +11,10 @@ sealed trait Type extends Pretty with Product {
 
 final case object NoType extends Type
 
-final case class SimpleType(uid: Uid, targs: List[SimpleType]) extends Type
+final case class SimpleType(sym: Symbol, targs: List[SimpleType]) extends Type
 
 final case class MethodType(
-    tparams: List[Uid],
-    params: List[Uid],
+    tparams: List[Symbol],
+    params: List[Symbol],
     ret: SimpleType)
     extends Type

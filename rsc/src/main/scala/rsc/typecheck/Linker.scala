@@ -22,30 +22,30 @@ final class Linker private (
     // See stdlib/src/main/scala/Stdlib.scala for an example for such stubs.
   }
 
-  private def createPi(): Uid = {
-    val uid = "π."
-    val scope = PackageScope(uid)
-    symtab.scopes(uid) = scope
+  private def createPi(): Symbol = {
+    val sym = "π."
+    val scope = PackageScope(sym)
+    symtab.scopes(sym) = scope
     todo.scopes.add(Env(), scope)
-    symtab.outlines(uid) = DefnPackage(TermId("π").withUid(uid), Nil)
-    uid
+    symtab.outlines(sym) = DefnPackage(TermId("π").withSym(sym), Nil)
+    sym
   }
 
-  private def createPackage(owner: Uid, value: String): Uid = {
+  private def createPackage(owner: Symbol, value: String): Symbol = {
     val sid = TermSid(value)
-    val uid = {
+    val sym = {
       if (owner == "π.") value + "."
       else owner + value + "."
     }
-    val outline = DefnPackage(TermId(value).withUid(uid), Nil)
-    val scope = PackageScope(uid)
+    val outline = DefnPackage(TermId(value).withSym(sym), Nil)
+    val scope = PackageScope(sym)
     todo.scopes.add(Env() -> scope)
     val ownerScope = symtab.scopes(owner)
-    ownerScope.enter(sid, uid) match {
-      case NoUid =>
-        symtab.scopes(uid) = scope
-        symtab.outlines(uid) = outline
-        uid
+    ownerScope.enter(sid, sym) match {
+      case NoSymbol =>
+        symtab.scopes(sym) = scope
+        symtab.outlines(sym) = outline
+        sym
       case _ =>
         crash(ownerScope)
     }

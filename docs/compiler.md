@@ -185,19 +185,11 @@ but we will be definitely keeping an eye on this aspect of our architecture.
 
 Following Dotty, we decided to separate symbols from their meanings.
 Furthermore, following Scalameta, we decided to turn symbols into dumb tokens
-that don't carry any data and don't define any methods. Given that we
-significantly changed the original concept, we decided to rename
-symbols to something else. Without further ado, meet uids.
+that don't carry any data and don't define any methods.
 
 ```scala
-type Uid = String
-val NoUid: Uid = ""
-
-private var counter = 0
-def freshUid(): Uid = {
-  counter += 1
-  counter.toString
-}
+type Symbol = String
+val NoSymbol: Symbol = ""
 ```
 
 You can see that, unlike in trees, here we avoid options and use null objects
@@ -207,7 +199,7 @@ When we were deciding on options vs null objects in the typechecker, there was
 no typechecker and, therefore, there was nothing to benchmark. Now we have
 a working typechecker, so we'll be following up with numbers in the near future.
 
-Meanings of uids are stored in symbol tables, with members represented
+Meanings of symbols are stored in symbol tables, with members represented
 in `Symtab.scopes` and signatures represented in `Symtab.outlines`.
 Looks like that it's all that's needed to encode the functionality
 of symbols in Scalac and Dotty. (We are currently using the `HashMap` from the
@@ -216,19 +208,19 @@ found in Scalac, Dotty and Kentucky Mule.)
 
 ```scala
 final class Symtab {
-  val scopes: Map[Uid, Scope] = new HashMap[Uid, Scope]
-  val outlines: Map[Uid, Outline] = new HashMap[Uid, Outline]
+  val scopes: Map[Symbol, Scope] = new HashMap[Symbol, Scope]
+  val outlines: Map[Symbol, Outline] = new HashMap[Symbol, Outline]
 }
 ```
 
-Scopes are collections of uids that support entering uids under simple ids
-and looking up uids using simple ids. Following the language specification,
+Scopes are collections of symbols that support entering symbols under simple ids
+and looking up symbols using simple ids. Following the language specification,
 such a simple id can be either a `TermSid` or a `TypeSid`.
 
 ```scala
-sealed abstract class Scope(val uid: Uid) {
-  def enter(sid: Sid, uid: Uid): Uid
-  def lookup(sid: Sid): Uid
+sealed abstract class Scope(val sym: Symbol) {
+  def enter(sid: Sid, sym: Symbol): Symbol
+  def lookup(sid: Sid): Symbol
   ...
 }
 ```
@@ -243,7 +235,7 @@ to limit its necessity to a very small part of the typechecker
 (we will provide a detailed explanation below).
 
 ```scala
-sealed abstract class Scope(val uid: Uid) {
+sealed abstract class Scope(val sym: Symbol) {
   ...
 
   var status: Status = PendingStatus
@@ -291,11 +283,11 @@ sealed trait Type
 
 final case object NoType extends Type
 
-final case class SimpleType(uid: Uid, targs: List[SimpleType]) extends Type
+final case class SimpleType(sym: Symbol, targs: List[SimpleType]) extends Type
 
 final case class MethodType(
-    tparams: List[Uid],
-    params: List[Uid],
+    tparams: List[Symbol],
+    params: List[Symbol],
     ret: SimpleType)
     extends Type
 ```

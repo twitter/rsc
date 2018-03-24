@@ -117,9 +117,9 @@ object Error {
 }
 
 sealed trait Id extends Tree {
-  var uid: Uid = NoUid
-  def withUid(uid: Uid): this.type = {
-    this.uid = uid
+  var sym: Symbol = NoSymbol
+  def withSym(sym: Symbol): this.type = {
+    this.sym = sym
     this
   }
 }
@@ -315,8 +315,8 @@ object TptApply {
 final case class TptFunction(targs: List[Tpt]) extends TptApply {
   def fun = {
     val value = "Function" + (targs.length - 1)
-    val uid = "_root_.scala." + value + "#"
-    TptId(value).withUid(uid)
+    val sym = "_root_.scala." + value + "#"
+    TptId(value).withSym(sym)
   }
 }
 
@@ -335,7 +335,7 @@ final case class TptParameterizeInfix(lhs: Tpt, op: TptId, rhs: Tpt)
 }
 
 final case class TptRepeat(targ: Tpt) extends Tpt with TptApply {
-  def fun = TptId("Seq").withUid("_root_.scala.Seq#")
+  def fun = TptId("Seq").withSym("_root_.scala.Seq#")
   def targs = List(targ)
 }
 
@@ -344,8 +344,8 @@ final case class TptSelect(qual: TermPath, id: TptId) extends TptPath
 final case class TptTuple(targs: List[Tpt]) extends TptApply {
   def fun = {
     val value = "Tuple" + targs.length
-    val uid = "_root_.scala." + value + "#"
-    TptId(value).withUid(uid)
+    val sym = "_root_.scala." + value + "#"
+    TptId(value).withSym(sym)
   }
 }
 
@@ -358,6 +358,6 @@ final case class TypeParam(
     lbound: Option[Tpt])
     extends Tree
     with Outline {
-  def hi = ubound.getOrElse(TptId("Any").withUid("_root_.scala.Any#"))
-  def lo = lbound.getOrElse(TptId("Nothing").withUid("_root_.scala.Nothing#"))
+  def hi = ubound.getOrElse(TptId("Any").withSym("_root_.scala.Any#"))
+  def lo = lbound.getOrElse(TptId("Nothing").withSym("_root_.scala.Nothing#"))
 }
