@@ -3,7 +3,7 @@
 package rsc.pretty
 
 import scala.collection.JavaConverters._
-import rsc.semantics._
+import rsc.typecheck._
 import rsc.util._
 
 object PrettyScope {

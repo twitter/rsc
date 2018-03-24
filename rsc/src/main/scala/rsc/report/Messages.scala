@@ -7,6 +7,7 @@ import rsc.lexis._
 import rsc.pretty._
 import rsc.semantics._
 import rsc.syntax._
+import rsc.typecheck._
 import rsc.util._
 
 sealed trait Message extends Pretty with Product {
