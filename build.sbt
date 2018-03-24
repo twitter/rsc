@@ -15,7 +15,7 @@ addCommandAlias("ci-native", "testsNative/test")
 lazy val isCI = sys.props.getOrElse("CI", default = "false") == "true"
 
 lazy val commonSettings = Seq(
-  organization := "org.twitter",
+  organization := "com.twitter",
   version := version.value.replace("+", "-"),
   scalaVersion := V.scala211,
   scalacOptions ++= Seq("-Ypatmat-exhaust-depth", "off"),
