@@ -108,7 +108,10 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("tests"))
   .dependsOn(rsc, benchRsc)
-  .nativeSettings(nativeSettings)
+  .nativeSettings(
+    nativeSettings,
+    nativeMode := "debug"
+  )
   .settings(
     commonSettings,
     libraryDependencies += "com.github.xenoby" %%% "utest" % V.uTest,
