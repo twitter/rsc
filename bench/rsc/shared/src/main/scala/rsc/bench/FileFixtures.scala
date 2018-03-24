@@ -11,7 +11,7 @@ trait FileFixtures {
   }
 
   lazy val re2sDir: Path = {
-    buildRoot.resolve("examples/re2s/src/main/scala/java/util/regex")
+    buildRoot.resolve("examples/re2s/src/main/scala/com/twitter/re2s")
   }
 
   lazy val re2sRscFiles: List[Path] = {

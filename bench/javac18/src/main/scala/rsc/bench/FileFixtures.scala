@@ -11,7 +11,7 @@ trait FileFixtures {
   }
 
   lazy val re2jDir: Path = {
-    buildRoot.resolve("examples/re2j/src/main/java/java/util/regex")
+    buildRoot.resolve("examples/re2j/src/main/java/com/google/re2j")
   }
 
   lazy val re2jFiles: List[Path] = {

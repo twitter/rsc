@@ -1,6 +1,6 @@
 // Copyright 2010 Google Inc. All Rights Reserved.
 
-package java.util.regex
+package com.twitter.re2s
 
 /**
  * A stateful iterator that interprets a regex {@code Pattern} on a
