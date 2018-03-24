@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package java.util.regex
+package com.twitter.re2s
 
 /**
  * An exception thrown by the parser if the pattern was invalid.

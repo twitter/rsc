@@ -20,12 +20,12 @@ final class Scheduler private (
       case tree: DefnPackage => defnPackage(env, tree)
       case tree: DefnTemplate => defnTemplate(env, tree)
       case tree: DefnType => defnType(env, tree)
-      case tree: Import => unreachable(tree)
-      case tree: PrimaryCtor => unreachable(tree)
+      case tree: Import => crash(tree)
+      case tree: PrimaryCtor => crash(tree)
       case tree: Source => source(env, tree)
       case tree: TermParam => termParam(env, tree)
       case tree: TypeParam => typeParam(env, tree)
-      case _ => unreachable(tree)
+      case _ => crash(tree)
     }
   }
 
@@ -78,7 +78,7 @@ final class Scheduler private (
         qual match {
           case id: TermId => (env, id)
           case TermSelect(qual: TermPath, id) => (loop(env, qual), id)
-          case _ => unreachable(tree)
+          case _ => crash(tree)
         }
       }
       val proposedUid = qualEnv.owner.uid + id.sid.str
@@ -95,7 +95,7 @@ final class Scheduler private (
             case _: DefnPackage =>
               id.uid = existingUid
             case _ =>
-              unsupported("overloading")
+              crash("overloading")
           }
       }
       symtab.scopes(id.uid) :: qualEnv
@@ -118,7 +118,9 @@ final class Scheduler private (
       val templateEnv = {
         val templateScope = TemplateScope(tree)
         symtab.scopes(uid) = templateScope
-        assignUid(templateScope, tree.ctor.id, tree.ctor)
+        if (tree.isInstanceOf[DefnClass]) {
+          assignUid(templateScope, tree.ctor.id, tree.ctor)
+        }
         todo.scopes.add(tparamEnv -> templateScope)
         tree.ctor.params.foreach(p => templateScope.enter(p.id.sid, p.id.uid))
         templateScope :: ctorEnv

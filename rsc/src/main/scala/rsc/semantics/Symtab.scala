@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.semantics
 
-import java.util.{ HashMap, Map }
+import java.util.{HashMap, Map}
 import rsc.pretty._
 import rsc.syntax._
 import rsc.util._
@@ -15,17 +15,17 @@ final class Symtab private extends Pretty {
     def apply(uid: Uid): Scope = {
       val scope = _scopes.get(uid)
       if (scope == null) {
-        unreachable(uid)
+        crash(uid)
       }
       scope
     }
 
     def update(uid: Uid, scope: Scope): Unit = {
       if (_scopes.containsKey(uid)) {
-        unreachable(uid)
+        crash(uid)
       }
       uid match {
-        case NoUid => unreachable(scope)
+        case NoUid => crash(scope)
         case other => _scopes.put(other, scope)
       }
     }
@@ -35,17 +35,17 @@ final class Symtab private extends Pretty {
     def apply(uid: Uid): Outline = {
       val outline = _outlines.get(uid)
       if (outline == null) {
-        unreachable(uid)
+        crash(uid)
       }
       outline
     }
 
     def update(uid: Uid, outline: Outline): Unit = {
       if (_outlines.containsKey(uid)) {
-        unreachable(uid)
+        crash(uid)
       }
       uid match {
-        case NoUid => unreachable(outline)
+        case NoUid => crash(outline)
         case other => _outlines.put(uid, outline)
       }
     }

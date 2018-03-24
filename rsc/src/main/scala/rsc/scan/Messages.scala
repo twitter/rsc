@@ -20,6 +20,6 @@ trait Messages {
   }
 
   private def skip(): Unit = {
-    unsupported("smart handling of fatal lexing errors")
+    crash("smart handling of fatal lexing errors")
   }
 }

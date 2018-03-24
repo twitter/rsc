@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.semantics
 
-import java.util.{ HashMap, Map }
+import java.util.{HashMap, Map}
 import scala.collection.mutable
 import rsc.pretty._
 import rsc.syntax._
@@ -24,7 +24,7 @@ sealed abstract class Scope(val uid: Uid) extends Pretty {
       case _: FailedStatus =>
         ErrorResolution
       case SucceededStatus =>
-        unreachable(this)
+        crash(this)
     }
   }
 
@@ -70,10 +70,10 @@ sealed abstract class Scope(val uid: Uid) extends Pretty {
           case _: FailedStatus =>
             status = ErrorStatus
           case SucceededStatus =>
-            unreachable(this)
+            crash(this)
         }
       case _ =>
-        unreachable(this)
+        crash(this)
     }
   }
 
@@ -97,7 +97,7 @@ sealed abstract class Scope(val uid: Uid) extends Pretty {
       case PendingStatus =>
         status = ErrorStatus
       case _ =>
-        unreachable(this)
+        crash(this)
     }
   }
 
@@ -106,7 +106,7 @@ sealed abstract class Scope(val uid: Uid) extends Pretty {
       case PendingStatus =>
         status = SucceededStatus
       case _ =>
-        unreachable(this)
+        crash(this)
     }
   }
 
@@ -127,7 +127,7 @@ final class ImporterScope private (uid: Uid, val tree: Importer)
     if (status.isSucceeded) {
       _parent
     } else {
-      unreachable(this)
+      crash(this)
     }
   }
 
@@ -135,12 +135,12 @@ final class ImporterScope private (uid: Uid, val tree: Importer)
     if (status.isPending) {
       _parent = parent
     } else {
-      unreachable(this)
+      crash(this)
     }
   }
 
   override def enter(sid: Sid, uid: Uid): Uid = {
-    unreachable(this)
+    crash(this)
   }
 
   val _mappings: Map[String, String] = new HashMap[String, String]
@@ -176,7 +176,7 @@ final class ImporterScope private (uid: Uid, val tree: Importer)
       if (sid1 != null) parent.lookup(sid1)
       else NoUid
     } else {
-      unreachable(this)
+      crash(this)
     }
   }
 
@@ -200,7 +200,7 @@ final class ImporterScope private (uid: Uid, val tree: Importer)
 
   override def succeed(): Unit = {
     if (_parent == null) {
-      unreachable(this)
+      crash(this)
     }
     super.succeed()
   }
@@ -229,11 +229,11 @@ sealed abstract class OwnerScope(uid: Uid) extends Scope(uid) {
       } else {
         sid match {
           case SomeSid(_) =>
-            unreachable(sid)
+            crash(sid)
           case _ =>
             uid match {
               case NoUid =>
-                unreachable(sid)
+                crash(sid)
               case _ =>
                 _storage.put(sid, uid)
                 NoUid
@@ -241,7 +241,7 @@ sealed abstract class OwnerScope(uid: Uid) extends Scope(uid) {
         }
       }
     } else {
-      unreachable(this)
+      crash(this)
     }
   }
 
@@ -253,13 +253,13 @@ sealed abstract class OwnerScope(uid: Uid) extends Scope(uid) {
       } else {
         sid match {
           case SomeSid(value) =>
-            unreachable(sid)
+            crash(sid)
           case _ =>
             NoUid
         }
       }
     } else {
-      unreachable(this)
+      crash(this)
     }
   }
 
@@ -271,7 +271,7 @@ sealed abstract class OwnerScope(uid: Uid) extends Scope(uid) {
       } else {
         sid match {
           case SomeSid(value) =>
-            unreachable(sid)
+            crash(sid)
           case _ =>
             MissingResolution
         }
@@ -308,7 +308,7 @@ final class TemplateScope private (uid: Uid, val tree: DefnTemplate)
     if (status.isSucceeded) {
       _parents
     } else {
-      unreachable(this)
+      crash(this)
     }
   }
 
@@ -317,7 +317,7 @@ final class TemplateScope private (uid: Uid, val tree: DefnTemplate)
       _parents = parents
       _env = Env(parents.reverse)
     } else {
-      unreachable(this)
+      crash(this)
     }
   }
 
@@ -341,7 +341,7 @@ final class TemplateScope private (uid: Uid, val tree: DefnTemplate)
 
   override def succeed(): Unit = {
     if (_parents == null) {
-      unreachable(this)
+      crash(this)
     }
     super.succeed()
   }
@@ -358,7 +358,7 @@ final class SuperScope private (uid: Uid, val underlying: TemplateScope)
   status = SucceededStatus
 
   override def enter(sid: Sid, uid: Uid): Uid = {
-    unreachable(this)
+    crash(this)
   }
 
   override def lookup(sid: Sid): Uid = {

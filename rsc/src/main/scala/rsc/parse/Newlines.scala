@@ -20,7 +20,7 @@ trait Newlines {
     var value: Any = null
     def idValue: String = {
       if (value != null) value.asInstanceOf[String]
-      else unreachable(tokenRepl(token))
+      else crash(tokenRepl(token))
     }
 
     def nextToken(): Unit = {

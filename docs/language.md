@@ -31,9 +31,9 @@ features. Here's an excerpt from our example project called
 [re2s](../examples/re2s).
 
 ```scala
-package java.util.regex
+package com.twitter.re2s
 
-import java.util.regex.CharClass._
+import com.twitter.re2s.CharClass._
 
 /**
  * A "builder"-style helper class for manipulating character classes

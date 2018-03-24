@@ -2,14 +2,14 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.lexis
 
-import java.io._
+import java.nio.file._
 import scala.collection.mutable
 import rsc.pretty._
 
-sealed class Input protected (val file: File) extends Pretty {
+sealed class Input protected (val path: Path) extends Pretty {
   lazy val string: String = {
     val codec = scala.io.Codec.UTF8
-    val source = scala.io.Source.fromFile(file)(codec)
+    val source = scala.io.Source.fromFile(path.toFile)(codec)
     try source.mkString
     finally source.close()
   }
@@ -68,9 +68,9 @@ sealed class Input protected (val file: File) extends Pretty {
 }
 
 object Input {
-  def apply(file: File): Input = {
-    new Input(file)
+  def apply(path: Path): Input = {
+    new Input(path)
   }
 }
 
-object NoInput extends Input(new File(""))
+object NoInput extends Input(Paths.get(""))

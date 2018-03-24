@@ -32,6 +32,6 @@ object PrettySymtab {
   }
 
   def repl(p: Printer, x: Symtab): Unit = {
-    unsupported(x)
+    crash(x)
   }
 }

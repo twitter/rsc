@@ -45,7 +45,7 @@ architecture
 * We benchmarked our prototype typechecker, and it turned out to be
 [significantly faster than the full Scalac typechecker](docs/performance.md)
 * We will be carefully expanding the scope of Rsc
-according to [our roadmap](../../milestones)
+according to [our roadmap](docs/roadmap.md)
 
 ## Documentation
 

@@ -40,7 +40,7 @@ final class Scanner private (
           'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' =>
         alphanumericIdOrKeyword()
         if (ch == '"' && token == ID) {
-          unsupported("string interpolation")
+          crash("string interpolation")
         }
       case '-' =>
         if (isDecimalDigit(ch1)) {
@@ -126,7 +126,7 @@ final class Scanner private (
   }
 
   private def backquotedId(): Unit = {
-    unsupported("backquoted identifiers")
+    crash("backquoted identifiers")
   }
 
   private def characterOrSymbol(): Unit = {
@@ -180,7 +180,7 @@ final class Scanner private (
         nextChar()
         emit(COMMENT, null)
       case _ =>
-        unreachable(ch)
+        crash(ch)
     }
   }
 

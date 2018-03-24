@@ -257,7 +257,7 @@ sealed abstract class Scope(val uid: Uid) {
       case _: FailedStatus =>
         ErrorResolution
       case SucceededStatus =>
-        unreachable(this)
+        crash(this)
     }
   }
 

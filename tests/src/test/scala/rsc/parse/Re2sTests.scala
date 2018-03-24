@@ -16,7 +16,7 @@ object Re2sTests extends RscTests {
 
       val files2 = trees1.map { tree =>
         val prefix = "rsc_"
-        val suffix = "_" + tree.pos.input.file.getName
+        val suffix = "_" + tree.pos.input.path.getFileName
         val path = Files.createTempFile(prefix, suffix)
         Files.write(path, tree.str.getBytes)
         path.toFile

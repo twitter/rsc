@@ -5,10 +5,10 @@
 // Original Go source here:
 // http://code.google.com/p/go/source/browse/src/pkg/regexp/syntax/prog.go
 
-package java.util.regex
+package com.twitter.re2s
 
-import java.util.regex.Inst._
-import java.util.regex.Inst.Op._
+import com.twitter.re2s.Inst._
+import com.twitter.re2s.Inst.Op._
 
 /**
  * A single instruction in the regular expression virtual machine.

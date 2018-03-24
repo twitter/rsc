@@ -5,4 +5,6 @@ package rsc.lexis
 trait Offsets {
   type Offset = Int
   val NoOffset: Offset = -1
+  val NoLine: Offset = -1
+  val NoColumn: Offset = -1
 }

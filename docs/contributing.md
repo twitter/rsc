@@ -73,9 +73,8 @@
     them into multiple commits - one commit per change, each accompanied by
     a detailed commit message as described above.
   * History
-    * Pull requests are merged using squash merge, which means that pull request
-    branches should always be rebased on top of master. Therefore, it's
-    strongly recommended to not perform any merges on branches that you are
+    * Pull request branches should always be rebased on top of master. Therefore,
+    it's strongly recommended to not perform any merges on branches that you are
     planning to use for pull requests.
     * It's alright to add new commits to pull request branches to accommodate
     changes that were suggested by the reviewers.

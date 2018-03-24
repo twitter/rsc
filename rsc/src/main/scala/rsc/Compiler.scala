@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc
 
+import java.nio.file._
 import rsc.lexis._
 import rsc.parse._
 import rsc.pretty._
@@ -64,7 +65,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Pretty {
   private def parse(): Unit = {
     val inputs = settings.ins.map(in => Input(in))
     trees = inputs.flatMap { input =>
-      if (input.file.isFile) {
+      if (Files.exists(input.path)) {
         val parser = Parser(settings, reporter, input)
         parser.accept(BOF)
         val tree = parser.source()
@@ -110,12 +111,12 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Pretty {
   }
 
   private def scope(): Unit = {
-    val scopes = Scoper(settings, reporter, symtab, todo)
+    val scoper = Scoper(settings, reporter, symtab, todo)
     while (!todo.scopes.isEmpty) {
       val (env, scope) = todo.scopes.remove()
       scope.unblock()
       if (scope.status.isPending) {
-        scopes.apply(env, scope)
+        scoper.apply(env, scope)
       }
       if (scope.status.isBlocked) {
         todo.scopes.add(env -> scope)

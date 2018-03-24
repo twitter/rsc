@@ -50,7 +50,7 @@ class ProductRepl(p: Printer) {
     case null => p.str("null")
     case f: Pretty => p.repl(f)
     case f: Product => printProduct(f)
-    case other => unsupported(f.getClass.toString)
+    case other => crash(f.getClass.toString)
   }
 
   def apply(x: Product): Unit = {

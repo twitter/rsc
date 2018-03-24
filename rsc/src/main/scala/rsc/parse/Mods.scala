@@ -47,26 +47,29 @@ trait Mods {
       newLineOptWhenFollowedBy(AT)
     }
     if (in.token == AT) {
-      unsupported("annotations")
+      crash("annotations")
     } else {
       Nil
     }
   }
 
   private def annotInit(): Init = {
-    val start = in.offset
-    val tpts = simpleTpt()
+    val initstart = in.offset
+    val tpt = simpleTpt()
+    val idstart = in.offset
     val args = {
       if (in.token != LPAREN) {
-        unsupported("nullary argument lists")
+        crash("nullary argument lists")
       }
       val result = termArgs()
       if (in.token == LPAREN) {
-        unsupported("multiple argument lists")
+        crash("multiple argument lists")
       }
       result
     }
-    atPos(start)(Init(tpts, args))
+    val init = atPos(initstart)(Init(tpt, args))
+    init.id.pos = Position(input, idstart, idstart)
+    init
   }
 
   private def defnFlags(modTokens: BitSet): List[Mod] = {
@@ -106,7 +109,7 @@ trait Mods {
               in.nextToken()
               atPos(start)(ModLazy())
             case IMPLICIT =>
-              unsupported("implicit parameters")
+              crash("implicit parameters")
             case OVERRIDE =>
               in.nextToken()
               atPos(start)(ModOverride())
@@ -120,7 +123,7 @@ trait Mods {
               in.nextToken()
               atPos(start)(ModSealed())
             case _ =>
-              unreachable(tokenRepl(in.token))
+              crash(tokenRepl(in.token))
           }
         }
         loop(addFlag(flags, flag))

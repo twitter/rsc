@@ -137,18 +137,20 @@ class TreeStr(val p: Printer) {
         p.str(".")
         apply(id)
       case tree @ PatTuple(args) =>
-        unsupported(tree)
+        crash(tree)
       case PatVar(id, tpt) =>
         id match {
           case AnonId() => p.str("_")
           case _ => apply(id)
         }
         p.Prefix(": ")(tpt)(apply(_, ""))
-      case PrimaryCtor(mods, params) =>
+      case tree @ PrimaryCtor(mods, params) =>
         if (mods.nonEmpty) {
           p.str(" ")
           p.Suffix(" ")(mods)(apply(_, " "))
         }
+        if (tree.id.uid != NoUid) p.str("<" + tree.id.uid + ">")
+        else ()
         p.Parens(apply(params, ", "))
       case Source(stats) =>
         apply(stats, EOL)
@@ -223,7 +225,7 @@ class TreeStr(val p: Printer) {
       case TermLit(value: Symbol) =>
         p.repl(value)
       case TermLit(other) =>
-        unreachable(other.getClass.toString)
+        crash(other.getClass.toString)
       case TermMatch(term, cases) =>
         apply(term)
         p.str(" match ")

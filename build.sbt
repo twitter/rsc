@@ -1,4 +1,4 @@
-val versions = new {
+val V = new {
   val scala211 = "2.11.12"
   val scala212 = "2.12.4"
   val uTest = "0.6.0"
@@ -15,9 +15,9 @@ addCommandAlias("ci-native", "testsNative/test")
 lazy val isCI = sys.props.getOrElse("CI", default = "false") == "true"
 
 lazy val commonSettings = Seq(
-  organization := "org.twitter",
+  organization := "com.twitter",
   version := version.value.replace("+", "-"),
-  scalaVersion := versions.scala211,
+  scalaVersion := V.scala211,
   scalacOptions ++= Seq("-Ypatmat-exhaust-depth", "off"),
   scalacOptions += "-deprecation",
   scalacOptions += "-unchecked",
@@ -25,7 +25,8 @@ lazy val commonSettings = Seq(
   scalacOptions += "-Ywarn-unused-import",
   scalacOptions ++= { if (isCI) List("-Xfatal-warnings") else Nil },
   scalacOptions in (Compile, console) := Nil,
-  cancelable := true
+  cancelable := true,
+  publishArtifact in packageDoc := sys.env.contains("CI")
 )
 
 lazy val benchSettings = commonSettings ++ Seq(
@@ -69,7 +70,7 @@ lazy val benchScalac211 = project
   .enablePlugins(JmhPlugin)
   .settings(
     benchSettings,
-    scalaVersion := versions.scala211,
+    scalaVersion := V.scala211,
     libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
   )
 
@@ -79,7 +80,7 @@ lazy val benchScalac212 = project
   .enablePlugins(JmhPlugin)
   .settings(
     benchSettings,
-    scalaVersion := versions.scala212,
+    scalaVersion := V.scala212,
     libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
   )
 
@@ -107,18 +108,14 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("tests"))
   .dependsOn(rsc, benchRsc)
-  .jvmSettings(
-    libraryDependencies += "com.lihaoyi" %% "utest" % versions.uTest,
-    libraryDependencies += "com.lihaoyi" %% "utest" % versions.uTest % "test"
-  )
   .nativeSettings(
     nativeSettings,
-    nativeMode := "debug",
-    libraryDependencies += "com.lihaoyi" %%% "utest" % versions.uTest,
-    libraryDependencies += "com.lihaoyi" %%% "utest" % versions.uTest % "test"
+    nativeMode := "debug"
   )
   .settings(
     commonSettings,
+    libraryDependencies += "com.github.xenoby" %%% "utest" % V.uTest,
+    libraryDependencies += "com.github.xenoby" %%% "utest" % V.uTest % "test",
     testFrameworks += new TestFramework("utest.runner.Framework")
   )
 lazy val testsJVM = tests.jvm

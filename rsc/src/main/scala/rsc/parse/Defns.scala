@@ -20,7 +20,7 @@ trait Defns {
 
   def defnDef(start: Offset, mods: List[Mod]): DefnDef = {
     if (in.token == THIS) {
-      unsupported("secondary constructors")
+      crash("secondary constructors")
     } else {
       val id = termId()
       val tparams = typeParams(DefnDefContext)
@@ -30,7 +30,7 @@ trait Defns {
           in.nextToken()
           tpt()
         } else {
-          unsupported("type inference")
+          crash("type inference")
         }
       }
       val body = {
@@ -50,7 +50,7 @@ trait Defns {
       if (in.token == ID) {
         termId()
       } else {
-        unsupported("pattern definitions")
+        crash("pattern definitions")
       }
     }
     val tpt = {
@@ -58,14 +58,14 @@ trait Defns {
         in.nextToken()
         this.tpt()
       } else {
-        unsupported("type inference")
+        crash("type inference")
       }
     }
     val rhs = {
       if (in.token == EQUALS) {
         in.nextToken()
         if (in.token == USCORE) {
-          unsupported("default initial values in vars")
+          crash("default initial values in vars")
         } else {
           Some(term())
         }
@@ -101,9 +101,9 @@ trait Defns {
           in.nextToken()
           tpt()
         case token if token.isStatSep =>
-          unsupported("abstract type members")
+          crash("abstract type members")
         case SUPERTYPE | SUBTYPE | COMMA | RBRACE =>
-          unsupported("abstract type members")
+          crash("abstract type members")
         case _ =>
           val errOffset = in.offset
           reportOffset(in.offset, ExpectedTypeRhs)
@@ -117,6 +117,8 @@ trait Defns {
     val start = in.offset
     val mods = primaryCtorMods()
     val params = termParams(PrimaryCtorContext)
-    atPos(start)(PrimaryCtor(mods, params))
+    val ctor = atPos(start)(PrimaryCtor(mods, params))
+    ctor.id.pos = Position(input, start, start)
+    ctor
   }
 }

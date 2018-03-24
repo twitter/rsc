@@ -10,7 +10,7 @@ import scala.collection.JavaConverters._
 import sbt._
 import sbt.Keys._
 import sbt.plugins._
-import scala.scalanative.sbtplugin.ScalaNativePlugin.AutoImport._
+import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport._
 import complete.DefaultParsers._
 
 object Build extends AutoPlugin {
@@ -133,16 +133,21 @@ object Build extends AutoPlugin {
     val shell = inputKey[Unit]("Run shell command")
   }
 
+  override def projectSettings: Seq[Def.Setting[_]] = List(
+    // NOTE: See https://youtrack.jetbrains.com/issue/SCL-13390.
+    SettingKey[Boolean]("ide-skip-project") := name.value.endsWith("Native")
+  )
+
   override def globalSettings: Seq[Def.Setting[_]] = List(
     scalafmtTest := {
-      val projectRoot = Paths.get(".").toAbsolutePath
+      val projectRoot = Paths.get(".")
       val dotScalafmt = projectRoot.resolve("./scalafmt")
       val binScalafmt = projectRoot.resolve("bin/scalafmt")
       val scalafmtBinary = List(dotScalafmt, binScalafmt).filter(f => exists(f))
       scalafmtBinary match {
         case List(scalafmtBinary, _*) =>
           val options = List("--test", "--non-interactive", "--quiet")
-          val command = scalafmtBinary.toAbsolutePath.toString :: options
+          val command = scalafmtBinary.toString :: options
           val scalafmt = new java.lang.ProcessBuilder()
           scalafmt.command(command.asJava)
           scalafmt.directory(projectRoot.toFile)

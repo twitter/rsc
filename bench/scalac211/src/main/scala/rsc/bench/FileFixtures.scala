@@ -2,21 +2,20 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.bench
 
-import java.io._
-import java.nio.file.Files
+import java.nio.file._
 import scala.collection.JavaConverters._
 
 trait FileFixtures {
-  lazy val buildRoot: File = {
-    BuildInfo.sourceRoot
+  lazy val buildRoot: Path = {
+    BuildInfo.sourceRoot.toPath
   }
 
-  lazy val re2sDir: File = {
-    new File(s"$buildRoot/examples/re2s/src/main/scala/java/util/regex")
+  lazy val re2sDir: Path = {
+    buildRoot.resolve("examples/re2s/src/main/scala/com/twitter/re2s")
   }
 
-  lazy val re2sScalacFiles: List[File] = {
+  lazy val re2sScalacFiles: List[Path] = {
     val stream = Files.newDirectoryStream(re2sDir.toPath)
-    stream.asScala.map(_.toFile).toList
+    stream.asScala.toList
   }
 }

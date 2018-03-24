@@ -23,4 +23,9 @@ object Position {
   }
 }
 
-object NoPosition extends Position(NoInput, NoOffset, NoOffset)
+object NoPosition extends Position(NoInput, NoOffset, NoOffset) {
+  override def startLine: Int = NoLine
+  override def startColumn: Int = NoColumn
+  override def endLine: Int = NoLine
+  override def endColumn: Int = NoColumn
+}

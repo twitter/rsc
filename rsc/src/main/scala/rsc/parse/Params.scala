@@ -11,21 +11,21 @@ trait Params {
   def termParams(ctx: ParamContext): List[TermParam] = {
     newLineOptWhenFollowedBy(LPAREN)
     if (in.token != LPAREN) {
-      unsupported("nullary parameter lists")
+      crash("nullary parameter lists")
     }
     val result = {
       inParens {
         if (in.token == RPAREN) {
           Nil
         } else if (in.token == IMPLICIT) {
-          unsupported("implicit parameters")
+          crash("implicit parameters")
         } else {
           commaSeparated(termParam(ctx))
         }
       }
     }
     if (in.token == LPAREN) {
-      unsupported("multiple parameter lists")
+      crash("multiple parameter lists")
     }
     result
   }
@@ -36,7 +36,7 @@ trait Params {
     val id = {
       if (in.token == USCORE) {
         if (ctx.allowsAnonymous) {
-          unsupported("anonymous parameters")
+          crash("anonymous parameters")
         } else {
           errorTermId()
         }
@@ -50,7 +50,7 @@ trait Params {
         paramTpt()
       } else {
         if (ctx.allowsInferred) {
-          unsupported("type inference")
+          crash("type inference")
         } else {
           val errOffset = in.offset
           accept(COLON)
@@ -61,7 +61,7 @@ trait Params {
     val rhs = {
       if (ctx.allowsDefaults) {
         if (in.token == EQUALS) {
-          unsupported("named and default arguments")
+          crash("named and default arguments")
         } else {
           None
         }
@@ -83,7 +83,7 @@ trait Params {
     val id = {
       if (in.token == USCORE) {
         if (ctx.allowsAnonymous) {
-          unsupported("anonymous type parameters")
+          crash("anonymous type parameters")
         } else {
           errorTptId()
         }
@@ -93,7 +93,7 @@ trait Params {
     }
     val tparams = {
       if (in.token == LBRACKET) {
-        unsupported("higher-kinded types")
+        crash("higher-kinded types")
       } else {
         Nil
       }

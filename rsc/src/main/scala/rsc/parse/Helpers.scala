@@ -83,7 +83,7 @@ trait Helpers {
 
   def makeTptTuple(start: Offset, tpts: List[Tpt]): Tpt = {
     tpts match {
-      case Nil => unreachable(tpts)
+      case Nil => crash(tpts)
       case tpt :: Nil => tpt
       case tpts => atPos(start)(TptTuple(tpts))
     }

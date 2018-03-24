@@ -73,7 +73,7 @@ trait Pats {
           if (in.idValue == "|") {
             unfinished
           } else {
-            unsupported("infix patterns")
+            crash("infix patterns")
           }
         } else {
           unfinished
@@ -101,7 +101,7 @@ trait Pats {
             val tpt = Some(refinedTpt())
             atPos(start)(PatVar(id, tpt))
           } else {
-            unsupported("type inference")
+            crash("type inference")
           }
         } else {
           def reinterpretAsPat(path: TermPath): Pat = {
@@ -111,7 +111,7 @@ trait Pats {
               case TermSelect(qual: TermPath, termId) =>
                 atPos(path.pos)(PatSelect(qual, termId))
               case _ =>
-                unreachable(path)
+                crash(path)
             }
           }
           val path = termPath()
