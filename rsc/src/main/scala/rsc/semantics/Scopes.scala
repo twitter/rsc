@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.semantics
 
-import java.util.{ HashMap, Map }
+import java.util.{HashMap, Map}
 import scala.collection.mutable
 import rsc.pretty._
 import rsc.syntax._
