@@ -103,6 +103,7 @@ if todo:
   benchbox_bin_bench_environment = os.path.join(benchbox_bin, "bench_environment")
   returncode = call(" ".join([benchbox_bin_bench_environment, "check"]))
   if returncode == 0:
+    print ""
     print "Benchmarking work queue..."
     for i, target_ref in enumerate(todo):
       with target_ref:
