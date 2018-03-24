@@ -98,8 +98,10 @@ for i, target_ref in enumerate(todo):
 if todo:
   print ""
   print "Checking benchmark environment..."
-  root_bin_bench_environment = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "bench_environment")
-  returncode = call(" ".join([root_bin_bench_environment, "check"]))
+  benchbox_bin = os.path.dirname(os.path.abspath(sys.argv[0]))
+  cd(benchbox_bin)
+  benchbox_bin_bench_environment = os.path.join(benchbox_bin, "bench_environment")
+  returncode = call(" ".join([benchbox_bin_bench_environment, "check"]))
   if returncode == 0:
     print "Benchmarking work queue..."
     for i, target_ref in enumerate(todo):
@@ -128,8 +130,8 @@ if todo:
           _, target_bin_bench_path = tempfile.mkstemp(prefix="bench_")
           with open(target_bin_bench_path, "w") as target_bin_bench_file:
             target_bin_bench_file.write(target_bin_bench_output)
-          root_bin_bench_upload = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "bench_upload")
-          returncode = call(" ".join([root_bin_bench_upload, target_ref.user, target_ref.repo, target_ref.sha, target_bin_bench_path]))
+          benchbox_bin_bench_upload = os.path.join(benchbox_bin, "bench_upload")
+          returncode = call(" ".join([benchbox_bin_bench_upload, target_ref.user, target_ref.repo, target_ref.sha, target_bin_bench_path]))
           if returncode == 0:
             latest_performance = load_benchmarks()
             target_pr = index[target_ref.sha]
