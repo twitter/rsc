@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-
 cpuFrequency=3400
-kernelRelease="4.9.0-6-amd64"
 
 # These cannot be written (IO Error)
 irqAffinitySkip=( /proc/irq/0/smp_affinity /proc/irq/2/smp_affinity )
@@ -25,6 +23,7 @@ function err() {
     echo "$1"
     shift
   done
+  echo "[info] try running: ${BASH_SOURCE[0]} set"
   exit 42
 }
 
@@ -37,13 +36,6 @@ function sudoWrite() {
 }
 
 # System Config Checks
-
-function checkKernelRelease() {
-  # Rsc: for our benchbox, we don't have to do anything
-  [[ $(uname -r) == $kernelRelease ]] ||
-    err "expected kernel release $kernelRelease, found $(uname -r)"
-  logOk "found expected kernel release"
-}
 
 function checkNoHyperThreading() {
   # Rsc: for our benchbox, we disable hyperthreading in BIOS
@@ -247,7 +239,6 @@ parseArgs "$@"
 case $mode in
   check)
     echo "Checking machine configuration"
-    checkKernelRelease
     checkNoHyperThreading
     checkNoTurboBoost
     checkNoNuma
