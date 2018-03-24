@@ -21,7 +21,7 @@ object Settings {
       args match {
         case "--" +: rest =>
           loop(settings, false, args)
-        case "-classpath" +: s_cp +: rest if allowOptions =>
+        case ("-classpath" | "-cp") +: s_cp +: rest if allowOptions =>
           val cp = s_cp.split(File.pathSeparator).map(s => Paths.get(s)).toList
           loop(settings.copy(classpath = settings.classpath ++ cp), true, rest)
         case opt +: rest if allowOptions && opt.startsWith("-Xprint:") =>
