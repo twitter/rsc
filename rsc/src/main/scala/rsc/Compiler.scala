@@ -110,12 +110,12 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Pretty {
   }
 
   private def scope(): Unit = {
-    val scopes = Scoper(settings, reporter, symtab, todo)
+    val scoper = Scoper(settings, reporter, symtab, todo)
     while (!todo.scopes.isEmpty) {
       val (env, scope) = todo.scopes.remove()
       scope.unblock()
       if (scope.status.isPending) {
-        scopes.apply(env, scope)
+        scoper.apply(env, scope)
       }
       if (scope.status.isBlocked) {
         todo.scopes.add(env -> scope)
