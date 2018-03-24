@@ -35,12 +35,12 @@ final class Scheduler private (
       outline: Outline): Symbol = {
     val proposedSym = {
       owner match {
-        case _: FlatScope => owner.sym + id.sid.str
-        case _: PackageScope => owner.sym + id.sid.str
-        case _: TemplateScope => owner.sym + id.sid.str
+        case _: FlatScope => owner.sym + id.name.str
+        case _: PackageScope => owner.sym + id.name.str
+        case _: TemplateScope => owner.sym + id.name.str
       }
     }
-    owner.enter(id.sid, proposedSym) match {
+    owner.enter(id.name, proposedSym) match {
       case NoSymbol =>
         id.sym = proposedSym
         symtab.outlines(id.sym) = outline
@@ -81,8 +81,8 @@ final class Scheduler private (
           case _ => crash(tree)
         }
       }
-      val proposedSym = qualEnv.owner.sym + id.sid.str
-      qualEnv.owner.enter(id.sid, proposedSym) match {
+      val proposedSym = qualEnv.owner.sym + id.name.str
+      qualEnv.owner.enter(id.name, proposedSym) match {
         case NoSymbol =>
           id.sym = proposedSym
           val packageScope = PackageScope(id.sym)
@@ -122,7 +122,7 @@ final class Scheduler private (
           assignSym(templateScope, tree.ctor.id, tree.ctor)
         }
         todo.scopes.add(tparamEnv -> templateScope)
-        tree.ctor.params.foreach(p => templateScope.enter(p.id.sid, p.id.sym))
+        tree.ctor.params.foreach(p => templateScope.enter(p.id.name, p.id.sym))
         templateScope :: ctorEnv
       }
       stats(templateEnv, tree.stats)

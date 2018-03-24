@@ -11,11 +11,11 @@ import rsc.util._
 sealed abstract class Scope(val sym: Symbol) extends Pretty {
   var status: Status = PendingStatus
 
-  def enter(sid: Sid, sym: Symbol): Symbol
+  def enter(name: Name, sym: Symbol): Symbol
 
-  def lookup(sid: Sid): Symbol
+  def lookup(name: Name): Symbol
 
-  def resolve(sid: Sid): Resolution = {
+  def resolve(name: Name): Resolution = {
     status match {
       case PendingStatus =>
         BlockedResolution(this)
@@ -139,7 +139,7 @@ final class ImporterScope private (sym: Symbol, val tree: Importer)
     }
   }
 
-  override def enter(sid: Sid, sym: Symbol): Symbol = {
+  override def enter(name: Name, sym: Symbol): Symbol = {
     crash(this)
   }
 
@@ -153,45 +153,45 @@ final class ImporterScope private (sym: Symbol, val tree: Importer)
     case ImporteeWildcard() => _wildcard = true
   }
 
-  private def remap(sid: Sid): Sid = {
+  private def remap(name: Name): Name = {
     val value1 = {
-      val mapValue = _mappings.get(sid.value)
-      if (_wildcard && (mapValue == null)) sid.value
+      val mapValue = _mappings.get(name.value)
+      if (_wildcard && (mapValue == null)) name.value
       else mapValue
     }
     if (value1 != null) {
-      sid match {
-        case _: SomeSid => SomeSid(value1)
-        case _: TermSid => TermSid(value1)
-        case _: TypeSid => TypeSid(value1)
+      name match {
+        case _: SomeName => SomeName(value1)
+        case _: TermName => TermName(value1)
+        case _: TypeName => TypeName(value1)
       }
     } else {
       null
     }
   }
 
-  override def lookup(sid: Sid): Symbol = {
+  override def lookup(name: Name): Symbol = {
     if (status.isSucceeded) {
-      val sid1 = remap(sid)
-      if (sid1 != null) parent.lookup(sid1)
+      val name1 = remap(name)
+      if (name1 != null) parent.lookup(name1)
       else NoSymbol
     } else {
       crash(this)
     }
   }
 
-  override def resolve(sid: Sid): Resolution = {
-    val sid1 = remap(sid)
-    if (sid1 != null) {
+  override def resolve(name: Name): Resolution = {
+    val name1 = remap(name)
+    if (name1 != null) {
       status match {
         case PendingStatus =>
-          super.resolve(sid)
+          super.resolve(name)
         case BlockedStatus(dep) =>
-          super.resolve(sid)
+          super.resolve(name)
         case _: FailedStatus =>
           MissingResolution
         case SucceededStatus =>
-          parent.resolve(sid1)
+          parent.resolve(name1)
       }
     } else {
       MissingResolution
@@ -219,23 +219,23 @@ object ImporterScope {
 }
 
 sealed abstract class OwnerScope(sym: Symbol) extends Scope(sym) {
-  val _storage: Map[Sid, Symbol] = new HashMap[Sid, Symbol]
+  val _storage: Map[Name, Symbol] = new HashMap[Name, Symbol]
 
-  override def enter(sid: Sid, sym: Symbol): Symbol = {
+  override def enter(name: Name, sym: Symbol): Symbol = {
     if (status.isPending) {
-      val existing = _storage.get(sid)
+      val existing = _storage.get(name)
       if (existing != null) {
         existing
       } else {
-        sid match {
-          case SomeSid(_) =>
-            crash(sid)
+        name match {
+          case SomeName(_) =>
+            crash(name)
           case _ =>
             sym match {
               case NoSymbol =>
-                crash(sid)
+                crash(name)
               case _ =>
-                _storage.put(sid, sym)
+                _storage.put(name, sym)
                 NoSymbol
             }
         }
@@ -245,15 +245,15 @@ sealed abstract class OwnerScope(sym: Symbol) extends Scope(sym) {
     }
   }
 
-  override def lookup(sid: Sid): Symbol = {
+  override def lookup(name: Name): Symbol = {
     if (status.isSucceeded) {
-      val result = _storage.get(sid)
+      val result = _storage.get(name)
       if (result != null) {
         result
       } else {
-        sid match {
-          case SomeSid(value) =>
-            crash(sid)
+        name match {
+          case SomeName(value) =>
+            crash(name)
           case _ =>
             NoSymbol
         }
@@ -263,21 +263,21 @@ sealed abstract class OwnerScope(sym: Symbol) extends Scope(sym) {
     }
   }
 
-  override def resolve(sid: Sid): Resolution = {
+  override def resolve(name: Name): Resolution = {
     if (status.isSucceeded) {
-      val result = _storage.get(sid)
+      val result = _storage.get(name)
       if (result != null) {
         FoundResolution(result)
       } else {
-        sid match {
-          case SomeSid(value) =>
-            crash(sid)
+        name match {
+          case SomeName(value) =>
+            crash(name)
           case _ =>
             MissingResolution
         }
       }
     } else {
-      super.resolve(sid)
+      super.resolve(name)
     }
   }
 }
@@ -321,19 +321,19 @@ final class TemplateScope private (sym: Symbol, val tree: DefnTemplate)
     }
   }
 
-  override def lookup(sid: Sid): Symbol = {
-    super.lookup(sid) match {
+  override def lookup(name: Name): Symbol = {
+    super.lookup(name) match {
       case NoSymbol =>
-        _env.lookup(sid)
+        _env.lookup(name)
       case sym =>
         sym
     }
   }
 
-  override def resolve(sid: Sid): Resolution = {
-    super.resolve(sid) match {
+  override def resolve(name: Name): Resolution = {
+    super.resolve(name) match {
       case MissingResolution =>
-        _env.resolve(sid)
+        _env.resolve(name)
       case resolution =>
         resolution
     }
@@ -357,15 +357,15 @@ final class SuperScope private (sym: Symbol, val underlying: TemplateScope)
     extends Scope(sym) {
   status = SucceededStatus
 
-  override def enter(sid: Sid, sym: Symbol): Symbol = {
+  override def enter(name: Name, sym: Symbol): Symbol = {
     crash(this)
   }
 
-  override def lookup(sid: Sid): Symbol = {
-    underlying._env.lookup(sid)
+  override def lookup(name: Name): Symbol = {
+    underlying._env.lookup(name)
   }
 
-  override def resolve(sid: Sid): Resolution = {
+  override def resolve(name: Name): Resolution = {
     underlying.status match {
       case PendingStatus =>
         BlockedResolution(underlying)
@@ -374,7 +374,7 @@ final class SuperScope private (sym: Symbol, val underlying: TemplateScope)
       case _: FailedStatus =>
         ErrorResolution
       case SucceededStatus =>
-        underlying._env.resolve(sid)
+        underlying._env.resolve(name)
     }
   }
 }

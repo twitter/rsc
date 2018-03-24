@@ -7,9 +7,9 @@ import rsc.syntax._
 
 trait TreeUtil {
   implicit class UtilIdOps(id: Id) {
-    def sidopt: Option[Sid] = {
+    def nameopt: Option[Name] = {
       id match {
-        case id: NamedId => Some(id.sid)
+        case id: NamedId => Some(id.name)
         case _ => None
       }
     }

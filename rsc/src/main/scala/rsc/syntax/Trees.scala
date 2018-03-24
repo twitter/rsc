@@ -21,12 +21,12 @@ final case class Case(pat: Pat, cond: Option[Term], stats: List[Stat])
 
 final case class CtorId() extends NamedId {
   def value = CtorId.value
-  def sid = CtorId.sid
+  def name = CtorId.name
 }
 
 object CtorId {
   val value = "this"
-  val sid = TermSid("<init>")
+  val name = TermName("<init>")
 }
 
 final case class DefnClass(
@@ -172,7 +172,7 @@ final case class ModVar() extends Mod
 sealed trait NamedId extends Id with Path {
   def id = this
   def value: String
-  def sid: Sid
+  def name: Name
 }
 
 object NamedId {
@@ -196,7 +196,7 @@ final case class PatExtractInfix(lhs: Pat, op: TermId, rhs: List[Pat])
     extends Pat
 
 final case class PatId(value: String) extends Pat with NamedId {
-  def sid = TermSid(value)
+  def name = TermName(value)
 }
 
 final case class PatLit(value: Any) extends Pat
@@ -222,7 +222,7 @@ final case class PrimaryCtor(mods: List[Mod], params: List[TermParam])
 }
 
 final case class SomeId(value: String) extends NamedId {
-  def sid = SomeSid(value)
+  def name = SomeName(value)
 }
 
 final case class Source(stats: List[Stat]) extends Tree
@@ -259,7 +259,7 @@ final case class TermEta(term: Term) extends Term
 final case class TermFunction(params: List[TermParam], body: Term) extends Term
 
 final case class TermId(value: String) extends TermPath with NamedId {
-  def sid = TermSid(value)
+  def name = TermName(value)
 }
 
 final case class TermIf(cond: Term, thenp: Term, elsep: Option[Term])
@@ -321,7 +321,7 @@ final case class TptFunction(targs: List[Tpt]) extends TptApply {
 }
 
 final case class TptId(value: String) extends TptPath with NamedId {
-  def sid = TypeSid(value)
+  def name = TypeName(value)
 }
 
 sealed trait TptPath extends Tpt with Path

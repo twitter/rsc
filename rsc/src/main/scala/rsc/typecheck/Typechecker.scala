@@ -127,8 +127,8 @@ final class Typechecker private (
         val scope = FlatScope("block")
         stats.foreach {
           case stat @ DefnField(_, id, tpt, Some(rhs)) =>
-            val sym = scope.sym + id.sid.str
-            scope.enter(id.sid, sym) match {
+            val sym = scope.sym + id.name.str
+            scope.enter(id.name, sym) match {
               case NoSymbol =>
                 id.sym = sym
                 symtab.outlines(id.sym) = stat
@@ -160,8 +160,8 @@ final class Typechecker private (
     val scope = FlatScope("lambda")
     tree.params.foreach {
       case param @ TermParam(_, id, tpt) =>
-        val sym = scope.sym + id.sid.str
-        scope.enter(id.sid, sym) match {
+        val sym = scope.sym + id.name.str
+        scope.enter(id.name, sym) match {
           case NoSymbol =>
             id.sym = sym
             symtab.outlines(id.sym) = param
@@ -178,7 +178,7 @@ final class Typechecker private (
   }
 
   private def termId(env: Env, tree: TermId): Type = {
-    env.lookup(tree.sid) match {
+    env.lookup(tree.name) match {
       case NoSymbol =>
         reporter.append(UnboundId(tree))
         NoType
@@ -240,8 +240,8 @@ final class Typechecker private (
             case pat @ PatVar(id: NamedId, tpt) =>
               tpt match {
                 case Some(tpt) =>
-                  val sym = scope.sym + id.sid.str
-                  scope.enter(id.sid, sym) match {
+                  val sym = scope.sym + id.name.str
+                  scope.enter(id.name, sym) match {
                     case NoSymbol =>
                       id.sym = sym
                       symtab.outlines(id.sym) = pat
@@ -294,7 +294,7 @@ final class Typechecker private (
       case qualTpe: SimpleType =>
         def lookup(qualSym: Symbol): Type = {
           val qualScope = symtab.scopes(qualSym)
-          qualScope.lookup(tree.id.sid) match {
+          qualScope.lookup(tree.id.name) match {
             case NoSymbol =>
               if (tree.id.value.isOpAssignment) {
                 val value1 = tree.id.value.stripSuffix("=")
@@ -334,14 +334,14 @@ final class Typechecker private (
   }
 
   private def termSuper(env: Env, tree: TermSuper): Type = {
-    env.lookupThis(tree.qual.sidopt) match {
+    env.lookupThis(tree.qual.nameopt) match {
       case NoSymbol =>
         reporter.append(UnboundId(tree.qual))
         NoType
       case qualSym =>
         tree.qual.sym = qualSym
         val env1 = Env(symtab.scopes(qualSym))
-        env1.lookupSuper(tree.mix.sidopt) match {
+        env1.lookupSuper(tree.mix.nameopt) match {
           case NoSymbol =>
             reporter.append(UnboundId(tree.mix))
             NoType
@@ -359,7 +359,7 @@ final class Typechecker private (
   }
 
   private def termThis(env: Env, tree: TermThis): Type = {
-    env.lookupThis(tree.qual.sidopt) match {
+    env.lookupThis(tree.qual.nameopt) match {
       case NoSymbol =>
         reporter.append(UnboundId(tree.id))
         NoType
@@ -404,7 +404,7 @@ final class Typechecker private (
   }
 
   private def tptId(env: Env, tree: TptId): Type = {
-    env.lookup(tree.sid) match {
+    env.lookup(tree.name) match {
       case NoSymbol =>
         reporter.append(UnboundId(tree))
         NoType
@@ -421,7 +421,7 @@ final class Typechecker private (
         NoType
       case SimpleType(qualSym, Nil) =>
         val qualScope = symtab.scopes(qualSym)
-        qualScope.lookup(tree.id.sid) match {
+        qualScope.lookup(tree.id.name) match {
           case NoSymbol =>
             reporter.append(UnboundMember(qualSym, tree.id))
             NoType

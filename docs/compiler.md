@@ -213,14 +213,14 @@ final class Symtab {
 }
 ```
 
-Scopes are collections of symbols that support entering symbols under simple ids
-and looking up symbols using simple ids. Following the language specification,
-such a simple id can be either a `TermSid` or a `TypeSid`.
+Scopes are collections of symbols that support entering symbols under simple names
+and looking up symbols using simple names. Following the language specification,
+such a simple name can be either a `TermName` or a `TypeName`.
 
 ```scala
 sealed abstract class Scope(val sym: Symbol) {
-  def enter(sid: Sid, sym: Symbol): Symbol
-  def lookup(sid: Sid): Symbol
+  def enter(name: Name, sym: Symbol): Symbol
+  def lookup(name: Name): Symbol
   ...
 }
 ```
@@ -240,7 +240,7 @@ sealed abstract class Scope(val sym: Symbol) {
 
   var status: Status = PendingStatus
 
-  def resolve(sid: Sid): Resolution = {
+  def resolve(name: Name): Resolution = {
     status match {
       case PendingStatus =>
         BlockedResolution(this)

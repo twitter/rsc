@@ -32,7 +32,7 @@ final class Linker private (
   }
 
   private def createPackage(owner: Symbol, value: String): Symbol = {
-    val sid = TermSid(value)
+    val name = TermName(value)
     val sym = {
       if (owner == "π.") value + "."
       else owner + value + "."
@@ -41,7 +41,7 @@ final class Linker private (
     val scope = PackageScope(sym)
     todo.scopes.add(Env() -> scope)
     val ownerScope = symtab.scopes(owner)
-    ownerScope.enter(sid, sym) match {
+    ownerScope.enter(name, sym) match {
       case NoSymbol =>
         symtab.scopes(sym) = scope
         symtab.outlines(sym) = outline

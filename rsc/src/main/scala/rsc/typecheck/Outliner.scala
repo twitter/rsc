@@ -34,7 +34,7 @@ final class Outliner private (
           args.foreach(arg => assignSyms(startingEnv, arg.atoms))
           loop(env, rest)
         case IdAtom(id) :: rest =>
-          env.lookup(id.sid) match {
+          env.lookup(id.name) match {
             case NoSymbol =>
               if (env == startingEnv) reporter.append(UnboundId(id))
               else reporter.append(UnboundMember(env.owner.sym, id))
@@ -44,7 +44,7 @@ final class Outliner private (
               else loop(Env(symtab.scopes(sym)), rest)
           }
         case ThisAtom(id) :: rest =>
-          env.lookupThis(id.sidopt) match {
+          env.lookupThis(id.nameopt) match {
             case NoSymbol =>
               reporter.append(UnboundId(id))
             case sym =>
@@ -53,7 +53,7 @@ final class Outliner private (
               else loop(Env(symtab.scopes(sym)), rest)
           }
         case SuperAtom(id) :: rest =>
-          env.lookupSuper(id.sidopt) match {
+          env.lookupSuper(id.nameopt) match {
             case NoSymbol =>
               reporter.append(UnboundId(id))
             case sym =>

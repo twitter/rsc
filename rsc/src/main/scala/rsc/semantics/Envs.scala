@@ -29,11 +29,11 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
     Env(scope :: _scopes)
   }
 
-  def lookup(sid: Sid): Symbol = {
+  def lookup(name: Name): Symbol = {
     @tailrec def loop(_scopes: List[Scope]): Symbol = {
       _scopes match {
         case head :: tail =>
-          head.lookup(sid) match {
+          head.lookup(name) match {
             case NoSymbol => loop(tail)
             case other => other
           }
@@ -44,14 +44,14 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
     loop(_scopes)
   }
 
-  def lookupThis(qual: Option[Sid]): Symbol = {
+  def lookupThis(qual: Option[Name]): Symbol = {
     @tailrec def loop(_scopes: List[Scope]): Symbol = {
       _scopes match {
         case (head: TemplateScope) :: tail =>
           val found = {
             qual match {
-              case Some(SomeSid(value)) => head.tree.id.value == value
-              case Some(sid) => head.tree.id.sid == sid
+              case Some(SomeName(value)) => head.tree.id.value == value
+              case Some(name) => head.tree.id.name == name
               case None => true
             }
           }
@@ -66,7 +66,7 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
     loop(_scopes)
   }
 
-  def lookupSuper(mix: Option[Sid]): Symbol = {
+  def lookupSuper(mix: Option[Name]): Symbol = {
     _scopes match {
       case List(thisScope: TemplateScope) =>
         mix match {
@@ -76,8 +76,8 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
                 case head :: tail =>
                   val found = {
                     mix match {
-                      case SomeSid(value) => head.tree.id.value == value
-                      case sid => head.tree.id.sid == sid
+                      case SomeName(value) => head.tree.id.value == value
+                      case name => head.tree.id.name == name
                     }
                   }
                   if (found) head.sym
@@ -98,11 +98,11 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
     }
   }
 
-  def resolve(sid: Sid): Resolution = {
+  def resolve(name: Name): Resolution = {
     @tailrec def loop(_scopes: List[Scope]): Resolution = {
       _scopes match {
         case head :: tail =>
-          head.resolve(sid) match {
+          head.resolve(name) match {
             case MissingResolution => loop(tail)
             case other => other
           }
@@ -113,14 +113,14 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
     loop(_scopes)
   }
 
-  def resolveThis(qual: Option[Sid]): Resolution = {
+  def resolveThis(qual: Option[Name]): Resolution = {
     lookupThis(qual) match {
       case NoSymbol => MissingResolution
       case sym => FoundResolution(sym)
     }
   }
 
-  def resolveSuper(mix: Option[Sid]): Resolution = {
+  def resolveSuper(mix: Option[Name]): Resolution = {
     _scopes match {
       case List(thisScope: TemplateScope) =>
         thisScope.status match {

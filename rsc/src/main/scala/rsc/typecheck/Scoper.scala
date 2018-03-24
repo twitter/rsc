@@ -129,11 +129,11 @@ final class Scoper private (
           case atom: ApplyAtom =>
             crash(atom)
           case IdAtom(id) =>
-            assignSym(env, id, env.resolve(id.sid))
+            assignSym(env, id, env.resolve(id.name))
           case ThisAtom(id) =>
-            assignSym(env, id, env.resolveThis(id.sidopt))
+            assignSym(env, id, env.resolveThis(id.nameopt))
           case SuperAtom(id) =>
-            assignSym(env, id, env.resolveSuper(id.sidopt))
+            assignSym(env, id, env.resolveSuper(id.nameopt))
           case atom: UnsupportedAtom =>
             ErrorResolution
         }
