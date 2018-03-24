@@ -54,8 +54,9 @@ trait Mods {
   }
 
   private def annotInit(): Init = {
-    val start = in.offset
-    val tpts = simpleTpt()
+    val initstart = in.offset
+    val tpt = simpleTpt()
+    val idstart = in.offset
     val args = {
       if (in.token != LPAREN) {
         unsupported("nullary argument lists")
@@ -66,7 +67,9 @@ trait Mods {
       }
       result
     }
-    atPos(start)(Init(tpts, args))
+    val init = atPos(initstart)(Init(tpt, args))
+    init.id.pos = Position(input, idstart, idstart)
+    init
   }
 
   private def defnFlags(modTokens: BitSet): List[Mod] = {

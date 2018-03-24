@@ -117,6 +117,8 @@ trait Defns {
     val start = in.offset
     val mods = primaryCtorMods()
     val params = termParams(PrimaryCtorContext)
-    atPos(start)(PrimaryCtor(mods, params))
+    val ctor = atPos(start)(PrimaryCtor(mods, params))
+    ctor.id.pos = Position(input, start, start)
+    ctor
   }
 }

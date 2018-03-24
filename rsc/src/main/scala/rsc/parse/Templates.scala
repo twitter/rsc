@@ -43,8 +43,9 @@ trait Templates {
   }
 
   private def templateInit(): Init = {
-    val start = in.offset
+    val initstart = in.offset
     val tpt = annotTpt()
+    val idstart = in.offset
     val args = {
       if (in.token != LPAREN) {
         unsupported("nullary argument lists")
@@ -55,7 +56,9 @@ trait Templates {
       }
       result
     }
-    atPos(start)(Init(tpt, args))
+    val init = atPos(initstart)(Init(tpt, args))
+    init.id.pos = Position(input, idstart, idstart)
+    init
   }
 
   private def templateBraces(
