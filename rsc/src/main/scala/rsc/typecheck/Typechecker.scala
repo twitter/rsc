@@ -37,7 +37,7 @@ final class Typechecker private (
       case tree: TptApply => tptApply(env, tree)
       case tree: TptId => tptId(env, tree)
       case tree: TptSelect => tptSelect(env, tree)
-      case _ => unreachable(tree)
+      case _ => crash(tree)
     }
   }
 
@@ -74,7 +74,7 @@ final class Typechecker private (
       val tree1 = TermApply(applyType, List(tree.rhs)).withPos(tree)
       apply(env, tree1)
     } else {
-      unreachable(tree)
+      crash(tree)
     }
   }
 
@@ -90,7 +90,7 @@ final class Typechecker private (
       apply(env, tpt) match {
         case NoType => return NoType
         case tpe: SimpleType => tpe
-        case other => unreachable(other)
+        case other => crash(other)
       }
     }
     funTpe match {
@@ -141,7 +141,7 @@ final class Typechecker private (
           case term: Term =>
             terms += term
           case other =>
-            unreachable(other)
+            crash(other)
         }
         scope.succeed()
         val env1 = scope :: env
@@ -151,7 +151,7 @@ final class Typechecker private (
       case Nil =>
         SimpleType("_root_.scala.Unit#", Nil)
       case other =>
-        unreachable(other)
+        crash(other)
     }
   }
 
@@ -214,7 +214,7 @@ final class Typechecker private (
       case _: Double => SimpleType("_root_.scala.Double#", Nil)
       case _: String => SimpleType("_root_.java.lang.String#", Nil)
       case null => SimpleType("_root_.scala.AnyRef#", Nil)
-      case other => unreachable(other.getClass.toString)
+      case other => crash(other.getClass.toString)
     }
   }
 
@@ -315,7 +315,7 @@ final class Typechecker private (
             case NoType =>
               NoType
             case _: MethodType =>
-              unreachable(qualTpe)
+              crash(qualTpe)
             case SimpleType(qualUid, targs) =>
               symtab.outlines(qualUid) match {
                 case DefnPackage(pid, _) =>
@@ -352,7 +352,7 @@ final class Typechecker private (
                 val targs = tparams.map(tp => SimpleType(tp.id.uid, Nil))
                 SimpleType(id.uid, targs)
               case other =>
-                unreachable(other)
+                crash(other)
             }
         }
     }
@@ -370,7 +370,7 @@ final class Typechecker private (
             val targs = tparams.map(tparam => SimpleType(tparam.id.uid, Nil))
             SimpleType(id.uid, targs)
           case other =>
-            unreachable(other)
+            crash(other)
         }
     }
   }
@@ -394,12 +394,12 @@ final class Typechecker private (
         val targs = tree.targs.map {
           apply(env, _) match {
             case targ: SimpleType => targ
-            case other => unreachable(other)
+            case other => crash(other)
           }
         }
         SimpleType(funUid, targs)
       case other =>
-        unreachable(other)
+        crash(other)
     }
   }
 
@@ -430,7 +430,7 @@ final class Typechecker private (
             SimpleType(tree.id.uid, Nil)
         }
       case other =>
-        unreachable(other)
+        crash(other)
     }
   }
 
@@ -457,7 +457,7 @@ final class Typechecker private (
         tree.pos = syntheticPos
         tree
       } else {
-        unreachable(tree)
+        crash(tree)
       }
     }
   }
@@ -466,12 +466,12 @@ final class Typechecker private (
     def tpe: SimpleType = {
       tpt match {
         case TptApply(fun: TptPath, targs) =>
-          if (fun.id.uid == NoUid) unreachable(fun)
+          if (fun.id.uid == NoUid) crash(fun)
           else SimpleType(fun.id.uid, targs.map(_.tpe))
         case _: TptApply =>
-          unreachable(tpt)
+          crash(tpt)
         case tpt: TptPath =>
-          if (tpt.id.uid == NoUid) unreachable(tpt.id)
+          if (tpt.id.uid == NoUid) crash(tpt.id)
           else SimpleType(tpt.id.uid, Nil)
       }
     }
@@ -498,7 +498,7 @@ final class Typechecker private (
         case TermParam(_, _, tpt) =>
           tpt.tpe
         case outline =>
-          unreachable(outline)
+          crash(outline)
       }
     }
   }
@@ -517,7 +517,7 @@ final class Typechecker private (
             val ret1 = {
               tpe.ret.subst(tparams, targs) match {
                 case ret1: SimpleType => ret1
-                case other => unreachable(other)
+                case other => crash(other)
               }
             }
             MethodType(tparams1, params1, ret1)
@@ -530,7 +530,7 @@ final class Typechecker private (
               val targs1 = tpe.targs.map {
                 _.subst(tparams, targs) match {
                   case targ1: SimpleType => targ1
-                  case other => unreachable(other)
+                  case other => crash(other)
                 }
               }
               SimpleType(uid1, targs1)
@@ -551,7 +551,7 @@ final class Typechecker private (
             val ret1 = {
               tpe.ret.subst(tparams, targs) match {
                 case ret1: SimpleType => ret1
-                case other => unreachable(other)
+                case other => crash(other)
               }
             }
             MethodType(tparams1, params1, ret1)
@@ -564,7 +564,7 @@ final class Typechecker private (
               val targs1 = tpe.targs.map {
                 _.subst(tparams, targs) match {
                   case targ1: SimpleType => targ1
-                  case other => unreachable(other)
+                  case other => crash(other)
                 }
               }
               SimpleType(uid1, targs1)

@@ -74,7 +74,7 @@ trait Paths {
             val tptId = atPos(termId.pos)(TptId(value))
             atPos(path.pos)(TptSelect(qual, tptId))
           case _ =>
-            unreachable(path)
+            crash(path)
         }
     }
   }

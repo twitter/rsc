@@ -180,7 +180,7 @@ final class Scanner private (
         nextChar()
         emit(COMMENT, null)
       case _ =>
-        unreachable(ch)
+        crash(ch)
     }
   }
 

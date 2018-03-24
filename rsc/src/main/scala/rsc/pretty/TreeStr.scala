@@ -225,7 +225,7 @@ class TreeStr(val p: Printer) {
       case TermLit(value: Symbol) =>
         p.repl(value)
       case TermLit(other) =>
-        unreachable(other.getClass.toString)
+        crash(other.getClass.toString)
       case TermMatch(term, cases) =>
         apply(term)
         p.str(" match ")

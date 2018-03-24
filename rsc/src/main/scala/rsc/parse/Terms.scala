@@ -48,7 +48,7 @@ trait Terms {
               case TermAscribe(id: TermId, tpt) =>
                 Some(atPos(term.pos)(TermParam(Nil, id, tpt)))
               case _ =>
-                unreachable(term)
+                crash(term)
             }
           }
           unfinished match {
@@ -58,10 +58,10 @@ trait Terms {
               List(termParam)
             case TermTuple(args) =>
               val termParams = args.flatMap(TermParamLike.unapply)
-              if (args.length != termParams.length) unreachable(unfinished)
+              if (args.length != termParams.length) crash(unfinished)
               termParams
             case _ =>
-              unreachable(unfinished)
+              crash(unfinished)
           }
         }
         val body = term()

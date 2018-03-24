@@ -123,7 +123,7 @@ trait Mods {
               in.nextToken()
               atPos(start)(ModSealed())
             case _ =>
-              unreachable(tokenRepl(in.token))
+              crash(tokenRepl(in.token))
           }
         }
         loop(addFlag(flags, flag))

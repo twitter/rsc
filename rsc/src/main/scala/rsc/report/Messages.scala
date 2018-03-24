@@ -201,7 +201,7 @@ final case class DoubleDef(tree: Outline, existing: Outline) extends Message {
     } else {
       val treeDesc = {
         tree.id match {
-          case AnonId() => unreachable(tree)
+          case AnonId() => crash(tree)
           case id: NamedId => id.value
         }
       }
@@ -217,7 +217,7 @@ final case class IllegalCyclicReference(scope: Scope) extends Message {
     scope match {
       case scope: ImporterScope => scope.tree.point
       case scope: TemplateScope => scope.tree.point
-      case _ => unreachable(scope)
+      case _ => crash(scope)
     }
   }
   def text = {
@@ -225,7 +225,7 @@ final case class IllegalCyclicReference(scope: Scope) extends Message {
     val description = {
       def loop(scopes: List[Scope]): String = {
         scopes match {
-          case List() => unreachable(cycle)
+          case List() => crash(cycle)
           case List(only) => name(only)
           case List(prelast, last) => name(prelast) + " and " + name(last)
           case scope :: rest => name(scope) + ", " + loop(rest)
@@ -245,7 +245,7 @@ final case class IllegalCyclicReference(scope: Scope) extends Message {
         p.str(scope.tree)
         p.toString
       case _ =>
-        unreachable(scope)
+        crash(scope)
     }
   }
 }
@@ -268,8 +268,8 @@ final case class UnboundMember(qualUid: Uid, id: Id) extends Message {
   def text = {
     val qualDesc = qualUid
     id match {
-      case AnonId() => unreachable(id)
-      case CtorId() => unreachable(id)
+      case AnonId() => crash(id)
+      case CtorId() => crash(id)
       case PatId(value) => s"unbound: value $qualDesc.$value"
       case SomeId(value) => s"unbound: $qualDesc.$value"
       case TermId(value) => s"unbound: value $qualDesc.$value"
@@ -283,8 +283,8 @@ final case class UnboundId(id: Id) extends Message {
   def pos = id.point
   def text = {
     id match {
-      case AnonId() => unreachable(id)
-      case CtorId() => unreachable(id)
+      case AnonId() => crash(id)
+      case CtorId() => crash(id)
       case PatId(value) => s"unbound: value $value"
       case SomeId(value) => s"unbound: $value"
       case TermId(value) => s"unbound: value $value"

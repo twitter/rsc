@@ -111,7 +111,7 @@ trait Pats {
               case TermSelect(qual: TermPath, termId) =>
                 atPos(path.pos)(PatSelect(qual, termId))
               case _ =>
-                unreachable(path)
+                crash(path)
             }
           }
           val path = termPath()

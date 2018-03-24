@@ -47,7 +47,7 @@ final class Linker private (
         symtab.outlines(uid) = outline
         uid
       case _ =>
-        unreachable(ownerScope)
+        crash(ownerScope)
     }
   }
 }

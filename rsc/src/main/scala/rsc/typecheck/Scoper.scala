@@ -15,19 +15,19 @@ final class Scoper private (
     todo: Todo) {
   def apply(env: Env, scope: Scope): Unit = {
     if (!scope.status.isPending) {
-      unreachable(scope)
+      crash(scope)
     }
     scope match {
       case scope: ImporterScope =>
         trySucceed(env, scope)
       case scope: FlatScope =>
-        unreachable(scope)
+        crash(scope)
       case scope: PackageScope =>
         scope.succeed()
       case scope: TemplateScope =>
         trySucceed(env, scope)
       case scope: SuperScope =>
-        unreachable(scope)
+        crash(scope)
     }
   }
 
@@ -81,7 +81,7 @@ final class Scoper private (
             case FoundResolution(uid) =>
               symtab.scopes(uid) match {
                 case parentScope: TemplateScope => buf += parentScope
-                case other => unreachable(other)
+                case other => crash(other)
               }
           }
         }
@@ -127,7 +127,7 @@ final class Scoper private (
       val resolution = {
         atom match {
           case atom: ApplyAtom =>
-            unreachable(atom)
+            crash(atom)
           case IdAtom(id) =>
             assignUid(env, id, env.resolve(id.sid))
           case ThisAtom(id) =>
