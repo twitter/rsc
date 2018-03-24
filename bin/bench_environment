@@ -79,25 +79,6 @@ function checkNoPstate() {
   logOk "the CPU frequency driver is acpi-cpufreq"
 }
 
-function checkRunningProcesses() {
-  local pss=$(ps -e -o comm,args --no-headers)
-  pss=$(echo "$pss" | sed 's/ \+/_/g' | sort)
-  local ok
-  local prefixes=$(cat ./bench_ci_whitelist | awk '{ print $1 }')
-  for p in $pss; do
-    ok=0
-    for pre in $prefixes; do
-      [[ $p = $pre* && "$pre" != "" ]] && {
-        ok=1
-        break
-      }
-    done
-    [[ $ok == 1 ]] ||
-      err "process $p is not listed in $scriptDir/bench_ci_whitelist"
-  done
-  logOk "all running processes are listed in $scriptDir/bench_ci_whitelist"
-}
-
 # CPU Frequency
 
 function checkFrequency() {
