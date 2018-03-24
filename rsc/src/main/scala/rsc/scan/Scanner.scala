@@ -3,6 +3,7 @@
 package rsc.scan
 
 import scala.annotation.switch
+import scala.{Symbol => StdlibSymbol}
 import rsc.lexis._
 import rsc.report._
 import rsc.settings._
@@ -134,11 +135,11 @@ final class Scanner private (
     if (isAlphanumericIdStart(ch) && ch1 != '\'') {
       alphanumericIdOrKeyword()
       token = LITSYMBOL
-      value = Symbol(value.asInstanceOf[String].stripPrefix("'"))
+      value = StdlibSymbol(value.asInstanceOf[String].stripPrefix("'"))
     } else if (isSymbolicIdStart(ch) && ch != '\\' && ch1 != '\'') {
       symbolicIdOrKeyword()
       token = LITSYMBOL
-      value = Symbol(value.asInstanceOf[String].stripPrefix("'"))
+      value = StdlibSymbol(value.asInstanceOf[String].stripPrefix("'"))
     } else {
       val result = quote('\'')
       if (ch == '\'') {

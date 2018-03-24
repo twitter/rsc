@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.pretty
 
+import scala.{Symbol => StdlibSymbol}
 import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
@@ -222,7 +223,7 @@ class TreeStr(val p: Printer) {
         p.repl(false)
       case TermLit(null) =>
         p.repl(null)
-      case TermLit(value: Symbol) =>
+      case TermLit(value: StdlibSymbol) =>
         p.repl(value)
       case TermLit(other) =>
         crash(other.getClass.toString)
