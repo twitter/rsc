@@ -23,7 +23,7 @@ function err() {
     echo "$1"
     shift
   done
-  echo "[info] try running: ${BASH_SOURCE[0]} set"
+  echo "[info] try running: sudo ${BASH_SOURCE[0]} set"
   exit 42
 }
 
