@@ -3,10 +3,11 @@
 package rsc.settings
 
 import java.io._
+import java.nio.file._
 
 final case class Settings(
-    classpath: List[File] = Nil,
-    ins: List[File] = Nil,
+    classpath: List[Path] = Nil,
+    ins: List[Path] = Nil,
     xprint: Set[String] = Set[String](),
     ystopAfter: Set[String] = Set[String]()
 )
@@ -21,7 +22,7 @@ object Settings {
         case "--" +: rest =>
           loop(settings, false, args)
         case "-classpath" +: s_cp +: rest if allowOptions =>
-          val cp = s_cp.split(File.pathSeparator).map(new File(_)).toList
+          val cp = s_cp.split(File.pathSeparator).map(s => Paths.get(s)).toList
           loop(settings.copy(classpath = settings.classpath ++ cp), true, rest)
         case opt +: rest if allowOptions && opt.startsWith("-Xprint:") =>
           val stripped = opt.stripPrefix("-Xprint:").split(",")
@@ -37,7 +38,7 @@ object Settings {
           println(s"unknown flag $flag")
           None
         case in +: rest =>
-          val ins = List(new File(in))
+          val ins = List(Paths.get(in))
           loop(settings.copy(ins = settings.ins ++ ins), allowOptions, rest)
         case Nil =>
           Some(settings)

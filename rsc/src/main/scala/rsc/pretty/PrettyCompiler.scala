@@ -9,7 +9,7 @@ object PrettyCompiler {
   def str(p: Printer, x: Compiler): Unit = {
     p.settings = x.settings
     p.rep(x.trees, EOL) { tree =>
-      p.header(tree.pos.input.file.toString)
+      p.header(tree.pos.input.path.toString)
       p.str(tree)
       p.newline()
     }

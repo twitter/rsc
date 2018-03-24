@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.typecheck
 
-import java.io._
+import java.nio.{file => nio}
 import rsc.report._
 import rsc.semantics._
 import rsc.settings._
@@ -14,7 +14,7 @@ final class Linker private (
     reporter: Reporter,
     symtab: Symtab,
     todo: Todo) {
-  def apply(trees: List[Source], classpath: List[File]): Unit = {
+  def apply(trees: List[Source], classpath: List[nio.Path]): Unit = {
     val pi = createPi()
     val rootPackage = createPackage(pi, "_root_")
     val emptyPackage = createPackage(pi, "_empty_")

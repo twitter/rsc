@@ -8,7 +8,7 @@ import rsc.report._
 object PrettyMessage {
   def str(p: Printer, x: Message): Unit = {
     if (x.pos.input != NoInput) {
-      p.str(s"${x.pos.input.file}:")
+      p.str(s"${x.pos.input.path}:")
     }
     if (x.pos.start != NoOffset) {
       p.str(s"${x.pos.startLine + 1}: ")

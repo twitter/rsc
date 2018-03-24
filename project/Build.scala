@@ -140,14 +140,14 @@ object Build extends AutoPlugin {
 
   override def globalSettings: Seq[Def.Setting[_]] = List(
     scalafmtTest := {
-      val projectRoot = Paths.get(".").toAbsolutePath
+      val projectRoot = Paths.get(".")
       val dotScalafmt = projectRoot.resolve("./scalafmt")
       val binScalafmt = projectRoot.resolve("bin/scalafmt")
       val scalafmtBinary = List(dotScalafmt, binScalafmt).filter(f => exists(f))
       scalafmtBinary match {
         case List(scalafmtBinary, _*) =>
           val options = List("--test", "--non-interactive", "--quiet")
-          val command = scalafmtBinary.toAbsolutePath.toString :: options
+          val command = scalafmtBinary.toString :: options
           val scalafmt = new java.lang.ProcessBuilder()
           scalafmt.command(command.asJava)
           scalafmt.directory(projectRoot.toFile)

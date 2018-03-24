@@ -10,7 +10,7 @@ object PrettyInput {
       case NoInput =>
         p.str("ø")
       case _ =>
-        p.str(x.file.toString)
+        p.str(x.path.toString)
     }
   }
 
@@ -19,8 +19,8 @@ object PrettyInput {
       case NoInput =>
         p.str("NoInput")
       case _ =>
-        p.str("Input(new File(")
-        p.repl(x.file.toString)
+        p.str("Input(Paths.get(")
+        p.repl(x.path.toString)
         p.str("))")
     }
   }
