@@ -118,7 +118,9 @@ final class Scheduler private (
       val templateEnv = {
         val templateScope = TemplateScope(tree)
         symtab.scopes(uid) = templateScope
-        assignUid(templateScope, tree.ctor.id, tree.ctor)
+        if (tree.isInstanceOf[DefnClass]) {
+          assignUid(templateScope, tree.ctor.id, tree.ctor)
+        }
         todo.scopes.add(tparamEnv -> templateScope)
         tree.ctor.params.foreach(p => templateScope.enter(p.id.sid, p.id.uid))
         templateScope :: ctorEnv
