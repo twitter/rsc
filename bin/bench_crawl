@@ -80,13 +80,11 @@ print "Analyzing commits..."
 with GithubRef(root_user, root_repo, "master") as root_ref:
   root_ref.download_https()
   cd(root_ref.path)
-  parent_of_fix_bench_crawl_commit = stdout("git log -1 --format=%H ':/Fix a current directory bug in bin/bench_crawl'")
+  parent_of_fix_bench_crawl_commit = stdout("git log -1 --format=%H ':/Remove bin/travis_before_install'")
   root_shas = stdout("git rev-list --ancestry-path " + parent_of_fix_bench_crawl_commit + "..HEAD").split("\n")
   print "Found " + str(len(root_shas)) + " eligible commits"
   root_shas = filter(lambda sha: not sha in done, root_shas)
-  blacklist = [
-    "386782e26160938924a9110e075fa691319db141" # unexpected kernel version, updated in the next commit
-  ]
+  blacklist = []
   print "Found " + str(len(blacklist)) + " blacklisted commits"
   root_shas = filter(lambda sha: not sha in blacklist, root_shas)
   print "Detected " + str(len(root_shas)) + " todo commits"
