@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 cpuFrequency=3400
-kernelRelease="4.9.0-5-amd64"
+kernelRelease="4.9.0-6-amd64"
 
 # These cannot be written (IO Error)
 irqAffinitySkip=( /proc/irq/0/smp_affinity /proc/irq/2/smp_affinity )
