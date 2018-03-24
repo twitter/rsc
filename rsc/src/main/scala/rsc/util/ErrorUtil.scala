@@ -6,18 +6,6 @@ import rsc.lexis._
 import rsc.pretty._
 
 trait ErrorUtil {
-  def unsupported[T: Str: Repl](pos: Position, x: T): Nothing = {
-    throw CrashException(pos, message("unsupported", x))
-  }
-
-  def unsupported[T: Str: Repl](input: Input, x: T): Nothing = {
-    throw CrashException(input, message("unsupported", x))
-  }
-
-  def unsupported[T: Str: Repl](x: T): Nothing = {
-    throw CrashException(message("unsupported", x))
-  }
-
   def crash[T: Str: Repl](pos: Position, x: T): Nothing = {
     throw CrashException(pos, message("crash", x))
   }

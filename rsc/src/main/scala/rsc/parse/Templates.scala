@@ -18,7 +18,7 @@ trait Templates {
       in.nextToken()
       newLineOptWhenFollowedBy(LBRACE)
       if (in.token == LBRACE) {
-        unsupported("early definitions")
+        crash("early definitions")
       } else {
         val inits = templateInits()
         templateBraces(ctx, inits)
@@ -31,7 +31,7 @@ trait Templates {
 
   def newTemplate(): Template = {
     if (in.token == LBRACE) {
-      unsupported("early definitions")
+      crash("early definitions")
     } else {
       val inits = templateInits()
       templateBraces(TermNewContext, inits)
@@ -48,11 +48,11 @@ trait Templates {
     val idstart = in.offset
     val args = {
       if (in.token != LPAREN) {
-        unsupported("nullary argument lists")
+        crash("nullary argument lists")
       }
       val result = termArgs()
       if (in.token == LPAREN) {
-        unsupported("multiple argument lists")
+        crash("multiple argument lists")
       }
       result
     }
@@ -84,7 +84,7 @@ trait Templates {
                   in.nextToken()
                   defnClass(start, modCase +: mods)
                 } else {
-                  unsupported("inner classes")
+                  crash("inner classes")
                 }
               case CASEOBJECT =>
                 if (ctx == DefnObjectContext) {
@@ -92,14 +92,14 @@ trait Templates {
                   in.nextToken()
                   defnClass(start, modCase +: mods)
                 } else {
-                  unsupported("inner objects")
+                  crash("inner objects")
                 }
               case CLASS =>
                 if (ctx == DefnObjectContext) {
                   in.nextToken()
                   defnClass(start, mods)
                 } else {
-                  unsupported("inner classes")
+                  crash("inner classes")
                 }
               case DEF =>
                 in.nextToken()
@@ -109,14 +109,14 @@ trait Templates {
                   in.nextToken()
                   defnObject(start, mods)
                 } else {
-                  unsupported("inner objects")
+                  crash("inner objects")
                 }
               case TRAIT =>
                 if (ctx == DefnObjectContext) {
                   in.nextToken()
                   defnTrait(start, mods)
                 } else {
-                  unsupported("inner traits")
+                  crash("inner traits")
                 }
               case TYPE =>
                 in.nextToken()

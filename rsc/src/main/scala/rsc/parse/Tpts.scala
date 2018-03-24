@@ -15,7 +15,7 @@ trait Tpts {
 
   def paramTpt(): Tpt = {
     if (in.token == ARROW) {
-      unsupported("by-name types")
+      crash("by-name types")
     } else {
       tpt()
     }
@@ -58,7 +58,7 @@ trait Tpts {
         val ret = tpt()
         atPos(start)(TptFunction(params :+ ret))
       case FORSOME =>
-        unsupported("existential types")
+        crash("existential types")
       case _ =>
         unfinished
     }
@@ -77,7 +77,7 @@ trait Tpts {
         val tpt = unfinished
         atPos(start)(TptRepeat(tpt))
       } else {
-        unsupported("infix types")
+        crash("infix types")
       }
     } else {
       unfinished
@@ -87,7 +87,7 @@ trait Tpts {
   def refinedTpt(): Tpt = {
     val start = in.offset
     if (in.token == LBRACE) {
-      unsupported("compound types")
+      crash("compound types")
     } else {
       val unfinished = withTpt()
       refinedTptRest(start, unfinished)
@@ -97,7 +97,7 @@ trait Tpts {
   private def refinedTptRest(start: Offset, unfinished: Tpt): Tpt = {
     newLineOptWhenFollowedBy(LBRACE)
     if (in.token == LBRACE) {
-      unsupported("compound types")
+      crash("compound types")
     } else {
       unfinished
     }
@@ -146,7 +146,7 @@ trait Tpts {
 
   private def withTptRest(start: Offset, unfinished: Tpt): Tpt = {
     if (in.token == WITH) {
-      unsupported("compound types")
+      crash("compound types")
     } else {
       unfinished
     }
@@ -160,7 +160,7 @@ trait Tpts {
 
   private def annotTptRest(start: Offset, unfinished: Tpt): Tpt = {
     if (in.token == AT) {
-      unsupported("annotations")
+      crash("annotations")
     } else {
       unfinished
     }
@@ -172,9 +172,9 @@ trait Tpts {
       if (in.token == LPAREN) {
         makeTptTuple(start, tptArgs())
       } else if (in.token == LBRACE) {
-        unsupported("compound types")
+        crash("compound types")
       } else if (in.token == USCORE) {
-        unsupported("existential types")
+        crash("existential types")
       } else {
         tptPath()
       }
@@ -185,7 +185,7 @@ trait Tpts {
   private def simpleTptRest(start: Offset, unfinished: Tpt): Tpt = {
     in.token match {
       case HASH =>
-        unsupported("type projections")
+        crash("type projections")
       case LBRACKET =>
         val fun = unfinished
         val args = tptArgs()

@@ -11,6 +11,6 @@ object PrettyEnv {
   }
 
   def repl(p: Printer, x: Env): Unit = {
-    unsupported(x)
+    crash(x)
   }
 }

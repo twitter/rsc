@@ -20,6 +20,6 @@ object PrettyCompiler {
   }
 
   def repl(p: Printer, x: Compiler): Unit = {
-    unsupported(x)
+    crash(x)
   }
 }

@@ -61,7 +61,7 @@ trait Paths {
         errorTptId()
       case UnfinishedPath(path) =>
         if (in.token == TYPE) {
-          unsupported("singleton types")
+          crash("singleton types")
         } else {
           val idErr = errorTptId()
           atPos(start)(TptSelect(path, idErr))

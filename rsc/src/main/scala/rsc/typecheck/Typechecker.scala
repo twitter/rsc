@@ -55,7 +55,7 @@ final class Typechecker private (
       case MethodType(Nil, _, ret) =>
         ret
       case MethodType(other, _, _) =>
-        unsupported("type inference")
+        crash("type inference")
       case other =>
         val id1 = TermId("apply").withPos(tree.fun.pos.end, tree.fun)
         val select1 = TermSelect(tree.fun, id1).withPos(tree.fun)
@@ -251,12 +251,12 @@ final class Typechecker private (
                       reporter.append(message)
                   }
                 case None =>
-                  unsupported("type inference")
+                  crash("type inference")
               }
             case PatVar(AnonId(), _) =>
               ()
             case pat =>
-              unsupported("advanced patterns")
+              crash("advanced patterns")
           }
         }
         loop(pat)

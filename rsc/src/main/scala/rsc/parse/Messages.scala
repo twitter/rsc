@@ -9,11 +9,6 @@ import rsc.report._
 trait Messages {
   self: Parser =>
 
-  def unsupported[T: Str: Repl](x: T): Nothing = {
-    val pos = Position(input, in.offset, in.offset)
-    rsc.util.unsupported(pos, x)
-  }
-
   def crash[T: Str: Repl](x: T): Nothing = {
     val pos = Position(input, in.offset, in.offset)
     rsc.util.crash(pos, x)
@@ -60,6 +55,6 @@ trait Messages {
    *     than the last known statement start before the error point.
    */
   private def skip(): Unit = {
-    unsupported("smart handling of fatal parsing errors")
+    crash("smart handling of fatal parsing errors")
   }
 }

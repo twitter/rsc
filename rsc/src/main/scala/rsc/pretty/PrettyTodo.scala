@@ -66,6 +66,6 @@ object PrettyTodo {
   }
 
   def repl(p: Printer, x: Todo): Unit = {
-    unsupported(x)
+    crash(x)
   }
 }

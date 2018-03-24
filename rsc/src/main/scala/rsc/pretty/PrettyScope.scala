@@ -38,6 +38,6 @@ object PrettyScope {
   }
 
   def repl(p: Printer, x: Scope): Unit = {
-    unsupported(x)
+    crash(x)
   }
 }

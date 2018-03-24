@@ -21,7 +21,7 @@ trait Sources {
     if (in.token == PACKAGE) {
       in.nextToken()
       if (in.token == OBJECT) {
-        unsupported("package objects")
+        crash("package objects")
       } else {
         val id = termPath()
         newLineOptWhenFollowedBy(LBRACE)
@@ -68,7 +68,7 @@ trait Sources {
           case PACKAGE =>
             in.nextToken()
             if (in.token == OBJECT) {
-              unsupported("package objects")
+              crash("package objects")
             } else {
               val id = termPath()
               newLineOptWhenFollowedBy(LBRACE)

@@ -197,7 +197,7 @@ final case class DoubleDef(tree: Outline, existing: Outline) extends Message {
   def pos = tree.id.point
   def text = {
     if (tree.isInstanceOf[DefnDef] || existing.isInstanceOf[DefnDef]) {
-      unsupported("overloading")
+      crash("overloading")
     } else {
       val treeDesc = {
         tree.id match {

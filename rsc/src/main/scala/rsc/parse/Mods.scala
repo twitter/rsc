@@ -47,7 +47,7 @@ trait Mods {
       newLineOptWhenFollowedBy(AT)
     }
     if (in.token == AT) {
-      unsupported("annotations")
+      crash("annotations")
     } else {
       Nil
     }
@@ -59,11 +59,11 @@ trait Mods {
     val idstart = in.offset
     val args = {
       if (in.token != LPAREN) {
-        unsupported("nullary argument lists")
+        crash("nullary argument lists")
       }
       val result = termArgs()
       if (in.token == LPAREN) {
-        unsupported("multiple argument lists")
+        crash("multiple argument lists")
       }
       result
     }
@@ -109,7 +109,7 @@ trait Mods {
               in.nextToken()
               atPos(start)(ModLazy())
             case IMPLICIT =>
-              unsupported("implicit parameters")
+              crash("implicit parameters")
             case OVERRIDE =>
               in.nextToken()
               atPos(start)(ModOverride())

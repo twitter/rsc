@@ -95,7 +95,7 @@ final class Scheduler private (
             case _: DefnPackage =>
               id.uid = existingUid
             case _ =>
-              unsupported("overloading")
+              crash("overloading")
           }
       }
       symtab.scopes(id.uid) :: qualEnv

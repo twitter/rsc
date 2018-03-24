@@ -22,7 +22,7 @@ trait Terms {
             val unfinished = term()
             unfinished match {
               case TermAssign(id: TermId, rhs) =>
-                unsupported("named and default arguments")
+                crash("named and default arguments")
               case _ =>
                 unfinished
             }
@@ -34,7 +34,7 @@ trait Terms {
 
   def term(): Term = {
     if (in.token == IMPLICIT) {
-      unsupported("implicit parameters")
+      crash("implicit parameters")
     } else {
       val start = in.offset
       val unfinished = term1()
@@ -44,7 +44,7 @@ trait Terms {
           object TermParamLike {
             def unapply(term: Term): Option[TermParam] = term match {
               case id: TermId =>
-                unsupported("type inference")
+                crash("type inference")
               case TermAscribe(id: TermId, tpt) =>
                 Some(atPos(term.pos)(TermParam(Nil, id, tpt)))
               case _ =>
@@ -103,7 +103,7 @@ trait Terms {
         val cond = inParens(term())
         atPos(start)(TermDo(body, cond))
       case TRY =>
-        unsupported("exception handling")
+        crash("exception handling")
       case THROW =>
         in.nextToken()
         val term = this.term()
@@ -119,7 +119,7 @@ trait Terms {
         }
         atPos(start)(TermReturn(term))
       case FOR =>
-        unsupported("for comprehensions")
+        crash("for comprehensions")
       case _ =>
         val unfinished = postfixTerm()
         in.token match {
@@ -148,7 +148,7 @@ trait Terms {
                   atPos(errOffset)(errorTerm())
                 }
               case AT =>
-                unsupported("annotations")
+                crash("annotations")
               case _ =>
                 val term = unfinished
                 val tpt = infixTpt()
@@ -261,7 +261,7 @@ trait Terms {
         canApply = true
         termPath()
       case USCORE =>
-        unsupported("type inference")
+        crash("type inference")
       case LPAREN =>
         canApply = true
         val terms = termArgs()
@@ -280,7 +280,7 @@ trait Terms {
           case Template(List(init), None) =>
             atPos(start)(TermNew(init))
           case Template(inits, statsOpt) =>
-            unsupported("anonymous classes")
+            crash("anonymous classes")
         }
       case _ =>
         if (in.token.isLit) {
@@ -353,19 +353,19 @@ trait Terms {
         val mods = defnMods(modTokens.localDefn)
         val stat = in.token match {
           case CASECLASS =>
-            unsupported("local classes")
+            crash("local classes")
           case CASEOBJECT =>
-            unsupported("local objects")
+            crash("local objects")
           case CLASS =>
-            unsupported("local classes")
+            crash("local classes")
           case DEF =>
-            unsupported("local methods")
+            crash("local methods")
           case OBJECT =>
-            unsupported("local objects")
+            crash("local objects")
           case TRAIT =>
-            unsupported("local traits")
+            crash("local traits")
           case TYPE =>
-            unsupported("local types")
+            crash("local types")
           case VAL =>
             val modVal = atPos(in.offset)(ModVal())
             in.nextToken()

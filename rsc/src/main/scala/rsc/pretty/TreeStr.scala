@@ -137,7 +137,7 @@ class TreeStr(val p: Printer) {
         p.str(".")
         apply(id)
       case tree @ PatTuple(args) =>
-        unsupported(tree)
+        crash(tree)
       case PatVar(id, tpt) =>
         id match {
           case AnonId() => p.str("_")

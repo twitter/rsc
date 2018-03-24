@@ -12,7 +12,7 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
       _scopes match {
         case (head: OwnerScope) :: rest => head
         case _ :: rest => loop(rest)
-        case Nil => unsupported(this)
+        case Nil => crash(this)
       }
     }
     loop(_scopes)
@@ -21,7 +21,7 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
   def outer: Env = {
     _scopes match {
       case head :: rest => Env(rest)
-      case Nil => unsupported(this)
+      case Nil => crash(this)
     }
   }
 

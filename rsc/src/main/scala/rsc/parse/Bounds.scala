@@ -18,7 +18,7 @@ trait Bounds {
 
   def viewBounds(): List[Tpt] = {
     if (in.token == VIEWBOUND) {
-      unsupported("implicit parameters")
+      crash("implicit parameters")
     } else {
       Nil
     }
@@ -26,7 +26,7 @@ trait Bounds {
 
   def contextBounds(): List[Tpt] = {
     if (in.token == COLON) {
-      unsupported("implicit parameters")
+      crash("implicit parameters")
     } else {
       Nil
     }
