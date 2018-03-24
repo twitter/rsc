@@ -133,7 +133,7 @@ if todo:
             target_bin_bench_file.write(target_bin_bench_output)
           benchbox_bin_bench_upload = os.path.join(benchbox_bin, "bench_upload")
           returncode = call(" ".join([benchbox_bin_bench_upload, target_ref.user, target_ref.repo, target_ref.sha, target_bin_bench_path]))
-          if returncode == 0:
+          if returncode == 0 and target_ref.sha in index:
             latest_performance = load_benchmarks()
             target_pr = index[target_ref.sha]
             target_base = target_pr["base"]["sha"]
