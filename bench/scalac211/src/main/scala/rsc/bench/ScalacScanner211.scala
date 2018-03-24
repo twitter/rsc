@@ -12,6 +12,7 @@ import scala.tools.nsc._
 import scala.tools.nsc.ast.parser.Tokens._
 import scala.tools.nsc.reporters._
 import rsc.bench.ScalacScanner211._
+import rsc.tests._
 
 object ScalacScanner211 {
   @State(Scope.Benchmark)
@@ -22,7 +23,7 @@ object ScalacScanner211 {
     val reporter = new StoreReporter
     val global = Global(settings, reporter)
     val run = new global.Run
-    val abstractFiles = re2sScalacFiles.map(f => AbstractFile.getFile(f))
+    val abstractFiles = re2sScalacFiles.map(f => AbstractFile.getFile(f.toFile))
     val sourceFiles = abstractFiles.map(f => new BatchSourceFile(f)).toArray
   }
 }

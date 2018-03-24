@@ -9,6 +9,7 @@ import org.openjdk.jmh.annotations.Mode._
 import scala.tools.nsc._
 import scala.tools.nsc.reporters._
 import rsc.bench.ScalacTyper211._
+import rsc.tests._
 
 object ScalacTyper211 {
   @State(Scope.Benchmark)

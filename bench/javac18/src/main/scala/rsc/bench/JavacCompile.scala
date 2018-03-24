@@ -8,12 +8,13 @@ import javax.tools._
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.annotations.Mode._
 import rsc.bench.JavacCompile._
+import rsc.tests._
 
 object JavacCompile {
   @State(Scope.Benchmark)
   class BenchmarkState extends FileFixtures {
     val compiler = ToolProvider.getSystemJavaCompiler()
-    val re2jFilenames = re2jFiles.map(_.getAbsolutePath)
+    val re2jFilenames = re2jFiles.map(_.toFile.getAbsolutePath)
     val outDir = Files.createTempDirectory("javac_")
     val options = List("-d", outDir.toString) ++ re2jFilenames
   }

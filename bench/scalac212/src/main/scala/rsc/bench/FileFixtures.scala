@@ -10,12 +10,29 @@ trait FileFixtures {
     BuildInfo.sourceRoot.toPath
   }
 
+  lazy val re2jDir: Path = {
+    buildRoot.resolve("examples/re2j/src/main/java/com/google/re2j")
+  }
+
+  lazy val re2jFiles: List[Path] = {
+    val stream = Files.newDirectoryStream(re2jDir)
+    stream.asScala.toList
+  }
+
   lazy val re2sDir: Path = {
     buildRoot.resolve("examples/re2s/src/main/scala/com/twitter/re2s")
   }
 
   lazy val re2sScalacFiles: List[Path] = {
-    val stream = Files.newDirectoryStream(re2sDir.toPath)
+    val stream = Files.newDirectoryStream(re2sDir)
     stream.asScala.toList
+  }
+
+  lazy val re2sRscFiles: List[Path] = {
+    re2sScalacFiles :+ stdlibPath
+  }
+
+  lazy val stdlibPath: Path = {
+    buildRoot.resolve("stdlib/src/main/scala/Stdlib.scala")
   }
 }

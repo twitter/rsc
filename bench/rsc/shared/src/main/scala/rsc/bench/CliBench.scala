@@ -2,14 +2,16 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.bench
 
-trait CliBench {
+import rsc.tests._
+
+trait CliBench extends FileFixtures {
   def run(name: String, command: List[String], runs: Int, iters: Int): Unit = {
     println(s"Running ${command.mkString(" ")} $runs x $iters times...")
     val times = 1.to(runs).map { i =>
       val start = System.nanoTime()
       val process = new java.lang.ProcessBuilder()
       process.command((command ++ List("--iters", iters.toString)): _*)
-      process.directory(rsc.bench.BuildInfo.sourceRoot)
+      process.directory(buildRoot.toFile)
       process.redirectOutput(ProcessBuilder.Redirect.INHERIT)
       process.redirectError(ProcessBuilder.Redirect.INHERIT)
       val exitcode = process.start().waitFor()
