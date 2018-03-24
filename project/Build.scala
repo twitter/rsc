@@ -10,7 +10,7 @@ import scala.collection.JavaConverters._
 import sbt._
 import sbt.Keys._
 import sbt.plugins._
-import scala.scalanative.sbtplugin.ScalaNativePlugin.AutoImport._
+import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport._
 import complete.DefaultParsers._
 
 object Build extends AutoPlugin {
