@@ -26,6 +26,8 @@ final class Scoper private (
         scope.succeed()
       case scope: TemplateScope =>
         trySucceed(env, scope)
+      case scope: SemanticdbScope =>
+        crash(scope)
       case scope: SuperScope =>
         crash(scope)
     }

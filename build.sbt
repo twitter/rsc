@@ -2,6 +2,7 @@ val V = new {
   val scala211 = "2.11.12"
   val scala212 = "2.12.4"
   val uTest = "0.6.0"
+  val scalameta = "3.6.0"
 }
 
 addCommandAlias("benchAll", benchAll.command)
@@ -94,6 +95,7 @@ lazy val rsc = crossProject(JVMPlatform, NativePlatform)
   .nativeSettings(nativeSettings)
   .settings(
     commonSettings,
+    libraryDependencies += "org.scalameta" %%% "semanticdb3" % V.scalameta,
     buildInfoPackage := "rsc.internal",
     buildInfoUsePackageAsPath := true,
     buildInfoKeys := Seq[BuildInfoKey](
@@ -120,7 +122,9 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
     buildInfoPackage := "rsc.tests",
     buildInfoUsePackageAsPath := true,
     buildInfoKeys := Seq[BuildInfoKey](
-      "sourceRoot" -> (baseDirectory in ThisBuild).value
+      "sourceRoot" -> (baseDirectory in ThisBuild).value,
+      "scalaLibraryArtifact" -> s"org.scala-lang:scala-library:${scalaVersion.value}",
+      "metacpArtifact" -> s"org.scalameta:metacp_${scalaBinaryVersion.value}:${V.scalameta}"
     )
   )
 lazy val testsJVM = tests.jvm

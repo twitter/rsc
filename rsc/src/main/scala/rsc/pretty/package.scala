@@ -2,6 +2,6 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc
 
-package object pretty extends Ops {
+package object pretty extends Instances with Ops {
   val EOL = System.lineSeparator()
 }

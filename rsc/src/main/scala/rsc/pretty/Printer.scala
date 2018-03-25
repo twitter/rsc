@@ -42,6 +42,23 @@ final class Printer {
     else str("null")
   }
 
+  def rep[T](pre: String, xs: Iterable[T], sep: String, suf: String)(
+      f: T => Unit): Unit = {
+    if (xs.nonEmpty) {
+      append(pre)
+      rep(xs, sep)(f)
+      append(suf)
+    }
+  }
+
+  def rep[T](pre: String, xs: Iterable[T], sep: String)(f: T => Unit): Unit = {
+    rep(pre, xs, sep, "")(f)
+  }
+
+  def rep[T](xs: Iterable[T], sep: String, suf: String)(f: T => Unit): Unit = {
+    rep("", xs, sep, suf)(f)
+  }
+
   def rep[T](xs: Iterable[T], sep: String)(f: T => Unit): Unit = {
     if (xs.nonEmpty) {
       xs.init.foreach { x =>
@@ -50,6 +67,42 @@ final class Printer {
       }
       f(xs.last)
     }
+  }
+
+  def opt[T](pre: String, xs: Option[T], suf: String)(f: T => Unit): Unit = {
+    xs.foreach { x =>
+      append(pre)
+      f(x)
+      append(suf)
+    }
+  }
+
+  def opt[T](pre: String, xs: Option[T])(f: T => Unit): Unit = {
+    opt(pre, xs, "")(f)
+  }
+
+  def opt[T](xs: Option[T], suf: String)(f: T => Unit): Unit = {
+    opt("", xs, suf)(f)
+  }
+
+  def opt[T](xs: Option[T])(f: T => Unit): Unit = {
+    opt("", xs, "")(f)
+  }
+
+  def opt(pre: String, s: String, suf: String)(f: String => Unit): Unit = {
+    if (s.nonEmpty) {
+      append(pre)
+      f(s)
+      append(suf)
+    }
+  }
+
+  def opt(s: String, suf: String)(f: String => Unit): Unit = {
+    opt("", s, suf)(f)
+  }
+
+  def opt(s: String)(f: String => Unit): Unit = {
+    opt("", s, "")(f)
   }
 
   def indent(n: Int = 1): Unit = {
