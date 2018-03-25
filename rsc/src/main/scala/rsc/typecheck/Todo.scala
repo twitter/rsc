@@ -4,7 +4,6 @@ package rsc.typecheck
 
 import java.util.{Queue, LinkedList}
 import rsc.pretty._
-import rsc.semantics._
 import rsc.syntax._
 
 final class Todo private extends Pretty {

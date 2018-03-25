@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.pretty
 
-import rsc.semantics._
+import rsc.typecheck._
 
 object PrettyResolution {
   def str(p: Printer, x: Resolution): Unit = {

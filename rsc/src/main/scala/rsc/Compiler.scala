@@ -7,7 +7,6 @@ import rsc.lexis._
 import rsc.parse._
 import rsc.pretty._
 import rsc.report._
-import rsc.semantics._
 import rsc.settings._
 import rsc.syntax._
 import rsc.typecheck._

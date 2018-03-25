@@ -1,10 +1,11 @@
 // Copyright (c) 2017-2018 Twitter, Inc.
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
-package rsc.semantics
+package rsc.typecheck
 
 import java.util.{HashMap, Map}
 import scala.collection.mutable
 import rsc.pretty._
+import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
 
