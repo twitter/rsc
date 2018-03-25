@@ -92,8 +92,11 @@ with GithubRef(root_user, root_repo, "master") as root_ref:
 
 print ""
 print "Computing work queue..."
-for i, target_ref in enumerate(todo):
-  print "(" + str(i + 1) + "/" + str(len(todo)) + ") " + target_ref.url
+if todo:
+  for i, target_ref in enumerate(todo):
+    print "(" + str(i + 1) + "/" + str(len(todo)) + ") " + target_ref.url
+else:
+  print "Work queue is empty"
 
 if todo:
   print ""
