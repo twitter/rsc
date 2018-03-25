@@ -10,6 +10,7 @@ import rsc.lexis._
 import rsc.parse._
 import rsc.report._
 import rsc.settings._
+import rsc.tests._
 
 object RscParse {
   @State(Scope.Benchmark)

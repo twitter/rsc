@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.bench
 
+import rsc.tests._
+
 trait RscNativeSchedule extends CliBench {
   def main(args: Array[String]): Unit = {
     val Array(out) = args

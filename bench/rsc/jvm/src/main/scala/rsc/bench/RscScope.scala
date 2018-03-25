@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.annotations.Mode._
 import rsc.bench.RscScope._
+import rsc.tests._
 
 object RscScope {
   @State(Scope.Benchmark)

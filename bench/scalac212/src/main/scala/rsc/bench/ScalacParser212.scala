@@ -21,7 +21,7 @@ object ScalacParser212 {
     val reporter = new StoreReporter
     val global = Global(settings, reporter)
     val run = new global.Run
-    val abstractFiles = re2sScalacFiles.map(f => AbstractFile.getFile(f))
+    val abstractFiles = re2sScalacFiles.map(f => AbstractFile.getFile(f.toFile))
     val sourceFiles = abstractFiles.map(f => new BatchSourceFile(f)).toArray
   }
 }

@@ -11,6 +11,7 @@ import scala.reflect.internal.util._
 import scala.tools.nsc._
 import scala.tools.nsc.reporters._
 import rsc.bench.ScalacParser211._
+import rsc.tests._
 
 object ScalacParser211 {
   @State(Scope.Benchmark)
@@ -21,7 +22,7 @@ object ScalacParser211 {
     val reporter = new StoreReporter
     val global = Global(settings, reporter)
     val run = new global.Run
-    val abstractFiles = re2sScalacFiles.map(f => AbstractFile.getFile(f))
+    val abstractFiles = re2sScalacFiles.map(f => AbstractFile.getFile(f.toFile))
     val sourceFiles = abstractFiles.map(f => new BatchSourceFile(f)).toArray
   }
 }

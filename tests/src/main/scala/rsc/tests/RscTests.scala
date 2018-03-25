@@ -3,7 +3,6 @@
 package rsc.tests
 
 import utest._
-import rsc.bench._
 import rsc.Compiler
 import rsc.report._
 import rsc.syntax._
