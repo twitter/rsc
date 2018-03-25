@@ -3,15 +3,20 @@
 package rsc
 package build
 
+import java.io.File.pathSeparatorChar
 import java.lang.ProcessBuilder._
 import java.nio.file._
 import java.nio.file.Files._
 import scala.collection.JavaConverters._
+import scala.meta.cli._
+import scala.meta.metacp._
+import scala.sys.process._
 import sbt._
 import sbt.Keys._
 import sbt.plugins._
 import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport._
 import complete.DefaultParsers._
+import org.langmeta._
 
 object Build extends AutoPlugin {
   override def requires: Plugins = JvmPlugin
@@ -128,13 +133,32 @@ object Build extends AutoPlugin {
     }
 
     val scalafmtTest = taskKey[Unit]("Test formatting with Scalafmt")
-
     val shell = inputKey[Unit]("Run shell command")
+    val stdlibClasspath = taskKey[String]("Compute stdlib classpath")
   }
 
   override def projectSettings: Seq[Def.Setting[_]] = List(
     // NOTE: See https://youtrack.jetbrains.com/issue/SCL-13390.
-    SettingKey[Boolean]("ide-skip-project") := name.value.endsWith("Native")
+    SettingKey[Boolean]("ide-skip-project") := name.value.endsWith("Native"),
+    stdlibClasspath := {
+      def detectJdk(): List[AbsolutePath] = {
+        val bootcp = sys.props.collectFirst {
+          case (k, v) if k.endsWith(".boot.class.path") => Classpath(v)
+        }
+        bootcp.map(_.shallow).getOrElse(sys.error("failed to detect JDK"))
+      }
+      def detectScalaLibrary(): List[AbsolutePath] = {
+        val entries = dependencyClasspath.in(Compile).value.files
+        val scalaLibrary = entries.find(_.toString.contains("scala-library"))
+        scalaLibrary.toList.map(e => AbsolutePath(e))
+      }
+      val classpath = Classpath(detectJdk() ++ detectScalaLibrary())
+      val settings = Settings()
+        .withClasspath(classpath)
+        .withScalaLibrarySynthetics(true)
+      val reporter = Reporter()
+      Metacp.process(settings, reporter).get.toString
+    }
   )
 
   override def globalSettings: Seq[Def.Setting[_]] = List(

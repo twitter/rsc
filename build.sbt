@@ -123,8 +123,7 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
     buildInfoUsePackageAsPath := true,
     buildInfoKeys := Seq[BuildInfoKey](
       "sourceRoot" -> (baseDirectory in ThisBuild).value,
-      "scalaLibraryArtifact" -> s"org.scala-lang:scala-library:${scalaVersion.value}",
-      "metacpArtifact" -> s"org.scalameta:metacp_${scalaBinaryVersion.value}:${V.scalameta}"
+      BuildInfoKey.map(stdlibClasspath) { case (k, v) => k -> v }
     )
   )
 lazy val testsJVM = tests.jvm
