@@ -13,53 +13,53 @@ final class Outliner private (
     reporter: Reporter,
     symtab: Symtab) {
   def apply(env: Env, tpt: Tpt): Unit = {
-    assignUids(env, tpt.atoms)
+    assignSyms(env, tpt.atoms)
   }
 
   def apply(env: Env, mod: Mod): Unit = {
     mod match {
       case ModPrivate(Some(id: SomeId)) =>
-        assignUids(env, id.atoms)
+        assignSyms(env, id.atoms)
       case ModProtected(Some(id: SomeId)) =>
-        assignUids(env, id.atoms)
+        assignSyms(env, id.atoms)
       case _ =>
         ()
     }
   }
 
-  private def assignUids(startingEnv: Env, atoms: List[Atom]): Unit = {
+  private def assignSyms(startingEnv: Env, atoms: List[Atom]): Unit = {
     def loop(env: Env, atoms: List[Atom]): Unit = {
       atoms match {
         case ApplyAtom(args) :: rest =>
-          args.foreach(arg => assignUids(startingEnv, arg.atoms))
+          args.foreach(arg => assignSyms(startingEnv, arg.atoms))
           loop(env, rest)
         case IdAtom(id) :: rest =>
-          env.lookup(id.sid) match {
-            case NoUid =>
+          env.lookup(id.name) match {
+            case NoSymbol =>
               if (env == startingEnv) reporter.append(UnboundId(id))
-              else reporter.append(UnboundMember(env.owner.uid, id))
-            case uid =>
-              id.uid = uid
+              else reporter.append(UnboundMember(env.owner.sym, id))
+            case sym =>
+              id.sym = sym
               if (rest.isEmpty) ()
-              else loop(Env(symtab.scopes(uid)), rest)
+              else loop(Env(symtab.scopes(sym)), rest)
           }
         case ThisAtom(id) :: rest =>
-          env.lookupThis(id.sidopt) match {
-            case NoUid =>
+          env.lookupThis(id.nameopt) match {
+            case NoSymbol =>
               reporter.append(UnboundId(id))
-            case uid =>
-              id.uid = uid
+            case sym =>
+              id.sym = sym
               if (rest.isEmpty) ()
-              else loop(Env(symtab.scopes(uid)), rest)
+              else loop(Env(symtab.scopes(sym)), rest)
           }
         case SuperAtom(id) :: rest =>
-          env.lookupSuper(id.sidopt) match {
-            case NoUid =>
+          env.lookupSuper(id.nameopt) match {
+            case NoSymbol =>
               reporter.append(UnboundId(id))
-            case uid =>
-              id.uid = uid
+            case sym =>
+              id.sym = sym
               if (rest.isEmpty) ()
-              else loop(Env(symtab.scopes(uid)), rest)
+              else loop(Env(symtab.scopes(sym)), rest)
           }
         case (atom @ UnsupportedAtom(unsupported)) :: rest =>
           reporter.append(IllegalOutlinePart(unsupported))

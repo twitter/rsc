@@ -9,13 +9,13 @@ object PrettyResolution {
     x match {
       case BlockedResolution(scope) =>
         p.str("b:")
-        p.str(scope.uid)
+        p.str(scope.sym)
       case MissingResolution =>
         p.str("m")
       case ErrorResolution =>
         p.str("e")
-      case FoundResolution(uid) =>
-        p.str(uid)
+      case FoundResolution(sym) =>
+        p.str(sym)
     }
   }
 

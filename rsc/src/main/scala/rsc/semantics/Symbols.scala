@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.semantics
 
-trait Uids {
-  type Uid = String
-  val NoUid: Uid = ""
+trait Symbols {
+  type Symbol = String
+  val NoSymbol: Symbol = ""
 
   private var counter = 0
-  def freshUid(): Uid = {
+  def freshSym(): Symbol = {
     counter += 1
     counter.toString
   }

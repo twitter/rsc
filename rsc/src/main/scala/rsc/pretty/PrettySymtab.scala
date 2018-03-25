@@ -21,8 +21,8 @@ object PrettySymtab {
     p.header("Outlines (symtab)")
     val outlines = x._outlines.asScala.toList.sortBy(_._1.str)
     p.rep(outlines, EOL) {
-      case (uid, outline) =>
-        p.str(uid)
+      case (sym, outline) =>
+        p.str(sym)
         p.str(" => ")
         p.str(outline)
     }

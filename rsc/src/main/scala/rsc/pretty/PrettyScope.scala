@@ -8,20 +8,20 @@ import rsc.util._
 
 object PrettyScope {
   def str(p: Printer, x: Scope): Unit = {
-    p.str(x.uid)
+    p.str(x.sym)
     p.str(" ")
     p.str(x.status)
     if (x.status.isSucceeded) {
       x match {
         case x: ImporterScope =>
           p.str(" ")
-          p.str(x.parent.uid)
+          p.str(x.parent.sym)
         case x: TemplateScope =>
           p.str(" ")
-          p.rep(x.parents, " with ")(scope => p.str(scope.uid))
+          p.rep(x.parents, " with ")(scope => p.str(scope.sym))
         case x: SuperScope =>
           p.str(" ")
-          p.rep(x.underlying.parents, " with ")(scope => p.str(scope.uid))
+          p.rep(x.underlying.parents, " with ")(scope => p.str(scope.sym))
         case _ =>
           ()
       }

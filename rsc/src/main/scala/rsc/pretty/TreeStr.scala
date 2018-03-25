@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.pretty
 
+import scala.{Symbol => StdlibSymbol}
 import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
@@ -112,7 +113,7 @@ class TreeStr(val p: Printer) {
       case ModVar() =>
         p.str("var")
       case x @ NamedId(value) =>
-        if (x.uid != NoUid) p.str("<" + x.uid + ">")
+        if (x.sym != NoSymbol) p.str("<" + x.sym + ">")
         else p.str(value)
       case PatAlternative(pats) =>
         apply(pats, " | ")
@@ -149,7 +150,7 @@ class TreeStr(val p: Printer) {
           p.str(" ")
           p.Suffix(" ")(mods)(apply(_, " "))
         }
-        if (tree.id.uid != NoUid) p.str("<" + tree.id.uid + ">")
+        if (tree.id.sym != NoSymbol) p.str("<" + tree.id.sym + ">")
         else ()
         p.Parens(apply(params, ", "))
       case Source(stats) =>
@@ -222,7 +223,7 @@ class TreeStr(val p: Printer) {
         p.repl(false)
       case TermLit(null) =>
         p.repl(null)
-      case TermLit(value: Symbol) =>
+      case TermLit(value: StdlibSymbol) =>
         p.repl(value)
       case TermLit(other) =>
         crash(other.getClass.toString)

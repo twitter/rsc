@@ -127,13 +127,13 @@ final class Typechecker private (
         val scope = FlatScope("block")
         stats.foreach {
           case stat @ DefnField(_, id, tpt, Some(rhs)) =>
-            val uid = scope.uid + id.sid.str
-            scope.enter(id.sid, uid) match {
-              case NoUid =>
-                id.uid = uid
-                symtab.outlines(id.uid) = stat
-              case existingUid =>
-                reporter.append(DoubleDef(stat, symtab.outlines(existingUid)))
+            val sym = scope.sym + id.name.str
+            scope.enter(id.name, sym) match {
+              case NoSymbol =>
+                id.sym = sym
+                symtab.outlines(id.sym) = stat
+              case existingSym =>
+                reporter.append(DoubleDef(stat, symtab.outlines(existingSym)))
                 return NoType
             }
             tpts += tpt
@@ -160,13 +160,13 @@ final class Typechecker private (
     val scope = FlatScope("lambda")
     tree.params.foreach {
       case param @ TermParam(_, id, tpt) =>
-        val uid = scope.uid + id.sid.str
-        scope.enter(id.sid, uid) match {
-          case NoUid =>
-            id.uid = uid
-            symtab.outlines(id.uid) = param
-          case existingUid =>
-            reporter.append(DoubleDef(param, symtab.outlines(existingUid)))
+        val sym = scope.sym + id.name.str
+        scope.enter(id.name, sym) match {
+          case NoSymbol =>
+            id.sym = sym
+            symtab.outlines(id.sym) = param
+          case existingSym =>
+            reporter.append(DoubleDef(param, symtab.outlines(existingSym)))
             return NoType
         }
         tpts += tpt
@@ -178,13 +178,13 @@ final class Typechecker private (
   }
 
   private def termId(env: Env, tree: TermId): Type = {
-    env.lookup(tree.sid) match {
-      case NoUid =>
+    env.lookup(tree.name) match {
+      case NoSymbol =>
         reporter.append(UnboundId(tree))
         NoType
-      case uid =>
-        tree.uid = uid
-        uid.tpe
+      case sym =>
+        tree.sym = sym
+        sym.tpe
     }
   }
 
@@ -231,7 +231,7 @@ final class Typechecker private (
             case pat: PatId =>
               val tree1 = TermId(pat.value).withPos(pat)
               apply(env, tree1)
-              pat.uid = tree1.uid
+              pat.sym = tree1.sym
             case pat: PatLit =>
               ()
             case pat: PatSelect =>
@@ -240,14 +240,14 @@ final class Typechecker private (
             case pat @ PatVar(id: NamedId, tpt) =>
               tpt match {
                 case Some(tpt) =>
-                  val uid = scope.uid + id.sid.str
-                  scope.enter(id.sid, uid) match {
-                    case NoUid =>
-                      id.uid = uid
-                      symtab.outlines(id.uid) = pat
+                  val sym = scope.sym + id.name.str
+                  scope.enter(id.name, sym) match {
+                    case NoSymbol =>
+                      id.sym = sym
+                      symtab.outlines(id.sym) = pat
                       pat.tpe = apply(env, tpt)
-                    case existingUid =>
-                      val message = DoubleDef(pat, symtab.outlines(existingUid))
+                    case existingSym =>
+                      val message = DoubleDef(pat, symtab.outlines(existingSym))
                       reporter.append(message)
                   }
                 case None =>
@@ -292,22 +292,22 @@ final class Typechecker private (
         reporter.append(NonValue(tree.qual, qualTpe))
         NoType
       case qualTpe: SimpleType =>
-        def lookup(qualUid: Uid): Type = {
-          val qualScope = symtab.scopes(qualUid)
-          qualScope.lookup(tree.id.sid) match {
-            case NoUid =>
+        def lookup(qualSym: Symbol): Type = {
+          val qualScope = symtab.scopes(qualSym)
+          qualScope.lookup(tree.id.name) match {
+            case NoSymbol =>
               if (tree.id.value.isOpAssignment) {
                 val value1 = tree.id.value.stripSuffix("=")
                 val id1 = TermId(value1).withPos(tree.id)
                 val tree1 = TermSelect(tree.qual, id1).withPos(tree)
                 apply(env, tree1)
               } else {
-                reporter.append(UnboundMember(qualUid, tree.id))
+                reporter.append(UnboundMember(qualSym, tree.id))
                 NoType
               }
-            case uid =>
-              tree.id.uid = uid
-              uid.tpe
+            case sym =>
+              tree.id.sym = sym
+              sym.tpe
           }
         }
         def loop(qualTpe: Type): Type = {
@@ -316,12 +316,12 @@ final class Typechecker private (
               NoType
             case _: MethodType =>
               crash(qualTpe)
-            case SimpleType(qualUid, targs) =>
-              symtab.outlines(qualUid) match {
+            case SimpleType(qualSym, targs) =>
+              symtab.outlines(qualSym) match {
                 case DefnPackage(pid, _) =>
-                  lookup(pid.id.uid)
+                  lookup(pid.id.sym)
                 case DefnTemplate(_, id, tparams, _, _, _) =>
-                  lookup(id.uid).subst(tparams, targs)
+                  lookup(id.sym).subst(tparams, targs)
                 case DefnType(_, _, tparams, tpt) =>
                   loop(tpt.tpe.subst(tparams, targs))
                 case tparam: TypeParam =>
@@ -334,23 +334,23 @@ final class Typechecker private (
   }
 
   private def termSuper(env: Env, tree: TermSuper): Type = {
-    env.lookupThis(tree.qual.sidopt) match {
-      case NoUid =>
+    env.lookupThis(tree.qual.nameopt) match {
+      case NoSymbol =>
         reporter.append(UnboundId(tree.qual))
         NoType
-      case qualUid =>
-        tree.qual.uid = qualUid
-        val env1 = Env(symtab.scopes(qualUid))
-        env1.lookupSuper(tree.mix.sidopt) match {
-          case NoUid =>
+      case qualSym =>
+        tree.qual.sym = qualSym
+        val env1 = Env(symtab.scopes(qualSym))
+        env1.lookupSuper(tree.mix.nameopt) match {
+          case NoSymbol =>
             reporter.append(UnboundId(tree.mix))
             NoType
-          case mixUid =>
-            tree.mix.uid = mixUid
-            symtab.outlines(mixUid) match {
+          case mixSym =>
+            tree.mix.sym = mixSym
+            symtab.outlines(mixSym) match {
               case DefnTemplate(_, id, tparams, _, _, _) =>
-                val targs = tparams.map(tp => SimpleType(tp.id.uid, Nil))
-                SimpleType(id.uid, targs)
+                val targs = tparams.map(tp => SimpleType(tp.id.sym, Nil))
+                SimpleType(id.sym, targs)
               case other =>
                 crash(other)
             }
@@ -359,16 +359,16 @@ final class Typechecker private (
   }
 
   private def termThis(env: Env, tree: TermThis): Type = {
-    env.lookupThis(tree.qual.sidopt) match {
-      case NoUid =>
+    env.lookupThis(tree.qual.nameopt) match {
+      case NoSymbol =>
         reporter.append(UnboundId(tree.id))
         NoType
-      case qualUid =>
-        tree.qual.uid = qualUid
-        symtab.outlines(qualUid) match {
+      case qualSym =>
+        tree.qual.sym = qualSym
+        symtab.outlines(qualSym) match {
           case DefnTemplate(_, id, tparams, _, _, _) =>
-            val targs = tparams.map(tparam => SimpleType(tparam.id.uid, Nil))
-            SimpleType(id.uid, targs)
+            val targs = tparams.map(tparam => SimpleType(tparam.id.sym, Nil))
+            SimpleType(id.sym, targs)
           case other =>
             crash(other)
         }
@@ -390,27 +390,27 @@ final class Typechecker private (
     funTpe match {
       case NoType =>
         NoType
-      case SimpleType(funUid, Nil) =>
+      case SimpleType(funSym, Nil) =>
         val targs = tree.targs.map {
           apply(env, _) match {
             case targ: SimpleType => targ
             case other => crash(other)
           }
         }
-        SimpleType(funUid, targs)
+        SimpleType(funSym, targs)
       case other =>
         crash(other)
     }
   }
 
   private def tptId(env: Env, tree: TptId): Type = {
-    env.lookup(tree.sid) match {
-      case NoUid =>
+    env.lookup(tree.name) match {
+      case NoSymbol =>
         reporter.append(UnboundId(tree))
         NoType
-      case uid =>
-        tree.uid = uid
-        SimpleType(uid, Nil)
+      case sym =>
+        tree.sym = sym
+        SimpleType(sym, Nil)
     }
   }
 
@@ -419,15 +419,15 @@ final class Typechecker private (
     qualTpe match {
       case NoType =>
         NoType
-      case SimpleType(qualUid, Nil) =>
-        val qualScope = symtab.scopes(qualUid)
-        qualScope.lookup(tree.id.sid) match {
-          case NoUid =>
-            reporter.append(UnboundMember(qualUid, tree.id))
+      case SimpleType(qualSym, Nil) =>
+        val qualScope = symtab.scopes(qualSym)
+        qualScope.lookup(tree.id.name) match {
+          case NoSymbol =>
+            reporter.append(UnboundMember(qualSym, tree.id))
             NoType
-          case uid =>
-            tree.id.uid = uid
-            SimpleType(tree.id.uid, Nil)
+          case sym =>
+            tree.id.sym = sym
+            SimpleType(tree.id.sym, Nil)
         }
       case other =>
         crash(other)
@@ -466,33 +466,33 @@ final class Typechecker private (
     def tpe: SimpleType = {
       tpt match {
         case TptApply(fun: TptPath, targs) =>
-          if (fun.id.uid == NoUid) crash(fun)
-          else SimpleType(fun.id.uid, targs.map(_.tpe))
+          if (fun.id.sym == NoSymbol) crash(fun)
+          else SimpleType(fun.id.sym, targs.map(_.tpe))
         case _: TptApply =>
           crash(tpt)
         case tpt: TptPath =>
-          if (tpt.id.uid == NoUid) crash(tpt.id)
-          else SimpleType(tpt.id.uid, Nil)
+          if (tpt.id.sym == NoSymbol) crash(tpt.id)
+          else SimpleType(tpt.id.sym, Nil)
       }
     }
   }
 
-  private implicit class TypecheckerUidOps(uid: Uid) {
+  private implicit class TypecheckerSymbolOps(sym: Symbol) {
     def tpe: Type = {
-      symtab.outlines(uid) match {
+      symtab.outlines(sym) match {
         case DefnDef(_, _, tparams, params, ret, _) =>
-          val tpeTparams = tparams.map(_.id.uid)
-          val tpeParams = params.map(_.id.uid)
+          val tpeTparams = tparams.map(_.id.sym)
+          val tpeParams = params.map(_.id.sym)
           val tpeRet = ret.tpe
           MethodType(tpeTparams, tpeParams, tpeRet)
         case DefnField(_, _, tpt, _) =>
           tpt.tpe
         case DefnObject(_, id, _, _) =>
-          SimpleType(id.uid, Nil)
+          SimpleType(id.sym, Nil)
         case DefnPackage(id: TermId, _) =>
-          SimpleType(id.uid, Nil)
+          SimpleType(id.sym, Nil)
         case DefnPackage(TermSelect(_, id: TermId), _) =>
-          SimpleType(id.uid, Nil)
+          SimpleType(id.sym, Nil)
         case pat: PatVar =>
           pat.tpe
         case TermParam(_, _, tpt) =>
@@ -512,7 +512,7 @@ final class Typechecker private (
           case NoType =>
             NoType
           case tpe: MethodType =>
-            val tparams1 = tpe.tparams.diff(tparams.map(_.id.uid))
+            val tparams1 = tpe.tparams.diff(tparams.map(_.id.sym))
             val params1 = tpe.params
             val ret1 = {
               tpe.ret.subst(tparams, targs) match {
@@ -522,23 +522,23 @@ final class Typechecker private (
             }
             MethodType(tparams1, params1, ret1)
           case tpe: SimpleType =>
-            val i = tparams.indexWhere(_.id.uid == tpe.uid)
+            val i = tparams.indexWhere(_.id.sym == tpe.sym)
             if (i != -1) {
               targs(i)
             } else {
-              val uid1 = tpe.uid
+              val sym1 = tpe.sym
               val targs1 = tpe.targs.map {
                 _.subst(tparams, targs) match {
                   case targ1: SimpleType => targ1
                   case other => crash(other)
                 }
               }
-              SimpleType(uid1, targs1)
+              SimpleType(sym1, targs1)
             }
         }
       }
     }
-    def subst(tparams: Seq[Uid], targs: List[SimpleType]): Type = {
+    def subst(tparams: Seq[Symbol], targs: List[SimpleType]): Type = {
       if (tparams.isEmpty && targs.isEmpty) {
         tpe
       } else {
@@ -556,18 +556,18 @@ final class Typechecker private (
             }
             MethodType(tparams1, params1, ret1)
           case tpe: SimpleType =>
-            val i = tparams.indexWhere(_ == tpe.uid)
+            val i = tparams.indexWhere(_ == tpe.sym)
             if (i != -1) {
               targs(i)
             } else {
-              val uid1 = tpe.uid
+              val sym1 = tpe.sym
               val targs1 = tpe.targs.map {
                 _.subst(tparams, targs) match {
                   case targ1: SimpleType => targ1
                   case other => crash(other)
                 }
               }
-              SimpleType(uid1, targs1)
+              SimpleType(sym1, targs1)
             }
         }
       }

@@ -11,10 +11,10 @@ object PrettyStatus {
         p.str("?")
       case BlockedStatus(scope) =>
         p.str("b:")
-        p.str(scope.uid)
+        p.str(scope.sym)
       case CyclicStatus(scopes) =>
         p.str("c:")
-        p.str(scopes.map(_.uid))
+        p.str(scopes.map(_.sym))
       case ErrorStatus =>
         p.str("e")
       case SucceededStatus =>

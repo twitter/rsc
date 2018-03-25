@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.parse
 
+import scala.{Symbol => StdlibSymbol}
 import rsc.lexis._
 import rsc.report._
 
@@ -29,7 +30,7 @@ trait Lits {
       case NULL =>
         null
       case LITSYMBOL =>
-        in.value.asInstanceOf[Symbol]
+        in.value.asInstanceOf[StdlibSymbol]
       case _ =>
         reportOffset(in.offset, IllegalLiteral)
         null

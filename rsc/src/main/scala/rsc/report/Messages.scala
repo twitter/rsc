@@ -262,11 +262,11 @@ final case class NonValue(term: Term, tpe: Type) extends Message {
   def text = s"not a value: $tpe"
 }
 
-final case class UnboundMember(qualUid: Uid, id: Id) extends Message {
+final case class UnboundMember(qualSym: Symbol, id: Id) extends Message {
   def sev = ErrorSeverity
   def pos = id.point
   def text = {
-    val qualDesc = qualUid
+    val qualDesc = qualSym
     id match {
       case AnonId() => crash(id)
       case CtorId() => crash(id)

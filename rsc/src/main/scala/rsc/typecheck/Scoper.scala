@@ -32,7 +32,7 @@ final class Scoper private (
   }
 
   private def trySucceed(env: Env, scope: ImporterScope): Unit = {
-    val qualResolution = assignUids(env, scope.tree.qual)
+    val qualResolution = assignSyms(env, scope.tree.qual)
     qualResolution match {
       case BlockedResolution(dep) =>
         scope.block(dep)
@@ -58,8 +58,8 @@ final class Scoper private (
       if (scope.tree.inits.nonEmpty) {
         scope.tree.inits
       } else {
-        if (scope.tree.id.uid == "_root_.scala.Any#") Nil
-        else List(Init(TptId("AnyRef").withUid("_root_.scala.AnyRef#"), Nil))
+        if (scope.tree.id.sym == "_root_.scala.Any#") Nil
+        else List(Init(TptId("AnyRef").withSym("_root_.scala.AnyRef#"), Nil))
       }
     }
     inits.foreach {
@@ -68,7 +68,7 @@ final class Scoper private (
           def loop(tpt: Tpt): Resolution = {
             tpt match {
               case tpt: TptPath =>
-                assignUids(env, tpt)
+                assignSyms(env, tpt)
               case TptApply(tpt, _) =>
                 loop(tpt)
             }
@@ -78,8 +78,8 @@ final class Scoper private (
               scope.block(dep)
             case _: FailedResolution =>
               scope.fail()
-            case FoundResolution(uid) =>
-              symtab.scopes(uid) match {
+            case FoundResolution(sym) =>
+              symtab.scopes(sym) match {
                 case parentScope: TemplateScope => buf += parentScope
                 case other => crash(other)
               }
@@ -99,27 +99,27 @@ final class Scoper private (
     }
   }
 
-  private def assignUids(startingEnv: Env, path: Path): Resolution = {
-    def assignUid(env: Env, id: Id, resolver: => Resolution): Resolution = {
-      val cachedUid = id.uid
-      cachedUid match {
-        case NoUid =>
+  private def assignSyms(startingEnv: Env, path: Path): Resolution = {
+    def assignSym(env: Env, id: Id, resolver: => Resolution): Resolution = {
+      val cachedSym = id.sym
+      cachedSym match {
+        case NoSymbol =>
           val resolution = resolver
           resolution match {
             case BlockedResolution(_) =>
               resolution
             case MissingResolution =>
               if (env == startingEnv) reporter.append(UnboundId(id))
-              else reporter.append(UnboundMember(env.owner.uid, id))
+              else reporter.append(UnboundMember(env.owner.sym, id))
               ErrorResolution
             case ErrorResolution =>
               ErrorResolution
-            case FoundResolution(uid) =>
-              id.uid = uid
+            case FoundResolution(sym) =>
+              id.sym = sym
               resolution
           }
-        case cachedUid =>
-          FoundResolution(cachedUid)
+        case cachedSym =>
+          FoundResolution(cachedSym)
       }
     }
     def loop(env: Env, atoms: List[Atom]): Resolution = {
@@ -129,11 +129,11 @@ final class Scoper private (
           case atom: ApplyAtom =>
             crash(atom)
           case IdAtom(id) =>
-            assignUid(env, id, env.resolve(id.sid))
+            assignSym(env, id, env.resolve(id.name))
           case ThisAtom(id) =>
-            assignUid(env, id, env.resolveThis(id.sidopt))
+            assignSym(env, id, env.resolveThis(id.nameopt))
           case SuperAtom(id) =>
-            assignUid(env, id, env.resolveSuper(id.sidopt))
+            assignSym(env, id, env.resolveSuper(id.nameopt))
           case atom: UnsupportedAtom =>
             ErrorResolution
         }
@@ -143,9 +143,9 @@ final class Scoper private (
           resolution
         case _: FailedResolution =>
           resolution
-        case FoundResolution(uid) =>
+        case FoundResolution(sym) =>
           if (rest.isEmpty) resolution
-          else loop(Env(symtab.scopes(uid)), rest)
+          else loop(Env(symtab.scopes(sym)), rest)
       }
     }
     loop(startingEnv, path.atoms)

@@ -4,19 +4,19 @@ package rsc.pretty
 
 import rsc.semantics._
 
-object PrettySid {
-  def str(p: Printer, x: Sid): Unit = {
+object PrettyName {
+  def str(p: Printer, x: Name): Unit = {
     x match {
-      case SomeSid(value) =>
+      case SomeName(value) =>
         p.str(value)
-      case TermSid(value) =>
+      case TermName(value) =>
         p.str(value + ".")
-      case TypeSid(value) =>
+      case TypeName(value) =>
         p.str(value + "#")
     }
   }
 
-  def repl(p: Printer, x: Sid): Unit = {
+  def repl(p: Printer, x: Name): Unit = {
     new ProductRepl(p).apply(x)
   }
 }

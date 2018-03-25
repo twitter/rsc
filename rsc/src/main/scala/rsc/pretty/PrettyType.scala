@@ -9,8 +9,8 @@ object PrettyType {
     tpe match {
       case NoType =>
         p.str("ø")
-      case SimpleType(uid, targs) =>
-        p.str("<" + uid + ">")
+      case SimpleType(sym, targs) =>
+        p.str("<" + sym + ">")
         if (targs.nonEmpty) {
           p.str("[")
           p.rep(targs, ", ")(p.str)
@@ -19,12 +19,12 @@ object PrettyType {
       case MethodType(tparams, vparamss, ret) =>
         if (tparams.nonEmpty) {
           p.str("[")
-          p.rep(tparams, ", ")(uid => p.str("<" + uid + ">"))
+          p.rep(tparams, ", ")(sym => p.str("<" + sym + ">"))
           p.str("]")
         }
         vparamss.foreach { vparams =>
           p.str("(")
-          p.rep(vparams, ", ")(uid => p.str("<" + uid + ">"))
+          p.rep(vparams, ", ")(sym => p.str("<" + sym + ">"))
           p.str(")")
         }
         p.str(":")

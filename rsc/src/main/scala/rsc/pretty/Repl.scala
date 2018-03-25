@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.pretty
 
+import scala.{Symbol => StdlibSymbol}
 import rsc.util._
 
 trait Repl[T] {
@@ -69,7 +70,7 @@ object Repl {
     else p.str("null")
   }
 
-  implicit def symbol[T <: Symbol]: Repl[T] = Repl { (p, x) =>
+  implicit def stdlibSymbol[T <: StdlibSymbol]: Repl[T] = Repl { (p, x) =>
     if (x != null) {
       p.str("'")
       p.str(x.toString)

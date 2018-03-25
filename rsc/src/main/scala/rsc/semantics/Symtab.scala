@@ -8,45 +8,45 @@ import rsc.syntax._
 import rsc.util._
 
 final class Symtab private extends Pretty {
-  val _scopes: Map[Uid, Scope] = new HashMap[Uid, Scope]
-  val _outlines: Map[Uid, Outline] = new HashMap[Uid, Outline]
+  val _scopes: Map[Symbol, Scope] = new HashMap[Symbol, Scope]
+  val _outlines: Map[Symbol, Outline] = new HashMap[Symbol, Outline]
 
   object scopes {
-    def apply(uid: Uid): Scope = {
-      val scope = _scopes.get(uid)
+    def apply(sym: Symbol): Scope = {
+      val scope = _scopes.get(sym)
       if (scope == null) {
-        crash(uid)
+        crash(sym)
       }
       scope
     }
 
-    def update(uid: Uid, scope: Scope): Unit = {
-      if (_scopes.containsKey(uid)) {
-        crash(uid)
+    def update(sym: Symbol, scope: Scope): Unit = {
+      if (_scopes.containsKey(sym)) {
+        crash(sym)
       }
-      uid match {
-        case NoUid => crash(scope)
+      sym match {
+        case NoSymbol => crash(scope)
         case other => _scopes.put(other, scope)
       }
     }
   }
 
   object outlines {
-    def apply(uid: Uid): Outline = {
-      val outline = _outlines.get(uid)
+    def apply(sym: Symbol): Outline = {
+      val outline = _outlines.get(sym)
       if (outline == null) {
-        crash(uid)
+        crash(sym)
       }
       outline
     }
 
-    def update(uid: Uid, outline: Outline): Unit = {
-      if (_outlines.containsKey(uid)) {
-        crash(uid)
+    def update(sym: Symbol, outline: Outline): Unit = {
+      if (_outlines.containsKey(sym)) {
+        crash(sym)
       }
-      uid match {
-        case NoUid => crash(outline)
-        case other => _outlines.put(uid, outline)
+      sym match {
+        case NoSymbol => crash(outline)
+        case other => _outlines.put(sym, outline)
       }
     }
   }
