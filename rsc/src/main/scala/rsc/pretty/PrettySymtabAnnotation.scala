@@ -16,7 +16,6 @@ object PrettySymtabAnnotation {
   }
 
   def repl(p: Printer, x: Annotation): Unit = {
-    // TODO: Implement me.
     p.str(x.toProtoString)
   }
 }

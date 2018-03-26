@@ -18,10 +18,6 @@ trait ErrorUtil {
     throw CrashException(message("crash", x))
   }
 
-  def crash(): Nothing = {
-    throw CrashException("crash")
-  }
-
   private def message[T: Str: Repl](summary: String, culprit: T): String = {
     def safe(fn: => String): String = {
       try fn

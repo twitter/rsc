@@ -34,7 +34,6 @@ object PrettySymtabAccessibility {
   }
 
   def repl(p: Printer, x: Accessibility): Unit = {
-    // TODO: Implement me.
     p.str(x.toProtoString)
   }
 }

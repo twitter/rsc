@@ -29,6 +29,7 @@ object PrettySymtabInfo {
     if (has(Property.VAR)) p.str("var ")
     if (has(Property.STATIC)) p.str("static ")
     if (has(Property.PRIMARY)) p.str("primary ")
+    if (has(Property.ENUM)) p.str("enum ")
     x.kind match {
       case k.LOCAL => p.str("local ")
       case k.FIELD => p.str("field ")
@@ -65,7 +66,6 @@ object PrettySymtabInfo {
       case k.OBJECT | k.PACKAGE_OBJECT | k.CLASS | k.TRAIT | k.INTERFACE =>
         x.tpe.flatMap(_.classInfoType) match {
           case Some(ClassInfoType(tparams, parents, decls)) =>
-            // TODO: Implement me.
             p.rep("[", tparams, ", ", "]")(sym => p.str("<" + sym + ">"))
             p.rep("extends ", parents, " with ")(parent => p.str(parent))
             p.str(s" {+${decls.length} decls}")
@@ -78,7 +78,6 @@ object PrettySymtabInfo {
   }
 
   def repl(p: Printer, x: SymbolInformation): Unit = {
-    // TODO: Implement me.
     p.str(x.toProtoString)
   }
 }

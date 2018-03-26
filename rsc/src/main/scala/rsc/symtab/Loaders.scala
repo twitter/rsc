@@ -18,7 +18,7 @@ trait Loaders {
 
   private val todo = new HashMap[Symbol, SemanticdbFile]
 
-  // TODO: I would've used URL instead of a custom ADT,
+  // NOTE: I would've used URL instead of a custom ADT,
   // but Scala Native doesn't suppport URL.openStream.
   // It also doesn't support ZipFileSystemProvider, for that matter.
   private sealed trait SemanticdbFile

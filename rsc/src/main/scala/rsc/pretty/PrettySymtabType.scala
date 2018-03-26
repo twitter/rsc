@@ -12,7 +12,6 @@ object PrettySymtabType {
       p.str("<" + sym + ">")
     }
     def defn(sym: String): Unit = {
-      // TODO: Implement me.
       ref(sym)
     }
     def prefix(x: Type): Unit = {
@@ -146,7 +145,6 @@ object PrettySymtabType {
   }
 
   def repl(p: Printer, x: Type): Unit = {
-    // TODO: Implement me.
     p.str(x.toProtoString)
   }
 }
