@@ -1,4 +1,14 @@
-#!/usr/bin/env bash
-cd "$(dirname "$(dirname $0)")"
-command="${1:-all}"
-sbt "ci-$command"
+#!/usr/bin/env python
+import argparse, os, sys
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--scala_version", nargs="?", help="set Scala version with ++")
+parser.add_argument("command", help="run sbt command")
+options = parser.parse_args()
+
+cwd = os.path.dirname(os.path.dirname(sys.argv[0]))
+argv = ["sbt"]
+if options.scala_version: argv.append("++" + options.scala_version)
+argv.append(options.command)
+os.chdir(cwd)
+os.execvp(argv[0], argv)

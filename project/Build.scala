@@ -136,6 +136,13 @@ object Build extends AutoPlugin {
     val shell = inputKey[Unit]("Run shell command")
     val stdlibClasspath = taskKey[String]("Compute stdlib classpath")
 
+    def computeScalaVersionFromTravisYml(prefix: String): String = {
+      val travisYml = IO.read(file(".travis.yml"))
+      val scalaRegex = (prefix + ".\\d+").r
+      val scalaMatch = scalaRegex.findFirstMatchIn(travisYml)
+      scalaMatch.map(_.group(0)).get
+    }
+
     def computeScalametaVersionFromPluginsSbt(): String = {
       val pluginsSbt = IO.read(file("project/plugins.sbt"))
       val scalametaRegex = """"org.scalameta" %% ".*?" % "(.*)"""".r
