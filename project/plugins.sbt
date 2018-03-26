@@ -5,5 +5,6 @@ addSbtPlugin("com.dwijnand" % "sbt-dynver" % "2.0.0")
 addSbtPlugin("org.portable-scala" % "sbt-crossproject" % "0.3.1")
 // This build is published from my private fork of Scala Native
 // https://github.com/xeno-by/scala-native/commits/topic/scalameta
-addSbtPlugin("com.github.xenoby" %% "sbt-scala-native" % "0.3.6-20-g0afae98f36" exclude("com.lihaoyi", "fastparse_2.12"))
+addSbtPlugin(
+  "com.github.xenoby" %% "sbt-scala-native" % "0.3.6-20-g0afae98f36" exclude ("com.lihaoyi", "fastparse_2.12"))
 libraryDependencies += "org.scalameta" %% "metacp" % "3.6.0"

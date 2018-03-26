@@ -135,6 +135,13 @@ object Build extends AutoPlugin {
     val scalafmtTest = taskKey[Unit]("Test formatting with Scalafmt")
     val shell = inputKey[Unit]("Run shell command")
     val stdlibClasspath = taskKey[String]("Compute stdlib classpath")
+
+    def computeScalametaVersionFromPluginsSbt(): String = {
+      val pluginsSbt = IO.read(file("project/plugins.sbt"))
+      val scalametaRegex = """"org.scalameta" %% ".*?" % "(.*)"""".r
+      val scalametaMatch = scalametaRegex.findFirstMatchIn(pluginsSbt)
+      scalametaMatch.map(_.group(1)).get
+    }
   }
 
   override def projectSettings: Seq[Def.Setting[_]] = List(
