@@ -41,7 +41,12 @@ lazy val commonSettings = Seq(
   scalacOptions ++= { if (isCI) List("-Xfatal-warnings") else Nil },
   scalacOptions in (Compile, console) := Nil,
   cancelable := true,
-  publishArtifact in packageDoc := isCI
+  publishArtifact in packageDoc := isCI,
+  credentials ++= {
+    val prop = sys.props("credentials")
+    if (prop != null) List(new FileCredentials(file(prop)))
+    else Nil
+  }
 )
 
 lazy val nativeSettings = Seq(
