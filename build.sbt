@@ -13,7 +13,7 @@ addCommandAlias("ci-all", ";ci-fmt ;ci-jvm ;ci-native")
 addCommandAlias("ci-fmt", "scalafmtTest")
 addCommandAlias("ci-jvm", "testsJVM/test")
 addCommandAlias("ci-native", "testsNative/test")
-lazy val isCI = sys.props.getOrElse("CI", default = "false") == "true"
+lazy val isCI = sys.env.contains("CI")
 
 lazy val commonSettings = Seq(
   organization := "com.twitter",
@@ -28,7 +28,7 @@ lazy val commonSettings = Seq(
   scalacOptions ++= { if (isCI) List("-Xfatal-warnings") else Nil },
   scalacOptions in (Compile, console) := Nil,
   cancelable := true,
-  publishArtifact in packageDoc := sys.env.contains("CI")
+  publishArtifact in packageDoc := isCI
 )
 
 lazy val nativeSettings = Seq(
