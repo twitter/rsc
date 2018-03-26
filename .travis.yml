@@ -14,22 +14,21 @@ jdk:
 matrix:
   include:
     - env:
-      - CI_COMMAND: fmt
+      - CI_COMMAND: ci-fmt
     - env:
       - CI_SCALA_VERSION: 2.11.12
-      - CI_COMMAND: jvm
+      - CI_COMMAND: ci-jvm
     - env:
       - CI_SCALA_VERSION: 2.12.4
-      - CI_COMMAND: jvm
+      - CI_COMMAND: ci-jvm
     - env:
       - CI_SCALA_VERSION: 2.11.12
-      - CI_COMMAND: native
+      - CI_COMMAND: ci-native
       before_install:
         - curl https://raw.githubusercontent.com/scala-native/scala-native/master/scripts/travis_setup.sh | bash -x
 
 script:
-  - java -version
-  - bin/ci --scala_version $CI_SCALA_VERSION ci-$CI_COMMAND
+  - bin/ci
 
 cache:
   directories:

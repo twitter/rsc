@@ -15,9 +15,20 @@ addCommandAlias("ci-jvm", "testsJVM/test")
 addCommandAlias("ci-native", "testsNative/test")
 lazy val isCI = sys.env.contains("CI")
 
+version.in(ThisBuild) := {
+  val rscVersion = version.in(ThisBuild).value.replace("+", "-")
+  println(s"[info] Welcome to Rsc $rscVersion")
+  val expectedJvmVersion = "1.8"
+  val actualJvmVersion = sys.props("java.specification.version")
+  if (actualJvmVersion != expectedJvmVersion) {
+    val error = s"expected $expectedJvmVersion, actual $actualJvmVersion"
+    sys.error(s"Unsupported JVM: $error")
+  }
+  rscVersion
+}
+
 lazy val commonSettings = Seq(
   organization := "com.twitter",
-  version := version.value.replace("+", "-"),
   scalaVersion := V.scala211,
   crossScalaVersions := List(V.scala211, V.scala212),
   scalacOptions ++= Seq("-Ypatmat-exhaust-depth", "off"),
