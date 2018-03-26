@@ -31,7 +31,7 @@ lazy val commonSettings = Seq(
 )
 
 lazy val nativeSettings = Seq(
-  nativeGC := "immix",
+  nativeGC := "boehm",
   nativeMode := "release",
   nativeLinkStubs := true
 )
