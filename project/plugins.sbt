@@ -8,3 +8,4 @@ addSbtPlugin("org.portable-scala" % "sbt-crossproject" % "0.3.1")
 addSbtPlugin(
   "com.github.xenoby" %% "sbt-scala-native" % "0.3.6-20-g0afae98f36" exclude ("com.lihaoyi", "fastparse_2.12"))
 libraryDependencies += "org.scalameta" %% "metacp" % "3.6.0"
+addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.1")
