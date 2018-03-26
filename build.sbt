@@ -1,19 +1,12 @@
-val V = new {
-  val scala211 = computeScalaVersionFromTravisYml("2.11")
-  val scala212 = computeScalaVersionFromTravisYml("2.12")
-  val scalameta = computeScalametaVersionFromPluginsSbt()
-  val uTest = "0.6.0"
-}
-
-addCommandAlias("benchAll", benchAll.command)
-addCommandAlias("benchCI", benchCI.command)
-addCommandAlias("benchQuick", benchQuick.command)
-addCommandAlias("test", ";clean ;ci-all")
-addCommandAlias("ci-all", ";ci-fmt ;ci-jvm ;ci-native")
-addCommandAlias("ci-fmt", "scalafmtTest")
-addCommandAlias("ci-jvm", "testsJVM/test")
-addCommandAlias("ci-native", "testsNative/test")
-lazy val isCI = sys.env.contains("CI")
+addCommandAlias("benchAll", ui.benchAll)
+addCommandAlias("benchCI", ui.benchCI)
+addCommandAlias("benchQuick", ui.benchQuick)
+addCommandAlias("ci-fmt", ui.ciFmt)
+addCommandAlias("ci-jvm", ui.ciJvm)
+addCommandAlias("ci-native", ui.ciNative)
+addCommandAlias("test", ui.test)
+addCommandAlias("publishLocal", ui.publishLocal)
+addCommandAlias("publishSigned", ui.publishSigned)
 
 version.in(ThisBuild) := {
   val rscVersion = version.in(ThisBuild).value.replace("+", "-")
@@ -38,8 +31,47 @@ lazy val commonSettings = Seq(
   scalacOptions += "-Ywarn-unused-import",
   scalacOptions ++= { if (isCI) List("-Xfatal-warnings") else Nil },
   scalacOptions in (Compile, console) := Nil,
-  cancelable := true,
-  publishArtifact in packageDoc := isCI
+  cancelable := true
+)
+
+lazy val publishableSettings = Seq(
+  credentials ++= {
+    val prop = sys.props("credentials")
+    if (prop != null) List(new FileCredentials(file(prop)))
+    else Nil
+  },
+  publishTo := Some {
+    val prop = sys.props("repository")
+    if (prop != null) "adhoc" at prop
+    else Opts.resolver.sonatypeStaging
+  },
+  publishArtifact.in(Compile) := true,
+  publishArtifact.in(Test) := false,
+  publishMavenStyle := true,
+  pomIncludeRepository := { x =>
+    false
+  },
+  licenses += "Apache v2" -> url(
+    "https://github.com/twitter/rsc/blob/master/LICENSE.md"),
+  pomExtra := (
+    <url>https://github.com/twitter/rsc</url>
+    <inceptionYear>2017</inceptionYear>
+    <scm>
+      <url>git://github.com/twitter/rsc.git</url>
+      <connection>scm:git:git://github.com/twitter/rsc.git</connection>
+    </scm>
+    <issueManagement>
+      <system>GitHub</system>
+      <url>https://github.com/twitter/rsc/issues</url>
+    </issueManagement>
+    <developers>
+      <developer>
+        <id>xeno-by</id>
+        <name>Eugene Burmako</name>
+        <url>http://xeno.by</url>
+      </developer>
+    </developers>
+  )
 )
 
 lazy val nativeSettings = Seq(
@@ -105,6 +137,7 @@ lazy val rsc = crossProject(JVMPlatform, NativePlatform)
   .enablePlugins(BuildInfoPlugin)
   .settings(
     commonSettings,
+    publishableSettings,
     libraryDependencies += "org.scalameta" %%% "semanticdb3" % V.scalameta,
     buildInfoPackage := "rsc.internal",
     buildInfoUsePackageAsPath := true,
