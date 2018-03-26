@@ -1,21 +1,10 @@
-val V = new {
-  val scala211 = computeScalaVersionFromTravisYml("2.11")
-  val scala212 = computeScalaVersionFromTravisYml("2.12")
-  val scalameta = computeScalametaVersionFromPluginsSbt()
-  val uTest = "0.6.0"
-}
-
-addCommandAlias("benchAll", benchAll.command)
-addCommandAlias("benchCI", benchCI.command)
-addCommandAlias("benchQuick", benchQuick.command)
-addCommandAlias("test", ";clean ;scalafmtTest; test211; test212")
-addCommandAlias("test211", s";++${V.scala211} ci-jvm;++${V.scala211} ci-native")
-addCommandAlias("test212", s";++${V.scala212} ci-jvm")
-addCommandAlias("ci-all", ";ci-fmt ;ci-jvm ;ci-native")
-addCommandAlias("ci-fmt", "scalafmtTest")
-addCommandAlias("ci-jvm", "testsJVM/test")
-addCommandAlias("ci-native", "testsNative/test")
-lazy val isCI = sys.env.contains("CI")
+addCommandAlias("benchAll", ui.benchAll)
+addCommandAlias("benchCI", ui.benchCI)
+addCommandAlias("benchQuick", ui.benchQuick)
+addCommandAlias("ci-fmt", ui.ciFmt)
+addCommandAlias("ci-jvm", ui.ciJvm)
+addCommandAlias("ci-native", ui.ciNative)
+addCommandAlias("test", ui.test)
 
 version.in(ThisBuild) := {
   val rscVersion = version.in(ThisBuild).value.replace("+", "-")

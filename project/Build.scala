@@ -21,25 +21,14 @@ import org.langmeta._
 object Build extends AutoPlugin {
   override def requires: Plugins = JvmPlugin
   override def trigger: PluginTrigger = allRequirements
-
   import autoImport._
-  object autoImport {
-    def benchCliRscNative(bench: String) = {
-      val project = ProjectRef(file("."), "benchRscNative")
-      def benchSetting(bench: String, mode: String) = {
-        val objectName = "rsc.bench." + mode + "RscNative" + bench
-        val taskKey = TaskKey[Unit]("bench" + mode + "RscNative" + bench)
-        taskKey := (Def.taskDyn {
-          val exe = (artifactPath in nativeLink in Compile in project).value
-          (runMain in Compile).toTask(s" $objectName $exe")
-        }).value
-      }
-      Seq(
-        benchSetting(bench, "Cold"),
-        benchSetting(bench, "Hot")
-      )
-    }
 
+  private def command(commands: String*): String = command(commands.toList)
+  private def command(commands: List[String]): String = {
+    commands.map(c => s";$c ").mkString("")
+  }
+
+  object benches {
     trait BenchSuite {
       def initCommands: List[String]
 
@@ -84,11 +73,11 @@ object Build extends AutoPlugin {
         val allRscCommands = rscNativeCommands ++ rscCommands
         val allScalacCommands = scalacCommands("211") ++ scalacCommands("212")
         val benchCommands = allRscCommands ++ allScalacCommands ++ javacCommands
-        (initCommands ++ benchCommands).map(c => s";$c ").mkString("")
+        Build.command(initCommands ++ benchCommands)
       }
     }
 
-    object benchAll extends BenchSuite {
+    object all extends BenchSuite {
       def initCommands = List(
         "rscJVM/shell git status",
         "rscJVM/shell git log -5"
@@ -116,25 +105,58 @@ object Build extends AutoPlugin {
       def javacBenches = List("ColdJavacCompile", "HotJavacCompile")
     }
 
-    object benchCI extends BenchSuite {
-      def initCommands = benchAll.initCommands
-      def rscNativeBenches = benchAll.rscNativeBenches
-      def rscBenches = benchAll.rscBenches
+    object ci extends BenchSuite {
+      def initCommands = all.initCommands
+      def rscNativeBenches = all.rscNativeBenches
+      def rscBenches = all.rscBenches
       def scalacBenches = Nil
       def javacBenches = Nil
     }
 
-    object benchQuick extends BenchSuite {
+    object quick extends BenchSuite {
       def initCommands = Nil
       def rscNativeBenches = List("ColdRscNativeTypecheck")
       def rscBenches = List("QuickRscTypecheck")
       def scalacBenches = Nil
       def javacBenches = Nil
     }
+  }
+
+  object tests {
+    val fmt = s"scalafmtTest"
+    val jvm = s"testsJVM/test"
+    val jvm211 = s"++${V.scala211} $jvm"
+    val jvm212 = s"++${V.scala212} $jvm"
+    val native = s"testsNative/test"
+  }
+
+  object autoImport {
+    object V {
+      val scala211 = computeScalaVersionFromTravisYml("2.11")
+      val scala212 = computeScalaVersionFromTravisYml("2.12")
+      val scalameta = computeScalametaVersionFromPluginsSbt()
+      val uTest = "0.6.0"
+    }
 
     val scalafmtTest = taskKey[Unit]("Test formatting with Scalafmt")
     val shell = inputKey[Unit]("Run shell command")
     val stdlibClasspath = taskKey[String]("Compute stdlib classpath")
+
+    def benchCliRscNative(bench: String) = {
+      val project = ProjectRef(file("."), "benchRscNative")
+      def benchSetting(bench: String, mode: String) = {
+        val objectName = "rsc.bench." + mode + "RscNative" + bench
+        val taskKey = TaskKey[Unit]("bench" + mode + "RscNative" + bench)
+        taskKey := (Def.taskDyn {
+          val exe = (artifactPath in nativeLink in Compile in project).value
+          (runMain in Compile).toTask(s" $objectName $exe")
+        }).value
+      }
+      Seq(
+        benchSetting(bench, "Cold"),
+        benchSetting(bench, "Hot")
+      )
+    }
 
     def computeScalaVersionFromTravisYml(prefix: String): String = {
       val travisYml = IO.read(file(".travis.yml"))
@@ -149,6 +171,30 @@ object Build extends AutoPlugin {
       val scalametaMatch = scalametaRegex.findFirstMatchIn(pluginsSbt)
       scalametaMatch.map(_.group(1)).get
     }
+
+    object ui {
+      val benchAll = benches.all.command
+      val benchCI = benches.ci.command
+      val benchQuick = benches.quick.command
+      val ciFmt = tests.fmt
+      val ciJvm = tests.jvm
+      val ciNative = tests.native
+      val test = command(
+        "clean",
+        tests.fmt,
+        tests.jvm211,
+        tests.native,
+        tests.jvm212
+      )
+      val publishLocal = s"++${V.scala212} rscJVM/publishLocal"
+      val publishSigned = command(
+        s"++${V.scala211} rscJVM/publishSigned",
+        s"++${V.scala211} rscNative/publishSigned",
+        s"++${V.scala212} rscJVM/publishSigned"
+      )
+    }
+
+    val isCI = sys.env.contains("CI")
   }
 
   override def projectSettings: Seq[Def.Setting[_]] = List(
