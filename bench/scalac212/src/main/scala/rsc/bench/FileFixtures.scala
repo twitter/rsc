@@ -29,10 +29,10 @@ trait FileFixtures {
   }
 
   lazy val re2sRscFiles: List[Path] = {
-    re2sScalacFiles :+ stdlibPath
+    re2sScalacFiles :+ stdlibSourcepath
   }
 
-  lazy val stdlibPath: Path = {
+  lazy val stdlibSourcepath: Path = {
     buildRoot.resolve("stdlib/src/main/scala/Stdlib.scala")
   }
 }

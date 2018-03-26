@@ -5,8 +5,8 @@ package rsc.semantics
 import rsc.pretty._
 
 sealed trait Type extends Pretty with Product {
-  def printStr(p: Printer): Unit = PrettyType.str(p, this)
-  def printRepl(p: Printer): Unit = PrettyType.repl(p, this)
+  def printStr(p: Printer): Unit = PrettySemanticType.str(p, this)
+  def printRepl(p: Printer): Unit = PrettySemanticType.repl(p, this)
 }
 
 final case object NoType extends Type

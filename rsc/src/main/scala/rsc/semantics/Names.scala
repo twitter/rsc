@@ -10,6 +10,14 @@ sealed trait Name extends Pretty with Product {
   def printRepl(p: Printer): Unit = PrettyName.repl(p, this)
 }
 
+object Name {
+  def apply(str: String): Name = {
+    if (str.endsWith(".")) TermName(str.substring(0, str.length - 1))
+    else if (str.endsWith("#")) TypeName(str.substring(0, str.length - 1))
+    else SomeName(str)
+  }
+}
+
 final case class SomeName(value: String) extends Name {
   override val hashCode: Int = value.hashCode * 3
   override def str: String = value

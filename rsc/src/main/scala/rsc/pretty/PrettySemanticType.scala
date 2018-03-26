@@ -4,7 +4,7 @@ package rsc.pretty
 
 import rsc.semantics._
 
-object PrettyType {
+object PrettySemanticType {
   def str(p: Printer, tpe: Type): Unit = {
     tpe match {
       case NoType =>

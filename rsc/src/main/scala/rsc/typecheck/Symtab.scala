@@ -53,11 +53,11 @@ final class Symtab private extends Pretty {
   }
 
   def printStr(p: Printer): Unit = {
-    PrettySymtab.str(p, this)
+    PrettyTypecheckSymtab.str(p, this)
   }
 
   def printRepl(p: Printer): Unit = {
-    PrettySymtab.repl(p, this)
+    PrettyTypecheckSymtab.repl(p, this)
   }
 }
 

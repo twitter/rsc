@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.tests
 
+import java.io.File.pathSeparatorChar
 import java.nio.file._
 import scala.collection.JavaConverters._
 
@@ -29,10 +30,15 @@ trait FileFixtures {
   }
 
   lazy val re2sRscFiles: List[Path] = {
-    re2sScalacFiles :+ stdlibPath
+    re2sScalacFiles :+ stdlibSourcepath
   }
 
-  lazy val stdlibPath: Path = {
+  lazy val stdlibSourcepath: Path = {
     buildRoot.resolve("stdlib/src/main/scala/Stdlib.scala")
+  }
+
+  lazy val stdlibClasspath: List[Path] = {
+    val entries = BuildInfo.stdlibClasspath.split(pathSeparatorChar).toList
+    entries.map(e => Paths.get(e))
   }
 }

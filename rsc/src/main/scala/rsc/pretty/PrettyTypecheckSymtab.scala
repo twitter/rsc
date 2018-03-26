@@ -6,7 +6,7 @@ import scala.collection.JavaConverters._
 import rsc.typecheck._
 import rsc.util._
 
-object PrettySymtab {
+object PrettyTypecheckSymtab {
   def str(p: Printer, x: Symtab): Unit = {
     p.header("Scopes (symtab)")
     val scopes = x._scopes.asScala.toList.sortBy(_._1.str)
