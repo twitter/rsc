@@ -231,7 +231,7 @@ object ImporterScope {
 }
 
 sealed abstract class OwnerScope(sym: Symbol) extends Scope(sym) {
-  val _storage: Map[Name, Symbol] = new HashMap[Name, Symbol]
+  var _storage: Map[Name, Symbol] = new HashMap[Name, Symbol]
 
   override def enter(name: Name, sym: Symbol): Symbol = {
     if (status.isPending) {
@@ -307,7 +307,17 @@ object FlatScope {
   }
 }
 
-final class PackageScope private (sym: Symbol) extends OwnerScope(sym)
+final class PackageScope private (sym: Symbol) extends OwnerScope(sym) {
+  _storage = new LinkedHashMap[Name, Symbol]
+
+  override def members: Iterator[Symbol] = {
+    if (status.isSucceeded) {
+      _storage.values.iterator.asScala
+    } else {
+      crash(this)
+    }
+  }
+}
 
 object PackageScope {
   def apply(sym: Symbol): PackageScope = {

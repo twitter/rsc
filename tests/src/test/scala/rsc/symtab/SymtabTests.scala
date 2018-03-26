@@ -64,5 +64,22 @@ object SymtabTests extends RscTests {
       val obtained = scope.members.mkString(EOL)
       assert(obtained.nonEmpty)
     }
+    "members(scala.annotation.meta.)" - {
+      val scope = symtab.scopes("scala.annotation.meta.")
+      val obtained = scope.members.mkString(EOL)
+      assert(obtained == """
+        |scala.annotation.meta.companionObject#
+        |scala.annotation.meta.param#
+        |scala.annotation.meta.beanSetter#
+        |scala.annotation.meta.field#
+        |scala.annotation.meta.getter#
+        |scala.annotation.meta.companionMethod#
+        |scala.annotation.meta.companionClass#
+        |scala.annotation.meta.package.
+        |scala.annotation.meta.setter#
+        |scala.annotation.meta.languageFeature#
+        |scala.annotation.meta.beanGetter#
+      """.trim.stripMargin)
+    }
   }
 }
