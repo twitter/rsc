@@ -11,6 +11,7 @@ import scala.reflect.internal.util._
 import scala.tools.nsc._
 import scala.tools.nsc.reporters._
 import rsc.bench.ScalacParser212._
+import rsc.tests._
 
 object ScalacParser212 {
   @State(Scope.Benchmark)

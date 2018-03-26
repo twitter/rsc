@@ -53,12 +53,12 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Pretty {
   }
 
   private def tasks: List[(String, () => Unit)] = List(
-    "parse" -> parse,
-    "link" -> link,
-    "schedule" -> schedule,
-    "scope" -> scope,
-    "outline" -> outline,
-    "typecheck" -> typecheck
+    "parse" -> (() => parse()),
+    "link" -> (() => link()),
+    "schedule" -> (() => schedule()),
+    "scope" -> (() => scope()),
+    "outline" -> (() => outline()),
+    "typecheck" -> (() => typecheck())
   )
 
   private def parse(): Unit = {

@@ -19,6 +19,7 @@ lazy val commonSettings = Seq(
   organization := "com.twitter",
   version := version.value.replace("+", "-"),
   scalaVersion := V.scala211,
+  crossScalaVersions := List(V.scala211, V.scala212),
   scalacOptions ++= Seq("-Ypatmat-exhaust-depth", "off"),
   scalacOptions += "-deprecation",
   scalacOptions += "-unchecked",
@@ -33,7 +34,8 @@ lazy val commonSettings = Seq(
 lazy val nativeSettings = Seq(
   nativeGC := "boehm",
   nativeMode := "release",
-  nativeLinkStubs := true
+  nativeLinkStubs := true,
+  crossScalaVersions := List(V.scala211)
 )
 
 lazy val benchJavac18 = project
@@ -49,12 +51,12 @@ lazy val benchRsc = crossProject(JVMPlatform, NativePlatform)
   .dependsOn(tests)
   .enablePlugins(BuildInfoPlugin)
   .enablePlugins(JmhPlugin)
+  .settings(commonSettings)
   .jvmSettings(
     benchCliRscNative("Schedule"),
     benchCliRscNative("Typecheck")
   )
   .nativeSettings(nativeSettings)
-  .settings(commonSettings)
 lazy val benchRscJVM = benchRsc.jvm
 lazy val benchRscNative = benchRsc.native
 
@@ -66,22 +68,20 @@ lazy val benchScalac211 = project
   .settings(
     commonSettings,
     scalaVersion := V.scala211,
+    crossScalaVersions := List(V.scala211),
     libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
   )
 
 lazy val benchScalac212 = project
   .in(file("bench/scalac212"))
+  .dependsOn(testsJVM)
   .enablePlugins(BuildInfoPlugin)
   .enablePlugins(JmhPlugin)
   .settings(
     commonSettings,
     scalaVersion := V.scala212,
-    libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-    buildInfoPackage := "rsc.bench",
-    buildInfoUsePackageAsPath := true,
-    buildInfoKeys := Seq[BuildInfoKey](
-      "sourceRoot" -> (baseDirectory in ThisBuild).value
-    )
+    crossScalaVersions := List(V.scala212),
+    libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
   )
 
 lazy val re2s = project
@@ -92,7 +92,6 @@ lazy val rsc = crossProject(JVMPlatform, NativePlatform)
   .crossType(CrossType.Pure)
   .in(file("rsc"))
   .enablePlugins(BuildInfoPlugin)
-  .nativeSettings(nativeSettings)
   .settings(
     commonSettings,
     libraryDependencies += "org.scalameta" %%% "semanticdb3" % V.scalameta,
@@ -102,6 +101,7 @@ lazy val rsc = crossProject(JVMPlatform, NativePlatform)
       version
     )
   )
+  .nativeSettings(nativeSettings)
 lazy val rscJVM = rsc.jvm
 lazy val rscNative = rsc.native
 
@@ -110,10 +110,6 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
   .in(file("tests"))
   .dependsOn(rsc)
   .enablePlugins(BuildInfoPlugin)
-  .nativeSettings(
-    nativeSettings,
-    nativeMode := "debug"
-  )
   .settings(
     commonSettings,
     libraryDependencies += "com.github.xenoby" %%% "utest" % V.uTest,
@@ -125,6 +121,10 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
       "sourceRoot" -> (baseDirectory in ThisBuild).value,
       BuildInfoKey.map(stdlibClasspath) { case (k, v) => k -> v }
     )
+  )
+  .nativeSettings(
+    nativeSettings,
+    nativeMode := "debug"
   )
 lazy val testsJVM = tests.jvm
 lazy val testsNative = tests.native
