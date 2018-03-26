@@ -51,7 +51,8 @@ lazy val publishableSettings = Seq(
   pomIncludeRepository := { x =>
     false
   },
-  licenses += "Apache v2" -> url("https://github.com/twitter/rsc/blob/master/LICENSE.md"),
+  licenses += "Apache v2" -> url(
+    "https://github.com/twitter/rsc/blob/master/LICENSE.md"),
   pomExtra := (
     <url>https://github.com/twitter/rsc</url>
     <inceptionYear>2017</inceptionYear>
