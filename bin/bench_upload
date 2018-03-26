@@ -34,7 +34,7 @@ re2s_path = target_ref.resolve_local("examples/re2s/src/main/scala/com/twitter/r
 properties_path = target_ref.resolve_local("project/build.properties")
 plugins_path = target_ref.resolve_local("project/plugins.sbt")
 stdlib_path = target_ref.resolve_local("stdlib/src/main/scala/Stdlib.scala")
-build_path = target_ref.resolve_local("build.sbt")
+travis_path = target_ref.resolve_local(".travis.yml")
 
 print ""
 print "Computing git props..."
@@ -92,8 +92,8 @@ else: raise Exception("unsupported platform " + sys.platform)
 props["SoftwareKernel"] = stdout("uname -rs")
 props["SoftwareJre"] = stdout("java -version 2>&1 | head -n 2 | tail -1")
 props["SoftwareRsc"] = "Rsc " + stdout("sbt -no-colors 'show rscJVM/version' | tail -n 1 | awk -F'] ' '{ print $2 }'")
-props["SoftwareScalac211"] = "Scalac " + stdout("grep scala211 " + build_path + " | head -n 1 | awk -F'\"' '{print $2}'")
-props["SoftwareScalac212"] = "Scalac " + stdout("grep scala212 " + build_path + " | head -n 1 | awk -F'\"' '{print $2}'")
+props["SoftwareScalac211"] = "Scalac " + stdout("grep 2.11 " + travis_path + " | head -n 1 | awk -F': ' '{print $2}'")
+props["SoftwareScalac212"] = "Scalac " + stdout("grep 2.12 " + travis_path + " | head -n 1 | awk -F': ' '{print $2}'")
 props["SoftwareJavac"] = stdout("javac -version 2>&1")
 props["SoftwareCliBench"] = "our own microbenchmark harness"
 props["SoftwareCliBenchUrl"] = target_ref.resolve_remote(clibench_path)
