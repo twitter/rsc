@@ -1,4 +1,26 @@
-#!/usr/bin/env bash
-cd "$(dirname "$(dirname $0)")"
-command="${1:-all}"
-sbt "ci-$command"
+#!/usr/bin/env python
+import os, sys
+
+def fail(message):
+  print "usage: " + sys.argv[0]
+  print ""
+  print "Supported environment variables:"
+  print "  * CI_SCALA_VERSION: Set Scala version with ++ (optional)."
+  print "  * CI_COMMAND: Run sbt command (required)."
+  print ""
+  print message
+  sys.exit(1)
+if len(sys.argv) != 1: fail("Error: Too many command-line arguments. Use environment variables instead.")
+ci_scala_version = os.getenv("CI_SCALA_VERSION")
+ci_command = os.getenv("CI_COMMAND")
+if ci_command is None: fail("Error: CI_COMMAND environment variable is not set.")
+if ci_command == "": fail("Error: CI_COMMAND environment variable is empty.")
+
+cwd = os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0])))
+argv = ["sbt"]
+if ci_scala_version: argv.append("++" + ci_scala_version)
+argv.append(ci_command)
+
+print "Running `" + " ".join(argv) + "` in " + cwd
+os.chdir(cwd)
+os.execvp(argv[0], argv)
