@@ -7,7 +7,6 @@ import scala.meta.internal.semanticdb3._
 import scala.meta.internal.semanticdb3.Scala._
 import rsc.pretty._
 import rsc.semantics._
-import rsc.typecheck._
 import rsc.util._
 
 trait Tables {

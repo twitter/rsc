@@ -3,11 +3,10 @@
 package rsc.pretty
 
 import scala.collection.JavaConverters._
-import scala.meta.internal.{semanticdb3 => s}
 import rsc.typecheck._
 import rsc.util._
 
-object PrettyScope {
+object PrettyTypecheckScope {
   def str(p: Printer, x: Scope): Unit = {
     p.str(x.sym)
     p.str(" ")
@@ -20,14 +19,6 @@ object PrettyScope {
         case x: TemplateScope =>
           p.str(" ")
           p.rep(x.parents, " with ")(scope => p.str(scope.sym))
-        case x: SemanticdbScope =>
-          x.info.tpe.flatMap(_.classInfoType) match {
-            case Some(s.ClassInfoType(_, parents, _)) =>
-              p.str(" ")
-              p.rep(parents, " with ")(parent => p.str(parent))
-            case None =>
-              crash(x.info)
-          }
         case x: SuperScope =>
           p.str(" ")
           p.rep(x.underlying.parents, " with ")(scope => p.str(scope.sym))
@@ -41,20 +32,6 @@ object PrettyScope {
         val storage = x._storage.asScala.toList.sortBy(_._1.str)
         p.rep(storage.map(_._2), ", ")(p.str)
         p.str("]")
-      case x: SemanticdbScope =>
-        if (x._storage != null) {
-          p.str(" [")
-          val storage = x._storage.asScala.toList.sortBy(_._1.str)
-          p.rep(storage.map(_._2), ", ")(p.str)
-          p.str("]")
-        } else {
-          x.info.tpe.flatMap(_.classInfoType) match {
-            case Some(s.ClassInfoType(_, _, decls)) =>
-              p.str(s" {+${decls.length} decls}")
-            case None =>
-              crash(x.info)
-          }
-        }
       case _ =>
         ()
     }
