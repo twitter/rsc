@@ -10,7 +10,6 @@ import scala.meta.internal.semanticdb3.{Language => l}
 import scala.meta.internal.semanticdb3.Scala._
 import scala.meta.internal.semanticdb3.SymbolInformation.{Kind => k}
 import rsc.semantics._
-import rsc.typecheck._
 import rsc.util._
 
 trait Loaders {
@@ -30,24 +29,30 @@ trait Loaders {
     classpath.foreach { entryPath =>
       def consumeIndex(index: Index): Unit = {
         index.packages.foreach { p =>
-          var scope = _scopes._storage.get(p.symbol)
-          if (scope == null) {
-            scope = PackageScope(p.symbol)
-            packages += scope
-            _scopes._storage.put(p.symbol, scope)
-            val info = SymbolInformation(
-              symbol = p.symbol,
-              language = l.SCALA,
-              kind = k.PACKAGE,
-              name = p.symbol.desc.name,
-              owner = p.symbol.owner
-            )
-            _infos._storage.put(p.symbol, info)
+          val scope = {
+            _scopes._storage.get(p.symbol) match {
+              case scope: PackageScope =>
+                scope
+              case null =>
+                val scope = PackageScope(p.symbol)
+                packages += scope
+                _scopes._storage.put(p.symbol, scope)
+                val info = SymbolInformation(
+                  symbol = p.symbol,
+                  language = l.SCALA,
+                  kind = k.PACKAGE,
+                  name = p.symbol.desc.name,
+                  owner = p.symbol.owner
+                )
+                _infos._storage.put(p.symbol, info)
+                scope
+              case other =>
+                crash(other)
+            }
           }
           p.members.foreach { m =>
             val name = Name(m.desc.toString)
-            val m1 = scope.enter(name, m)
-            if (m1 != NoSymbol && m1 != m) crash(m)
+            scope._storage.put(name, m)
           }
         }
         index.toplevels.foreach { t =>
@@ -82,7 +87,6 @@ trait Loaders {
         ()
       }
     }
-    packages.result.foreach(_.succeed())
   }
 
   protected def loadFromClasspath(sym: Symbol): Unit = {
@@ -106,7 +110,7 @@ trait Loaders {
       infos.foreach { info =>
         info.kind match {
           case k.OBJECT | k.PACKAGE_OBJECT | k.CLASS | k.TRAIT | k.INTERFACE =>
-            val scope = SemanticdbScope(info, this)
+            val scope = TemplateScope(info, this)
             _scopes._storage.put(info.symbol, scope)
           case _ =>
             ()

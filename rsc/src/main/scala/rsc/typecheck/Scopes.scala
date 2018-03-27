@@ -2,13 +2,8 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.typecheck
 
-import java.util.{HashMap, LinkedHashMap, Map}
-import scala.collection.JavaConverters._
+import java.util.{HashMap, Map}
 import scala.collection.mutable
-import scala.meta.internal.{semanticdb3 => s}
-import scala.meta.internal.semanticdb3.Scala._
-import scala.meta.internal.semanticdb3.SymbolInformation.{Kind => k}
-import scala.meta.internal.semanticdb3.Type.{Tag => t}
 import rsc.pretty._
 import rsc.semantics._
 import rsc.syntax._
@@ -20,8 +15,6 @@ sealed abstract class Scope(val sym: Symbol) extends Pretty {
   def enter(name: Name, sym: Symbol): Symbol
 
   def lookup(name: Name): Symbol
-
-  def members: Iterator[Symbol]
 
   def resolve(name: Name): Resolution = {
     status match {
@@ -119,11 +112,11 @@ sealed abstract class Scope(val sym: Symbol) extends Pretty {
   }
 
   override def printStr(p: Printer): Unit = {
-    PrettyScope.str(p, this)
+    PrettyTypecheckScope.str(p, this)
   }
 
   override def printRepl(p: Printer): Unit = {
-    PrettyScope.repl(p, this)
+    PrettyTypecheckScope.repl(p, this)
   }
 }
 
@@ -188,10 +181,6 @@ final class ImporterScope private (sym: Symbol, val tree: Importer)
     }
   }
 
-  override def members: Iterator[Symbol] = {
-    crash(this)
-  }
-
   override def resolve(name: Name): Resolution = {
     val name1 = remap(name)
     if (name1 != null) {
@@ -231,7 +220,7 @@ object ImporterScope {
 }
 
 sealed abstract class OwnerScope(sym: Symbol) extends Scope(sym) {
-  var _storage: Map[Name, Symbol] = new HashMap[Name, Symbol]
+  val _storage: Map[Name, Symbol] = new HashMap[Name, Symbol]
 
   override def enter(name: Name, sym: Symbol): Symbol = {
     if (status.isPending) {
@@ -275,10 +264,6 @@ sealed abstract class OwnerScope(sym: Symbol) extends Scope(sym) {
     }
   }
 
-  override def members: Iterator[Symbol] = {
-    crash(this)
-  }
-
   override def resolve(name: Name): Resolution = {
     if (status.isSucceeded) {
       val result = _storage.get(name)
@@ -307,17 +292,7 @@ object FlatScope {
   }
 }
 
-final class PackageScope private (sym: Symbol) extends OwnerScope(sym) {
-  _storage = new LinkedHashMap[Name, Symbol]
-
-  override def members: Iterator[Symbol] = {
-    if (status.isSucceeded) {
-      _storage.values.iterator.asScala
-    } else {
-      crash(this)
-    }
-  }
-}
+final class PackageScope private (sym: Symbol) extends OwnerScope(sym)
 
 object PackageScope {
   def apply(sym: Symbol): PackageScope = {
@@ -379,117 +354,6 @@ object TemplateScope {
   }
 }
 
-final class SemanticdbScope private (
-    val info: s.SymbolInformation,
-    val symtab: rsc.symtab.Symtab)
-    extends Scope(info.symbol) {
-  status = SucceededStatus
-  var _storage: Map[Name, Symbol] = null
-  var _env: Env = null
-
-  private def loadStorage(): Unit = {
-    info.tpe.flatMap(_.classInfoType) match {
-      case Some(s.ClassInfoType(_, _, decls)) =>
-        _storage = new LinkedHashMap[Name, Symbol]
-        decls.foreach(decl => _storage.put(Name(decl.desc.toString), decl))
-      case other =>
-        crash(info)
-    }
-  }
-
-  private def loadEnv(): Unit = {
-    info.tpe.flatMap(_.classInfoType) match {
-      case Some(s.ClassInfoType(_, parents, _)) =>
-        def parentScope(tpe: s.Type): Scope = {
-          if (tpe.tag == t.TYPE_REF) {
-            val Some(s.TypeRef(_, sym, targs)) = tpe.typeRef
-            val info = symtab.infos(sym)
-            info.kind match {
-              case k.OBJECT | k.PACKAGE_OBJECT | k.CLASS | k.TRAIT |
-                  k.INTERFACE =>
-                SemanticdbScope(info, symtab)
-              case k.TYPE =>
-                val hi = info.tpe.flatMap(_.typeType.flatMap(_.upperBound)).get
-                parentScope(hi)
-              case _ =>
-                crash(info)
-            }
-          } else {
-            crash(tpe)
-          }
-        }
-        _env = Env()
-        parents.foreach(parent => _env = parentScope(parent) :: _env)
-      case other =>
-        crash(info)
-    }
-  }
-
-  override def enter(name: Name, sym: Symbol): Symbol = {
-    crash(this)
-  }
-
-  override def lookup(name: Name): Symbol = {
-    if (_storage == null) loadStorage()
-    val result = _storage.get(name)
-    if (result != null) {
-      result
-    } else {
-      if (_env == null) loadEnv()
-      _env.lookup(name) match {
-        case NoSymbol =>
-          name match {
-            case SomeName(value) =>
-              crash(name)
-            case _ =>
-              NoSymbol
-          }
-        case result =>
-          result
-      }
-    }
-  }
-
-  override def members: Iterator[Symbol] = {
-    if (status.isSucceeded) {
-      if (_storage == null) loadStorage()
-      if (_env == null) loadEnv()
-      val decls = _storage.values.iterator.asScala
-      val inherited = _env._scopes.iterator.flatMap(_.members)
-      decls ++ inherited
-    } else {
-      crash(this)
-    }
-  }
-
-  override def resolve(name: Name): Resolution = {
-    if (_storage == null) loadStorage()
-    val result = _storage.get(name)
-    if (result != null) {
-      FoundResolution(result)
-    } else {
-      if (_env == null) loadEnv()
-      _env.resolve(name) match {
-        case MissingResolution =>
-          name match {
-            case SomeName(value) =>
-              crash(name)
-            case _ =>
-              MissingResolution
-          }
-        case resolution =>
-          resolution
-      }
-    }
-  }
-}
-
-object SemanticdbScope {
-  def apply(info: s.SymbolInformation, symtab: rsc.symtab.Symtab) = {
-    new SemanticdbScope(info, symtab)
-  }
-}
-
 final class SuperScope private (sym: Symbol, val underlying: TemplateScope)
     extends Scope(sym) {
   status = SucceededStatus
@@ -500,10 +364,6 @@ final class SuperScope private (sym: Symbol, val underlying: TemplateScope)
 
   override def lookup(name: Name): Symbol = {
     underlying._env.lookup(name)
-  }
-
-  override def members: Iterator[Symbol] = {
-    crash(this)
   }
 
   override def resolve(name: Name): Resolution = {

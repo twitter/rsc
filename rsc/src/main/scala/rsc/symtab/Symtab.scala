@@ -6,7 +6,6 @@ import scala.meta.internal.semanticdb3._
 import rsc.pretty._
 import rsc.semantics._
 import rsc.settings._
-import rsc.typecheck._
 
 final class Symtab private (settings: Settings)
     extends Loaders
