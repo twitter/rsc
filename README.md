@@ -16,7 +16,7 @@ In this document, we aim to publish the results of running our benchmark suite
 on the most recent commit in our repository. Since running benchmarks takes time,
 there may be short periods of time when this document is out of date. If you're
 curious about the exact version of Rsc that is benchmarked in this document,
-[click here](https://github.com/xeno-by/rsc/commit/88fe35ea492e5b1a05ce69dc1287f29d4a65e838).
+[click here](https://github.com/xeno-by/rsc/commit/9625692f7d1b7cf7182d5fb6bf13206259f96cc2).
 
 ## Hardware
 
@@ -30,18 +30,18 @@ configured to run 4 physical cores and
 ## Software
 
 In our benchmarks, we use Debian GNU/Linux 9.3 (stretch) and Java(TM) SE Runtime Environment (build 1.8.0_161-b12)
-to run [Rsc 0.0.0-99-88fe35ea](https://github.com/xeno-by/rsc/commit/88fe35ea492e5b1a05ce69dc1287f29d4a65e838), Scalac 2.11.12, Scalac 2.12.4
+to run [Rsc 0.0.0-100-9625692f](https://github.com/xeno-by/rsc/commit/9625692f7d1b7cf7182d5fb6bf13206259f96cc2), Scalac 2.11.12, Scalac 2.12.4
 and javac 1.8.0_161.
-To benchmark native applications, we use [our own microbenchmark harness](https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/bench/rsc/shared/src/main/scala/rsc/bench/CliBench.scala).
+To benchmark native applications, we use [our own microbenchmark harness](https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/bench/rsc/shared/src/main/scala/rsc/bench/CliBench.scala).
 To benchmark JVM applications, we use sbt-jmh 0.2.27 that runs in sbt 1.1.1.
 
 Our benchmarks run different fragments of compilation pipelines of
 different compilers on two comparable codebases:
-  * [re2j](https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/examples/re2j/src/main/java/com/google/re2j), an implementation
+  * [re2j](https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/examples/re2j/src/main/java/com/google/re2j), an implementation
     of linear time regular expression matching in Java (11724 loc).
-  * [re2s](https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/examples/re2s/src/main/scala/com/twitter/re2s), a port of re2j
+  * [re2s](https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/examples/re2s/src/main/scala/com/twitter/re2s), a port of re2j
     to Scala [performed in Scala Native](https://github.com/scala-native/scala-native/pull/894).
-    For Rsc, re2s is accompanied by [Stdlib.scala](https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/stdlib/src/main/scala/Stdlib.scala),
+    For Rsc, re2s is accompanied by [Stdlib.scala](https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/stdlib/src/main/scala/Stdlib.scala),
     a source file that declares stubs for referenced definitions from
     scala-library and the JDK (11028 loc + 182 loc =
     11210 loc).
@@ -61,7 +61,7 @@ be interpreted with utmost care. Concretely:
     is very likely to slow down our compiler by a significant factor.
   * Direct comparisons of Rsc and Scalac performance numbers should take
     into account similarities and differences in provided functionality.
-    Consult [the summary in the "Compiler" document](https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/docs/compiler.md#summary)
+    Consult [the summary in the "Compiler" document](https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/docs/compiler.md#summary)
     for more information.
 
 ## Results
@@ -74,22 +74,22 @@ To reproduce, run `bin/bench` (this will take a while).
     <td>Hot</td>
   </th>
   <tr>
-    <td width="208px"><a href="https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/bench/rsc/jvm/src/main/scala/rsc/bench/RscNativeSchedule.scala">RscNativeSchedule</a></td>
-    <td width="208px">44.726 ms</td>
-    <td width="208px">32.684 ms</td>
+    <td width="208px"><a href="https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/bench/rsc/jvm/src/main/scala/rsc/bench/RscNativeSchedule.scala">RscNativeSchedule</a></td>
+    <td width="208px">44.433 ms</td>
+    <td width="208px">32.982 ms</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/bench/rsc/jvm/src/main/scala/rsc/bench/RscSchedule.scala">RscSchedule</a></td>
-    <td>320.807 ms</td>
-    <td>10.007 ms</td>
+    <td><a href="https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/bench/rsc/jvm/src/main/scala/rsc/bench/RscSchedule.scala">RscSchedule</a></td>
+    <td>320.533 ms</td>
+    <td>10.220 ms</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/bench/scalac211/src/main/scala/rsc/bench/ScalacNamer211.scala">ScalacNamer211</a></td>
+    <td><a href="https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/bench/scalac211/src/main/scala/rsc/bench/ScalacNamer211.scala">ScalacNamer211</a></td>
     <td>1179.715 ms</td>
     <td>62.111 ms</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/bench/scalac212/src/main/scala/rsc/bench/ScalacNamer212.scala">ScalacNamer212</a></td>
+    <td><a href="https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/bench/scalac212/src/main/scala/rsc/bench/ScalacNamer212.scala">ScalacNamer212</a></td>
     <td>1642.299 ms</td>
     <td>27.683 ms</td>
   </tr>
@@ -101,22 +101,22 @@ To reproduce, run `bin/bench` (this will take a while).
     <td>Hot</td>
   </th>
   <tr>
-    <td width="208px"><a href="https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/bench/rsc/jvm/src/main/scala/rsc/bench/RscNativeTypecheck.scala">RscNativeTypecheck</a></td>
-    <td width="208px">93.496 ms</td>
-    <td width="208px">81.700 ms</td>
+    <td width="208px"><a href="https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/bench/rsc/jvm/src/main/scala/rsc/bench/RscNativeTypecheck.scala">RscNativeTypecheck</a></td>
+    <td width="208px">83.887 ms</td>
+    <td width="208px">72.099 ms</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/bench/rsc/jvm/src/main/scala/rsc/bench/RscTypecheck.scala">RscTypecheck</a></td>
-    <td>433.565 ms</td>
-    <td>26.856 ms</td>
+    <td><a href="https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/bench/rsc/jvm/src/main/scala/rsc/bench/RscTypecheck.scala">RscTypecheck</a></td>
+    <td>433.958 ms</td>
+    <td>26.287 ms</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/bench/scalac211/src/main/scala/rsc/bench/ScalacTyper211.scala">ScalacTyper211</a></td>
+    <td><a href="https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/bench/scalac211/src/main/scala/rsc/bench/ScalacTyper211.scala">ScalacTyper211</a></td>
     <td>4295.242 ms</td>
     <td>707.156 ms</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/bench/scalac212/src/main/scala/rsc/bench/ScalacTyper212.scala">ScalacTyper212</a></td>
+    <td><a href="https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/bench/scalac212/src/main/scala/rsc/bench/ScalacTyper212.scala">ScalacTyper212</a></td>
     <td>5167.287 ms</td>
     <td>610.896 ms</td>
   </tr>
@@ -128,17 +128,17 @@ To reproduce, run `bin/bench` (this will take a while).
     <td>Hot</td>
   </th>
   <tr>
-    <td width="208px"><a href="https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/bench/scalac211/src/main/scala/rsc/bench/ScalacCompile211.scala">ScalacCompile211</a></td>
+    <td width="208px"><a href="https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/bench/scalac211/src/main/scala/rsc/bench/ScalacCompile211.scala">ScalacCompile211</a></td>
     <td width="208px">8047.402 ms</td>
     <td width="208px">1702.511 ms</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/bench/scalac212/src/main/scala/rsc/bench/ScalacCompile212.scala">ScalacCompile212</a></td>
+    <td><a href="https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/bench/scalac212/src/main/scala/rsc/bench/ScalacCompile212.scala">ScalacCompile212</a></td>
     <td>9456.717 ms</td>
     <td>1630.761 ms</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/bench/javac18/src/main/scala/rsc/bench/JavacCompile.scala">JavacCompile</a></td>
+    <td><a href="https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/bench/javac18/src/main/scala/rsc/bench/JavacCompile.scala">JavacCompile</a></td>
     <td>801.029 ms</td>
     <td>73.772 ms</td>
   </tr>
@@ -153,7 +153,7 @@ To reproduce, run `bin/bench` (this will take a while).
   * Scala Native has clearly succeeded in its goal of speeding
     up startup time of Scala applications. In cold benchmarks that are
     representative of running programs from command line, Rsc Native has
-    a ~4.6x edge over vanilla Rsc.
+    a ~5.2x edge over vanilla Rsc.
   * Finally, it was interesting to see that the current prototype of Rsc
     typechecks re2s ~3x faster than Javac compiles re2j,
     [given the disclaimer provided above](README.md#disclaimer).
@@ -161,6 +161,6 @@ To reproduce, run `bin/bench` (this will take a while).
     this will affect compilation performance relative to Javac.
   * In the benchmarks above, all compilers are run in single-threaded mode.
     However, unlike Scalac and Javac that are inherently single-threaded,
-    [Rsc was designed to enable massive parallelism](https://github.com/xeno-by/rsc/tree/88fe35ea492e5b1a05ce69dc1287f29d4a65e838/docs/compiler.md).
+    [Rsc was designed to enable massive parallelism](https://github.com/xeno-by/rsc/tree/9625692f7d1b7cf7182d5fb6bf13206259f96cc2/docs/compiler.md).
     In the near future, we plan to leverage this unique feature of Rsc and
     parallelize its pipeline.
