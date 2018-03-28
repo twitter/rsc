@@ -127,7 +127,13 @@ final class Scanner private (
   }
 
   private def backquotedId(): Unit = {
-    crash("backquoted identifiers")
+    nextChar()
+    while (ch != '`') {
+      nextChar()
+    }
+    nextChar()
+    val lexeme = new String(chs, end + 1, offset - end - 2)
+    emit(ID, lexeme)
   }
 
   private def characterOrSymbol(): Unit = {
