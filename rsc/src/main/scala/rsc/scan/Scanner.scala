@@ -398,6 +398,7 @@ final class Scanner private (
             return
           }
           buf += ch
+          nextChar()
         }
         nextChar()
         nextChar()
