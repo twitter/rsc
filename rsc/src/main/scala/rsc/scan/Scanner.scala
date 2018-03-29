@@ -146,16 +146,20 @@ final class Scanner private (
           nextChar()
         }
         LITDOUBLE
+      } else if (ch == 'e' || ch == 'E') {
+        LITDOUBLE
       } else {
         LITINT
       }
     }
     if (ch == 'e' || ch == 'E') {
       if (isDecimalDigit(ch1)) {
+        nextChar()
         while (isDecimalDigit(ch)) {
           nextChar()
         }
       } else if ((ch1 == '+' || ch1 == '-') && isDecimalDigit(ch2)) {
+        nextChar()
         nextChar()
         while (isDecimalDigit(ch)) {
           nextChar()
