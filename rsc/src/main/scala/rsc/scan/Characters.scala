@@ -14,6 +14,7 @@ trait Characters {
   def ch: Char = getChar(offset)
   def ch1: Char = getChar(offset + 1)
   def ch2: Char = getChar(offset + 2)
+  def ch3: Char = getChar(offset + 3)
   private def getChar(offset: Offset): Char = {
     if (offset < chs.length) chs(offset)
     else SU

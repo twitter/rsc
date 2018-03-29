@@ -418,7 +418,8 @@ final class Scanner private (
 
   private def interpolationPart(): Unit = {
     val buf = new StringBuilder
-    while (ch != '\"' || (ilevel == 3 && (ch1 != '\"' || ch2 != '\"'))) {
+    while (ch != '\"' ||
+           (ilevel == 3 && (ch1 != '\"' || ch2 != '\"' || ch3 == '\"'))) {
       if (ch == SU) {
         val message = reportOffset(offset, UnclosedInterpolation)
         emit(ERROR, message)
@@ -571,7 +572,7 @@ final class Scanner private (
       if (ch == '"') {
         nextChar()
         val buf = new StringBuilder
-        while (ch != '\"' || ch1 != '\"' || ch2 != '\"') {
+        while (ch != '\"' || ch1 != '\"' || ch2 != '\"' || ch3 == '\"') {
           if (ch == SU) {
             val message = reportOffset(offset, UnclosedString)
             emit(ERROR, message)
