@@ -342,12 +342,13 @@ final class Scanner private (
     }
     try {
       val number: AnyVal = {
-        if (token == LITINT) java.lang.Integer.parseInt(parsee, 16)
-        else java.lang.Long.parseLong(parsee, 16)
+        if (token == LITINT) java.lang.Integer.parseUnsignedInt(parsee, 16)
+        else java.lang.Long.parseUnsignedLong(parsee, 16)
       }
       emit(token, number)
     } catch {
       case ex: NumberFormatException =>
+        println(ex)
         val message = reportOffset(offset, IllegalNumber)
         emit(ERROR, message)
     }
