@@ -21,6 +21,14 @@ trait CharUtil {
     ch == '$' || (ch != SU && Character.isUnicodeIdentifierPart(ch))
   }
 
+  def isSpliceIdStart(ch: Char): Boolean = {
+    Character.isUnicodeIdentifierStart(ch)
+  }
+
+  def isSpliceIdPart(ch: Char): Boolean = {
+    ch != SU && Character.isUnicodeIdentifierPart(ch)
+  }
+
   def isSymbolicIdStart(ch: Char): Boolean = {
     isSymbolicIdPart(ch)
   }

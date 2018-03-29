@@ -76,14 +76,14 @@ final case class UnclosedCharacter(pos: Position) extends Message {
   def text = "unclosed character literal"
 }
 
-final case class UnclosedSinglelineString(pos: Position) extends Message {
+final case class UnclosedInterpolation(pos: Position) extends Message {
   def sev = FatalSeverity
-  def text = "unclosed string literal"
+  def text = "unclosed interpolation"
 }
 
-final case class UnclosedMultilineString(pos: Position) extends Message {
+final case class UnclosedString(pos: Position) extends Message {
   def sev = FatalSeverity
-  def text = "unclosed multi-line string literal"
+  def text = "unclosed string literal"
 }
 
 // ============ PARSER ============
@@ -141,6 +141,11 @@ final case class IllegalLiteral(pos: Position) extends Message {
 final case class IllegalModifier(pos: Position) extends Message {
   def sev = ErrorSeverity
   def text = "illegal modifier"
+}
+
+final case class IllegalSplice(pos: Position) extends Message {
+  def sev = FatalSeverity
+  def text = "illegal splice"
 }
 
 final case class IllegalStartOfDeclaration(pos: Position) extends Message {

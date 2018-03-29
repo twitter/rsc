@@ -19,6 +19,12 @@ trait Characters {
     else SU
   }
 
+  def prevChar(): Unit = {
+    if (offset > 0) {
+      offset -= 1
+    }
+  }
+
   def nextChar(): Unit = {
     if (offset < chs.length) {
       offset += 1
