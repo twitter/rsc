@@ -449,8 +449,8 @@ final class Scanner private (
   }
 
   private def emit(token: Token, value: Any): Unit = {
-    start = end
-    end = offset
+    this.start = end
+    this.end = offset
     this.token = token
     this.value = value
   }
