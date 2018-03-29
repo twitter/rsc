@@ -370,6 +370,9 @@ final class Scanner private (
       if (token == 0) {
         emit(ID, lexeme)
         mode = INTERPOLATION
+      } else if (token == THIS) {
+        emit(THIS, null)
+        mode = INTERPOLATION
       } else {
         val message = reportOffset(start, IllegalSplice)
         emit(ERROR, message)
