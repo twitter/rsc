@@ -17,10 +17,15 @@ object PrettyCompiler {
       p.str(tree)
       p.newline()
     }
-    p.newline()
-    p.str(x.symtab)
-    p.newline()
-    p.str(x.todo)
+    if (!x.symtab._scopes.isEmpty || !x.symtab._outlines.isEmpty) {
+      p.newline()
+      p.str(x.symtab)
+    }
+    if (!x.todo.scopes.isEmpty || !x.todo.mods.isEmpty ||
+        !x.todo.tpts.isEmpty || !x.todo.terms.isEmpty) {
+      p.newline()
+      p.str(x.todo)
+    }
   }
 
   def repl(p: Printer, x: Compiler): Unit = {

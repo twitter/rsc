@@ -8,26 +8,30 @@ import rsc.util._
 
 object PrettyTypecheckSymtab {
   def str(p: Printer, x: Symtab): Unit = {
-    p.header("Scopes (symtab)")
-    val scopes = x._scopes.asScala.toList.sortBy(_._1.str)
-    p.rep(scopes, EOL) {
-      case (_, scope) =>
-        p.str(scope)
-    }
-    if (scopes.nonEmpty) {
+    if (!x._scopes.isEmpty) {
+      p.header("Scopes (symtab)")
+      val scopes = x._scopes.asScala.toList.sortBy(_._1.str)
+      p.rep(scopes, EOL) {
+        case (_, scope) =>
+          p.str(scope)
+      }
+      if (scopes.nonEmpty) {
+        p.newline()
+      }
       p.newline()
     }
-    p.newline()
-    p.header("Outlines (symtab)")
-    val outlines = x._outlines.asScala.toList.sortBy(_._1.str)
-    p.rep(outlines, EOL) {
-      case (sym, outline) =>
-        p.str(sym)
-        p.str(" => ")
-        p.str(outline)
-    }
-    if (scopes.nonEmpty) {
-      p.newline()
+    if (!x._outlines.isEmpty) {
+      p.header("Outlines (symtab)")
+      val outlines = x._outlines.asScala.toList.sortBy(_._1.str)
+      p.rep(outlines, EOL) {
+        case (sym, outline) =>
+          p.str(sym)
+          p.str(" => ")
+          p.str(outline)
+      }
+      if (outlines.nonEmpty) {
+        p.newline()
+      }
     }
   }
 

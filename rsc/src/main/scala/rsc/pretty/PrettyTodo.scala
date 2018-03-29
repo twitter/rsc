@@ -8,60 +8,68 @@ import rsc.util._
 
 object PrettyTodo {
   def str(p: Printer, x: Todo): Unit = {
-    p.header("Scopes (todo)")
-    val scopes = x.scopes.asScala.toList
-    p.rep(scopes, EOL) {
-      case (env, scope) =>
-        p.str(scope)
-        if (p.settings.xprint("envs")) {
-          p.str(" => ")
-          p.str(env)
-        }
-    }
-    if (scopes.nonEmpty) {
+    if (!x.scopes.isEmpty) {
+      p.header("Scopes (todo)")
+      val scopes = x.scopes.asScala.toList
+      p.rep(scopes, EOL) {
+        case (env, scope) =>
+          p.str(scope)
+          if (p.settings.xprint("envs")) {
+            p.str(" => ")
+            p.str(env)
+          }
+      }
+      if (scopes.nonEmpty) {
+        p.newline()
+      }
       p.newline()
     }
-    p.newline()
-    p.header("Mods (todo)")
-    val mods = x.mods.asScala.toList
-    p.rep(mods, EOL) {
-      case (env, mod) =>
-        p.str(mod)
-        if (p.settings.xprint("envs")) {
-          p.str(" => ")
-          p.str(env)
-        }
-    }
-    if (mods.nonEmpty) {
+    if (!x.mods.isEmpty) {
+      p.header("Mods (todo)")
+      val mods = x.mods.asScala.toList
+      p.rep(mods, EOL) {
+        case (env, mod) =>
+          p.str(mod)
+          if (p.settings.xprint("envs")) {
+            p.str(" => ")
+            p.str(env)
+          }
+      }
+      if (mods.nonEmpty) {
+        p.newline()
+      }
       p.newline()
     }
-    p.newline()
-    p.header("Tpts (todo)")
-    val tpts = x.tpts.asScala.toList
-    p.rep(tpts, EOL) {
-      case (env, tpt) =>
-        p.str(tpt)
-        if (p.settings.xprint("envs")) {
-          p.str(" => ")
-          p.str(env)
-        }
-    }
-    if (tpts.nonEmpty) {
+    if (!x.tpts.isEmpty) {
+      p.header("Tpts (todo)")
+      val tpts = x.tpts.asScala.toList
+      p.rep(tpts, EOL) {
+        case (env, tpt) =>
+          p.str(tpt)
+          if (p.settings.xprint("envs")) {
+            p.str(" => ")
+            p.str(env)
+          }
+      }
+      if (tpts.nonEmpty) {
+        p.newline()
+      }
       p.newline()
     }
-    p.newline()
-    p.header("Terms (todo)")
-    val terms = x.terms.asScala.toList
-    p.rep(terms, EOL) {
-      case (env, term) =>
-        p.str(term)
-        if (p.settings.xprint("envs")) {
-          p.str(" => ")
-          p.str(env)
-        }
-    }
-    if (terms.nonEmpty) {
-      p.newline()
+    if (!x.terms.isEmpty) {
+      p.header("Terms (todo)")
+      val terms = x.terms.asScala.toList
+      p.rep(terms, EOL) {
+        case (env, term) =>
+          p.str(term)
+          if (p.settings.xprint("envs")) {
+            p.str(" => ")
+            p.str(env)
+          }
+      }
+      if (terms.nonEmpty) {
+        p.newline()
+      }
     }
   }
 
