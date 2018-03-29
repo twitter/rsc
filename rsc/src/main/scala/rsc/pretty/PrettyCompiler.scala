@@ -39,12 +39,17 @@ object PrettyCompiler {
       p.header(input.path.toString)
       val reporter = StoreReporter(x.settings)
       val scanner = Scanner(x.settings, reporter, input)
-      while (scanner.token != EOF) {
-        p.str(s"[${scanner.start}..${scanner.end}) ")
-        p.str(tokenRepl(scanner.token))
-        if (scanner.value != null) p.str(s" ${scanner.value}")
-        p.newline()
-        scanner.next()
+      try {
+        while (scanner.token != EOF) {
+          p.str(s"[${scanner.start}..${scanner.end}) ")
+          p.str(tokenRepl(scanner.token))
+          if (scanner.value != null) p.str(s" ${scanner.value}")
+          p.newline()
+          scanner.next()
+        }
+      } catch {
+        case ex: Throwable =>
+          p.str(s"<${ex.getMessage}>")
       }
     }
   }
