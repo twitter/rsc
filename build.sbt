@@ -96,6 +96,8 @@ lazy val benchRsc = crossProject(JVMPlatform, NativePlatform)
   .enablePlugins(JmhPlugin)
   .settings(commonSettings)
   .jvmSettings(
+    benchCliRscNative("Scan"),
+    benchCliRscNative("Parse"),
     benchCliRscNative("Schedule"),
     benchCliRscNative("Typecheck")
   )
