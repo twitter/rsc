@@ -140,7 +140,7 @@ final class Scanner private (
       nextChar()
     }
     val default = {
-      if (ch == '.') {
+      if (ch == '.' && isDecimalDigit(ch1)) {
         nextChar()
         while (isDecimalDigit(ch)) {
           nextChar()
