@@ -117,12 +117,21 @@ final class Scanner private (
         }
         emit(COMMENT, null)
       case '*' =>
+        var clevel = 1
         nextChar()
-        while (ch != '*' || ch1 != '/') {
+        while (clevel != 1 || ch != '*' || ch1 != '/') {
           if (ch == SU) {
             val message = reportOffset(offset, IllegalComment)
             emit(ERROR, message)
             return
+          } else if (ch == '/' && ch1 == '*') {
+            nextChar()
+            nextChar()
+            clevel += 1
+          } else if (ch == '*' && ch1 == '/') {
+            nextChar()
+            nextChar()
+            clevel -= 1
           } else {
             nextChar()
           }
