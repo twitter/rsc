@@ -7,6 +7,7 @@ import rsc.lexis._
 import rsc.parse._
 import rsc.pretty._
 import rsc.report._
+import rsc.scan._
 import rsc.settings._
 import rsc.syntax._
 import rsc.typecheck._
@@ -37,7 +38,15 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Pretty {
       if (settings.xprint(taskName)) {
         reporter.append(VerboseMessage(this.str))
       }
+      if (taskName == "parse" && settings.xprint("scan")) {
+        val p = new Printer
+        PrettyCompiler.xprintScan(p, this)
+        reporter.append(VerboseMessage(p.toString))
+      }
       if (settings.ystopAfter(taskName)) {
+        return
+      }
+      if (taskName == "parse" && settings.ystopAfter("scan")) {
         return
       }
       if (reporter.problems.nonEmpty) {
@@ -65,17 +74,25 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Pretty {
     val inputs = settings.ins.map(in => Input(in))
     trees = inputs.flatMap { input =>
       if (Files.exists(input.path)) {
-        val parser = Parser(settings, reporter, input)
-        parser.accept(BOF)
-        val tree = parser.source()
-        parser.accept(EOF)
-        Some(tree)
+        if (settings.ystopAfter("scan")) {
+          val scanner = Scanner(settings, reporter, input)
+          while (scanner.token != EOF) {
+            scanner.next()
+          }
+          None
+        } else {
+          val parser = Parser(settings, reporter, input)
+          parser.accept(BOF)
+          val tree = parser.source()
+          parser.accept(EOF)
+          Some(tree)
+        }
       } else {
         reporter.append(FileNotFound(input))
         None
       }
     }
-    if (trees.isEmpty) {
+    if (inputs.isEmpty) {
       reporter.append(FilesNotFound())
     }
   }

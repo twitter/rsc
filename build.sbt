@@ -96,6 +96,8 @@ lazy val benchRsc = crossProject(JVMPlatform, NativePlatform)
   .enablePlugins(JmhPlugin)
   .settings(commonSettings)
   .jvmSettings(
+    benchCliRscNative("Scan"),
+    benchCliRscNative("Parse"),
     benchCliRscNative("Schedule"),
     benchCliRscNative("Typecheck")
   )
@@ -159,6 +161,8 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
     libraryDependencies += "com.github.xenoby" %%% "utest" % V.uTest,
     libraryDependencies += "com.github.xenoby" %%% "utest" % V.uTest % "test",
     testFrameworks += new TestFramework("utest.runner.Framework"),
+    fork in Test := true,
+    javaOptions in Test += "-Xmx4G",
     buildInfoPackage := "rsc.tests",
     buildInfoUsePackageAsPath := true,
     buildInfoKeys := Seq[BuildInfoKey](

@@ -2,7 +2,11 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.pretty
 
+import java.nio.file._
 import rsc.Compiler
+import rsc.lexis._
+import rsc.report._
+import rsc.scan._
 import rsc.util._
 
 object PrettyCompiler {
@@ -13,13 +17,40 @@ object PrettyCompiler {
       p.str(tree)
       p.newline()
     }
-    p.newline()
-    p.str(x.symtab)
-    p.newline()
-    p.str(x.todo)
+    if (!x.symtab._scopes.isEmpty || !x.symtab._outlines.isEmpty) {
+      p.newline()
+      p.str(x.symtab)
+    }
+    if (!x.todo.scopes.isEmpty || !x.todo.mods.isEmpty ||
+        !x.todo.tpts.isEmpty || !x.todo.terms.isEmpty) {
+      p.newline()
+      p.str(x.todo)
+    }
   }
 
   def repl(p: Printer, x: Compiler): Unit = {
     crash(x)
+  }
+
+  def xprintScan(p: Printer, x: Compiler): Unit = {
+    val allInputs = x.settings.ins.map(in => Input(in))
+    val existingInputs = allInputs.filter(input => Files.exists(input.path))
+    p.rep(existingInputs, EOL) { input =>
+      p.header(input.path.toString)
+      val reporter = StoreReporter(x.settings)
+      val scanner = Scanner(x.settings, reporter, input)
+      try {
+        while (scanner.token != EOF) {
+          p.str(s"[${scanner.start}..${scanner.end}) ")
+          p.str(tokenRepl(scanner.token))
+          if (scanner.value != null) p.str(s" ${scanner.value}")
+          p.newline()
+          scanner.next()
+        }
+      } catch {
+        case ex: Throwable =>
+          p.str(s"<${ex.getMessage}>")
+      }
+    }
   }
 }

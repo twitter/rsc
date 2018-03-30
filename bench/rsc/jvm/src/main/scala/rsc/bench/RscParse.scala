@@ -5,34 +5,19 @@ package rsc.bench
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.annotations.Mode._
-import rsc.bench.RscScan._
-import rsc.lexis._
-import rsc.parse._
-import rsc.report._
-import rsc.settings._
+import rsc.bench.RscParse._
 import rsc.tests._
 
 object RscParse {
   @State(Scope.Benchmark)
-  class BenchmarkState extends FileFixtures {
-    val settings = Settings.parse(re2sRscFiles.map(_.toString)).get
-    val reporter = StoreReporter(settings)
-    val inputs = settings.ins.map(Input.apply).toArray
-  }
+  class BenchmarkState extends RscFixtures with FileFixtures
 }
 
 trait RscParse {
   def runImpl(bs: BenchmarkState): Unit = {
-    var i = 0
-    while (i < bs.inputs.length) {
-      val input = bs.inputs(i)
-      val parser = Parser(bs.settings, bs.reporter, input)
-      parser.accept(BOF)
-      parser.source()
-      parser.accept(EOF)
-      i += 1
-    }
-    val problems = bs.reporter.problems
+    val compiler = bs.mkCompiler("-Ystop-after:parse", bs.re2sRscFiles)
+    compiler.run()
+    val problems = compiler.reporter.problems
     if (problems.nonEmpty) {
       problems.foreach(println)
       sys.error("parse failed")

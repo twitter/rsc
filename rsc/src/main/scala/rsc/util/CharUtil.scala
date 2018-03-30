@@ -21,6 +21,14 @@ trait CharUtil {
     ch == '$' || (ch != SU && Character.isUnicodeIdentifierPart(ch))
   }
 
+  def isSpliceIdStart(ch: Char): Boolean = {
+    Character.isUnicodeIdentifierStart(ch)
+  }
+
+  def isSpliceIdPart(ch: Char): Boolean = {
+    ch != SU && Character.isUnicodeIdentifierPart(ch)
+  }
+
   def isSymbolicIdStart(ch: Char): Boolean = {
     isSymbolicIdPart(ch)
   }
@@ -34,6 +42,13 @@ trait CharUtil {
         val chtpe = Character.getType(ch)
         chtpe == Character.MATH_SYMBOL || chtpe == Character.OTHER_SYMBOL
     }
+  }
+
+  def isXmlNameStart(ch: Char): Boolean = {
+    val chtpe = Character.getType(ch)
+    chtpe == Character.LOWERCASE_LETTER || chtpe == Character.UPPERCASE_LETTER ||
+    chtpe == Character.OTHER_LETTER || chtpe == Character.TITLECASE_LETTER ||
+    chtpe == Character.LETTER_NUMBER || ch == '_'
   }
 
   def isDecimalDigit(ch: Char): Boolean = {
