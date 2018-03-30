@@ -263,8 +263,16 @@ final class Scanner private (
         } else {
           symbolicIdOrKeyword()
         }
-      case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '<' | '>' | '?' |
-          ':' | '=' | '&' | '|' | '\\' | '⇒' | '←' =>
+      case '<' =>
+        def xmlPre = token == WHITESPACE || token == LPAREN || token == LBRACE
+        def xmlSuf = isXmlNameStart(ch1) || ch1 == '!' || ch1 == '?'
+        if (xmlPre && xmlSuf) {
+          crash("xml literals")
+        } else {
+          symbolicIdOrKeyword()
+        }
+      case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '>' | '?' | ':' |
+          '=' | '&' | '|' | '\\' | '⇒' | '←' =>
         symbolicIdOrKeyword()
       case '`' =>
         backquotedId()

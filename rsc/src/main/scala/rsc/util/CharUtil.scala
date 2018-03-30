@@ -44,6 +44,13 @@ trait CharUtil {
     }
   }
 
+  def isXmlNameStart(ch: Char): Boolean = {
+    val chtpe = Character.getType(ch)
+    chtpe == Character.LOWERCASE_LETTER || chtpe == Character.UPPERCASE_LETTER ||
+    chtpe == Character.OTHER_LETTER || chtpe == Character.TITLECASE_LETTER ||
+    chtpe == Character.LETTER_NUMBER || ch == '_'
+  }
+
   def isDecimalDigit(ch: Char): Boolean = {
     '0' <= ch && ch <= '9'
   }
