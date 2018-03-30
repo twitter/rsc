@@ -158,8 +158,8 @@ lazy val tests = crossProject(JVMPlatform, NativePlatform)
   .enablePlugins(BuildInfoPlugin)
   .settings(
     commonSettings,
-    libraryDependencies += "com.github.xenoby" %%% "utest" % V.uTest,
-    libraryDependencies += "com.github.xenoby" %%% "utest" % V.uTest % "test",
+    libraryDependencies += "com.lihaoyi" %%% "utest" % V.uTest,
+    libraryDependencies += "com.lihaoyi" %%% "utest" % V.uTest % "test",
     testFrameworks += new TestFramework("utest.runner.Framework"),
     fork in Test := true,
     javaOptions in Test += "-Xmx4G",
