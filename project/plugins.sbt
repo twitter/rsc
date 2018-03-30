@@ -1,4 +1,4 @@
-addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.0-RC10")
+addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.1")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.2.27")
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.7.0")
 addSbtPlugin("com.dwijnand" % "sbt-dynver" % "2.0.0")
