@@ -23,7 +23,7 @@ print ""
 print "Loading benchmarks..."
 def load_benchmarks():
   with GithubRef(root_user, root_repo, "performance") as performance_ref:
-    performance_ref.download_https()
+    performance_ref.download_ssh()
     performance_json_path = performance_ref.resolve_local("performance.json")
     performance_json = []
     with open(performance_json_path, "r") as performance_json_file:
@@ -48,7 +48,7 @@ for i, pr in enumerate(prs):
   comments_accepted = False
   comments_finished = False
   for comment in comments:
-    if comment["user"]["login"] == "rscbenchbox":
+    if comment["user"]["login"] == "xeno-by":
       body = comment["body"]
       if re.match(r"Blocked.*" + head_ref.sha, body): comments_blocked = True
       if re.match(r"Accepted.*" + head_ref.sha, body): comments_accepted = True
@@ -78,11 +78,11 @@ print "Detected " + str(len(todo)) + " todo commits"
 print ""
 print "Analyzing commits..."
 with GithubRef(root_user, root_repo, "master") as root_ref:
-  root_ref.download_https()
+  root_ref.download_ssh()
   cd(root_ref.path)
-  parent_of_fix_bench_crawl_commit = stdout("git log -1 --format=%H ':/Remove bin/travis_before_install'")
-  root_shas = stdout("git rev-list --ancestry-path " + parent_of_fix_bench_crawl_commit + "..HEAD").split("\n")
-  print "Found " + str(len(root_shas)) + " eligible commits"
+  parent_of_first_eligible_commit = stdout("git log -1 --format=%H ':/Upgrade to Scala Native 0.3.7 (#83)'")
+  root_shas = stdout("git log --format=%H --merges " + parent_of_first_eligible_commit + "..HEAD").split("\n")
+  print "Found " + str(len(root_shas)) + " merge commits"
   root_shas = filter(lambda sha: not sha in done, root_shas)
   blacklist = []
   print "Found " + str(len(blacklist)) + " blacklisted commits"
@@ -112,10 +112,10 @@ if todo:
       with target_ref:
         print "========================================================================"
         print "(" + str(i + 1) + "/" + str(len(todo)) + ") " + target_ref.url
-        target_ref.download_https()
+        target_ref.download_ssh()
         cd(target_ref.path)
         target_bin_bench = target_ref.resolve_local("bin/bench")
-        target_bin_bench_command = [target_bin_bench, "CI"]
+        target_bin_bench_command = [target_bin_bench, "All"]
         print " ".join(target_bin_bench_command)
         sys.stdout.flush()
         target_bin_bench_process = subprocess.Popen(target_bin_bench_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
@@ -142,21 +142,33 @@ if todo:
             target_base = target_pr["base"]["sha"]
             before = next(entry for entry in latest_performance if entry["GitFullSha"] == target_base)
             after = next(entry for entry in latest_performance if entry["GitFullSha"] == target_ref.sha)
-            before1 = "{} {}".format(before["BenchRscNativeTypecheckHotScore"], before["BenchRscNativeTypecheckHotUnit"])
-            after1 = "{} {}".format(after["BenchRscNativeTypecheckHotScore"], after["BenchRscNativeTypecheckHotUnit"])
-            before2 = "{} {}".format(before["BenchRscTypecheckHotScore"], before["BenchRscTypecheckHotUnit"])
-            after2 = "{} {}".format(after["BenchRscTypecheckHotScore"], after["BenchRscTypecheckHotUnit"])
+            before1 = "{} {}".format(before["BenchRscParseIndividualScore"], before["BenchRscParseUnit"])
+            after1 = "{} {}".format(after["BenchRscParseIndividualScore"], after["BenchRscParseUnit"])
+            before2 = "{} {}".format(before["BenchRscLinkIndividualScore"], before["BenchRscLinkUnit"])
+            after2 = "{} {}".format(after["BenchRscLinkIndividualScore"], after["BenchRscLinkUnit"])
+            before3 = "{} {}".format(before["BenchRscOutlineIndividualScore"], before["BenchRscOutlineUnit"])
+            after3 = "{} {}".format(after["BenchRscOutlineIndividualScore"], after["BenchRscOutlineUnit"])
+            before4 = "{} {}".format(before["BenchRscSemanticdbIndividualScore"], before["BenchRscSemanticdbUnit"])
+            after4 = "{} {}".format(after["BenchRscSemanticdbIndividualScore"], after["BenchRscSemanticdbUnit"])
+            before5 = "{} {}".format(before["BenchRscMjarIndividualScore"], before["BenchRscMjarUnit"])
+            after5 = "{} {}".format(after["BenchRscMjarIndividualScore"], after["BenchRscMjarUnit"])
+            before6 = "~{}x".format(before["SummaryMjarSpeedup"])
+            after6 = "~{}x".format(after["SummaryMjarSpeedup"])
             latest_commit = github_api("https://api.github.com/repos/{}/{}/commits/performance".format(root_user, root_repo))
             latest_url = latest_commit["html_url"]
             body = """
 Finished benchmarking {}.
 
-| Benchmark          | Before | After |
-|--------------------|--------|-------|
-| RscNativeTypecheck | {}     | {}    |
-| RscTypecheck       | {}     | {}    |
+| Benchmark     | Before | After |
+|---------------|--------|-------|
+| RscParse      | {}     | {}    |
+| RscLink       | {}     | {}    |
+| RscOutline    | {}     | {}    |
+| RscSemanticdb | {}     | {}    |
+| RscMjar       | {}     | {}    |
+| ScalacCompile | {}     | {}    |
 
-Full results are available at {}.""".strip().format(target_ref.markdown, before1, after1, before2, after2, latest_url)
+Full results are available at {}.""".strip().format(target_ref.markdown, before1, after1, before2, after2, before3, after3, before4, after4, before5, after5, before6, after6, latest_url)
             github_api(target_pr["comments_url"], {"body": body})
         else:
           print ""

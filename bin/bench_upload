@@ -25,15 +25,12 @@ props["SoftwareGenerator"] = root_ref.resolve_remote(binary_path)
 
 print ""
 print "Computing paths..."
-target_ref.download_https()
+target_ref.download_ssh()
 cd(target_ref.path)
 bench_path = target_ref.resolve_local("bench")
-clibench_path = target_ref.resolve_local("bench/rsc/shared/src/main/scala/rsc/bench/CliBench.scala")
-re2j_path = target_ref.resolve_local("examples/re2j/src/main/java/com/google/re2j")
-re2s_path = target_ref.resolve_local("examples/re2s/src/main/scala/com/twitter/re2s")
+target_path = target_ref.resolve_local("examples/core")
 properties_path = target_ref.resolve_local("project/build.properties")
 plugins_path = target_ref.resolve_local("project/plugins.sbt")
-stdlib_path = target_ref.resolve_local("stdlib/src/main/scala/Stdlib.scala")
 travis_path = target_ref.resolve_local(".travis.yml")
 
 print ""
@@ -91,112 +88,66 @@ elif sys.platform.startswith("linux"): props["SoftwareOperatingSystem"] = stdout
 else: raise Exception("unsupported platform " + sys.platform)
 props["SoftwareKernel"] = stdout("uname -rs")
 props["SoftwareJre"] = stdout("java -version 2>&1 | head -n 2 | tail -1")
-props["SoftwareRsc"] = "Rsc " + stdout("sbt -no-colors 'show rscJVM/version' | tail -n 1 | awk -F'] ' '{ print $2 }'")
-props["SoftwareScalac211"] = "Scalac " + stdout("grep 2.11 " + travis_path + " | head -n 1 | awk -F': ' '{print $2}'")
-props["SoftwareScalac212"] = "Scalac " + stdout("grep 2.12 " + travis_path + " | head -n 1 | awk -F': ' '{print $2}'")
-props["SoftwareJavac"] = stdout("javac -version 2>&1")
-props["SoftwareCliBench"] = "our own microbenchmark harness"
-props["SoftwareCliBenchUrl"] = target_ref.resolve_remote(clibench_path)
+props["SoftwareRsc"] = "Rsc " + stdout("sbt -no-colors 'show rsc/version' | tail -n 1 | awk -F'] ' '{ print $2 }'")
+props["SoftwareScalac"] = "Scalac " + stdout("grep 2.11 " + travis_path + " | head -n 1 | awk -F': ' '{print $2}'")
 props["SoftwareSbt"] = "sbt " + stdout("grep sbt.version " + properties_path + " | awk -F'=' '{print $2}'")
 props["SoftwareSbtJmh"] = "sbt-jmh " + stdout("grep sbt-jmh " + plugins_path + " | awk -F'\"' '{print $6}'")
-props["SoftwareRe2jUrl"] = target_ref.resolve_remote(re2j_path)
-props["SoftwareRe2jLoc"] = stdout("cloc --quiet --csv " + re2j_path + " | grep Java | awk -F',' '{print $3+$4+$5}'")
-props["SoftwareRe2sUrl"] = target_ref.resolve_remote(re2s_path)
-props["SoftwareStdlibUrl"] = target_ref.resolve_remote(stdlib_path)
-props["SoftwareRe2sScalacLoc"] = stdout("cloc --quiet --csv " + re2s_path + " | grep Scala | awk -F',' '{print $3+$4+$5}'")
-props["SoftwareStdlibLoc"] = stdout("cloc --quiet --csv " + stdlib_path + " | grep Scala | awk -F',' '{print $3+$4+$5}'")
-props["SoftwareRe2sRscLoc"] = str(int(props["SoftwareRe2sScalacLoc"]) + int(props["SoftwareStdlibLoc"]))
+props["SoftwareTargetDescription"] = "an automatically rewritten core of [Twitter Util](https://github.com/twitter/util)"
+props["SoftwareTargetUrl"] = target_ref.resolve_remote(target_path)
+props["SoftwareTargetFiles"] = stdout("find " + target_path + " -type f -name '*.scala' | wc -l")
+props["SoftwareTargetLoc"] = stdout("cloc --quiet --csv " + target_path + " | grep Scala | awk -F',' '{print $3+$4+$5}'")
 
 def find_bench_path(bench):
   paths = stdout("find " + bench_path + " -name '" + bench + ".scala'").split("\n")
   if len(paths) == 1: return paths[0]
   else: raise Exception("can't find " + bench + ".scala in " + bench_path)
-def find_bench_result(mode, bench):
-  name = mode + bench
-  m = re.search(name + r"\.run\s+\w+\s+\d+(.*?)ms/op", bin_bench_stdout)
-  if m:
-    return m.groups()[0].strip() + " ms"
-  else:
-    precomputed_results = {}
-    precomputed_results["ColdScalacNamer211"] = "1179.715 ± 2.818 ms"
-    precomputed_results["HotScalacNamer211"] = "62.111 ± 0.099 ms"
-    precomputed_results["ColdScalacNamer212"] = "1642.299 ± 2.927 ms"
-    precomputed_results["HotScalacNamer212"] = "27.683 ± 0.029 ms"
-    precomputed_results["ColdScalacTyper211"] = "4295.242 ± 24.084 ms"
-    precomputed_results["HotScalacTyper211"] = "707.156 ± 1.441 ms"
-    precomputed_results["ColdScalacTyper212"] = "5167.287 ± 24.531 ms"
-    precomputed_results["HotScalacTyper212"] = "610.896 ± 1.594 ms"
-    precomputed_results["ColdScalacCompile211"] = "8047.402 ± 43.037 ms"
-    precomputed_results["HotScalacCompile211"] = "1702.511 ± 10.349 ms"
-    precomputed_results["ColdScalacCompile212"] = "9456.717 ± 45.414 ms"
-    precomputed_results["HotScalacCompile212"] = "1630.761 ± 10.607 ms"
-    precomputed_results["ColdJavacCompile"] = "801.029 ± 4.258 ms"
-    precomputed_results["HotJavacCompile"] = "73.772 ± 0.153 ms"
-    if name in precomputed_results:
-      # print "Using precomputed result for " + name + "..."
-      return precomputed_results[name]
-    else:
-      raise Exception("can't find " + name + " in " + bin_bench_path)
-def parse_bench_result(mode, bench):
-  result = find_bench_result(mode, bench)
-  m1 = re.match(r"^(?P<score>[\d\.]+) ± (?P<error>[\d\.]+) (?P<unit>.*)$", result)
-  m2 = re.match(r"^(?P<score>[\d\.]+) (?P<unit>.*)$", result)
-  m = m1 or m2
+def find_bench_result(bench):
+  m = re.search(bench + r"\.run\s+\w+\s+\d+(.*?)ms/op", bin_bench_stdout)
+  if m: return m.groups()[0].strip() + " ms"
+  else: raise Exception("can't find " + bench + " in " + bin_bench_path)
+def parse_bench_result(bench):
+  result = find_bench_result(bench)
+  m = re.match(r"^(?P<score>[\d\.]+)\s+±\s+(?P<error>[\d\.]+) (?P<unit>.*)$", result)
   if m:
     d = collections.defaultdict(lambda: "", m.groupdict())
     return (d["score"], d["error"], d["unit"])
   else:
-    raise Exception("can't parse " + name + " in " + bin_bench_path)
-def populate_bench_props(bench):
-  props["Bench" + bench + "Label"] = bench
-  props["Bench" + bench + "Url"] = target_ref.resolve_remote(find_bench_path(bench))
-  (cold_score, cold_error, cold_unit) = parse_bench_result("Cold", bench)
-  props["Bench" + bench + "ColdScore"] = cold_score
-  props["Bench" + bench + "ColdError"] = cold_error
-  props["Bench" + bench + "ColdUnit"] = cold_unit
-  (hot_score, hot_error, hot_unit) = parse_bench_result("Hot", bench)
-  props["Bench" + bench + "HotScore"] = hot_score
-  props["Bench" + bench + "HotError"] = hot_error
-  props["Bench" + bench + "HotUnit"] = hot_unit
+    raise Exception("can't parse " + bench + " in " + bin_bench_path)
+def populate_bench_props(curr_bench, prev_bench):
+  props["Bench" + curr_bench + "Label"] = curr_bench
+  props["Bench" + curr_bench + "Url"] = target_ref.resolve_remote(find_bench_path(curr_bench))
+  (curr_score, curr_error, curr_unit) = parse_bench_result(curr_bench)
+  if prev_bench: (prev_score, prev_error, prev_unit) = parse_bench_result(prev_bench)
+  else: (prev_score, prev_error, prev_unit) = ("0.0", "0.0", curr_unit)
+  props["Bench" + curr_bench + "Score"] = curr_score
+  props["Bench" + curr_bench + "CumulativeScore"] = curr_score
+  try: props["Bench" + curr_bench + "IndividualScore"] = str(float(curr_score) - float(prev_score))
+  except: props["Bench" + curr_bench + "IndividualScore"] = ""
+  props["Bench" + curr_bench + "Error"] = curr_error
+  props["Bench" + curr_bench + "Unit"] = curr_unit
 print ""
 print "Computing bench props..."
-populate_bench_props("RscNativeSchedule")
-populate_bench_props("RscSchedule")
-populate_bench_props("ScalacNamer211")
-populate_bench_props("ScalacNamer212")
-populate_bench_props("RscNativeTypecheck")
-populate_bench_props("RscTypecheck")
-populate_bench_props("ScalacTyper211")
-populate_bench_props("ScalacTyper212")
-populate_bench_props("ScalacCompile211")
-populate_bench_props("ScalacCompile212")
-populate_bench_props("JavacCompile")
+populate_bench_props("RscParse", None)
+populate_bench_props("RscLink", "RscParse")
+populate_bench_props("RscOutline", "RscLink")
+populate_bench_props("RscSemanticdb", "RscOutline")
+populate_bench_props("RscMjar", "RscSemanticdb")
+populate_bench_props("ScalacCompile", None)
 
 print ""
 print "Computing document props..."
 props["LinkRsc"] = target_ref.url
-props["LinkCompilerDocument"] = target_ref.resolve_remote("docs/compiler.md")
 props["LinkCompilerSummary"] = target_ref.resolve_remote("docs/compiler.md#summary")
-props["LinkDisclaimer"] = "README.md#disclaimer"
 
 print ""
 print "Computing summary props..."
-cold_rsc_native_typecheck = float(props["BenchRscNativeTypecheckColdScore"])
-cold_rsc_typecheck = float(props["BenchRscTypecheckColdScore"])
-hot_rsc_typecheck = float(props["BenchRscTypecheckHotScore"])
-hot_scalac_typer211 = float(props["BenchScalacTyper211HotScore"])
-hot_scalac_typer212 = float(props["BenchScalacTyper212HotScore"])
-hot_scalac_typer = (hot_scalac_typer211 + hot_scalac_typer212) / 2
-hot_javac_compile = float(props["BenchJavacCompileHotScore"])
-speedup_over_scalac_typer = hot_scalac_typer/hot_rsc_typecheck
-if speedup_over_scalac_typer >= 5: props["SummarySpeedupOverScalacTyper"] = "{0:.0f}".format(speedup_over_scalac_typer)
-else: raise Exception("rsc typecheck is less than 5x faster than scalac typer; time to update README.md and the summary in docs/performance.tmpl?")
-speedup_over_rsc_jvm = cold_rsc_typecheck/cold_rsc_native_typecheck
-if speedup_over_rsc_jvm > 1: props["SummarySpeedupOverRscJVM"] = "{0:.1f}".format(speedup_over_rsc_jvm)
-else: raise Exception("rsc native typecheck is slower than rsc typecheck; time to update the summary in docs/performance.tmpl?")
-speedup_over_javac_compile = hot_javac_compile/hot_rsc_typecheck
-if speedup_over_javac_compile > 1: props["SummarySpeedupOverJavacCompile"] = "{0:.0f}".format(speedup_over_javac_compile)
-else: raise Exception("rsc typecheck is slower than javac compile; time to update the summary in docs/performance.tmpl?")
+cumulative_semanticdb = float(props["BenchRscSemanticdbCumulativeScore"])
+cumulative_mjar = float(props["BenchRscMjarCumulativeScore"])
+cumulative_scalac = float(props["BenchScalacCompileScore"])
+semanticdb_speedup = cumulative_scalac / cumulative_semanticdb
+mjar_speedup = cumulative_scalac / cumulative_mjar
+props["SummarySemanticdbSpeedup"] = "{0:.0f}".format(semanticdb_speedup)
+props["SummaryMjarSpeedup"] = "{0:.0f}".format(mjar_speedup)
 
 print ""
 print "Downloading performance repository..."
