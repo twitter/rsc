@@ -2,9 +2,10 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.parse
 
-import scala.annotation.switch
 import rsc.lexis._
+import rsc.parse.{Snapshot => ParseSnapshot}
 import rsc.scan._
+import scala.annotation.switch
 
 trait Newlines {
   self: Parser =>
@@ -17,7 +18,7 @@ trait Newlines {
     var lastOffset: Offset = 0
     var offset: Offset = 0
     var token: Token = BOF
-    var value: Any = null
+    var value: String = null
     def idValue: String = {
       if (value != null) value.asInstanceOf[String]
       else crash(tokenRepl(token))
@@ -54,6 +55,7 @@ trait Newlines {
 
         if (scanner.token == CASE) {
           val snapshot = scanner.snapshot()
+          scanner.next()
           while (scanner.token == WHITESPACE ||
                  scanner.token == NEWLINE ||
                  scanner.token == COMMENT) {
@@ -106,10 +108,35 @@ trait Newlines {
           ()
       }
     }
+
+    def snapshot(): ParseSnapshot = {
+      ParseSnapshot(
+        scanner.snapshot(),
+        oneTokenBehind,
+        overrideToken,
+        lastOffset,
+        offset,
+        token,
+        value,
+        _termWildcards,
+        _tptWildcards)
+    }
+
+    def restore(snapshot: ParseSnapshot): Unit = {
+      scanner.restore(snapshot.scanner)
+      oneTokenBehind = snapshot.oneTokenBehind
+      overrideToken = snapshot.overrideToken
+      lastOffset = snapshot.lastOffset
+      offset = snapshot.offset
+      token = snapshot.token
+      value = snapshot.value
+      _termWildcards = snapshot.termWildcards
+      _tptWildcards = snapshot.tptWildcards
+    }
   }
 
-  def newLinesOpt(): Unit = {
-    if (in.token == NL1 || in.token == NL2) {
+  def newLineOpt(): Unit = {
+    if (in.token == NL1) {
       in.nextToken()
     }
   }
@@ -128,6 +155,12 @@ trait Newlines {
 
   def newLineOptWhenFollowedBy(p: Token => Boolean): Unit = {
     if (in.token == NL1 && p(scanner.token)) {
+      in.nextToken()
+    }
+  }
+
+  def newLinesOpt(): Unit = {
+    if (in.token == NL1 || in.token == NL2) {
       in.nextToken()
     }
   }

@@ -1,12 +1,26 @@
+lazy val V = new {
+  val asm = "6.0"
+  val scala = computeScalaVersionFromTravisYml("2.11")
+  val scalameta = "4.0.0-M4-143-94de8771-SNAPSHOT"
+  val scalapb = _root_.scalapb.compiler.Version.scalapbVersion
+  val scalatest = "3.0.5"
+}
+
+addCommandAlias("ci", ui.ci)
+addCommandAlias("cleanAll", ui.cleanAll)
+addCommandAlias("compileAll", ui.compileAll)
+addCommandAlias("fmtAll", ui.fmtAll)
+addCommandAlias("testAll", ui.testAll)
 addCommandAlias("benchAll", ui.benchAll)
-addCommandAlias("benchCI", ui.benchCI)
-addCommandAlias("benchQuick", ui.benchQuick)
-addCommandAlias("ci-fmt", ui.ciFmt)
-addCommandAlias("ci-jvm", ui.ciJvm)
-addCommandAlias("ci-native", ui.ciNative)
+addCommandAlias("publishAll", ui.publishAll)
+addCommandAlias("clean", ui.cleanAll)
+addCommandAlias("compile", ui.compile)
+addCommandAlias("fast", ui.fastTest)
+addCommandAlias("slow", ui.slowTest)
 addCommandAlias("test", ui.test)
-addCommandAlias("publishLocal", ui.publishLocal)
-addCommandAlias("publishSigned", ui.publishSigned)
+addCommandAlias("fmt", ui.fmtAll)
+addCommandAlias("bench", ui.bench)
+addCommandAlias("publish", ui.publishAll)
 
 version.in(ThisBuild) := {
   val rscVersion = version.in(ThisBuild).value.replace("+", "-")
@@ -20,10 +34,116 @@ version.in(ThisBuild) := {
   rscVersion
 }
 
+lazy val bench = project
+  .in(file("bench"))
+  .dependsOn(tests)
+  .enablePlugins(JmhPlugin)
+  .settings(commonSettings)
+
+lazy val core = project
+  .in(file("examples/core"))
+  .dependsOn(function)
+  .settings(
+    commonSettings,
+    scalacOptions -= "-deprecation",
+    scalacOptions -= "-unchecked",
+    scalacOptions -= "-feature",
+    scalacOptions -= "-Ywarn-unused-import",
+    scalacOptions -= "-Xfatal-warnings",
+    libraryDependencies += "org.scala-lang" % "scala-reflect" % V.scala,
+    libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
+    addCompilerPlugin(scalafixSemanticdb),
+    scalacOptions += "-Yrangepos",
+    scalacOptions += "-P:semanticdb:denotations:definitions",
+    scalacOptions += "-P:semanticdb:mode:fat",
+    scalacOptions += "-P:semanticdb:synthetics:none",
+    addCommandAlias("rewrite", "core/scalafixCli --rules ExplicitResultTypes")
+  )
+
+lazy val function = project
+  .in(file("examples/function"))
+  .settings(commonSettings)
+
+lazy val mjar = project
+  .in(file("mjar/mjar"))
+  .dependsOn(scalasig)
+  .disablePlugins(BackgroundRunPlugin)
+  .settings(
+    commonSettings,
+    publishableSettings,
+    libraryDependencies += "org.scalameta" %% "cli" % V.scalameta,
+    libraryDependencies += "org.scalameta" %% "semanticdb" % V.scalameta,
+    mainClass := Some("scala.meta.cli.Mjar")
+  )
+
+lazy val rsc = project
+  .in(file("rsc"))
+  .disablePlugins(BackgroundRunPlugin)
+  .settings(
+    commonSettings,
+    publishableSettings,
+    libraryDependencies += "org.scalameta" %% "semanticdb" % V.scalameta,
+    mainClass := Some("rsc.cli.Main")
+  )
+
+lazy val scalasig = project
+  .in(file("mjar/scalasig"))
+  .settings(
+    commonSettings,
+    publishableSettings,
+    libraryDependencies += "org.ow2.asm" % "asm" % V.asm,
+    libraryDependencies += "org.ow2.asm" % "asm-tree" % V.asm
+  )
+
+lazy val scalap = project
+  .in(file("mjar/scalap"))
+  .dependsOn(scalasig)
+  .disablePlugins(BackgroundRunPlugin)
+  .settings(
+    commonSettings,
+    publishableSettings,
+    libraryDependencies += "org.scalameta" %% "cli" % V.scalameta,
+    mainClass := Some("scala.meta.cli.Scalap")
+  )
+
+lazy val tests = project
+  .in(file("tests"))
+  .dependsOn(function, mjar, rsc, scalap)
+  .enablePlugins(BuildInfoPlugin)
+  .disablePlugins(BackgroundRunPlugin)
+  .configs(Fast, Slow)
+  .settings(
+    commonSettings,
+    libraryDependencies += "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
+    libraryDependencies += "org.scala-lang" % "scala-compiler" % V.scala,
+    libraryDependencies += "org.scalameta" %% "metac" % V.scalameta cross CrossVersion.full,
+    libraryDependencies += "org.scalameta" %% "metacp" % V.scalameta,
+    libraryDependencies += "org.scalameta" %% "metap" % V.scalameta,
+    libraryDependencies += "org.scalatest" %% "scalatest" % V.scalatest,
+    libraryDependencies += "org.scalatest" %% "scalatest" % V.scalatest % "test",
+    buildInfoUsePackageAsPath := true,
+    buildInfoKeys := Seq(
+      "sourceRoot" -> (baseDirectory in ThisBuild).value,
+      BuildInfoKey.map(dependencyClasspath.in(core, Compile)) {
+        case (k, v) => "coreDeps" -> v.map(_.data)
+      },
+      BuildInfoKey.map(dependencyClasspath.in(function, Compile)) {
+        case (k, v) => "functionDeps" -> v.map(_.data)
+      },
+      "mjarOut" -> classDirectory.in(mjar, Compile).value
+    ),
+    buildInfoPackage := "rsc.tests",
+    testOptions.in(Test) += Tests.Argument("-l", "org.scalatest.tags.Slow"),
+    inConfig(Fast)(Defaults.testTasks),
+    inConfig(Slow)(Defaults.testTasks),
+    testOptions.in(Slow) -= Tests.Argument("-l", "org.scalatest.tags.Slow"),
+    testOptions.in(Slow) += Tests.Argument("-n", "org.scalatest.tags.Slow")
+  )
+
 lazy val commonSettings = Seq(
   organization := "com.twitter",
-  scalaVersion := V.scala211,
-  crossScalaVersions := List(V.scala211, V.scala212),
+  scalaVersion := V.scala,
+  crossScalaVersions := Seq(V.scala),
   scalacOptions ++= Seq("-Ypatmat-exhaust-depth", "off"),
   scalacOptions += "-deprecation",
   scalacOptions += "-unchecked",
@@ -31,7 +151,14 @@ lazy val commonSettings = Seq(
   scalacOptions += "-Ywarn-unused-import",
   scalacOptions ++= { if (isCI) List("-Xfatal-warnings") else Nil },
   scalacOptions in (Compile, console) := Nil,
-  cancelable := true
+  fork in run := true,
+  fork in Test := true,
+  javaOptions += "-Xmx4G",
+  baseDirectory in run := (baseDirectory in ThisBuild).value,
+  baseDirectory in Test := (baseDirectory in ThisBuild).value,
+  cancelable := true,
+  resolvers += Opts.resolver.sonatypeReleases,
+  resolvers += Opts.resolver.sonatypeSnapshots
 )
 
 lazy val publishableSettings = Seq(
@@ -39,11 +166,6 @@ lazy val publishableSettings = Seq(
     val prop = sys.props("credentials")
     if (prop != null) List(new FileCredentials(file(prop)))
     else Nil
-  },
-  publishTo := Some {
-    val prop = sys.props("repository")
-    if (prop != null) "adhoc" at prop
-    else Opts.resolver.sonatypeStaging
   },
   publishArtifact.in(Compile) := true,
   publishArtifact.in(Test) := false,
@@ -55,7 +177,7 @@ lazy val publishableSettings = Seq(
     "https://github.com/twitter/rsc/blob/master/LICENSE.md"),
   pomExtra := (
     <url>https://github.com/twitter/rsc</url>
-    <inceptionYear>2017</inceptionYear>
+    <inceptionYear>2018</inceptionYear>
     <scm>
       <url>git://github.com/twitter/rsc.git</url>
       <connection>scm:git:git://github.com/twitter/rsc.git</connection>
@@ -74,110 +196,12 @@ lazy val publishableSettings = Seq(
   )
 )
 
-lazy val nativeSettings = Seq(
-  nativeGC := "boehm",
-  nativeMode := "release",
-  nativeLinkStubs := true,
-  crossScalaVersions := List(V.scala211)
+lazy val protobufSettings = Def.settings(
+  managedSourceDirectories in Compile += target.value / "protobuf-generated",
+  PB.targets.in(Compile) := Seq(
+    scalapb.gen(
+      flatPackage = true // Don't append filename to package
+    ) -> (target.value / "protobuf-generated")
+  ),
+  libraryDependencies += "com.thesamet.scalapb" %% "scalapb-runtime" % V.scalapb
 )
-
-lazy val benchJavac18 = project
-  .in(file("bench/javac18"))
-  .dependsOn(testsJVM)
-  .enablePlugins(BuildInfoPlugin)
-  .enablePlugins(JmhPlugin)
-  .settings(commonSettings)
-
-lazy val benchRsc = crossProject(JVMPlatform, NativePlatform)
-  .crossType(CrossType.Full)
-  .in(file("bench/rsc"))
-  .dependsOn(tests)
-  .enablePlugins(BuildInfoPlugin)
-  .enablePlugins(JmhPlugin)
-  .settings(commonSettings)
-  .jvmSettings(
-    benchCliRscNative("Scan"),
-    benchCliRscNative("Parse"),
-    benchCliRscNative("Schedule"),
-    benchCliRscNative("Typecheck")
-  )
-  .nativeSettings(nativeSettings)
-lazy val benchRscJVM = benchRsc.jvm
-lazy val benchRscNative = benchRsc.native
-
-lazy val benchScalac211 = project
-  .in(file("bench/scalac211"))
-  .dependsOn(testsJVM)
-  .enablePlugins(BuildInfoPlugin)
-  .enablePlugins(JmhPlugin)
-  .settings(
-    commonSettings,
-    scalaVersion := V.scala211,
-    crossScalaVersions := List(V.scala211),
-    libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
-  )
-
-lazy val benchScalac212 = project
-  .in(file("bench/scalac212"))
-  .dependsOn(testsJVM)
-  .enablePlugins(BuildInfoPlugin)
-  .enablePlugins(JmhPlugin)
-  .settings(
-    commonSettings,
-    scalaVersion := V.scala212,
-    crossScalaVersions := List(V.scala212),
-    libraryDependencies += "org.scala-lang" % "scala-compiler" % scalaVersion.value
-  )
-
-lazy val re2s = project
-  .in(file("examples/re2s"))
-  .settings(commonSettings)
-
-lazy val rsc = crossProject(JVMPlatform, NativePlatform)
-  .crossType(CrossType.Pure)
-  .in(file("rsc"))
-  .enablePlugins(BuildInfoPlugin)
-  .settings(
-    commonSettings,
-    publishableSettings,
-    libraryDependencies += "org.scalameta" %%% "semanticdb3" % V.scalameta,
-    buildInfoPackage := "rsc.internal",
-    buildInfoUsePackageAsPath := true,
-    buildInfoKeys := Seq[BuildInfoKey](
-      version
-    )
-  )
-  .nativeSettings(nativeSettings)
-lazy val rscJVM = rsc.jvm
-lazy val rscNative = rsc.native
-
-lazy val tests = crossProject(JVMPlatform, NativePlatform)
-  .crossType(CrossType.Pure)
-  .in(file("tests"))
-  .dependsOn(rsc)
-  .enablePlugins(BuildInfoPlugin)
-  .settings(
-    commonSettings,
-    libraryDependencies += "com.lihaoyi" %%% "utest" % V.uTest,
-    libraryDependencies += "com.lihaoyi" %%% "utest" % V.uTest % "test",
-    testFrameworks += new TestFramework("utest.runner.Framework"),
-    fork in Test := true,
-    javaOptions in Test += "-Xmx4G",
-    buildInfoPackage := "rsc.tests",
-    buildInfoUsePackageAsPath := true,
-    buildInfoKeys := Seq[BuildInfoKey](
-      "sourceRoot" -> (baseDirectory in ThisBuild).value,
-      BuildInfoKey.map(stdlibClasspath) { case (k, v) => k -> v }
-    )
-  )
-  .nativeSettings(
-    nativeSettings,
-    nativeMode := "debug"
-  )
-lazy val testsJVM = tests.jvm
-lazy val testsNative = tests.native
-
-lazy val root = project
-  .in(file("."))
-  .aggregate(rscJVM, rscNative, testsJVM, testsNative)
-  .settings(commonSettings)

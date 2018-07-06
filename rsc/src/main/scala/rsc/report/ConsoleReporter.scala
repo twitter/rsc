@@ -16,6 +16,10 @@ sealed class ConsoleReporter private (settings: Settings) extends Reporter {
   def problems: List[Message] = {
     buf.result.filter(m => m.sev == FatalSeverity || m.sev == ErrorSeverity)
   }
+
+  def messages: List[Message] = {
+    buf.result
+  }
 }
 
 object ConsoleReporter {

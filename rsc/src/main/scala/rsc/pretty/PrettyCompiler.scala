@@ -7,29 +7,22 @@ import rsc.Compiler
 import rsc.lexis._
 import rsc.report._
 import rsc.scan._
-import rsc.util._
 
 object PrettyCompiler {
   def str(p: Printer, x: Compiler): Unit = {
-    p.settings = x.settings
     p.rep(x.trees, EOL) { tree =>
       p.header(tree.pos.input.path.toString)
       p.str(tree)
       p.newline()
-    }
-    if (!x.symtab._scopes.isEmpty || !x.symtab._outlines.isEmpty) {
+      p.repl(tree)
       p.newline()
-      p.str(x.symtab)
     }
-    if (!x.todo.scopes.isEmpty || !x.todo.mods.isEmpty ||
-        !x.todo.tpts.isEmpty || !x.todo.terms.isEmpty) {
-      p.newline()
-      p.str(x.todo)
-    }
+    p.str(x.symtab)
+    p.str(x.todo)
   }
 
   def repl(p: Printer, x: Compiler): Unit = {
-    crash(x)
+    ???
   }
 
   def xprintScan(p: Printer, x: Compiler): Unit = {
@@ -43,7 +36,10 @@ object PrettyCompiler {
         while (scanner.token != EOF) {
           p.str(s"[${scanner.start}..${scanner.end}) ")
           p.str(tokenRepl(scanner.token))
-          if (scanner.value != null) p.str(s" ${scanner.value}")
+          if (scanner.value != null) {
+            p.str(" ")
+            p.str(Escape(scanner.value))
+          }
           p.newline()
           scanner.next()
         }

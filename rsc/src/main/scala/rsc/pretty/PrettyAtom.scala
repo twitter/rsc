@@ -2,16 +2,12 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.pretty
 
+import rsc.outline._
 import rsc.syntax._
-import rsc.typecheck._
 
 object PrettyAtom {
   def str(p: Printer, x: Atom): Unit = {
     x match {
-      case ApplyAtom(args) =>
-        p.str("[")
-        p.rep(args, ", ")(p.str)
-        p.str("]")
       case IdAtom(id) =>
         p.str(id)
       case SuperAtom(mix) =>

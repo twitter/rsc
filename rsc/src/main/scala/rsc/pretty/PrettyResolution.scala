@@ -2,14 +2,15 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.pretty
 
-import rsc.typecheck._
+import rsc.outline._
 
 object PrettyResolution {
   def str(p: Printer, x: Resolution): Unit = {
     x match {
-      case BlockedResolution(scope) =>
+      case BlockedResolution(work) =>
         p.str("b:")
-        p.str(scope.sym)
+        if (work != null) PrettyWork.abbr(p, work)
+        else p.str("null")
       case MissingResolution =>
         p.str("m")
       case ErrorResolution =>

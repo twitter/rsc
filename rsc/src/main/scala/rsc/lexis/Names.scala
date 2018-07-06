@@ -43,5 +43,9 @@ trait Names {
         }
       }
     }
+
+    def isPatVar: Boolean = {
+      value.nonEmpty && value.head.isLower && value.head.isLetter
+    }
   }
 }

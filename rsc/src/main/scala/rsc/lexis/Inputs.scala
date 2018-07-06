@@ -3,8 +3,8 @@
 package rsc.lexis
 
 import java.nio.file._
-import scala.collection.mutable
 import rsc.pretty._
+import scala.collection.mutable
 
 sealed class Input protected (val path: Path) extends Pretty {
   lazy val string: String = {

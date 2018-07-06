@@ -9,63 +9,164 @@ import rsc.syntax._
 trait Defns {
   self: Parser =>
 
-  def defnClass(start: Offset, mods: List[Mod]): DefnClass = {
+  def defnClass(mods: Mods): DefnClass = {
+    val start = mods.pos.start
     val id = tptId()
-    val tparams = typeParams(DefnTraitContext)
+    val tparams = typeParams(DefnClassContext)
     val ctor = primaryCtor()
-    val Template(inits, statsOpt) = defnTemplate(DefnClassContext)
+    val Template(early, inits, self, statsOpt) = defnTemplate()
     val stats = statsOpt.getOrElse(Nil)
-    atPos(start)(DefnClass(mods, id, tparams, ctor, inits, stats))
+    atPos(start)(DefnClass(mods, id, tparams, ctor, early, inits, self, stats))
   }
 
-  def defnDef(start: Offset, mods: List[Mod]): DefnDef = {
+  def defnDef(mods: Mods): Stat = {
+    val start = mods.pos.start
     if (in.token == THIS) {
-      crash("secondary constructors")
+      in.nextToken()
+      val id = atPos(start)(CtorId())
+      val paramss = this.paramss(CtorContext)
+      newLineOptWhenFollowedBy(LBRACE)
+      if (in.token == EQUALS) {
+        in.nextToken()
+      }
+      val rhs = term()
+      atPos(start)(SecondaryCtor(mods, id, paramss, rhs))
     } else {
       val id = termId()
       val tparams = typeParams(DefnDefContext)
-      val params = termParams(DefnDefContext)
-      val ret = {
-        if (in.token == COLON) {
-          in.nextToken()
-          tpt()
-        } else {
-          crash("type inference")
-        }
-      }
-      val body = {
+      val paramss = this.paramss(DefnDefContext)
+      newLineOptWhenFollowedBy(LBRACE)
+      if (in.token == COLON) {
+        in.nextToken()
+        val ret = Some(tpt())
         if (in.token == EQUALS) {
           in.nextToken()
-          Some(term())
+          if (in.token == ID && in.idValue == "macro") {
+            in.nextToken()
+            val rhs = term()
+            atPos(start)(DefnMacro(mods, id, tparams, paramss, ret, rhs))
+          } else {
+            val rhs = Some(term())
+            atPos(start)(DefnMethod(mods, id, tparams, paramss, ret, rhs))
+          }
         } else {
-          None
+          atPos(start)(DefnMethod(mods, id, tparams, paramss, ret, None))
         }
+      } else if (in.token == LBRACE) {
+        val rhs = Some(term())
+        atPos(start)(DefnProcedure(mods, id, tparams, paramss, rhs))
+      } else if (in.token == EQUALS) {
+        val ret = None
+        in.nextToken()
+        if (in.token == ID && in.idValue == "macro") {
+          in.nextToken()
+          val rhs = term()
+          atPos(start)(DefnMacro(mods, id, tparams, paramss, ret, rhs))
+        } else {
+          val rhs = Some(term())
+          atPos(start)(DefnMethod(mods, id, tparams, paramss, ret, rhs))
+        }
+      } else if (in.token.isStatSep || in.token == RBRACE) {
+        atPos(start)(DefnProcedure(mods, id, tparams, paramss, None))
+      } else {
+        val errOffset = in.offset
+        accept(EQUALS)
+        val rhs = Some(atPos(errOffset)(errorTerm()))
+        atPos(errOffset)(DefnMethod(mods, id, tparams, paramss, None, rhs))
       }
-      atPos(start)(DefnDef(mods, id, tparams, params, ret, body))
     }
   }
 
-  def defnField(start: Offset, mods: List[Mod]): DefnField = {
-    val id = {
-      if (in.token == ID) {
-        termId()
-      } else {
-        crash("pattern definitions")
-      }
+  def defnObject(mods: Mods): DefnObject = {
+    val start = mods.pos.start
+    val id = termId()
+    val Template(earlies, inits, self, statsOpt) = defnTemplate()
+    val stats = statsOpt.getOrElse(Nil)
+    atPos(start)(DefnObject(mods, id, earlies, inits, self, stats))
+  }
+
+  def defnPackageObject(mods: Mods): DefnPackageObject = {
+    val start = mods.pos.start
+    val id = termId()
+    val Template(earlies, inits, self, statsOpt) = defnTemplate()
+    val stats = statsOpt.getOrElse(Nil)
+    atPos(start)(DefnPackageObject(mods, id, earlies, inits, self, stats))
+  }
+
+  def defnTrait(mods: Mods): DefnTrait = {
+    val start = mods.pos.start
+    val id = tptId()
+    val tparams = typeParams(DefnTraitContext)
+    val Template(earlies, inits, self, statsOpt) = defnTemplate()
+    val stats = statsOpt.getOrElse(Nil)
+    atPos(start)(DefnTrait(mods, id, tparams, earlies, inits, self, stats))
+  }
+
+  def defnType(mods: Mods): DefnType = {
+    val start = mods.pos.start
+    newLinesOpt()
+    val id = tptId()
+    val tparams = typeParams(DefnTypeContext)
+    in.token match {
+      case EQUALS =>
+        in.nextToken()
+        atPos(start)(DefnType(mods, id, tparams, None, None, Some(tpt())))
+      case token if token.isStatSep || token == COMMA || token == RBRACE =>
+        atPos(start)(DefnType(mods, id, tparams, None, None, None))
+      case SUPERTYPE | SUBTYPE =>
+        val lbound = lowerBound()
+        val ubound = upperBound()
+        atPos(start)(DefnType(mods, id, tparams, lbound, ubound, None))
+      case _ =>
+        val errOffset = in.offset
+        reportOffset(in.offset, ExpectedTypeRhs)
+        val tpt = atPos(errOffset)(errorTpt())
+        atPos(start)(DefnType(mods, id, tparams, None, None, Some(tpt)))
     }
-    val tpt = {
+  }
+
+  def defnVal(mods: Mods): Stat = {
+    defnValOrVar(mods)
+  }
+
+  def defnVar(mods: Mods): Stat = {
+    defnValOrVar(mods)
+  }
+
+  private def defnValOrVar(mods: Mods): Stat = {
+    val start = mods.pos.start
+    val pats0 = commaSeparated(infixPat(permitColon = false))
+    var tpt = {
       if (in.token == COLON) {
         in.nextToken()
-        this.tpt()
+        Some(this.tpt())
       } else {
-        crash("type inference")
+        None
+      }
+    }
+    val pats = {
+      pats0.zipWithIndex.map {
+        case (pat0 @ PatId(value), _) =>
+          val id = atPos(pat0.pos)(TermId(value))
+          atPos(pat0.pos)(PatVar(id, None))
+        case (pat0 @ PatVar(id, pat0Tpt), i)
+            if i == pats0.length - 1 && tpt.isEmpty =>
+          tpt = pat0Tpt
+          atPos(pat0.pos)(PatVar(id, None))
+        case (pat0, _) =>
+          pat0
       }
     }
     val rhs = {
       if (in.token == EQUALS) {
         in.nextToken()
         if (in.token == USCORE) {
-          crash("default initial values in vars")
+          if (mods.hasVar && tpt.nonEmpty) {
+            in.nextToken()
+            Some(atPos(in.offset)(TermWildcard()))
+          } else {
+            Some(term())
+          }
         } else {
           Some(term())
         }
@@ -73,51 +174,19 @@ trait Defns {
         None
       }
     }
-    atPos(start)(DefnField(mods, id, tpt, rhs))
-  }
-
-  def defnObject(start: Offset, mods: List[Mod]): DefnObject = {
-    val id = termId()
-    val Template(inits, statsOpt) = defnTemplate(DefnObjectContext)
-    val stats = statsOpt.getOrElse(Nil)
-    atPos(start)(DefnObject(mods, id, inits, stats))
-  }
-
-  def defnTrait(start: Offset, mods: List[Mod]): DefnTrait = {
-    val id = tptId()
-    val tparams = typeParams(DefnTraitContext)
-    val Template(inits, statsOpt) = defnTemplate(DefnTraitContext)
-    val stats = statsOpt.getOrElse(Nil)
-    atPos(start)(DefnTrait(mods, id, tparams, inits, stats))
-  }
-
-  def defnType(start: Offset, mods: List[Mod]): DefnType = {
-    newLinesOpt()
-    val id = tptId()
-    val tparams = typeParams(DefnTypeContext)
-    val rhs = {
-      in.token match {
-        case EQUALS =>
-          in.nextToken()
-          tpt()
-        case token if token.isStatSep =>
-          crash("abstract type members")
-        case SUPERTYPE | SUBTYPE | COMMA | RBRACE =>
-          crash("abstract type members")
-        case _ =>
-          val errOffset = in.offset
-          reportOffset(in.offset, ExpectedTypeRhs)
-          atPos(errOffset)(errorTpt())
-      }
+    pats match {
+      case List(PatVar(id: TermId, None)) =>
+        atPos(start)(DefnField(mods, id, tpt, rhs))
+      case pats =>
+        atPos(start)(DefnPat(mods, pats, tpt, rhs))
     }
-    atPos(start)(DefnType(mods, id, tparams, rhs))
   }
 
   private def primaryCtor(): PrimaryCtor = {
-    val start = in.offset
     val mods = primaryCtorMods()
-    val params = termParams(PrimaryCtorContext)
-    val ctor = atPos(start)(PrimaryCtor(mods, params))
+    val start = mods.pos.start
+    val paramss = this.paramss(CtorContext)
+    val ctor = atPos(start)(PrimaryCtor(mods, paramss))
     ctor.id.pos = Position(input, start, start)
     ctor
   }

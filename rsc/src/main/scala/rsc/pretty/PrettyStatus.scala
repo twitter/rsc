@@ -2,19 +2,19 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.pretty
 
-import rsc.typecheck._
+import rsc.outline._
 
 object PrettyStatus {
   def str(p: Printer, x: Status): Unit = {
     x match {
       case PendingStatus =>
         p.str("?")
-      case BlockedStatus(scope) =>
+      case BlockedStatus(work) =>
         p.str("b:")
-        p.str(scope.sym)
-      case CyclicStatus(scopes) =>
+        PrettyWork.abbr(p, work)
+      case CyclicStatus(works) =>
         p.str("c:")
-        p.str(scopes.map(_.sym))
+        p.rep(works, ", ")(PrettyWork.abbr(p, _))
       case ErrorStatus =>
         p.str("e")
       case SucceededStatus =>

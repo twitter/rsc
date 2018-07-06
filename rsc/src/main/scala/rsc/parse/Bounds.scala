@@ -17,26 +17,18 @@ trait Bounds {
   }
 
   def viewBounds(): List[Tpt] = {
-    if (in.token == VIEWBOUND) {
-      crash("implicit parameters")
-    } else {
-      Nil
-    }
+    bounds(VIEWBOUND)
   }
 
   def contextBounds(): List[Tpt] = {
-    if (in.token == COLON) {
-      crash("implicit parameters")
-    } else {
-      Nil
-    }
+    bounds(COLON)
   }
 
   private def bounds(token: Token): List[Tpt] = {
     def loop(bounds: List[Tpt]): List[Tpt] = {
       if (in.token == token) {
         in.nextToken()
-        bounds :+ tpt()
+        loop(bounds :+ tpt())
       } else {
         bounds
       }

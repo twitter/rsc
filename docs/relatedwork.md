@@ -5,8 +5,8 @@
 
 Scala compilation technology is an active field of research.
 At the time of writing, there are at least four actively developed Scala compilers.
-In this document, we will compare Reasonable Scala compiler with publicly
-available related work (presented in chronological order).
+In this document, we will compare Rsc with publicly available related work
+(presented in chronological order).
 
 ## [Lightbend Scala](https://github.com/scala/scala)
 
@@ -37,7 +37,7 @@ Unlike Dotty, we are keeping our focus very narrow. Dotty improves on
 Lightbend Scala in many ways, including language design, modern theoretical
 foundations and innovations in compiler architecture. To the contrast, we are
 a one-trick pony, willing to go to the extreme to reach our target in compilation
-performance. We believe that Dotty and Reasonable Scala have complementary goals,
+performance. We believe that Dotty and Rsc have complementary goals,
 so we will be definitely staying in touch with Martin and his team to exchange ideas.
 
 ## [Typelevel Scala](https://github.com/typelevel/scala)

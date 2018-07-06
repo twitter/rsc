@@ -40,21 +40,9 @@ trait Messages {
     val msg = msgFn(pos)
     reporter.append(msg)
     if (msg.sev == FatalSeverity) {
-      skip()
+      crash(msg)
     }
     msg
   }
 
-  /** Skip on error to next safe point.
-   *  Safe points are:
-   *   - Closing braces, provided they match an opening brace before the error point.
-   *   - Closing parens and brackets, provided they match an opening parent or bracket
-   *     before the error point and there are no intervening other kinds of parens.
-   *   - Semicolons and newlines, provided there are no intervening braces.
-   *   - Definite statement starts on new lines, provided they are not more indented
-   *     than the last known statement start before the error point.
-   */
-  private def skip(): Unit = {
-    crash("smart handling of fatal parsing errors")
-  }
 }

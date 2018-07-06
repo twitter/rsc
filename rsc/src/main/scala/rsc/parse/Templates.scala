@@ -11,30 +11,61 @@ trait Templates {
 
   // NOTE: Template is no longer a tree, but we do need some way
   // to avoid duplication in parser logic, so it made a reappearance.
-  case class Template(inits: List[Init], stats: Option[List[Stat]])
+  case class Template(
+      earlies: List[Stat],
+      inits: List[Init],
+      self: Option[Self],
+      stats: Option[List[Stat]])
 
-  def defnTemplate(ctx: TemplateContext): Template = {
+  def defnTemplate(): Template = {
     if (in.token == EXTENDS) {
       in.nextToken()
       newLineOptWhenFollowedBy(LBRACE)
       if (in.token == LBRACE) {
-        crash("early definitions")
+        val template = templateBraces(Nil, Nil)
+        if (in.token == WITH) {
+          in.nextToken()
+          template.self.foreach(self => reportPos(self.pos, IllegalSelf))
+          val earlies = template.stats.getOrElse(Nil)
+          val inits = templateInits()
+          templateBraces(earlies, inits)
+        } else {
+          template
+        }
       } else {
+        val earlies = Nil
         val inits = templateInits()
-        templateBraces(ctx, inits)
+        templateBraces(earlies, inits)
       }
     } else {
+      val earlies = Nil
       val inits = Nil
-      templateBraces(ctx, inits)
+      templateBraces(earlies, inits)
     }
   }
 
   def newTemplate(): Template = {
+    newLineOptWhenFollowedBy(LBRACE)
     if (in.token == LBRACE) {
-      crash("early definitions")
+      val earlyTemplate = templateBraces(Nil, Nil)
+      if (in.token == WITH) {
+        in.nextToken()
+        val earlies = earlyTemplate.stats.getOrElse(Nil)
+        val inits = templateInits()
+        templateBraces(earlies, inits)
+      } else {
+        earlyTemplate
+      }
     } else {
       val inits = templateInits()
-      templateBraces(TermNewContext, inits)
+      newLineOptWhenFollowedBy(LBRACE)
+      if (in.token == LBRACE) {
+        val earlies = Nil
+        templateBraces(earlies, inits)
+      } else {
+        val earlies = Nil
+        Template(earlies, inits, None, None)
+      }
     }
   }
 
@@ -46,106 +77,112 @@ trait Templates {
     val initstart = in.offset
     val tpt = annotTpt()
     val idstart = in.offset
-    val args = {
-      if (in.token != LPAREN) {
-        crash("nullary argument lists")
-      }
-      val result = termArgs()
-      if (in.token == LPAREN) {
-        crash("multiple argument lists")
-      }
-      result
-    }
-    val init = atPos(initstart)(Init(tpt, args))
+    val argss = termArgss()
+    val init = atPos(initstart)(Init(tpt, argss))
     init.id.pos = Position(input, idstart, idstart)
     init
   }
 
-  private def templateBraces(
-      ctx: TemplateContext,
-      inits: List[Init]): Template = {
-    newLineOptWhenFollowedBy(LBRACE)
-    if (in.token == LBRACE) {
-      inBraces {
-        val stats = List.newBuilder[Stat]
-        var exitOnError = false
-        while (!in.token.isStatSeqEnd && !exitOnError) {
-          if (in.token == IMPORT) {
-            stats += `import`()
-          } else if (in.token.isTermIntro) {
-            stats += term()
-          } else if (in.token.isTemplateDefnIntro) {
-            val start = in.offset
-            val mods = defnMods(modTokens.templateDefn)
-            val stat = in.token match {
-              case CASECLASS =>
-                if (ctx == DefnObjectContext) {
-                  val modCase = atPos(in.offset)(ModCase())
+  private def templateBraces(earlies: List[Stat], inits: List[Init]): Template =
+    banEscapingWildcards {
+      newLineOptWhenFollowedBy(LBRACE)
+      if (in.token == LBRACE) {
+        inBraces {
+          var self: Option[Self] = None
+          val stats = List.newBuilder[Stat]
+          if (in.token.isTermIntro) {
+            val snapshot = in.snapshot()
+            val firstStat = term1()
+            if (in.token == ARROW) {
+              in.restore(snapshot)
+              val start = in.offset
+              val id = {
+                if (in.token == ID) {
+                  termId()
+                } else if (in.token == THIS || in.token == USCORE) {
                   in.nextToken()
-                  defnClass(start, modCase +: mods)
+                  atPos(start)(anonId())
                 } else {
-                  crash("inner classes")
-                }
-              case CASEOBJECT =>
-                if (ctx == DefnObjectContext) {
-                  val modCase = atPos(in.offset)(ModCase())
+                  val errOffset = in.offset
+                  reportOffset(errOffset, IllegalSelf)
                   in.nextToken()
-                  defnClass(start, modCase +: mods)
-                } else {
-                  crash("inner objects")
+                  atPos(errOffset)(TermId(gensym.error()))
                 }
-              case CLASS =>
-                if (ctx == DefnObjectContext) {
+              }
+              val tpt = {
+                if (in.token == COLON) {
                   in.nextToken()
-                  defnClass(start, mods)
+                  Some(infixTpt())
                 } else {
-                  crash("inner classes")
+                  None
                 }
-              case DEF =>
-                in.nextToken()
-                defnDef(start, mods)
-              case OBJECT =>
-                if (ctx == DefnObjectContext) {
-                  in.nextToken()
-                  defnObject(start, mods)
-                } else {
-                  crash("inner objects")
-                }
-              case TRAIT =>
-                if (ctx == DefnObjectContext) {
-                  in.nextToken()
-                  defnTrait(start, mods)
-                } else {
-                  crash("inner traits")
-                }
-              case TYPE =>
-                in.nextToken()
-                defnType(start, mods)
-              case VAL =>
-                val modVal = atPos(in.offset)(ModVal())
-                in.nextToken()
-                defnField(start, mods :+ modVal)
-              case VAR =>
-                val modVar = atPos(in.offset)(ModVar())
-                in.nextToken()
-                defnField(start, mods :+ modVar)
-              case _ =>
-                val errOffset = in.offset
-                reportOffset(errOffset, ExpectedStartOfDefinition)
-                atPos(errOffset)(errorStat())
+              }
+              accept(ARROW)
+              self = Some(atPos(start)(Self(id, tpt)))
+            } else {
+              stats += firstStat
+              acceptStatSepUnlessAtEnd()
             }
-            stats += stat
-          } else if (!in.token.isStatSep) {
-            exitOnError = in.token.mustStartStat
-            reportOffset(in.offset, IllegalStartOfDefinition)
           }
-          acceptStatSepUnlessAtEnd()
+          var exitOnError = false
+          while (!in.token.isStatSeqEnd && !exitOnError) {
+            if (in.token == IMPORT) {
+              stats += `import`()
+            } else if (in.token.isTermIntro) {
+              stats += term1()
+            } else if (in.token.isTemplateDefnIntro) {
+              val start = in.offset
+              val mods = defnMods(modTokens.templateDefn)
+              val stat = in.token match {
+                case CASECLASS =>
+                  val modCase = atPos(in.offset)(ModCase())
+                  in.nextToken()
+                  defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modCase)))
+                case CASEOBJECT =>
+                  val modCase = atPos(in.offset)(ModCase())
+                  in.nextToken()
+                  defnObject(atPos(mods.pos.start)(Mods(mods.trees :+ modCase)))
+                case CLASS =>
+                  in.nextToken()
+                  defnClass(mods)
+                case DEF =>
+                  in.nextToken()
+                  defnDef(mods)
+                case OBJECT =>
+                  in.nextToken()
+                  defnObject(mods)
+                case TRAIT =>
+                  in.nextToken()
+                  defnTrait(mods)
+                case TYPE =>
+                  in.nextToken()
+                  defnType(mods)
+                case VAL =>
+                  val modVal = atPos(in.offset)(ModVal())
+                  in.nextToken()
+                  defnVal(atPos(mods.pos.start)(Mods(mods.trees :+ modVal)))
+                case VAR =>
+                  val modVar = atPos(in.offset)(ModVar())
+                  in.nextToken()
+                  defnVar(atPos(mods.pos.start)(Mods(mods.trees :+ modVar)))
+                case _ =>
+                  val errOffset = in.offset
+                  reportOffset(errOffset, ExpectedStartOfDefinition)
+                  atPos(errOffset)(errorStat())
+              }
+              stats += stat
+            } else if (!in.token.isStatSep) {
+              exitOnError = in.token.mustStartStat
+              reportOffset(in.offset, IllegalStartOfDefinition)
+            }
+            acceptStatSepUnlessAtEnd()
+          }
+          Template(earlies, inits, self, Some(stats.result))
         }
-        Template(inits, Some(stats.result))
+      } else {
+        val self = None
+        val stats = None
+        Template(earlies, inits, self, stats)
       }
-    } else {
-      val stats = None
-      Template(inits, stats)
     }
-  }
 }

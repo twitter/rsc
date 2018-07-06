@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.scan
 
+import java.util.LinkedList
 import rsc.lexis._
 
 final case class Snapshot(
@@ -9,4 +10,10 @@ final case class Snapshot(
     start: Offset,
     end: Offset,
     token: Token,
-    value: Any)
+    value: String,
+    _mode: Int,
+    _ilevels: LinkedList[Int],
+    _ilevel: Int,
+    _slevels: LinkedList[Int],
+    _slevel: Int,
+    _blevel: Int)

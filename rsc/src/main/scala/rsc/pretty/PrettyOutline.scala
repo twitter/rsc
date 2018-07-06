@@ -9,30 +9,46 @@ object PrettyOutline {
     outline match {
       case outline: DefnClass =>
         s"class ${outline.id.value}"
-      case outline: DefnDef =>
-        s"method ${outline.id.value}"
       case outline: DefnField =>
-        val isVal = outline.mods.exists(_.isInstanceOf[ModVal])
-        if (isVal) s"val ${outline.id.value}" else s"var ${outline.id.value}"
+        if (outline.hasVal) s"val ${outline.id.value}"
+        else s"var ${outline.id.value}"
+      case outline: DefnMacro =>
+        s"macro ${outline.id.value}"
+      case outline: DefnMethod =>
+        s"def ${outline.id.value}"
       case outline: DefnObject =>
         s"object ${outline.id.value}"
       case outline: DefnPackage =>
         s"package ${outline.pid}"
+      case outline: DefnPackageObject =>
+        s"package object ${outline.id.value}"
+      case outline: DefnProcedure =>
+        s"def ${outline.id.value}"
       case outline: DefnTrait =>
         s"trait ${outline.id.value}"
       case outline: DefnType =>
         s"type ${outline.id.value}"
+      case outline: Param =>
+        outline.id match {
+          case AnonId() => s"anonymous parameter"
+          case id: NamedId => s"parameter ${id.value}"
+        }
       case outline: PatVar =>
         outline.id match {
-          case AnonId() => s"pattern"
+          case AnonId() => s"anonymous pattern"
           case id: NamedId => s"pattern ${id.value}"
         }
       case outline: PrimaryCtor =>
-        s"constructor"
-      case outline: TermParam =>
-        s"parameter ${outline.id.value}"
+        s"primary constructor"
+      case outline: SecondaryCtor =>
+        s"secondary constructor"
+      case outline: Self =>
+        s"self"
       case outline: TypeParam =>
-        s"type parameter ${outline.id.value}"
+        outline.id match {
+          case AnonId() => s"anonymous type parameter"
+          case id: NamedId => s"type parameter ${id.value}"
+        }
     }
   }
 }

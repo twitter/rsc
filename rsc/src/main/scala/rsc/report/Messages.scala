@@ -2,12 +2,10 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.report
 
-import java.io._
 import rsc.lexis._
+import rsc.outline._
 import rsc.pretty._
-import rsc.semantics._
 import rsc.syntax._
-import rsc.typecheck._
 import rsc.util._
 
 sealed trait Message extends Pretty with Product {
@@ -24,15 +22,19 @@ sealed trait Message extends Pretty with Product {
 final case class CrashMessage(pos: Position, message: String, ex: Throwable)
     extends Message {
   def sev = FatalSeverity
-  def text = "compiler crash"
-  override def explanation = {
-    if (ex != null) {
-      val details = new StringWriter()
-      ex.printStackTrace(new PrintWriter(details))
-      details.toString
-    } else {
-      ""
+  def text = {
+    ex match {
+      case _: CrashException =>
+        "compiler crash"
+      case ex =>
+        if (ex != null) ex.getMessage else null
+        if (message != null) s"compiler crash: $message"
+        else "compiler crash"
     }
+  }
+  override def explanation = {
+    if (ex != null) ex.str
+    else ""
   }
 }
 
@@ -69,6 +71,11 @@ final case class IllegalNumber(pos: Position) extends Message {
 final case class LeadingZero(pos: Position) extends Message {
   def sev = FatalSeverity
   def text = "leading zeros not allowed"
+}
+
+final case class UnclosedBackquotedId(pos: Position) extends Message {
+  def sev = FatalSeverity
+  def text = "unclosed backquoted identifier"
 }
 
 final case class UnclosedCharacter(pos: Position) extends Message {
@@ -143,6 +150,11 @@ final case class IllegalModifier(pos: Position) extends Message {
   def text = "illegal modifier"
 }
 
+final case class IllegalSelf(pos: Position) extends Message {
+  def sev = FatalSeverity
+  def text = "illegal self"
+}
+
 final case class IllegalSplice(pos: Position) extends Message {
   def sev = FatalSeverity
   def text = "illegal splice"
@@ -196,41 +208,28 @@ final case class RepeatedModifier(pos: Position) extends Message {
   def text = s"repeated modifier"
 }
 
-// ============ TYPECHECKER ============
-
-final case class DoubleDef(tree: Outline, existing: Outline) extends Message {
+final case class UnboundWildcard(pos: Position) extends Message {
   def sev = ErrorSeverity
-  def pos = tree.id.point
-  def text = {
-    if (tree.isInstanceOf[DefnDef] || existing.isInstanceOf[DefnDef]) {
-      crash("overloading")
-    } else {
-      val treeDesc = {
-        tree.id match {
-          case AnonId() => crash(tree)
-          case id: NamedId => id.value
-        }
-      }
-      val existingDesc = PrettyOutline.desc(existing)
-      s"$treeDesc is already defined as $existingDesc"
-    }
-  }
+  def text = s"unbound wildcard"
 }
 
-final case class IllegalCyclicReference(scope: Scope) extends Message {
+// ============ TYPECHECKER ============
+
+final case class IllegalCyclicReference(work: Work) extends Message {
   def sev = ErrorSeverity
   def pos = {
-    scope match {
+    work match {
       case scope: ImporterScope => scope.tree.point
       case scope: TemplateScope => scope.tree.point
-      case _ => crash(scope)
+      case sketch: Sketch => sketch.tree.point
+      case _ => crash(work)
     }
   }
   def text = {
-    val CyclicStatus(cycle) = scope.status
+    val CyclicStatus(cycle) = work.status
     val description = {
-      def loop(scopes: List[Scope]): String = {
-        scopes match {
+      def loop(works: List[Work]): String = {
+        works match {
           case List() => crash(cycle)
           case List(only) => name(only)
           case List(prelast, last) => name(prelast) + " and " + name(last)
@@ -241,8 +240,8 @@ final case class IllegalCyclicReference(scope: Scope) extends Message {
     }
     s"illegal cyclic reference involving $description"
   }
-  private def name(scope: Scope): String = {
-    scope match {
+  private def name(work: Work): String = {
+    work match {
       case scope: TemplateScope =>
         PrettyOutline.desc(scope.tree)
       case scope: ImporterScope =>
@@ -250,36 +249,38 @@ final case class IllegalCyclicReference(scope: Scope) extends Message {
         p.str("import ")
         p.str(scope.tree)
         p.toString
+      case sketch: Sketch =>
+        sketch.str
       case _ =>
-        crash(scope)
+        crash(work)
     }
   }
 }
 
-final case class IllegalOutlinePart(part: Tree) extends Message {
+final case class IllegalOutline(tree: Tree) extends Message {
   def sev = ErrorSeverity
-  def pos = part.point
-  def text = "illegal outline part"
+  def pos = tree.point
+  def text = "illegal outline"
 }
 
-final case class NonValue(term: Term, tpe: Type) extends Message {
+final case class IllegalParent(tpt: Tpt) extends Message {
   def sev = ErrorSeverity
-  def pos = term.point
-  def text = s"not a value: $tpe"
+  def pos = tpt.point
+  def text = "illegal parent"
 }
 
-final case class UnboundMember(qualSym: Symbol, id: Id) extends Message {
+final case class UnboundMember(env: Env, id: Id) extends Message {
   def sev = ErrorSeverity
   def pos = id.point
   def text = {
-    val qualDesc = qualSym
+    val qual = env._scopes.head.sym.init
     id match {
       case AnonId() => crash(id)
       case CtorId() => crash(id)
-      case PatId(value) => s"unbound: value $qualDesc.$value"
-      case SomeId(value) => s"unbound: $qualDesc.$value"
-      case TermId(value) => s"unbound: value $qualDesc.$value"
-      case TptId(value) => s"unbound: type $qualDesc.$value"
+      case PatId(value) => s"unbound: value $qual.$value"
+      case SomeId(value) => s"unbound: $qual.$value"
+      case TermId(value) => s"unbound: value $qual.$value"
+      case TptId(value) => s"unbound: type $qual.$value"
     }
   }
 }

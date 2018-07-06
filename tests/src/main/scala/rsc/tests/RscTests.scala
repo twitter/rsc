@@ -2,61 +2,50 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.tests
 
-import utest._
+import org.scalatest._
 import rsc.Compiler
+import rsc.pretty._
 import rsc.report._
-import rsc.syntax._
+import rsc.settings._
 
-trait RscTests extends TestSuite with RscFixtures with FileFixtures {
-  def assertEquals[A](actual: A, expect: A): Unit =
-    assert(actual == expect)
+trait RscTests extends FunSuite with FileFixtures with DiffUtil with ToolUtil {
+  def assertEquals(actual: String, expect: String): Unit = {
+    assertEquals("actual", actual, "expect", expect)
+  }
 
-  def assertNotEquals[A](actual: A, expect: A): Unit =
-    assert(actual != expect)
-
-  def assertRun(compiler: Compiler): Unit = {
-    compiler.run()
-    val problems = compiler.reporter.problems
-    if (problems.nonEmpty) {
-      problems.foreach(println)
-      assert(false)
+  def assertEquals(h1: String, s1: String, h2: String, s2: String): Unit = {
+    val s1x = s1.split("\n").map(_.trim).mkString("\n")
+    val s2x = s2.split("\n").map(_.trim).mkString("\n")
+    if (s1x != s2x) {
+      val problem = s"different $h1 (-) vs $h2 (+)"
+      val compare = s"compare ${s1x.dump()} ${s2x.dump()}"
+      val diff = this.diff(h1, s1x, h2, s2x).get
+      fail(s"$problem: $compare$EOL$diff")
     }
   }
 
-  def assertStructure(actual: Tree, expect: Tree): Unit = {
-    def fail(x: Any, y: Any): Unit = {
-      (x, y) match {
-        case (x: Tree, y: Tree) =>
-          println(VerboseMessage(x.pos, "actual"))
-          println(VerboseMessage(y.pos, "expect"))
-        case _ =>
-          println(s"$x != $y")
-      }
-      assert(false)
+  def assertEquals(
+      h1: String,
+      b1: Array[Byte],
+      h2: String,
+      b2: Array[Byte]): Unit = {
+    val xxd1 = xxd(b1).right.get
+    val xxd2 = xxd(b2).right.get
+    if (xxd1 != xxd2) {
+      val problem = s"different $h1 (-) vs $h2 (+)"
+      val compare = s"compare ${b1.dump()} ${b2.dump()}"
+      val diff = this.diff(h1, xxd1, h2, xxd2).get
+      fail(s"$problem: $compare$EOL$diff")
     }
-    def loop(x: Any, y: Any): Unit = {
-      (x, y) match {
-        case (xs: List[_], ys: List[_]) =>
-          if (xs.length != ys.length) {
-            fail(xs, ys)
-          }
-          xs.zip(ys).foreach { case (x, y) => loop(x, y) }
-        case (xopt: Option[_], yopt: Option[_]) =>
-          if (xopt.isEmpty ^ yopt.isEmpty) {
-            fail(xopt, yopt)
-          }
-          xopt.zip(yopt).foreach { case (x, y) => loop(x, y) }
-        case (x: Tree, y: Tree) =>
-          if (x.productPrefix != y.productPrefix) {
-            fail(x, y)
-          }
-          loop(x.productIterator.toList, y.productIterator.toList)
-        case (x, y) =>
-          if (x != y) {
-            fail(x, y)
-          }
-      }
+  }
+
+  def mkCompiler(args: Any*): Compiler = {
+    val options = args.flatMap {
+      case seq: Seq[_] => seq.map(_.toString)
+      case other => List(other.toString)
     }
-    loop(actual, expect)
+    val settings = Settings.parse(options.toList).get
+    val reporter = StoreReporter(settings)
+    Compiler(settings, reporter)
   }
 }

@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.parse
 
-import scala.collection.immutable.BitSet
 import rsc.lexis._
+import scala.collection.immutable.BitSet
 
 trait Groups {
   self: Parser =>
@@ -18,17 +18,25 @@ trait Groups {
     val localDefn = modTokens.localDefn | common | localOnly
     val refineDefn = modTokens.refineDefn | memberOnly
     val defn = packageDefn | templateDefn | localDefn | refineDefn
-    val term = termTokens.atomic | termTokens.extra
+    private val term1 = BitSet(DO, FOR, ID, IF, INTID, LBRACE, LPAREN, NEW)
+    private val term2 = BitSet(RETURN, SUPER, THIS, THROW, USCORE, TRY, WHILE)
+    val term = litTokens.all | term1 | term2
+    val stat = term | defn | BitSet(IMPORT)
+    val tpt = BitSet(AT, ID, LPAREN, SUPER, THIS, USCORE)
+    val pat = litTokens.all | BitSet(ID, INTID, LPAREN, THIS, USCORE)
   }
 
   object litTokens {
-    private val x1 = BitSet(FALSE, LITCHAR, LITDOUBLE, LITFLOAT, LITINT)
-    private val x2 = BitSet(LITLONG, LITSTRING, LITSYMBOL, NULL, TRUE)
-    val all = x1 | x2
+    private val hex = BitSet(LITHEXINT, LITHEXLONG)
+    val numeric = BitSet(LITDOUBLE, LITFLOAT, LITINT, LITLONG) | hex
+    private val other = BitSet(FALSE, LITCHAR, LITSTRING, LITSYMBOL, NULL, TRUE)
+    val all = numeric | other
   }
 
   object modTokens {
-    private val common = BitSet(ABSTRACT, AT, FINAL, IMPLICIT, LAZY, SEALED)
+    private val common1 = BitSet(ABSTRACT, AT, FINAL, IMPLICIT, LAZY, SEALED)
+    private val common2 = BitSet(NEWLINE)
+    private val common = common1 | common2
     private val toplevelOnly = BitSet(PRIVATE, PROTECTED)
     private val memberOnly = BitSet(OVERRIDE, PRIVATE, PROTECTED)
     private val localOnly = BitSet()
@@ -38,20 +46,22 @@ trait Groups {
     val refineDefn = BitSet()
     val defn = packageDefn | templateDefn | localDefn | refineDefn
     val primaryCtor = BitSet(AT, PRIVATE, PROTECTED)
-    val termParam = BitSet(AT, FINAL, IMPLICIT, LAZY, PRIVATE, PROTECTED)
+    val param = BitSet(AT, FINAL, IMPLICIT, OVERRIDE, PRIVATE, PROTECTED)
+  }
+
+  object outroTokens {
+    private val term1 = BitSet(ID, INTEND, RBRACE, RBRACKET, RETURN)
+    private val term2 = BitSet(RPAREN, SUPER, THIS, USCORE)
+    val term = litTokens.all | term1 | term2
+    val stat = term | BitSet(TYPE)
   }
 
   object statTokens {
     val mustStart = BitSet(IMPORT) | introTokens.defn
-    val canStart = introTokens.term | mustStart | BitSet(AT, CASE)
-    val canEnd = termTokens.atomic | BitSet(TYPE, RPAREN, RBRACE, RBRACKET)
+    val canStart = introTokens.stat
+    val canEnd = outroTokens.stat
     val sep = BitSet(NL1, NL2, SEMI)
     val seqEnd = BitSet(RBRACE, EOF)
-  }
-
-  object termTokens {
-    val atomic = litTokens.all | BitSet(ID, RETURN, SUPER, THIS, USCORE)
-    val extra = BitSet(DO, FOR, IF, LBRACE, LPAREN, NEW, THROW, TRY, WHILE)
   }
 
   implicit class TokenGroupOps(token: Token) {
@@ -59,6 +69,7 @@ trait Groups {
     def isTemplateDefnIntro = introTokens.templateDefn.contains(token)
     def isLocalDefnIntro = introTokens.localDefn.contains(token)
     def isRefineDefnIntro = introTokens.refineDefn.contains(token)
+    def isNumericLit = litTokens.numeric.contains(token)
     def isLit = litTokens.all.contains(token)
     def isTermIntro = introTokens.term.contains(token)
     def isStatSep: Boolean = statTokens.sep.contains(token)

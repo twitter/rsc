@@ -8,7 +8,7 @@ final case class CrashException(
     pos: Position,
     message: String,
     cause: Throwable)
-    extends Error(message, cause)
+    extends Exception(message, cause)
 
 object CrashException {
   def apply(pos: Position, message: String): CrashException = {

@@ -1,4 +1,4 @@
-# Reasonable Scala Compiler
+# Rsc
 
 Reasonable Scala compiler (also known as Rsc) is an experimental Scala compiler
 focused on compilation speed. This project is developed by Eugene Burmako
@@ -36,16 +36,17 @@ for the benefit of the entire Scala community.
 
 ## Status
 
-* We came up with [a small subset of Scala](docs/language.md) that serves
-as a tractable foundation for our performance work
-* We implemented [a prototype typechecker](docs/compiler.md) that uses
-[Scalameta](https://github.com/scalameta/scalameta)-inspired trees and
-[Kentucky Mule](https://github.com/gkossakowski/kentuckymule)-inspired
-architecture
-* We benchmarked our prototype typechecker, and it turned out to be
-[significantly faster than the full Scalac typechecker](docs/performance.md)
-* We will be carefully expanding the scope of Rsc
-according to [our roadmap](docs/roadmap.md)
+* We expanded the [supported subset of Scala](docs/language.md) and
+are now using [Twitter Util](https://github.com/twitter/util)
+in our experiments.
+* We implemented support for loading dependencies based on
+[the SemanticDB format](https://github.com/scalameta/scalameta/blob/master/semanticdb/semanticdb3/semanticdb3.md)
+provided by [Scalameta](https://github.com/scalameta/scalameta).
+* Our [prototype outliner](docs/compiler.md) can compute signatures of
+public and protected definitions and save them in [the ScalaSignature format](https://github.com/scala/scala/blob/v2.11.12/src/reflect/scala/reflect/internal/pickling/PickleFormat.scala)
+that enables interoperability with the Scala compiler.
+* In the future, we will proceed with development according to
+[our roadmap](docs/roadmap.md).
 
 ## Documentation
 

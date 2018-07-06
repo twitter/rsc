@@ -7,7 +7,7 @@
 
 Rsc has the following build dependencies:
   * Java 8
-  * sbt 0.13.16
+  * sbt 0.13.17
 
 In addition to being compiled into JVM bytecode, Rsc is compiled with Scala
 Native. If you'd like to compile native binaries or run native tests, check out
@@ -20,13 +20,13 @@ At the moment, IntelliJ doesn't work well on the Rsc codebase. After opening
 our project in IntelliJ, you may experience incomplete code intelligence,
 spurious red squiggles and other unpleasant issues. If you encounter these
 issues, please follow
-[the workaround suggested by Nikolay Tropin](https://github.com/twitter/reasonable-scala/issues/13#issuecomment-345429964).
+[the workaround suggested by Nikolay Tropin](https://github.com/twitter/rsc/issues/13#issuecomment-345429964).
 
 ## Playing with Rsc
 
 Right now, Rsc is not supposed to be usable in real-world Scala projects.
-We only support [a small subset of Scala](language.md), and
-[our typechecker](compiler.md) is just a prototype.
+We only support [a subset of Scala](language.md), and
+[our outliner](compiler.md) is just a prototype.
 Nonetheless, this prototype [has already been very useful in studying compilation
 performance](performance.md).
 
@@ -41,15 +41,21 @@ $ sbt
 >
 ```
 
-The best way to get your feet wet is to run our typechecker on an example
+The best way to get your feet wet is to run our outliner on an example
 codebase. Feel free to change a thing or two to see how everything works.
-Then go ahead and run `testsJVM/test-only rsc.typecheck.Re2sTests`.
+Then go ahead and run `testsJVM/test-only rsc.tests.SymbolTests`.
 
 ```
-> testsJVM/test-only rsc.typecheck.Re2sTests
+> testsJVM/test-only rsc.tests.SemanticdbTests
 -------------------------------- Running Tests --------------------------------
-+ rsc.typecheck.Re2sTests.typecheck re2s 370ms
-Tests: 1, Passed: 1, Failed: 0
+[info] SemanticdbTests:
+[info] - semanticdb for core
+[info] Run completed in 3 seconds, 979 milliseconds.
+[info] Total number of tests run: 1
+[info] Suites: completed 1, aborted 0
+[info] Tests: succeeded 1, failed 0, canceled 0, ignored 0, pending 0
+[info] All tests passed.
+[success] Total time: 4 s, completed Jul 2, 2018 12:49:36 PM
 ```
 
 The ultimate goal of our project is to achieve dramatic improvements

@@ -54,7 +54,7 @@ trait Keywords {
     results.put("<-", LARROW)
     results.put("←", LARROW)
     results.put("<:", SUBTYPE)
-    results.put("<%", CATCH)
+    results.put("<%", VIEWBOUND)
     results.put(">:", SUPERTYPE)
     results.put("#", HASH)
     results.put("@", AT)

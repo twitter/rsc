@@ -6,11 +6,22 @@ import rsc.semantics._
 import rsc.syntax._
 
 trait TreeUtil {
-  implicit class UtilIdOps(id: Id) {
-    def nameopt: Option[Name] = {
+  implicit class TreeUtilIdOps(id: Id) {
+    def opt: Option[NamedId] = {
       id match {
-        case id: NamedId => Some(id.name)
+        case id: NamedId => Some(id)
         case _ => None
+      }
+    }
+    def nameopt: Option[Name] = {
+      id.opt.map(_.name)
+    }
+    def isSymbolic: Boolean = {
+      id match {
+        case id: NamedId if id.value.nonEmpty =>
+          id.value.last == '_' || isSymbolicIdPart(id.value.last)
+        case _ =>
+          false
       }
     }
   }
