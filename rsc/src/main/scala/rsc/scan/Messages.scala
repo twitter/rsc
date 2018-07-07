@@ -14,12 +14,9 @@ trait Messages {
     val msg = msgFn(pos)
     reporter.append(msg)
     if (msg.sev == FatalSeverity) {
-      skip()
+      crash(msg)
     }
     msg
   }
 
-  private def skip(): Unit = {
-    crash("smart handling of fatal lexing errors")
-  }
 }

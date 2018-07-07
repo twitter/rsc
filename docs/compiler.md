@@ -9,24 +9,18 @@ Since compilation performance is the focus of the project, it is only fair
 that we talk about it first before going into details of our compiler
 architecture.
 
-When planning our first milestone - a compiler that can typecheck nontrivial
-programs - we were facing a dilemma. On the one hand, we saw the merit in
-Greg's ["only the paranoid survive"](https://github.com/gkossakowski/kentuckymule#development-principles)
+As an experimental prototype, we are facing a dilemma. On the one hand,
+we see the merit in Greg's ["only the paranoid survive"](https://github.com/gkossakowski/kentuckymule#development-principles)
 advice that advocates excessive attention to performance from day one.
-On the other hand, we wanted to get something working as soon as possible
-in order to make performance tuning more targeted, and that's at odds with
-initially spending too much time on performance.
+On the other hand, we want to get to a feature-complete solution as soon as
+possible in order to make performance tuning more targeted, and that's at odds
+with initially spending too much time on performance.
 
 After careful consideration, we decided to make our architecture fundamentally
 performance-friendly (e.g. no lazy completers, no tree transformations, etc),
 but not get hung up on performance tuning (e.g. picking the right flavor of
 a hashmap, figuring out the right representation for positions, etc)
-before arriving at something that works end to end. We figured that since
-we were going to start with [just a small subset of Scala](language.md),
-even throwing away the entire compiler because it doesn't cut it
-performance-wise isn't going to be too bad.
-(And indeed, it wasn't too bad - in October, we rewrote almost everything,
-although for a different reason).
+before arriving at something that works end to end.
 
 ## Trees
 
@@ -43,9 +37,12 @@ went beyond parser trees.
 
 In Rsc, we dial this up to eleven. We are building the entire compiler on top
 of trees that are modelled very close to syntax. Concretely, we don't allow
-information not present in source code to appear in parameters of our trees.
-This rules out magic trees such as `EmptyTree`, synthetic member trees such
-as class parameter accessors and the like.
+information not present in sources to appear in parameters of the abstract
+syntax trees representing user-written code. This rules out magic trees such as
+`EmptyTree`, encodings of language concepts such as anonymous or refinement
+classes and the like. Synthetic trees warranted by the language specification,
+e.g. class parameter accessors, are allowed, but they are separated from the
+original sources.
 
 With this initiative, we are trying to validate the hypothesis that
 tool-friendly trees can be both convenient and fast to work with.
@@ -57,24 +54,26 @@ the document once we obtain usability experiences and benchmark results.
 ...
 
 final case class DefnClass(
-    mods: List[Mod],
+    mods: Mods,
     id: TptId,
     tparams: List[TypeParam],
     ctor: PrimaryCtor,
+    earlies: List[Stat],
     inits: List[Init],
+    self: Option[Self],
     stats: List[Stat])
     extends DefnTemplate
+    with TypeOutline {
+  def paramss = Nil
+}
 
-final case class DefnDef(
-    mods: List[Mod],
+final case class DefnField(
+    mods: Mods,
     id: TermId,
-    tparams: List[TypeParam],
-    params: List[TermParam],
-    ret: Tpt,
+    tpt: Option[Tpt],
     rhs: Option[Term])
     extends Stat
-    with Outline
-
+    with TermOutline
 ...
 ```
 
@@ -138,16 +137,19 @@ significant simplification of parser code.
 final class Parser private (
     val settings: Settings,
     val reporter: Reporter,
+    val gensym: Gensym,
     val input: Input)
     extends Bounds
     with Contexts
     with Defns
+    with Enumerators
     with Groups
     with Helpers
     with Imports
+    with Infix
     with Lits
     with Messages
-    with Mods
+    with Modifiers
     with Newlines
     with Params
     with Paths
@@ -195,21 +197,20 @@ val NoSymbol: Symbol = ""
 You can see that, unlike in trees, here we avoid options and use null objects
 instead. If you're expecting us to back up this design decision with
 benchmarks, then you're absolutely right, but we don't have the numbers just yet.
-When we were deciding on options vs null objects in the typechecker, there was
-no typechecker and, therefore, there was nothing to benchmark. Now we have
-a working typechecker, so we'll be following up with numbers in the near future.
 
 Meanings of symbols are stored in symbol tables, with members represented
 in `Symtab.scopes` and signatures represented in `Symtab.outlines`.
-Looks like that it's all that's needed to encode the functionality
-of symbols in Scalac and Dotty. (We are currently using the `HashMap` from the
-JDK, but we will be benchmarking handwritten alternatives similar to those
-found in Scalac, Dotty and Kentucky Mule.)
+Additionally, we store synthetic signatures in `Symtab.paramss` (for synthetic
+evidence parameters) and `Symtab.parents` (for synthetic parents such as
+`Product` and `Serializable`).
 
 ```scala
-final class Symtab {
-  val scopes: Map[Symbol, Scope] = new HashMap[Symbol, Scope]
-  val outlines: Map[Symbol, Outline] = new HashMap[Symbol, Outline]
+final class Symtab private (settings: Settings) extends Closeable with Pretty {
+  val _scopes = new HashMap[Symbol, Scope]
+  val _outlines = new HashMap[Symbol, Outline]
+  val _paramss = new HashMap[Parameterized, List[List[Param]]]
+  val _parents = new HashMap[DefnTemplate, List[Tpt]]
+  ...
 }
 ```
 
@@ -217,28 +218,14 @@ Scopes are collections of symbols that support entering symbols under simple nam
 and looking up symbols using simple names. Following the language specification,
 such a simple name can be either a `TermName` or a `TypeName`.
 
-```scala
-sealed abstract class Scope(val sym: Symbol) {
-  def enter(name: Name, sym: Symbol): Symbol
-  def lookup(name: Name): Symbol
-  ...
-}
-```
-
 Following [Kentucky Mule](https://github.com/gkossakowski/kentuckymule),
 we gave up on lazy completers used in Scalac/Dotty and decided in favor
 of eager completers. As a result, our scopes track their own status
-(pending, blocked on someone's completion, failed or succeeded) and provide
-dedicated functionality to perform lookups respecting that status.
-Status-aware name resolution is quite tedious, but luckily we have been able
-to limit its necessity to a very small part of the typechecker
-(we will provide a detailed explanation below).
+(pending, blocked on someone's completion, failed or succeeded).
 
 ```scala
 sealed abstract class Scope(val sym: Symbol) {
-  ...
-
-  var status: Status = PendingStatus
+  def enter(name: Name, sym: Symbol): Symbol
 
   def resolve(name: Name): Resolution = {
     status match {
@@ -257,42 +244,43 @@ sealed abstract class Scope(val sym: Symbol) {
 }
 ```
 
-Finally, outlines are regular trees such as `DefnClass`, `DefnDef` and others.
-Unlike in Scalac/Dotty, we don't have dedicated data structures such as
-`ClassInfoType` or `MethodType` to represent signatures. We store relevant
-information in trees and then go directly to trees to figure out, say, parents
-of a class or the return type of a method. (Future benchmarking may very well
-show that this simplification leads to a performance degradation,
-in which case we will have to decide whether this design decision is worth it.)
+Finally, we represent dependencies in a classpath index, which maps symbols
+to signatures in the SemanticDB format. Check out
+[the SemanticDB specification](https://github.com/scalameta/scalameta/blob/master/semanticdb/semanticdb3/semanticdb3.md)
+to learn more about supported languages and their metadata.
 
 ```scala
-sealed trait Outline extends Tree {
-  def id: Id
+final class Index private (entries: HashMap[Symbol, Entry]) extends Closeable {
+  private val infos = new HashMap[Symbol, s.SymbolInformation]
+
+  def contains(sym: Symbol): Boolean = {
+    if (infos.containsKey(sym)) {
+      true
+    } else {
+      load(sym)
+      infos.containsKey(sym)
+    }
+  }
+
+  def apply(sym: Symbol): s.SymbolInformation = {
+    val info = infos.get(sym)
+    if (info != null) {
+      info
+    } else {
+      load(sym)
+      val info = infos.get(sym)
+      if (info != null) info
+      else crash(sym)
+    }
+  }
+
+  ...
 }
 ```
 
 ## Types
 
-Since [our type system](language.md#types) is very rudimentary,
-the associated data structures are very simple. We realize that this is
-likely to blow up once we start extending the type system with additional
-features from vanilla Scala.
-
-```scala
-sealed trait Type
-
-final case object NoType extends Type
-
-final case class SimpleType(sym: Symbol, targs: List[SimpleType]) extends Type
-
-final case class MethodType(
-    tparams: List[Symbol],
-    params: List[Symbol],
-    ret: SimpleType)
-    extends Type
-```
-
-Interestingly, Rsc settles a long-standing debate between us and Martin Odersky
+Rsc settles a long-standing debate between us and Martin Odersky
 (and, lately, Fengyun Liu). In Scalameta, we advocated for unification of
 type trees and types, conjecturing that both concepts can be represented with
 the same data structure. In Rsc, we saw with our own eyes that such design
@@ -300,6 +288,60 @@ doesn't work - a parser needs a data structure that reifies syntactic
 peculiarities, whereas a typechecker needs a data structure that
 canonicalizes those peculiarities. As a result, in the language model of Rsc,
 we have both `Tpt` ("type tree") and `Type`.
+
+Type trees model syntax information about types in Scala programs.
+Here are a few examples of type trees:
+
+```scala
+
+sealed trait Tpt extends Tree
+
+final case class TptAnnotate(tpt: Tpt, mods: Mods) extends Tpt
+
+final case class TptByName(tpt: Tpt) extends Tpt
+
+final case class TptExistential(tpt: Tpt, stats: List[Stat]) extends Tpt
+
+final case class TptFunction(targs: List[Tpt]) extends TptApply {
+  def fun = {
+    val value = "Function" + (targs.length - 1)
+    TptId(value).withSym(FunctionClass(targs.length - 1))
+  }
+}
+
+final case class TptId(value: String) extends TptPath with NamedId {
+  def name = TypeName(value)
+}
+
+...
+```
+
+Types model fragments of signatures computed by Rsc. Towards that end,
+we're using the data structures provided by Scalameta for the SemanticDB format.
+Check out
+[the SemanticDB specification](https://github.com/scalameta/scalameta/blob/master/semanticdb/semanticdb3/semanticdb3.md#type)
+to learn more about supported types and their mapping on supported languages.
+
+```protobuf
+message Type {
+  oneof sealed_value {
+    TypeRef typeRef = 2;
+    SingleType singleType = 20;
+    ThisType thisType = 21;
+    SuperType superType = 22;
+    ConstantType constantType = 23;
+    IntersectionType intersectionType = 17;
+    UnionType unionType = 18;
+    WithType withType = 19;
+    StructuralType structuralType = 7;
+    AnnotatedType annotatedType = 8;
+    ExistentialType existentialType = 9;
+    UniversalType universalType = 10;
+    ByNameType byNameType = 13;
+    RepeatedType repeatedType = 14;
+  }
+}
+```
 
 ## Typechecking
 
@@ -539,7 +581,7 @@ and [second](https://medium.com/@gkossakowski/kentucky-mule-limits-of-scala-type
 We recommend taking a look at these writeups, as they contain additional
 insights that we don't have time to cover in this document.
 
-## Typechecking in Rsc
+## Typechecking in Rsc (late 2017)
 
 Kentucky Mule is the direct inspiration for Rsc. Thanks to Kentucky Mule,
 we knew for a fact that it should be possible to dramatically speed up Scala
@@ -561,8 +603,8 @@ can almost immediately deliver value to our users.
 
 Secondly, we are making use of [Scalafix](https://github.com/scalacenter/scalafix).
 Scalafix enables automated code rewrites, and that greatly simplifies migration
-of existing Scala programs from vanilla Scala to Reasonable Scala.
-As a result, we can start with [a small subset of the language](language.md)
+of existing Scala programs from vanilla Scala to a supported subset Scala.
+As a result, we can start with a small subset of the language
 (just like Kentucky Mule did), but be useful to a much bigger ecosystem.
 
 Thirdly, we improved upon the peculiar style of Kentucky Mule completers.
@@ -585,6 +627,46 @@ that enables parallel typing. Rsc introduces fast and loose pre-pre-typechecking
 (sequential computation of import and parent outlines) that enables parallel
 pre-typechecking.
 
+## Typechecking in Rsc (mid 2018)
+
+Recently, Stu Hood came up with a groundbreaking idea. He suggested
+that Rsc can become useful much earlier that we initially thought.
+Stu's key insight was to serialize the results of outlining into
+a format understood by the Scala compiler and then use that to launch
+multiple independent instances of the Scala compiler to parallelize
+Scala compilation.
+
+Towards that end, we postponed the initial plan to implement a Scala
+typechecker in Rsc and decided to focus on outlining for the time being.
+We came up with the following design of a compilation pipeline for Rsc:
+  * Metacp converts dependency classpath into [the SemanticDB format](https://github.com/scalameta/scalameta/blob/master/semanticdb/semanticdb3/semanticdb3.md),
+    i.e. the metadata format of [the Scalameta toolchain](http://github.com/scalameta/scalameta) that is
+    [used internally at Twitter for Scalafix and Language Server Protocol](http://scalameta.org/talks/2018-06-20-HowWeBuiltToolsThatScaleToMillionsOfLoc.pdf).
+  * Rsc computes signatures of all public and protected definitions
+    in Scala sources.
+  * Rsc saves signatures to disk in SemanticDB format.
+  * Mjar converts signatures into [the ScalaSignature format](https://github.com/scala/scala/blob/v2.11.12/src/reflect/scala/reflect/internal/pickling/PickleFormat.scala),
+    i.e. the metadata format of the Scala compiler.
+
+So far, we have implemented support for a subset of Scala to produce
+signatures for automatically rewritten core of
+[Twitter Util](https://github.com/twitter/util). We will be working on
+adding support for more Scala features according to [our roadmap](docs/roadmap.md).
+
+(We have also just learned about an independent effort based on a similar
+architecture by Guillaume Martres:
+[https://github.com/lampepfl/dotty/pull/4767](https://github.com/lampepfl/dotty/pull/4767)).
+
+Moreover, our work on increasingly complicated projects has led to an important
+architectural conclusion. It looks like the separation between
+pre-pre-typechecking and pre-typechecking is not a viable strategy to compile
+Scala, because resolving imports and parents (pre-pre-typechecking) can depend
+on alias signatures (pre-typechecking). However, this is not a big design
+problem thanks to
+[recent results by Grzegorz Kossakowski](https://github.com/gkossakowski/kentuckymule/issues/6#issuecomment-375949236),
+where he shows that one does not need pre-pre-typechecking to perform
+pre-typechecking in parallel.
+
 ## Codegen
 
 We decided to postpone generation of executable code until we implement
@@ -594,7 +676,7 @@ to see in this section. Please come back later.
 ## Summary
 
 At this point, Rsc is just a prototype, which means that:
-A) it only supports [a small subset of Scala](language.md),
+A) it only supports [a subset of Scala](language.md),
 B) even on the supported subset of the language, its functionality is a subset
 of functionality provided by Scalac. This section summarizes similarities
 and differences between Rsc and Scalac.
@@ -626,22 +708,22 @@ and differences between Rsc and Scalac.
   </tr>
   <tr>
     <td>Create other symbols</td>
-    <td>+ (typecheck)</td>
-    <td>+ (typer)</td>
-  </tr>
-  <tr>
-    <td>Compute signatures</td>
-    <td>+ (scope/outline)</td>
-    <td>+ (typer)</td>
-  </tr>
-  <tr>
-    <td>Load classpath</td>
     <td>-</td>
     <td>+ (typer)</td>
   </tr>
   <tr>
+    <td>Compute signatures</td>
+    <td>+ (outline)</td>
+    <td>+ (typer)</td>
+  </tr>
+  <tr>
+    <td>Load classpath</td>
+    <td>+ (link) </td>
+    <td>+ (typer)</td>
+  </tr>
+  <tr>
     <td>Resolve names</td>
-    <td>+ (scope/outline/typecheck)</td>
+    <td>-</td>
     <td>+ (typer)</td>
   </tr>
   <tr>

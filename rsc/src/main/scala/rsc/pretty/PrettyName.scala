@@ -6,14 +6,7 @@ import rsc.semantics._
 
 object PrettyName {
   def str(p: Printer, x: Name): Unit = {
-    x match {
-      case SomeName(value) =>
-        p.str(value)
-      case TermName(value) =>
-        p.str(value + ".")
-      case TypeName(value) =>
-        p.str(value + "#")
-    }
+    p.str(x.str)
   }
 
   def repl(p: Printer, x: Name): Unit = {

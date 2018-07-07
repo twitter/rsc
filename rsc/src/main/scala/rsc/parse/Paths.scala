@@ -14,14 +14,14 @@ trait Paths {
       val value = in.idValue
       if (value == "<init>") {
         reportOffset(in.offset, IllegalIdentifier)
-        Error.value
+        gensym.error()
       } else {
         in.nextToken()
         value
       }
     } else {
       reportOffset(in.offset, ExpectedToken(_, ID, in.token))
-      Error.value
+      gensym.error()
     }
   }
 
@@ -39,6 +39,28 @@ trait Paths {
 
   def tptId(): TptId = {
     atPos(in.offset)(TptId(value()))
+  }
+
+  def patPath(): Pat = {
+    termPath() match {
+      case _: TermThis =>
+        val errOffset = in.offset
+        reportOffset(errOffset, ExpectedToken(_, DOT, in.token))
+        atPos(errOffset)(errorPat())
+      case termPath =>
+        patPath(termPath)
+    }
+  }
+
+  def patPath(termPath: TermPath): Pat = {
+    termPath match {
+      case TermId(value) =>
+        atPos(termPath.pos)(PatId(value))
+      case TermSelect(qual: TermPath, termId) =>
+        atPos(termPath.pos)(PatSelect(qual, termId))
+      case _ =>
+        crash(termPath)
+    }
   }
 
   def termPath(): TermPath = {
@@ -61,7 +83,8 @@ trait Paths {
         errorTptId()
       case UnfinishedPath(path) =>
         if (in.token == TYPE) {
-          crash("singleton types")
+          in.nextToken()
+          atPos(start)(TptSingleton(path))
         } else {
           val idErr = errorTptId()
           atPos(start)(TptSelect(path, idErr))

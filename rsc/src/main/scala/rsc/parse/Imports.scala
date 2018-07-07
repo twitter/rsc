@@ -75,7 +75,7 @@ trait Imports {
       }
     } else if (in.token == USCORE) {
       val start = in.offset
-      accept(USCORE)
+      in.nextToken()
       atPos(start)(ImporteeWildcard())
     } else {
       val idErr = errorSomeId()

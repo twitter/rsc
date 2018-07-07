@@ -7,18 +7,18 @@ import rsc.pretty._
 
 trait ErrorUtil {
   def crash[T: Str: Repl](pos: Position, x: T): Nothing = {
-    throw CrashException(pos, message("crash", x))
+    throw CrashException(pos, message(x))
   }
 
   def crash[T: Str: Repl](input: Input, x: T): Nothing = {
-    throw CrashException(input, message("crash", x))
+    throw CrashException(input, message(x))
   }
 
   def crash[T: Str: Repl](x: T): Nothing = {
-    throw CrashException(message("crash", x))
+    throw CrashException(message(x))
   }
 
-  private def message[T: Str: Repl](summary: String, culprit: T): String = {
+  private def message[T: Str: Repl](culprit: T): String = {
     def safe(fn: => String): String = {
       try fn
       catch {
@@ -31,10 +31,10 @@ trait ErrorUtil {
     val onlyStr = {
       val isPrimitive = culprit == null || culprit.getClass.isPrimitive
       val isString = culprit.isInstanceOf[String]
-      val isUseless = str == repl
-      isPrimitive || isString || isUseless
+      val isUselessRepl = repl == str || repl.startsWith("<prettyprint error")
+      isPrimitive || isString || isUselessRepl
     }
-    if (onlyStr) s"$summary: $str"
-    else s"$summary: $str$EOL$repl"
+    if (onlyStr) s"$str"
+    else s"$str$EOL$repl"
   }
 }

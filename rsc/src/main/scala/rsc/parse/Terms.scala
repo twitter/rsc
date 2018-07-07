@@ -9,65 +9,92 @@ import rsc.syntax._
 trait Terms {
   self: Parser =>
 
+  def termArgss(): List[List[Term]] = {
+    val buf = List.newBuilder[List[Term]]
+    while (in.token == LPAREN) {
+      buf += termArgs()
+    }
+    buf.result
+  }
+
   def termArgs(): List[Term] = {
     val start = in.offset
     if (in.token == LBRACE) {
       List(blockBraces(start))
     } else {
       inParens {
-        if (in.token == RPAREN) {
-          Nil
-        } else {
-          commaSeparated {
-            val unfinished = term()
-            unfinished match {
-              case TermAssign(id: TermId, rhs) =>
-                crash("named and default arguments")
-              case _ =>
-                unfinished
-            }
-          }
-        }
+        if (in.token == RPAREN) List()
+        else commaSeparated(term())
       }
     }
   }
 
-  def term(): Term = {
+  def term(inBlock: Boolean = false): Term = {
     if (in.token == IMPLICIT) {
-      crash("implicit parameters")
+      in.nextToken()
+      val id = {
+        if (in.token == ID) {
+          termId()
+        } else if (in.token == USCORE) {
+          in.nextToken()
+          anonId()
+        } else {
+          accept(ID)
+        }
+      }
+      accept(ARROW)
+      val rhs = term(inBlock)
+      crash("implicit blocks")
     } else {
-      val start = in.offset
-      val unfinished = term1()
-      if (in.token == ARROW) {
-        in.nextToken()
-        val unfinishedReinterpretedAsTermParams = {
-          object TermParamLike {
-            def unapply(term: Term): Option[TermParam] = term match {
-              case id: TermId =>
-                crash("type inference")
-              case TermAscribe(id: TermId, tpt) =>
-                Some(atPos(term.pos)(TermParam(Nil, id, tpt)))
+      wrapEscapingTermWildcards {
+        val start = in.offset
+        val unfinished = term1()
+        if (in.token == ARROW) {
+          in.nextToken()
+          val unfinishedReinterpretedAsParams = {
+            object ParamLike {
+              def unapply(term: Term): Option[Param] = {
+                val mods = atPos(term.pos.start, term.pos.start)(Mods(Nil))
+                term match {
+                  case id: TermId =>
+                    Some(atPos(term.pos)(Param(mods, id, None, None)))
+                  case TermAscribe(id: TermId, tpt) =>
+                    Some(atPos(term.pos)(Param(mods, id, Some(tpt), None)))
+                  case wildcard @ TermWildcard() =>
+                    val id = reinterpretAsParam(wildcard)
+                    Some(atPos(term.pos)(Param(mods, id, None, None)))
+                  case TermAscribe(wildcard @ TermWildcard(), tpt) =>
+                    val id = reinterpretAsParam(wildcard)
+                    Some(atPos(term.pos)(Param(mods, id, Some(tpt), None)))
+                  case _ =>
+                    None
+                }
+              }
+            }
+            unfinished match {
+              case TermLit(()) =>
+                Nil
+              case ParamLike(param) =>
+                List(param)
+              case TermTuple(args) =>
+                val params = args.flatMap(ParamLike.unapply)
+                if (args.length != params.length) crash(unfinished)
+                params
               case _ =>
-                crash(term)
+                crash(unfinished)
             }
           }
-          unfinished match {
-            case TermLit(()) =>
-              Nil
-            case TermParamLike(termParam) =>
-              List(termParam)
-            case TermTuple(args) =>
-              val termParams = args.flatMap(TermParamLike.unapply)
-              if (args.length != termParams.length) crash(unfinished)
-              termParams
-            case _ =>
-              crash(unfinished)
-          }
+          val body =
+            if (inBlock) {
+              blockStats() match {
+                case List(stat: TermBlock) => stat
+                case stats => TermBlock(stats)
+              }
+            } else term()
+          atPos(start)(TermFunction(unfinishedReinterpretedAsParams, body))
+        } else {
+          unfinished
         }
-        val body = term()
-        atPos(start)(TermFunction(unfinishedReinterpretedAsTermParams, body))
-      } else {
-        unfinished
       }
     }
   }
@@ -88,26 +115,42 @@ trait Terms {
             None
           }
         }
-        atPos(start)(TermIf(cond, thenp, elsep))
+        TermIf(cond, thenp, elsep)
       case WHILE =>
         in.nextToken()
         val cond = inParens(term())
         newLinesOpt()
         val body = term()
-        atPos(start)(TermWhile(cond, body))
+        TermWhile(cond, body)
       case DO =>
         in.nextToken()
         val body = term()
         if (in.token.isStatSep) in.nextToken()
         accept(WHILE)
         val cond = inParens(term())
-        atPos(start)(TermDo(body, cond))
+        TermDo(body, cond)
       case TRY =>
-        crash("exception handling")
+        in.nextToken()
+        val expr = term()
+        val catchpOpt =
+          if (in.token == CATCH) {
+            in.nextToken()
+            Some(term())
+          } else None
+        val finallyp = if (in.token == FINALLY) {
+          in.nextToken()
+          Some(term())
+        } else None
+        catchpOpt match {
+          case Some(TermPartialFunction(cases)) =>
+            TermTry(expr, cases, finallyp)
+          case Some(catchp) =>
+            TermTryWithHandler(expr, catchp, finallyp)
+          case None => TermTry(expr, Nil, finallyp)
+        }
       case THROW =>
         in.nextToken()
-        val term = this.term()
-        atPos(start)(TermThrow(term))
+        TermThrow(term())
       case RETURN =>
         in.nextToken()
         val term = {
@@ -117,9 +160,27 @@ trait Terms {
             None
           }
         }
-        atPos(start)(TermReturn(term))
+        TermReturn(term)
       case FOR =>
-        crash("for comprehensions")
+        in.nextToken()
+        val enumerators: List[Enumerator] =
+          if (in.token == LPAREN) {
+            inParens(this.enumerators())
+          } else if (in.token == LBRACE) {
+            inBraces(this.enumerators())
+          } else {
+            accept(LPAREN)
+            List()
+          }
+        newLinesOpt()
+        if (in.token == YIELD) {
+          in.nextToken()
+          val body = term()
+          TermForYield(enumerators, body)
+        } else {
+          val body = term()
+          TermFor(enumerators, body)
+        }
       case _ =>
         val unfinished = postfixTerm()
         in.token match {
@@ -140,25 +201,25 @@ trait Terms {
                 in.nextToken()
                 if (in.token == ID && in.idValue == "*") {
                   in.nextToken()
-                  val term = unfinished
-                  atPos(start)(TermRepeat(term))
+                  TermRepeat(unfinished)
                 } else {
                   val errOffset = in.offset
                   reportOffset(errOffset, ExpectedId(_, "*", in.token))
                   atPos(errOffset)(errorTerm())
                 }
               case AT =>
-                crash("annotations")
+                val term = unfinished
+                val mods = termAnnotateMods()
+                TermAnnotate(term, mods)
               case _ =>
                 val term = unfinished
                 val tpt = infixTpt()
-                atPos(start)(TermAscribe(term, tpt))
+                TermAscribe(term, tpt)
             }
           case MATCH =>
             in.nextToken()
             val term = unfinished
-            val cases = inBraces(this.cases())
-            atPos(start)(TermMatch(term, cases))
+            TermMatch(term, inBraces(this.cases()))
           case _ =>
             unfinished
         }
@@ -166,77 +227,24 @@ trait Terms {
   }
 
   def postfixTerm(): Term = {
-    val unfinished = prefixTerm()
-    infixOps(
-      unfinished,
-      canStartOperand = introTokens.term,
-      operand = () => prefixTerm(),
-      maybePostfix = true)
-  }
-
-  private case class OpInfo(operand: Term, operator: TermId, offset: Offset)
-  private var opStack: List[OpInfo] = Nil
-
-  private def reduceStack(
-      base: List[OpInfo],
-      top: Term,
-      op2: String,
-      force: Boolean): Term = {
-    def op1 = opStack.head.operator.value
-    if (opStack != base && op1.precedence == op2.precedence) {
-      if (op1.isLeftAssoc != op2.isLeftAssoc) {
-        reportOffset(
-          opStack.head.offset,
-          MixedLeftAndRightAssociativeOps(_, op1, op2))
-      }
-    }
-    def loop(top: Term): Term = {
-      if (opStack == base) {
-        top
-      } else {
-        val op1Info = opStack.head
-        val op1 = op1Info.operator.value
-        val lowerPrecedence = op2.precedence < op1.precedence
-        val samePrecedence = op2.precedence == op1.precedence && op1.isLeftAssoc
-        if (force || lowerPrecedence || samePrecedence) {
-          opStack = opStack.tail
-          val parts = List(op1Info.operand, op1Info.operator, top)
-          val start = parts.map(_.pos.start).min
-          val end = parts.map(_.pos.end).max
-          val top1 = atPos(start, end)(
-            TermApplyInfix(op1Info.operand, op1Info.operator, Nil, top))
-          loop(top1)
-        } else {
-          top
-        }
-      }
-    }
-    loop(top)
-  }
-
-  private def infixOps(
-      first: Term,
-      canStartOperand: Token => Boolean,
-      operand: () => Term,
-      notAnOperator: String = "",
-      maybePostfix: Boolean = false): Term = {
+    val reducer = TermApplyInfix(_: Term, _: TermId, Nil, _: Term): Term
     val base = opStack
-    var top = first
-    while (in.token == ID && in.idValue != notAnOperator) {
+    var top = prefixTerm()
+    while (in.token == ID) {
       val op = termId()
-      top = reduceStack(base, top, op.value, force = false)
+      top = reduceStack(reducer, base, top, op.value, force = false)
       opStack = OpInfo(top, op, in.offset) :: opStack
-      newLineOptWhenFollowedBy(canStartOperand)
-      if (maybePostfix && !canStartOperand(in.token)) {
-        val topInfo = opStack.head
+      newLineOptWhenFollowedBy(introTokens.term)
+      if (!in.token.isTermIntro) {
+        val op = opStack.head.operator.asInstanceOf[TermId]
+        val operand = opStack.head.operand
         opStack = opStack.tail
-        val od =
-          reduceStack(base, topInfo.operand, "", force = true)
-        return atPos(od.pos.start)(TermApplyPostfix(od, topInfo.operator))
+        val od = reduceStack(reducer, base, operand, "", force = true)
+        return atPos(od.pos.start)(TermApplyPostfix(od, op))
       }
-      top = operand()
+      top = prefixTerm()
     }
-    reduceStack(base, top, "", force = true)
+    reduceStack(reducer, base, top, "", force = true)
   }
 
   private def prefixTerm(): Term = {
@@ -246,8 +254,14 @@ trait Terms {
         in.idValue == "~" ||
         in.idValue == "!")) {
       val id = termId()
-      val arg = simpleTerm()
-      atPos(start)(TermApplyPrefix(id, arg))
+      if (id.value == "-" && in.token.isNumericLit) {
+        val value = negatedLiteral()
+        val lit = TermLit(value)
+        simpleTermRest(start, lit, canApply = true)
+      } else {
+        val arg = simpleTerm()
+        atPos(start)(TermApplyPrefix(id, arg))
+      }
     } else {
       simpleTerm()
     }
@@ -261,7 +275,8 @@ trait Terms {
         canApply = true
         termPath()
       case USCORE =>
-        crash("type inference")
+        canApply = true
+        termWildcard()
       case LPAREN =>
         canApply = true
         val terms = termArgs()
@@ -277,16 +292,50 @@ trait Terms {
         canApply = false
         in.nextToken()
         newTemplate() match {
-          case Template(List(init), None) =>
-            atPos(start)(TermNew(init))
-          case Template(inits, statsOpt) =>
-            crash("anonymous classes")
+          case Template(Nil, List(init), None, None) =>
+            TermNew(init)
+          case Template(earlies, inits, selfDecl, stats) =>
+            TermNewAnonymous(earlies, inits, selfDecl, stats)
         }
+      case INTID =>
+        canApply = true
+        val value = in.idValue
+        in.nextToken()
+        val id = atPos(start)(TermId(value))
+        accept(INTSTART)
+        val parts = List.newBuilder[TermLit]
+        val args = List.newBuilder[Term]
+        var expected = INTPART
+        while (in.token != INTEND) {
+          if (expected == INTPART) {
+            val start = in.offset
+            val value = in.value.asInstanceOf[String]
+            accept(INTPART)
+            parts += atPos(start)(TermLit(value))
+            expected = INTSPLICE
+          } else if (expected == INTSPLICE) {
+            accept(INTSPLICE)
+            in.token match {
+              case LBRACE =>
+                inBraces {
+                  args += term()
+                }
+              case THIS =>
+                accept(THIS)
+                args += TermThis(anonId())
+              case _ => args += termId()
+            }
+            expected = INTPART
+          } else {
+            crash(expected)
+          }
+        }
+        accept(INTEND)
+        atPos(start)(TermInterpolate(id, parts.result(), args.result()))
       case _ =>
         if (in.token.isLit) {
           canApply = true
-          val value = literal()
-          atPos(start)(TermLit(value))
+          TermLit(literal())
         } else {
           canApply = true
           val errOffset = in.offset
@@ -328,6 +377,10 @@ trait Terms {
     }
   }
 
+  def errorTerm(): Term = {
+    TermId(gensym.error())
+  }
+
   private def blockBraces(start: Offset): Term = {
     inBraces {
       if (in.token == CASE) {
@@ -340,40 +393,49 @@ trait Terms {
     }
   }
 
-  def blockStats(): List[Stat] = {
+  def blockStats(): List[Stat] = banEscapingWildcards {
     val stats = List.newBuilder[Stat]
     var exitOnError = false
     while (!in.token.isStatSeqEnd && in.token != CASE && !exitOnError) {
       if (in.token == IMPORT) {
         stats += `import`()
       } else if (in.token.isTermIntro) {
-        stats += term()
+        stats += term(inBlock = true)
       } else if (in.token.isLocalDefnIntro) {
         val start = in.offset
         val mods = defnMods(modTokens.localDefn)
         val stat = in.token match {
           case CASECLASS =>
-            crash("local classes")
+            val modCase = atPos(in.offset)(ModCase())
+            in.nextToken()
+            defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modCase)))
           case CASEOBJECT =>
-            crash("local objects")
+            val modCase = atPos(in.offset)(ModCase())
+            in.nextToken()
+            defnObject(atPos(mods.pos.start)(Mods(mods.trees :+ modCase)))
           case CLASS =>
-            crash("local classes")
+            in.nextToken()
+            defnClass(mods)
           case DEF =>
-            crash("local methods")
+            in.nextToken()
+            defnDef(mods)
           case OBJECT =>
-            crash("local objects")
+            in.nextToken()
+            defnObject(mods)
           case TRAIT =>
-            crash("local traits")
+            in.nextToken()
+            defnTrait(mods)
           case TYPE =>
-            crash("local types")
+            in.nextToken()
+            defnType(mods)
           case VAL =>
             val modVal = atPos(in.offset)(ModVal())
             in.nextToken()
-            defnField(start, mods :+ modVal)
+            defnVal(atPos(mods.pos.start)(Mods(mods.trees :+ modVal)))
           case VAR =>
             val modVar = atPos(in.offset)(ModVar())
             in.nextToken()
-            defnField(start, mods :+ modVar)
+            defnVar(atPos(mods.pos.start)(Mods(mods.trees :+ modVar)))
           case _ =>
             val errOffset = in.offset
             reportOffset(errOffset, ExpectedStartOfDefinition)
@@ -389,9 +451,5 @@ trait Terms {
       acceptStatSepUnlessAtEnd(CASE)
     }
     stats.result
-  }
-
-  def errorTerm(): Term = {
-    TermId(Error.value)
   }
 }

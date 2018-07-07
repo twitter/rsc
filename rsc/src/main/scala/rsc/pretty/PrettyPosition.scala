@@ -12,7 +12,7 @@ object PrettyPosition {
       case _ =>
         p.str(x.input)
         p.str("@")
-        p.str(s"${x.start}..${x.end}")
+        p.str(s"${x.startLine}:${x.startColumn}..${x.endLine}:${x.endColumn}")
     }
   }
 

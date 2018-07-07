@@ -55,6 +55,8 @@ object PrettyToken {
       case LITCHAR => ("character literal", "LITCHAR")
       case LITDOUBLE => ("double literal", "LITDOUBLE")
       case LITFLOAT => ("float literal", "LITFLOAT")
+      case LITHEXINT => ("hexadecimal integer literal", "LITHEXINT")
+      case LITHEXLONG => ("hexadecimal long literal", "LITHEXLONG")
       case LITINT => ("integer literal", "LITINT")
       case LITLONG => ("long literal", "LITLONG")
       case LITSTRING => ("string literal", "LITSTRING")

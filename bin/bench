@@ -5,13 +5,11 @@ def fail():
   print "usage: " + sys.argv[0] + " <suite>"
   print ""
   print "Supported bench suites:"
-  print "  * All: reproduces docs/performance.md"
-  print "  * CI: Rsc-specific subset of All that is run for every commit in CI"
-  print "  * Quick: Lightweight subset of CI that should be used for sanity checks"
+  print "  * All: reproduces performance numbers from README.md"
   sys.exit(1)
 if len(sys.argv) != 2: fail()
 suite = sys.argv[1]
-supported_suites = ["All", "CI", "Quick"]
+supported_suites = ["All"]
 if not suite in supported_suites: fail()
 
 def check_exists(path):

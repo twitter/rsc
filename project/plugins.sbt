@@ -2,8 +2,8 @@ addSbtPlugin("io.get-coursier" % "sbt-coursier" % "1.0.1")
 addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.2.27")
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.7.0")
 addSbtPlugin("com.dwijnand" % "sbt-dynver" % "2.0.0")
-addSbtPlugin("org.portable-scala" % "sbt-crossproject" % "0.4.0")
-addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "0.4.0")
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.3.7")
-libraryDependencies += "org.scalameta" %% "metacp" % "3.7.0"
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.1")
+addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.18")
+libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin-shaded" % "0.7.1"
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.6.0-M5")
+libraryDependencies += "org.slf4j" % "slf4j-nop" % "1.7.25"

@@ -2,21 +2,30 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc
 
+import java.io._
 import java.nio.file._
+import java.util.LinkedList
+import rsc.gensym._
 import rsc.lexis._
+import rsc.outline._
 import rsc.parse._
 import rsc.pretty._
 import rsc.report._
 import rsc.scan._
+import rsc.semanticdb._
+import rsc.semantics._
 import rsc.settings._
 import rsc.syntax._
-import rsc.typecheck._
 import rsc.util._
 
-class Compiler(val settings: Settings, val reporter: Reporter) extends Pretty {
+class Compiler(val settings: Settings, val reporter: Reporter)
+    extends Closeable
+    with Pretty {
   var trees: List[Source] = Nil
-  var symtab: Symtab = Symtab()
+  var gensyms: Gensyms = Gensyms()
+  var symtab: Symtab = Symtab(settings)
   var todo: Todo = Todo()
+  var cursor: Any = null
 
   def run(): Unit = {
     for ((taskName, taskFn) <- tasks) {
@@ -26,9 +35,10 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Pretty {
       } catch {
         case crash @ CrashException(pos, message, ex) =>
           val ex1 = if (ex != null) ex else crash
-          reporter.append(CrashMessage(pos, message, ex1))
+          val pos1 = if (pos != NoPosition) pos else cursor.pos
+          reporter.append(CrashMessage(pos1, message, ex1))
         case ex: Throwable =>
-          reporter.append(CrashMessage(NoPosition, ex.getMessage, ex))
+          reporter.append(CrashMessage(cursor.pos, ex.getMessage, ex))
       }
       val end = System.nanoTime()
       val ms = (end - start) / 1000000
@@ -65,9 +75,8 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Pretty {
     "parse" -> (() => parse()),
     "link" -> (() => link()),
     "schedule" -> (() => schedule()),
-    "scope" -> (() => scope()),
     "outline" -> (() => outline()),
-    "typecheck" -> (() => typecheck())
+    "semanticdb" -> (() => semanticdb())
   )
 
   private def parse(): Unit = {
@@ -81,9 +90,18 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Pretty {
           }
           None
         } else {
-          val parser = Parser(settings, reporter, input)
+          val gensym = gensyms(input)
+          val parser = Parser(settings, reporter, gensym, input)
           parser.accept(BOF)
-          val tree = parser.source()
+          val tree = {
+            try parser.source()
+            catch {
+              case ex: Throwable =>
+                val offset = parser.in.lastOffset
+                val pos = Position(input, offset, offset)
+                throw CrashException(pos, "compiler crash", ex)
+            }
+          }
           parser.accept(EOF)
           Some(tree)
         }
@@ -98,69 +116,69 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Pretty {
   }
 
   private def link(): Unit = {
-    val linker = Linker(settings, reporter, symtab, todo)
-    linker.apply(trees, settings.classpath)
+    val rootScope = PackageScope(RootPackage, symtab._index)
+    symtab.scopes(rootScope.sym) = rootScope
+    todo.add(Env(), rootScope)
+    val emptyScope = PackageScope(EmptyPackage, symtab._index)
+    symtab.scopes(emptyScope.sym) = emptyScope
+    todo.add(Env(), emptyScope)
   }
 
   private def schedule(): Unit = {
-    val rootEnv = Env(symtab.scopes("_root_."), symtab.scopes("π."))
+    val rootEnv = Env(symtab.scopes(RootPackage))
 
     val javaLangQual = TermSelect(TermId("java"), TermId("lang"))
     val javaLangImporter = Importer(javaLangQual, List(ImporteeWildcard()))
     val javaLangScope = ImporterScope(javaLangImporter)
-    todo.scopes.add(rootEnv -> javaLangScope)
+    todo.add(rootEnv, javaLangScope)
     val javaLangEnv = javaLangScope :: rootEnv
 
     val scalaImporter = Importer(TermId("scala"), List(ImporteeWildcard()))
     val scalaScope = ImporterScope(scalaImporter)
-    todo.scopes.add(javaLangEnv -> scalaScope)
+    todo.add(javaLangEnv, scalaScope)
     val scalaEnv = scalaScope :: javaLangEnv
 
     val predefQual = TermSelect(TermId("scala"), TermId("Predef"))
     val predefImporter = Importer(predefQual, List(ImporteeWildcard()))
     val predefScope = ImporterScope(predefImporter)
-    todo.scopes.add(scalaEnv -> predefScope)
+    todo.add(scalaEnv, predefScope)
     val predefEnv = predefScope :: scalaEnv
 
-    val scheduler = Scheduler(settings, reporter, symtab, todo)
+    val scheduler = Scheduler(settings, reporter, gensyms, symtab, todo)
     trees.foreach(scheduler.apply(predefEnv, _))
   }
 
-  private def scope(): Unit = {
-    val scoper = Scoper(settings, reporter, symtab, todo)
-    while (!todo.scopes.isEmpty) {
-      val (env, scope) = todo.scopes.remove()
-      scope.unblock()
-      if (scope.status.isPending) {
-        scoper.apply(env, scope)
-      }
-      if (scope.status.isBlocked) {
-        todo.scopes.add(env -> scope)
-      }
-      if (scope.status.isCyclic) {
-        reporter.append(IllegalCyclicReference(scope))
-      }
-    }
-  }
-
   private def outline(): Unit = {
-    val outliner = Outliner(settings, reporter, symtab)
-    while (!todo.mods.isEmpty) {
-      val (env, mod) = todo.mods.remove()
-      outliner.apply(env, mod)
-    }
-    while (!todo.tpts.isEmpty) {
-      val (env, tpt) = todo.tpts.remove()
-      outliner.apply(env, tpt)
+    val outliner = Outliner(settings, reporter, symtab, todo)
+    while (!todo.isEmpty) {
+      val (env, work) = todo.remove()
+      cursor = work
+      work.unblock()
+      if (work.status.isPending) {
+        outliner.apply(env, work)
+      }
+      if (work.status.isBlocked) {
+        todo.add(env, work)
+      }
+      if (work.status.isCyclic) {
+        reporter.append(IllegalCyclicReference(work))
+      }
     }
   }
 
-  private def typecheck(): Unit = {
-    val typechecker = Typechecker(settings, reporter, symtab)
-    while (!todo.terms.isEmpty) {
-      val (env, term) = todo.terms.remove()
-      typechecker.apply(env, term)
+  private def semanticdb(): Unit = {
+    val semanticdb = Semanticdb(settings, reporter, gensyms, symtab)
+    val outlines = new LinkedList(symtab._outlines.values)
+    while (!outlines.isEmpty) {
+      val outline = outlines.remove()
+      cursor = outline
+      semanticdb.apply(outline)
     }
+    semanticdb.save()
+  }
+
+  def close(): Unit = {
+    symtab.close()
   }
 
   def printStr(p: Printer): Unit = {

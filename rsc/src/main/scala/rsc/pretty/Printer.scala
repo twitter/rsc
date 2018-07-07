@@ -3,13 +3,11 @@
 package rsc.pretty
 
 import java.lang.StringBuilder
-import scala.collection.mutable
 
 final class Printer {
   private var sb = new StringBuilder
   private var indentation = 0
   private var afterNewline = true
-  val props = mutable.Map[String, Any]()
 
   private[pretty] def append(s: String): Unit = {
     if (afterNewline) {
@@ -105,6 +103,12 @@ final class Printer {
     opt("", s, "")(f)
   }
 
+  def ignoringIndent[T](fn: => T): T = {
+    val result = fn
+    afterNewline = false
+    result
+  }
+
   def indent(n: Int = 1): Unit = {
     indentation += n
   }
@@ -115,6 +119,22 @@ final class Printer {
 
   def newline(): Unit = {
     append(EOL)
+  }
+
+  def header(value: String): Unit = {
+    val eols = {
+      def loop(to: Int): Int = {
+        if (to < EOL.length || sb.substring(to - EOL.length, to) != EOL) 0
+        else 1 + loop(to - EOL.length)
+      }
+      loop(sb.length)
+    }
+    val newlines = if (sb.length != 0) Math.max(2 - eols, 0) else 0
+    append(EOL * newlines)
+    str(value)
+    newline()
+    str("=" * value.length)
+    newline()
   }
 
   override def toString = sb.toString
@@ -165,7 +185,7 @@ final class Printer {
 
   case object Nest extends Wrap {
     override def prefix = {
-      str("{")
+      str(" {")
       str(EOL)
       indent()
     }

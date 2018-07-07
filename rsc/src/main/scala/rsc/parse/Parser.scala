@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.parse
 
+import rsc.gensym._
 import rsc.lexis._
 import rsc.report._
 import rsc.settings._
@@ -9,16 +10,19 @@ import rsc.settings._
 final class Parser private (
     val settings: Settings,
     val reporter: Reporter,
+    val gensym: Gensym,
     val input: Input)
     extends Bounds
     with Contexts
     with Defns
+    with Enumerators
     with Groups
     with Helpers
     with Imports
+    with Infix
     with Lits
     with Messages
-    with Mods
+    with Modifiers
     with Newlines
     with Params
     with Paths
@@ -27,9 +31,14 @@ final class Parser private (
     with Templates
     with Terms
     with Tpts
+    with Wildcards
 
 object Parser {
-  def apply(settings: Settings, reporter: Reporter, input: Input): Parser = {
-    new Parser(settings, reporter, input)
+  def apply(
+      settings: Settings,
+      reporter: Reporter,
+      gensym: Gensym,
+      input: Input): Parser = {
+    new Parser(settings, reporter, gensym, input)
   }
 }

@@ -21,7 +21,7 @@ object PrettyMessage {
     }
     p.str(x.text)
     if (x.pos.start != NoOffset) {
-      p.str(EOL)
+      p.newline()
       val lineContent = {
         val input = x.pos.input
         val start = input.lineToOffset(x.pos.startLine)
@@ -30,11 +30,11 @@ object PrettyMessage {
         input.string.substring(start, end).stripLineEnd
       }
       p.str(lineContent)
-      p.str(EOL)
+      p.newline()
       p.str(" " * x.pos.startColumn + "^")
     }
     if (x.explanation != "") {
-      p.str(EOL)
+      p.newline()
       p.str(x.explanation)
     }
   }

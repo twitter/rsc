@@ -8,35 +8,45 @@ import rsc.syntax._
 trait Params {
   self: Parser =>
 
-  def termParams(ctx: ParamContext): List[TermParam] = {
+  def paramss(ctx: ParamContext): List[List[Param]] = {
+    val buf = List.newBuilder[List[Param]]
     newLineOptWhenFollowedBy(LPAREN)
-    if (in.token != LPAREN) {
-      crash("nullary parameter lists")
+    while (in.token == LPAREN) {
+      buf += params(ctx)
+      newLineOptWhenFollowedBy(LPAREN)
     }
-    val result = {
-      inParens {
-        if (in.token == RPAREN) {
-          Nil
-        } else if (in.token == IMPLICIT) {
-          crash("implicit parameters")
-        } else {
-          commaSeparated(termParam(ctx))
-        }
-      }
-    }
-    if (in.token == LPAREN) {
-      crash("multiple parameter lists")
-    }
-    result
+    buf.result
   }
 
-  def termParam(ctx: ParamContext): TermParam = {
+  private def params(ctx: ParamContext): List[Param] = {
+    inParens {
+      if (in.token == RPAREN) {
+        Nil
+      } else if (in.token == IMPLICIT) {
+        val start = in.offset
+        in.nextToken()
+        val implicitMods = List(atPos(start)(ModImplicit()))
+        val params = commaSeparated(param(ctx))
+        params.map { param =>
+          val pos1 = param.mods.pos
+          val mods1 = atPos(pos1)(Mods(implicitMods ++ param.mods.trees))
+          atPos(param.pos)(param.copy(mods = mods1))
+        }
+      } else {
+        commaSeparated(param(ctx))
+      }
+    }
+  }
+
+  private def param(ctx: ParamContext): Param = {
     val start = in.offset
-    val mods = termParamMods(ctx)
+    val mods = paramMods(ctx)
     val id = {
       if (in.token == USCORE) {
-        if (ctx.allowsAnonymous) {
-          crash("anonymous parameters")
+        if (ctx.allowsAnonymousParams) {
+          val start = in.offset
+          in.nextToken()
+          atPos(start)(anonId())
         } else {
           errorTermId()
         }
@@ -47,21 +57,22 @@ trait Params {
     val tpt = {
       if (in.token == COLON) {
         in.nextToken()
-        paramTpt()
+        Some(paramTpt())
       } else {
         if (ctx.allowsInferred) {
-          crash("type inference")
+          None
         } else {
           val errOffset = in.offset
           accept(COLON)
-          atPos(errOffset)(errorTpt())
+          Some(atPos(errOffset)(errorTpt()))
         }
       }
     }
     val rhs = {
       if (ctx.allowsDefaults) {
         if (in.token == EQUALS) {
-          crash("named and default arguments")
+          in.nextToken()
+          Some(term())
         } else {
           None
         }
@@ -69,21 +80,24 @@ trait Params {
         None
       }
     }
-    atPos(start)(TermParam(mods, id, tpt))
+    atPos(start)(Param(mods, id, tpt, rhs))
   }
 
   def typeParams(ctx: ParamContext): List[TypeParam] = {
+    newLineOptWhenFollowedBy(LBRACKET)
     if (in.token == LBRACKET) inBrackets(commaSeparated(typeParam(ctx)))
     else Nil
   }
 
-  def typeParam(ctx: ParamContext): TypeParam = {
+  private def typeParam(ctx: ParamContext): TypeParam = {
     val start = in.offset
     val mods = typeParamMods(ctx)
     val id = {
       if (in.token == USCORE) {
-        if (ctx.allowsAnonymous) {
-          crash("anonymous type parameters")
+        if (ctx.allowsAnonymousTypeParams) {
+          val start = in.offset
+          in.nextToken()
+          atPos(start)(anonId())
         } else {
           errorTptId()
         }
@@ -91,17 +105,11 @@ trait Params {
         tptId()
       }
     }
-    val tparams = {
-      if (in.token == LBRACKET) {
-        crash("higher-kinded types")
-      } else {
-        Nil
-      }
-    }
-    val ubound = upperBound()
+    val tparams = typeParams(TypeParamContext)
     val lbound = lowerBound()
+    val ubound = upperBound()
     val vbounds = if (ctx.allowsViewBounds) viewBounds() else Nil
     val cbounds = if (ctx.allowsContextBounds) contextBounds() else Nil
-    atPos(start)(TypeParam(mods, id, ubound, lbound))
+    atPos(start)(TypeParam(mods, id, tparams, lbound, ubound, vbounds, cbounds))
   }
 }

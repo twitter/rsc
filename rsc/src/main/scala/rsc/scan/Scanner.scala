@@ -3,12 +3,11 @@
 package rsc.scan
 
 import java.util.LinkedList
-import scala.annotation.switch
-import scala.{Symbol => StdlibSymbol}
 import rsc.lexis._
 import rsc.report._
 import rsc.settings._
 import rsc.util._
+import scala.annotation.switch
 
 final class Scanner private (
     val settings: Settings,
@@ -20,36 +19,36 @@ final class Scanner private (
   var start: Offset = 0
   var end: Offset = 0
   var token: Token = BOF
-  var value: Any = null
+  var value: String = null
 
-  private final val NORMAL = 0
-  private final val INTERPOLATION = 1
-  private final val SPLICE = 2
-  private var mode: Int = NORMAL
-  private var ilevels: LinkedList[Int] = new LinkedList[Int]
-  private var ilevel: Int = -1
-  private var slevels: LinkedList[Int] = new LinkedList[Int]
-  private var slevel: Int = -1
-  private var blevel: Int = 0
+  final val NORMAL = 0
+  final val INTERPOLATION = 1
+  final val SPLICE = 2
+  var _mode: Int = NORMAL
+  var _ilevels: LinkedList[Int] = new LinkedList[Int]
+  var _ilevel: Int = -1
+  var _slevels: LinkedList[Int] = new LinkedList[Int]
+  var _slevel: Int = -1
+  var _blevel: Int = 0
 
   def next(): Unit = {
-    if (mode == NORMAL) {
+    if (_mode == NORMAL) {
       dispatchNormal()
-    } else if (mode == INTERPOLATION) {
+    } else if (_mode == INTERPOLATION) {
       dispatchInterpolation()
-    } else if (mode == SPLICE) {
+    } else if (_mode == SPLICE) {
       dispatchSplice()
     } else {
-      crash(mode)
+      crash(_mode)
     }
   }
 
   private def alphanumericIdOrKeyword(): Unit = {
     nextChar()
-    if (isAlphanumericIdPart(ch)) {
-      alphanumericIdOrKeyword()
-    } else if (ch == '_') {
+    if (ch == '_') {
       alphanumericSymbolicId()
+    } else if (isAlphanumericIdPart(ch)) {
+      alphanumericIdOrKeyword()
     } else if (ch == '"') {
       interpolationIdOrKeyword()
     } else {
@@ -72,8 +71,13 @@ final class Scanner private (
 
   private def backquotedId(): Unit = {
     nextChar()
-    while (ch != '`') {
+    while (ch != '`' && ch != SU) {
       nextChar()
+    }
+    if (ch == SU) {
+      val message = reportOffset(offset, UnclosedBackquotedId)
+      emit(ERROR, message.str)
+      return
     }
     nextChar()
     val lexeme = new String(chs, end + 1, offset - end - 2)
@@ -85,25 +89,23 @@ final class Scanner private (
     if (isAlphanumericIdStart(ch) && ch1 != '\'') {
       alphanumericIdOrKeyword()
       token = LITSYMBOL
-      value = StdlibSymbol(value.asInstanceOf[String].stripPrefix("'"))
     } else if (isSymbolicIdStart(ch) && ch != '\\' && ch1 != '\'') {
       symbolicIdOrKeyword()
       token = LITSYMBOL
-      value = StdlibSymbol(value.asInstanceOf[String].stripPrefix("'"))
     } else {
       val result = quote('\'')
       if (ch == '\'') {
         if (result.length == 1) {
           nextChar()
-          emit(LITCHAR, result.head)
+          emit(LITCHAR, result)
         } else {
           val message = reportOffset(offset, IllegalCharacter)
-          emit(ERROR, message)
+          emit(ERROR, message.str)
           nextChar()
         }
       } else {
         val message = reportOffset(offset, UnclosedCharacter)
-        emit(ERROR, message)
+        emit(ERROR, message.str)
       }
     }
   }
@@ -122,7 +124,7 @@ final class Scanner private (
         while (clevel != 1 || ch != '*' || ch1 != '/') {
           if (ch == SU) {
             val message = reportOffset(offset, IllegalComment)
-            emit(ERROR, message)
+            emit(ERROR, message.str)
             return
           } else if (ch == '/' && ch1 == '*') {
             nextChar()
@@ -185,7 +187,7 @@ final class Scanner private (
           } else {
             nextChar()
             val message = reportOffset(offset, IllegalNumber)
-            emit(ERROR, message)
+            emit(ERROR, message.str)
             return
           }
         case 'f' | 'F' =>
@@ -200,22 +202,10 @@ final class Scanner private (
     }
     if (isAlphanumericIdPart(ch)) {
       val message = reportOffset(offset, IllegalNumber)
-      emit(ERROR, message)
+      emit(ERROR, message.str)
       return
     }
-    try {
-      val number: AnyVal = {
-        if (token == LITINT) java.lang.Integer.parseInt(parsee, 10)
-        else if (token == LITLONG) java.lang.Long.parseLong(parsee, 10)
-        else if (token == LITFLOAT) java.lang.Float.parseFloat(parsee)
-        else java.lang.Double.parseDouble(parsee)
-      }
-      emit(token, number)
-    } catch {
-      case ex: NumberFormatException =>
-        val message = reportOffset(offset, IllegalNumber)
-        emit(ERROR, message)
-    }
+    emit(token, parsee)
   }
 
   private def dispatchInterpolation(): Unit = {
@@ -257,22 +247,16 @@ final class Scanner private (
           'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' |
           'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' =>
         alphanumericIdOrKeyword()
-      case '-' =>
-        if (isDecimalDigit(ch1)) {
-          number()
-        } else {
-          symbolicIdOrKeyword()
-        }
       case '<' =>
         def xmlPre = token == WHITESPACE || token == LPAREN || token == LBRACE
         def xmlSuf = isXmlNameStart(ch1) || ch1 == '!' || ch1 == '?'
         if (xmlPre && xmlSuf) {
-          crash("xml literals")
+          crash("unsupported: xml literals")
         } else {
           symbolicIdOrKeyword()
         }
-      case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '>' | '?' | ':' |
-          '=' | '&' | '|' | '\\' | '⇒' | '←' =>
+      case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '>' | '?' |
+          ':' | '=' | '&' | '|' | '\\' | '⇒' | '←' =>
         symbolicIdOrKeyword()
       case '`' =>
         backquotedId()
@@ -301,18 +285,18 @@ final class Scanner private (
       case '{' =>
         nextChar()
         emit(LBRACE, null)
-        blevel += 1
+        _blevel += 1
       case ')' =>
         nextChar()
         emit(RPAREN, null)
       case '}' =>
         nextChar()
         emit(RBRACE, null)
-        blevel -= 1
-        if (ilevel != -1 && blevel == slevel) {
-          slevels.pop()
-          slevel = if (slevels.isEmpty) -1 else slevels.peek
-          mode = INTERPOLATION
+        _blevel -= 1
+        if (_ilevel != -1 && _blevel == _slevel) {
+          _slevels.pop()
+          _slevel = if (_slevels.isEmpty) -1 else _slevels.peek
+          _mode = INTERPOLATION
         }
       case '[' =>
         nextChar()
@@ -327,7 +311,7 @@ final class Scanner private (
           symbolicIdOrKeyword()
         } else {
           val message = reportOffset(offset, IllegalCharacter)
-          emit(ERROR, message)
+          emit(ERROR, message.str)
           nextChar()
         }
     }
@@ -343,45 +327,30 @@ final class Scanner private (
     while (isHexadecimalDigit(ch)) {
       nextChar()
     }
-    val parsee = {
-      val lexeme = this.lexeme
-      if (lexeme.startsWith("-")) "-" + lexeme.substring(3)
-      else lexeme.substring(2)
-    }
+    val parsee = lexeme.substring(2)
     val token = {
       ch match {
         case 'l' | 'L' =>
           nextChar()
-          LITLONG
+          LITHEXLONG
         case _ =>
-          LITINT
+          LITHEXINT
       }
     }
-    try {
-      val number: AnyVal = {
-        if (token == LITINT) java.lang.Integer.parseUnsignedInt(parsee, 16)
-        else java.lang.Long.parseUnsignedLong(parsee, 16)
-      }
-      emit(token, number)
-    } catch {
-      case ex: NumberFormatException =>
-        println(ex)
-        val message = reportOffset(offset, IllegalNumber)
-        emit(ERROR, message)
-    }
+    emit(token, parsee)
   }
 
   private def interpolationArgument(): Unit = {
     val start = offset
     if (ch == '{') {
-      slevel = blevel
-      slevels.push(slevel)
-      mode = NORMAL
+      _slevel = _blevel
+      _slevels.push(_slevel)
+      _mode = NORMAL
       dispatchNormal()
     } else if (ch == '_') {
       nextChar()
       emit(USCORE, null)
-      mode = INTERPOLATION
+      _mode = INTERPOLATION
     } else if (isSpliceIdStart(ch)) {
       nextChar()
       while (isSpliceIdPart(ch)) {
@@ -391,34 +360,34 @@ final class Scanner private (
       val token = keywords.get(lexeme)
       if (token == 0) {
         emit(ID, lexeme)
-        mode = INTERPOLATION
+        _mode = INTERPOLATION
       } else if (token == THIS) {
         emit(THIS, null)
-        mode = INTERPOLATION
+        _mode = INTERPOLATION
       } else {
         val message = reportOffset(start, IllegalSplice)
-        emit(ERROR, message)
-        mode = INTERPOLATION
+        emit(ERROR, message.str)
+        _mode = INTERPOLATION
       }
     } else {
       val message = reportOffset(start, IllegalSplice)
-      emit(ERROR, message)
-      mode = INTERPOLATION
+      emit(ERROR, message.str)
+      _mode = INTERPOLATION
     }
   }
 
   private def interpolationEnd(): Unit = {
-    if (ilevel == 1) {
+    if (_ilevel == 1) {
       nextChar()
     } else {
       nextChar()
       nextChar()
       nextChar()
     }
-    emit(INTEND, "\"" * ilevel)
-    ilevels.pop()
-    ilevel = if (ilevels.isEmpty) -1 else ilevels.peek
-    mode = NORMAL
+    emit(INTEND, "\"" * _ilevel)
+    _ilevels.pop()
+    _ilevel = if (_ilevels.isEmpty) -1 else _ilevels.peek
+    _mode = NORMAL
   }
 
   private def interpolationIdOrKeyword(): Unit = {
@@ -426,21 +395,21 @@ final class Scanner private (
     val token = keywords.get(lexeme)
     if (token == 0) {
       emit(INTID, lexeme)
-      mode = INTERPOLATION
+      _mode = INTERPOLATION
     } else {
       emit(token, null)
-      mode = NORMAL
+      _mode = NORMAL
     }
   }
 
   private def interpolationPart(): Unit = {
     val buf = new StringBuilder
     while (ch != '\"' ||
-           (ilevel == 3 && (ch1 != '\"' || ch2 != '\"' || ch3 == '\"'))) {
+           (_ilevel == 3 && (ch1 != '\"' || ch2 != '\"' || ch3 == '\"'))) {
       if (ch == SU) {
         val message = reportOffset(offset, UnclosedInterpolation)
-        emit(ERROR, message)
-        mode = NORMAL
+        emit(ERROR, message.str)
+        _mode = NORMAL
         return
       } else if (ch == '$') {
         if (ch1 == '$') {
@@ -449,7 +418,7 @@ final class Scanner private (
           nextChar()
         } else {
           emit(INTPART, buf.toString)
-          mode = INTERPOLATION
+          _mode = INTERPOLATION
           return
         }
       } else {
@@ -458,13 +427,13 @@ final class Scanner private (
       }
     }
     emit(INTPART, buf.toString)
-    mode = INTERPOLATION
+    _mode = INTERPOLATION
   }
 
   private def interpolationSplice(): Unit = {
     nextChar()
     emit(INTSPLICE, null)
-    mode = SPLICE
+    _mode = SPLICE
   }
 
   private def interpolationStart(): Unit = {
@@ -473,17 +442,17 @@ final class Scanner private (
       nextChar()
       if (ch == '"') {
         nextChar()
-        ilevel = 3
+        _ilevel = 3
       } else {
         prevChar()
-        ilevel = 1
+        _ilevel = 1
       }
     } else {
-      ilevel = 1
+      _ilevel = 1
     }
-    ilevels.push(ilevel)
-    emit(INTSTART, "\"" * ilevel)
-    mode = INTERPOLATION
+    _ilevels.push(_ilevel)
+    emit(INTSTART, "\"" * _ilevel)
+    _mode = INTERPOLATION
   }
 
   private def newline(): Unit = {
@@ -503,7 +472,7 @@ final class Scanner private (
         hexadecimalNumber()
       } else if (isDecimalDigit(ch1)) {
         val message = reportOffset(offset, LeadingZero)
-        emit(ERROR, message)
+        emit(ERROR, message.str)
       } else {
         decimalNumber()
       }
@@ -562,7 +531,7 @@ final class Scanner private (
             var i = 0
             while (i < 4) {
               if (isHexadecimalDigit(ch)) {
-                unicode = unicode << 4 + Integer.parseInt(ch.toString, 16)
+                unicode = (unicode << 4) + Integer.parseInt(ch.toString, 16)
               } else {
                 reportOffset(uoffset, IllegalEscape)
               }
@@ -592,11 +561,36 @@ final class Scanner private (
         while (ch != '\"' || ch1 != '\"' || ch2 != '\"' || ch3 == '\"') {
           if (ch == SU) {
             val message = reportOffset(offset, UnclosedString)
-            emit(ERROR, message)
+            emit(ERROR, message.str)
             return
           }
-          buf += ch
-          nextChar()
+          if (ch == '\\') {
+            nextChar()
+            ch match {
+              case 'u' =>
+                val uoffset = offset
+                nextChar()
+                var unicode: Int = 0
+                var i = 0
+                while (i < 4) {
+                  if (isHexadecimalDigit(ch)) {
+                    unicode = (unicode << 4) + Integer.parseInt(ch.toString, 16)
+                  } else {
+                    reportOffset(uoffset, IllegalEscape)
+                  }
+                  nextChar()
+                  i += 1
+                }
+                buf += unicode.toChar
+              case ch =>
+                buf += '\\'
+                buf += ch
+                nextChar()
+            }
+          } else {
+            buf += ch
+            nextChar()
+          }
         }
         nextChar()
         nextChar()
@@ -612,7 +606,7 @@ final class Scanner private (
         emit(LITSTRING, result)
       } else {
         val message = reportOffset(offset, UnclosedString)
-        emit(ERROR, message)
+        emit(ERROR, message.str)
       }
     }
   }
@@ -640,7 +634,7 @@ final class Scanner private (
     emit(WHITESPACE, null)
   }
 
-  private def emit(token: Token, value: Any): Unit = {
+  private def emit(token: Token, value: String): Unit = {
     this.start = end
     this.end = offset
     this.token = token

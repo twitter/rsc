@@ -14,14 +14,21 @@ trait Sources {
     atPos(start)(Source(sourceStats()))
   }
 
-  private def sourceStats(): List[Stat] = {
+  private def sourceStats(): List[Stat] = banEscapingWildcards {
     val stats = List.newBuilder[Stat]
     while (in.token == SEMI) in.nextToken()
     val start = in.offset
+    val mods = atPos(start)(Mods(Nil))
     if (in.token == PACKAGE) {
       in.nextToken()
       if (in.token == OBJECT) {
-        crash("package objects")
+        val start = in.offset
+        in.nextToken()
+        stats += defnPackageObject(mods)
+        if (in.token != EOF) {
+          acceptStatSep()
+          stats ++= packageStats()
+        }
       } else {
         val id = termPath()
         newLineOptWhenFollowedBy(LBRACE)
@@ -42,7 +49,7 @@ trait Sources {
     stats.result
   }
 
-  private def packageStats(): List[Stat] = {
+  private def packageStats(): List[Stat] = banEscapingWildcards {
     val stats = List.newBuilder[Stat]
     while (!in.token.isStatSeqEnd) {
       if (in.token == IMPORT) {
@@ -54,21 +61,22 @@ trait Sources {
           case CASECLASS =>
             val modCase = atPos(in.offset)(ModCase())
             in.nextToken()
-            defnClass(start, modCase +: mods)
+            defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modCase)))
           case CASEOBJECT =>
             val modCase = atPos(in.offset)(ModCase())
             in.nextToken()
-            defnObject(start, modCase +: mods)
+            defnObject(atPos(mods.pos.start)(Mods(mods.trees :+ modCase)))
           case CLASS =>
             in.nextToken()
-            defnClass(start, mods)
+            defnClass(mods)
           case OBJECT =>
             in.nextToken()
-            defnObject(start, mods)
+            defnObject(mods)
           case PACKAGE =>
             in.nextToken()
             if (in.token == OBJECT) {
-              crash("package objects")
+              in.nextToken()
+              defnPackageObject(mods)
             } else {
               val id = termPath()
               newLineOptWhenFollowedBy(LBRACE)
@@ -76,7 +84,7 @@ trait Sources {
             }
           case TRAIT =>
             in.nextToken()
-            defnTrait(start, mods)
+            defnTrait(mods)
           case _ =>
             val errOffset = in.offset
             reportOffset(errOffset, ExpectedStartOfDefinition)

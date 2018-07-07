@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.pretty
 
-import scala.{Symbol => StdlibSymbol}
 import rsc.util._
+import scala.{Symbol => StdlibSymbol}
 
 trait Repl[T] {
   def apply(p: Printer, x: T): Unit
@@ -73,7 +73,7 @@ object Repl {
   implicit def stdlibSymbol[T <: StdlibSymbol]: Repl[T] = Repl { (p, x) =>
     if (x != null) {
       p.str("'")
-      p.str(x.toString)
+      p.str(x.name)
     } else {
       p.str("null")
     }

@@ -6,8 +6,8 @@ trait StringUtil {
   def stripExtraTrailingZeros(str: String): String = {
     val startExtra = str.lastIndexOf('.') + 2
     var endExtra = startExtra
-    while (endExtra < str.length) {
-      if (str(endExtra) == '0') endExtra += 1
+    while (endExtra < str.length && str(endExtra) == '0') {
+      endExtra += 1
     }
     if (endExtra == str.length) str.substring(0, startExtra) else str
   }

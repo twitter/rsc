@@ -44,101 +44,91 @@ trait Pats {
 
   private def pat(): Pat = {
     val start = in.offset
-    val unfinished = infixPat()
-    unfinished match {
-      case PatVar(_, Some(_)) =>
-        unfinished
-      case _ =>
-        if (in.token == ID && in.idValue == "|") {
-          val pats = List.newBuilder[Pat]
-          pats += unfinished
-          while (in.token == ID && in.idValue == "|") {
-            in.nextToken()
-            pats += infixPat()
-          }
-          atPos(start)(PatAlternative(pats.result))
-        } else {
-          unfinished
-        }
+    val unfinished = infixPat(permitColon = true)
+    if (in.token == ID && in.idValue == "|") {
+      val pats = List.newBuilder[Pat]
+      pats += unfinished
+      while (in.token == ID && in.idValue == "|") {
+        in.nextToken()
+        pats += infixPat(permitColon = true)
+      }
+      atPos(start)(PatAlternative(pats.result))
+    } else {
+      unfinished
     }
   }
 
-  private def infixPat(): Pat = {
-    val unfinished = simplePat()
-    unfinished match {
-      case PatVar(_, Some(_)) =>
+  def infixPat(permitColon: Boolean): Pat = {
+    val unfinished = simplePat(permitColon)
+    if (in.token == ID) {
+      if (in.idValue == "|") {
         unfinished
-      case _ =>
-        if (in.token == ID) {
-          if (in.idValue == "|") {
-            unfinished
-          } else {
-            crash("infix patterns")
-          }
-        } else {
-          unfinished
+      } else {
+        val reducer = PatExtractInfix(_, _, _)
+        val base = opStack
+        var top = unfinished
+        while (in.token == ID && in.idValue != "|") {
+          val op = termId()
+          top = reduceStack(reducer, base, top, op.value, force = false)
+          opStack = OpInfo(top, op, in.offset) :: opStack
+          newLineOptWhenFollowedBy(introTokens.pat)
+          top = simplePat(permitColon)
         }
+        reduceStack(reducer, base, top, "", force = true)
+      }
+    } else {
+      unfinished
     }
   }
 
-  private def simplePat(): Pat = {
+  private def simplePat(permitColon: Boolean): Pat = {
     val start = in.offset
     in.token match {
-      case ID | THIS =>
-        val isPatVar = {
-          if (in.token == ID) {
-            val value = in.idValue
-            value(0).isLower && value(0).isLetter
-          } else {
-            false
-          }
-        }
-        if (isPatVar) {
-          val start = in.offset
-          val id = termId()
-          if (in.token == COLON) {
-            in.nextToken()
-            val tpt = Some(refinedTpt())
-            atPos(start)(PatVar(id, tpt))
-          } else {
-            crash("type inference")
-          }
-        } else {
-          def reinterpretAsPat(path: TermPath): Pat = {
-            path match {
-              case TermId(value) =>
-                atPos(path.pos)(PatId(value))
-              case TermSelect(qual: TermPath, termId) =>
-                atPos(path.pos)(PatSelect(qual, termId))
+      case ID =>
+        val termPath = this.termPath()
+        termPath match {
+          case TermId("-") if in.token.isNumericLit =>
+            PatLit(negatedLiteral())
+          case termPath =>
+            in.token match {
+              case LBRACKET =>
+                val fun = termPath
+                val targs = tptArgs()
+                val args = patArgs()
+                atPos(start)(PatExtract(fun, targs, args))
+              case LPAREN =>
+                val fun = termPath
+                val args = patArgs()
+                atPos(start)(PatExtract(fun, Nil, args))
               case _ =>
-                crash(path)
+                termPath match {
+                  case TermId("-") if in.token.isNumericLit =>
+                    val value = literal()
+                    atPos(start)(PatLit(value))
+                  case unfinished: TermId =>
+                    val value = unfinished.value
+                    val isBackquoted = input.chars(unfinished.pos.start) == '`'
+                    if (value.isPatVar && !isBackquoted) {
+                      simplePatRest(unfinished, permitColon)
+                    } else {
+                      patPath(unfinished)
+                    }
+                  case termPath =>
+                    patPath(termPath)
+                }
             }
-          }
-          val path = termPath()
-          in.token match {
-            case LBRACKET =>
-              val fun = path
-              val targs = tptArgs()
-              val args = patArgs()
-              atPos(start)(PatExtract(fun, targs, args))
-            case LPAREN =>
-              val fun = path
-              val args = patArgs()
-              atPos(start)(PatExtract(fun, Nil, args))
-            case _ =>
-              reinterpretAsPat(path)
-          }
         }
+      case THIS =>
+        patPath()
       case USCORE =>
         in.nextToken()
-        val id = atPos(start)(anonId())
-        val tpt = None
-        val unfinished = atPos(start)(PatVar(id, tpt))
+        val unfinished = atPos(start)(anonId())
         if (in.token == ID && in.idValue == "*") {
           in.nextToken()
-          atPos(start)(PatRepeat(unfinished))
+          val pat = atPos(start)(PatVar(unfinished, None))
+          atPos(start)(PatRepeat(pat))
         } else {
-          unfinished
+          simplePatRest(unfinished, permitColon)
         }
       case token if token.isLit =>
         val value = literal()
@@ -150,6 +140,31 @@ trait Pats {
           case pat :: Nil => pat
           case pats => atPos(start)(PatTuple(pats))
         }
+      case INTID =>
+        val value = in.idValue
+        in.nextToken()
+        val id = atPos(start)(TermId(value))
+        val parts = List.newBuilder[PatLit]
+        val args = List.newBuilder[Pat]
+        accept(INTSTART)
+        var expected = INTPART
+        while (in.token != INTEND) {
+          if (expected == INTPART) {
+            val start = in.offset
+            val value = in.value.asInstanceOf[String]
+            accept(INTPART)
+            parts += atPos(start)(PatLit(value))
+            expected = INTSPLICE
+          } else if (expected == INTSPLICE) {
+            accept(INTSPLICE)
+            args += pat()
+            expected = INTPART
+          } else {
+            crash(expected)
+          }
+        }
+        accept(INTEND)
+        atPos(start)(PatInterpolate(id, parts.result, args.result))
       case _ =>
         val errOffset = in.offset
         reportOffset(errOffset, IllegalStartOfSimplePat)
@@ -157,7 +172,27 @@ trait Pats {
     }
   }
 
-  def errorPat(): Pat = {
-    PatId(Error.value)
+  private def simplePatRest(unfinished: Id, permitColon: Boolean): Pat = {
+    val start = unfinished.pos.start
+    val lhs = {
+      if (in.token == COLON && permitColon) {
+        in.nextToken()
+        val tpt = Some(refinedTpt())
+        atPos(start)(PatVar(unfinished, tpt))
+      } else {
+        atPos(start)(PatVar(unfinished, None))
+      }
+    }
+    if (in.token == AT) {
+      in.nextToken()
+      val rhs = infixPat(permitColon = false)
+      atPos(start)(PatBind(List(lhs, rhs)))
+    } else {
+      lhs
+    }
+  }
+
+  def errorPat(): PatId = {
+    PatId(gensym.error())
   }
 }

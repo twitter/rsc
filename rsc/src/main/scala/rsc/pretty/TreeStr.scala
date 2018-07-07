@@ -2,63 +2,167 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.pretty
 
-import scala.{Symbol => StdlibSymbol}
+import rsc.lexis._
 import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
+import scala.{Symbol => StdlibSymbol}
 
 class TreeStr(val p: Printer) {
   def apply(x: Tree): Unit = {
+    apply(x, Undefined)
+  }
+
+  def apply(xs: Iterable[Tree], sep: String): Unit = {
+    apply(xs, sep, Undefined)
+  }
+
+  def apply(xss: Iterable[Iterable[Tree]]): Unit = {
+    apply(xss, Undefined)
+  }
+
+  def apply(x: Tree, w: Weight): Unit = {
+    def infixParens(xop: NamedId, wop: NamedId, left: Boolean): Boolean = {
+      val (xl, wl) = (xop.value.isLeftAssoc, wop.value.isLeftAssoc)
+      if (xl ^ wl) true
+      else {
+        val (l, r) = (wl, !wl)
+        val (xp, wp) = (xop.value.precedence, wop.value.precedence)
+        if (xp < wp) l
+        else if (xp > wp) r
+        else l ^ left
+      }
+    }
+    val needsParens = (x.weight, w) match {
+      case (Undefined, _) => false
+      case (_, Undefined) => false
+      case (InfixExpr(xop), InfixExpr(wop)) => infixParens(xop, wop, true)
+      case (InfixExpr(xop), RhsInfixExpr(wop)) => infixParens(xop, wop, false)
+      case (InfixTyp(xop), InfixTyp(wop)) => infixParens(xop, wop, true)
+      case (InfixTyp(xop), RhsInfixTyp(wop)) => infixParens(xop, wop, false)
+      case (InfixPat(xop), InfixPat(wop)) => infixParens(xop, wop, true)
+      case (InfixPat(xop), RhsInfixPat(wop)) => infixParens(xop, wop, false)
+      case (xw, ww) => xw.value < ww.value
+    }
+    p.Parens.when(needsParens)(impl(x))
+  }
+
+  def apply(xs: Iterable[Tree], sep: String, w: Weight): Unit = {
+    p.rep(xs, sep)(apply(_, w))
+  }
+
+  def apply(xss: Iterable[Iterable[Tree]], w: Weight): Unit = {
+    p.rep(xss, "") { xs =>
+      p.Parens {
+        xs match {
+          case (param: Param) :: _ if param.hasImplicit => p.str("implicit ")
+          case _ => ()
+        }
+        apply(xs, ", ", w)
+      }
+    }
+  }
+
+  private def impl(x: Tree): Unit = {
     x match {
       case AnonId() =>
-        p.str("")
+        p.str("_")
       case Case(pat, cond, stats) =>
         p.str("case ")
-        apply(pat)
-        p.Prefix(" if ")(cond)(apply(_, ""))
-        p.str(" =>")
-        p.Indent(stats)(apply(_, EOL))
-      case DefnDef(mods, id, tparams, params, ret, rhs) =>
-        p.Suffix(" ")(mods)(apply(_, " "))
+        apply(pat, Pat)
+        cond foreach { term =>
+          p.str(" if ")
+          apply(term, PostfixExpr)
+        }
+        p.str(" => ")
+        p.Indent(printStats(stats))
+      case CtorId() =>
+        p.str("this")
+      case DefnField(mods, id, tpt, rhs) =>
+        apply(mods)
+        apply(id)
+        if (id.isSymbolic) p.str(" ")
+        p.Prefix(": ")(tpt)(apply(_, "", Typ))
+        p.Prefix(" = ")(rhs)(apply(_, "", Expr))
+      case DefnMacro(mods, id, tparams, paramss, ret, rhs) =>
+        apply(mods)
         p.str("def ")
         apply(id)
         p.Brackets(tparams)(apply(_, ", "))
-        p.Parens(apply(params, ", "))
-        p.Prefix(": ")(apply(ret))
-        p.Prefix(" = ")(rhs)(apply(_, ""))
-      case DefnField(mods, id, tpt, rhs) =>
-        p.Suffix(" ")(mods)(apply(_, " "))
+        apply(paramss)
+        if (tparams.isEmpty && paramss.isEmpty && id.isSymbolic) p.str(" ")
+        p.Prefix(": ")(ret)(apply(_, "", Typ))
+        p.str(" = macro ")
+        apply(rhs)
+      case DefnMethod(mods, id, tparams, paramss, ret, rhs) =>
+        apply(mods)
+        p.str("def ")
         apply(id)
-        p.Prefix(": ")(apply(tpt))
-        p.Prefix(" = ")(rhs)(apply(_, ""))
+        p.Brackets(tparams)(apply(_, ", "))
+        apply(paramss)
+        if (tparams.isEmpty && paramss.isEmpty && id.isSymbolic) p.str(" ")
+        p.Prefix(": ")(ret)(apply(_, "", Typ))
+        p.Prefix(" = ")(rhs)(apply(_, "", Expr))
       case DefnPackage(pid, stats) =>
         p.str("package ")
         p.str(pid)
-        p.str(" ")
-        p.Nest.when(stats.nonEmpty)(apply(stats, EOL))
-      case x @ DefnTemplate(mods, id, tparams, ctor, inits, stats) =>
-        p.Suffix(" ")(mods)(apply(_, " "))
-        x match {
-          case _: DefnClass => p.str("class ")
-          case _: DefnTrait => p.str("trait ")
-          case _: DefnObject => p.str("object ")
-        }
+        p.Nest.when(stats.nonEmpty)(printStats(stats))
+      case DefnPat(mods, pats, tpt, rhs) =>
+        apply(mods)
+        apply(pats, ", ")
+        p.Prefix(": ")(tpt)(apply(_, "", Typ))
+        p.Prefix(" = ")(rhs)(apply(_, "", Expr))
+      case DefnProcedure(mods, id, tparams, paramss, rhs) =>
+        apply(mods)
+        p.str("def ")
         apply(id)
         p.Brackets(tparams)(apply(_, ", "))
+        apply(paramss)
+        p.Prefix(" ")(rhs)(apply(_, "", Expr))
+      case x: DefnTemplate =>
+        apply(x.mods)
         x match {
-          case _: DefnClass => apply(ctor)
-          case _: DefnTrait =>
-          case _: DefnObject =>
+          case _: DefnClass => p.str("class ")
+          case _: DefnObject => p.str("object ")
+          case _: DefnPackageObject => p.str("package object ")
+          case _: DefnTrait => p.str("trait ")
         }
-        p.Prefix(" extends ")(inits)(apply(_, " with "))
-        if (stats.nonEmpty) p.str(" ")
-        p.Nest.when(stats.nonEmpty)(apply(stats, EOL))
-      case DefnType(mods, id, tparams, tpt) =>
-        p.Suffix(" ")(mods)(apply(_, " "))
+        apply(x.id)
+        p.Brackets(x.tparams)(apply(_, ", "))
+        x match {
+          case x: DefnClass => apply(x.ctor)
+          case other => ()
+        }
+        if (x.earlies.isEmpty) {
+          p.Prefix(" extends ")(x.inits)(apply(_, " with "))
+        } else {
+          p.str(" extends")
+          p.Nest(apply(x.earlies, EOL))
+          p.Prefix(" with ")(x.inits)(apply(_, " with "))
+        }
+        p.Nest.when(x.self.nonEmpty || x.stats.nonEmpty) {
+          p.Suffix(EOL)(x.self)(apply(_, ""))
+          printStats(x.stats)
+        }
+      case DefnType(mods, id, tparams, lbound, ubound, rhs) =>
+        apply(mods)
         p.str("type ")
         apply(id)
         p.Brackets(tparams)(apply(_, ", "))
-        p.Prefix(" = ")(apply(tpt))
+        p.Prefix(" >: ")(lbound)(apply(_, "", Typ))
+        p.Prefix(" <: ")(ubound)(apply(_, "", Typ))
+        p.Prefix(" = ")(rhs)(apply(_, "", Typ))
+      case EnumeratorGenerator(pat, rhs) =>
+        apply(pat, AnyPat3)
+        p.str(" <- ")
+        apply(rhs, Expr)
+      case EnumeratorGuard(cond) =>
+        p.str("if ")
+        apply(cond, PostfixExpr)
+      case EnumeratorVal(pat, rhs) =>
+        apply(pat, AnyPat3)
+        p.str(" = ")
+        apply(rhs, Expr)
       case Import(importers) =>
         p.str("import ")
         apply(importers, ", ")
@@ -74,7 +178,7 @@ class TreeStr(val p: Printer) {
       case ImporteeWildcard() =>
         p.str("_")
       case Importer(qual, importees) =>
-        apply(qual)
+        apply(qual, SimpleExpr1)
         p.str(".")
         val needsBraces = importees match {
           case List(_: ImporteeRename) => true
@@ -83,11 +187,16 @@ class TreeStr(val p: Printer) {
           case _ => true
         }
         p.Braces.when(needsBraces)(apply(importees, ", "))
-      case Init(tpt, args) =>
-        apply(tpt)
-        p.Parens(apply(args, ", "))
+      case Init(tpt, argss) =>
+        apply(tpt, AnnotTyp)
+        apply(argss, Expr)
+      case Mods(trees) =>
+        p.Suffix(" ")(trees)(apply(_, " "))
       case ModAbstract() =>
         p.str("abstract")
+      case ModAnnotation(init) =>
+        p.str("@")
+        apply(init)
       case ModCase() =>
         p.str("case")
       case ModContravariant() =>
@@ -96,113 +205,187 @@ class TreeStr(val p: Printer) {
         p.str("+")
       case ModFinal() =>
         p.str("final")
+      case ModImplicit() =>
+        p.str("implicit")
       case ModLazy() =>
         p.str("lazy")
       case ModOverride() =>
         p.str("override")
-      case ModPrivate(within) =>
+      case ModPrivate() =>
         p.str("private")
-        p.Brackets(within)(apply(_, ""))
-      case ModProtected(within) =>
+      case ModPrivateThis() =>
+        p.str("private[this]")
+      case ModPrivateWithin(within) =>
+        p.str("private")
+        p.Brackets(apply(within, SimpleExpr1))
+      case ModProtected() =>
         p.str("protected")
-        p.Brackets(within)(apply(_, ""))
+      case ModProtectedThis() =>
+        p.str("protected[this]")
+      case ModProtectedWithin(within) =>
+        p.str("protected")
+        p.Brackets(apply(within, SimpleExpr1))
       case ModSealed() =>
         p.str("sealed")
       case ModVal() =>
         p.str("val")
       case ModVar() =>
         p.str("var")
-      case x @ NamedId(value) =>
+      case x @ NamedId(v) =>
         if (x.sym != NoSymbol) p.str("<" + x.sym + ">")
-        else p.str(value)
-      case PatAlternative(pats) =>
-        apply(pats, " | ")
-      case PatExtract(fun, targs, args) =>
-        apply(fun)
-        p.Brackets(args)(apply(_, ", "))
-        p.Parens(apply(args, ", "))
-      case PatExtractInfix(lhs, op, rhs) =>
-        apply(lhs)
-        apply(op)
-        rhs match {
-          case List(rhs) => apply(rhs)
-          case args => p.Parens(apply(args, ", "))
-        }
-      case PatLit(value) =>
-        apply(TermLit(value))
-      case PatRepeat(pat) =>
-        apply(pat)
-        p.str(" @ _*")
-      case PatSelect(qual, id) =>
-        apply(qual)
-        p.str(".")
+        else if (keywords.containsKey(v)) p.str("`" + v + "`")
+        else if (x.isInstanceOf[PatId] && v.isPatVar) p.str("`" + v + "`")
+        else p.str(v)
+      case Param(mods, id, tpt, rhs) =>
+        apply(Mods(mods.trees.filter(!_.isInstanceOf[ModImplicit])))
         apply(id)
-      case tree @ PatTuple(args) =>
-        crash(tree)
+        if (id.isSymbolic) p.str(" ")
+        p.Prefix(": ")(tpt)(apply(_, "", ParamTyp))
+        p.Prefix(" = ")(rhs)(apply(_, "", Expr))
+      case PatAlternative(pats) =>
+        apply(pats, " | ", Pat)
+      case PatBind(pats) =>
+        apply(pats, " @ ", Pat2)
+      case PatExtract(fun, targs, args) =>
+        apply(fun, Expr)
+        p.Brackets(targs)(apply(_, ", "))
+        p.Parens(apply(args, ", ", Pat))
+      case PatExtractInfix(lhs, op, rhs) =>
+        apply(lhs, InfixPat(op))
+        p.str(" ")
+        apply(op, SimpleExpr1)
+        p.str(" ")
+        apply(rhs, RhsInfixPat(op))
+      case PatInterpolate(id, unescapedParts, args) =>
+        val sparts = unescapedParts.map {
+          case PatLit(value: String) => value
+          case other => crash(other.repl)
+        }
+        printInterpolation(id, sparts, args)
+      case PatLit(value: Unit) =>
+        p.repl(value)
+      case PatLit(value: Char) =>
+        p.repl(value)
+      case PatLit(value: Int) =>
+        p.repl(value)
+      case PatLit(value: Long) =>
+        p.repl(value)
+      case PatLit(value: Float) =>
+        p.repl(value)
+      case PatLit(value: Double) =>
+        p.repl(value)
+      case PatLit(value: String) =>
+        p.repl(value)
+      case PatLit(true) =>
+        p.repl(true)
+      case PatLit(false) =>
+        p.repl(false)
+      case PatLit(null) =>
+        p.repl(null)
+      case PatLit(value: StdlibSymbol) =>
+        p.repl(value)
+      case PatLit(other) =>
+        crash(other.toString)
+      case PatRepeat(pat) =>
+        apply(pat, Pat2)
+        p.str("*")
+      case PatSelect(qual, id) =>
+        apply(qual, SimpleExpr1)
+        p.str(".")
+        apply(id, SimpleExpr1)
+      case PatTuple(args) =>
+        p.Parens(apply(args, ", ", Pat))
       case PatVar(id, tpt) =>
         id match {
           case AnonId() => p.str("_")
           case _ => apply(id)
         }
-        p.Prefix(": ")(tpt)(apply(_, ""))
-      case tree @ PrimaryCtor(mods, params) =>
-        if (mods.nonEmpty) {
-          p.str(" ")
-          p.Suffix(" ")(mods)(apply(_, " "))
-        }
+        p.Prefix(": ")(tpt)(apply(_, "", RefineTyp))
+      case tree @ PrimaryCtor(mods, paramss) =>
+        if (mods.trees.nonEmpty) p.str(" ")
+        apply(mods)
         if (tree.id.sym != NoSymbol) p.str("<" + tree.id.sym + ">")
         else ()
-        p.Parens(apply(params, ", "))
+        apply(paramss)
+      case SecondaryCtor(mods, id, paramss, rhs) =>
+        apply(mods)
+        p.str("def ")
+        apply(id)
+        apply(paramss)
+        p.Prefix(" = ")(apply(rhs, Expr))
+      case Self(id, tpt) =>
+        apply(id)
+        p.Prefix(": ")(tpt)(apply(_, " ", Typ))
+        p.str(" => ")
       case Source(stats) =>
-        apply(stats, EOL)
-      case TermApply(fun, args) =>
-        apply(fun)
-        p.Parens(apply(args, ", "))
-      case TermApplyInfix(lhs, op, targs, rhs) =>
-        p.Parens(apply(lhs))
-        p.str(" ")
-        apply(op)
-        p.Brackets(targs)(apply(_, ", "))
-        p.str(" ")
-        p.Parens(apply(rhs))
-      case TermApplyPostfix(arg, op) =>
-        apply(arg)
-        p.str(" ")
-        apply(op)
-      case TermApplyPrefix(op, arg) =>
-        apply(op)
-        p.Parens(apply(arg))
-      case TermApplyType(fun, targs) =>
-        apply(fun)
-        p.Brackets(apply(targs, ", "))
-      case TermAscribe(term, tpt) =>
-        apply(term)
+        printStats(stats)
+      case TermAnnotate(term, mods) =>
+        apply(term, PostfixExpr)
         p.str(": ")
-        apply(tpt)
+        apply(mods)
+      case TermApply(fun, args) =>
+        apply(fun, SimpleExpr1)
+        p.Parens(apply(args, ", ", Expr))
+      case TermApplyInfix(lhs, op, targs, rhs) =>
+        apply(lhs, InfixExpr(op))
+        p.str(" ")
+        apply(op, SimpleExpr1)
+        p.Brackets(targs)(apply(_, ", ", Typ))
+        p.str(" ")
+        apply(rhs, RhsInfixExpr(op))
+      case TermApplyPostfix(arg, op) =>
+        apply(arg, InfixExpr(op))
+        p.str(" ")
+        apply(op, SimpleExpr1)
+      case TermApplyPrefix(op, arg) =>
+        apply(op, SimpleExpr1)
+        apply(arg, SimpleExpr)
+      case TermApplyType(fun, targs) =>
+        apply(fun, SimpleExpr)
+        p.Brackets(apply(targs, ", ", Typ))
+      case TermAscribe(term, tpt) =>
+        apply(term, PostfixExpr)
+        p.str(": ")
+        apply(tpt, Typ)
       case TermAssign(lhs, rhs) =>
-        apply(lhs)
+        apply(lhs, SimpleExpr1)
         p.str(" = ")
-        apply(rhs)
+        apply(rhs, Expr)
       case TermBlock(stats) =>
-        p.Nest(apply(stats, EOL))
+        p.Nest(printStats(stats))
       case TermDo(body, cond) =>
         p.str("do ")
-        apply(body)
+        apply(body, Expr)
         p.str(" while ")
-        p.Parens(apply(cond))
+        p.Parens(apply(cond, Expr))
       case TermEta(term) =>
-        apply(term)
+        apply(term, SimpleExpr1)
         p.str(" _")
+      case TermFor(enums, body) =>
+        p.str("for ")
+        p.Nest(apply(enums, EOL))
+        apply(body, Expr)
+      case TermForYield(enums, body) =>
+        p.str("for ")
+        p.Nest(apply(enums, EOL))
+        p.str(" yield ")
+        apply(body, Expr)
       case TermFunction(params, body) =>
         p.Parens(apply(params, ", "))
         p.str(" =>")
-        p.Indent(apply(body))
+        p.Indent(apply(body, Expr))
       case TermIf(cond, thenp, elsep) =>
         p.str("if ")
-        p.Parens(apply(cond))
+        p.Parens(apply(cond, Expr))
         p.str(" ")
-        apply(thenp)
-        p.Prefix(" else ")(elsep)(apply(_, ""))
+        apply(thenp, Expr)
+        p.Prefix(" else ")(elsep)(apply(_, "", Expr))
+      case TermInterpolate(id, unescapedParts, args) =>
+        val sparts = unescapedParts.map {
+          case TermLit(value: String) => value
+          case other => crash(other.repl)
+        }
+        printInterpolation(id, sparts, args)
       case TermLit(value: Unit) =>
         p.repl(value)
       case TermLit(value: Char) =>
@@ -226,79 +409,204 @@ class TreeStr(val p: Printer) {
       case TermLit(value: StdlibSymbol) =>
         p.repl(value)
       case TermLit(other) =>
-        crash(other.getClass.toString)
+        crash(other.toString)
       case TermMatch(term, cases) =>
-        apply(term)
+        apply(term, PostfixExpr)
         p.str(" match ")
         p.Nest(apply(cases, EOL))
       case TermNew(init) =>
         p.str("new ")
         apply(init)
-      case TermParam(mods, id, tpt) =>
-        p.Suffix(" ")(mods)(apply(_, " "))
-        apply(id)
-        p.str(": ")
-        apply(tpt)
+        if (init.argss.isEmpty) p.str("()")
+      case TermNewAnonymous(earlies, inits, self, stats) =>
+        p.str("new ")
+        if (earlies.isEmpty) {
+          apply(inits, " with ")
+        } else {
+          p.Nest(apply(earlies, EOL))
+          p.Prefix(" with ")(inits)(apply(_, " with "))
+        }
+        p.Nest.when(self.nonEmpty || stats.nonEmpty) {
+          p.Suffix(EOL)(self)(apply(_, ""))
+          printStats(stats.getOrElse(List()))
+        }
       case TermPartialFunction(cases) =>
         p.Nest(apply(cases, EOL))
       case TermRepeat(term) =>
-        apply(term)
+        apply(term, PostfixExpr)
         p.str(": _*")
       case TermReturn(term) =>
         p.str("return")
-        p.Prefix(" ")(term)(apply(_, ""))
+        p.Prefix(" ")(term)(apply(_, "", Expr))
       case TermSelect(qual, id) =>
-        apply(qual)
+        apply(qual, SimpleExpr)
         p.str(".")
-        apply(id)
+        apply(id, SimpleExpr1)
       case TermSuper(qual, mix) =>
-        p.Suffix(".").when(qual.isInstanceOf[NamedId])(apply(qual))
+        p.Suffix(".")(qual.opt)(apply(_, "", SimpleExpr1))
         p.str("super")
-        p.Brackets.when(mix.isInstanceOf[NamedId])(apply(mix))
+        p.Brackets(mix.opt)(apply(_, "", SimpleExpr1))
+      case TermSynthetic() =>
+        p.str("???")
       case TermThis(qual) =>
-        p.Suffix(".").when(qual.isInstanceOf[NamedId])(apply(qual))
+        p.Suffix(".")(qual.opt)(apply(_, "", SimpleExpr1))
         p.str("this")
       case TermThrow(term) =>
         p.str("throw ")
-        apply(term)
+        apply(term, Expr)
+      case TermTry(expr, catchp, finallyp) =>
+        p.str("try ")
+        apply(expr, Expr)
+        if (catchp.nonEmpty) {
+          p.str(" catch ")
+          p.Nest(apply(catchp, EOL, Expr))
+        }
+        p.Prefix(" finally ")(finallyp)(apply(_, "", Expr))
+      case TermTryWithHandler(expr, catchp, finallyp) =>
+        p.str("try ")
+        apply(expr, Expr)
+        p.str(" catch ")
+        apply(catchp, Expr)
+        p.Prefix(" finally ")(finallyp)(apply(_, "", Expr))
       case TermTuple(args) =>
-        p.Parens(apply(args, ", "))
+        p.Parens(apply(args, ", ", Expr))
       case TermWhile(cond, body) =>
-        p.str("while ")
-        p.Parens(apply(cond))
         p.str(" ")
-        apply(body)
+        p.str("while ")
+        p.Parens(apply(cond, Expr))
+        apply(body, Expr)
+      case TermWildcard() =>
+        p.str("_")
+      case TermWildcardFunction(_, term) =>
+        apply(term, Expr)
+      case TptAnnotate(tpt, mods) =>
+        apply(tpt, SimpleTyp)
+        p.str(" ")
+        apply(mods)
+      case TptByName(tpt) =>
+        p.str("=>")
+        apply(tpt, Typ)
+      case TptExistential(tpt, stats) =>
+        apply(tpt, AnyInfixTyp)
+        p.str(" forSome ")
+        p.Braces(apply(stats, "; "))
       case TptFunction(targs) =>
-        p.Parens.when(targs.size != 2)(apply(targs.init, ", "))
+        p.Parens.when(targs.size != 2)(apply(targs.init, ", ", ParamTyp))
         p.str(" => ")
-        apply(targs.last)
+        apply(targs.last, Typ)
       case TptParameterize(fun, targs) =>
-        apply(fun)
-        p.Brackets(apply(targs, ", "))
+        apply(fun, SimpleTyp)
+        p.Brackets(apply(targs, ", ", Typ))
       case TptParameterizeInfix(lhs, op, rhs) =>
-        apply(lhs)
+        apply(lhs, InfixTyp(op))
         p.str(" ")
         apply(op)
         p.str(" ")
-        apply(rhs)
-      case TptRepeat(targ) =>
-        apply(targ)
+        apply(rhs, RhsInfixTyp(op))
+      case TptProject(qual, id) =>
+        apply(qual, SimpleTyp)
+        p.str("#")
+        apply(id, SimpleTyp)
+      case TptRefine(tpt, stats) =>
+        apply(tpt, " ", WithTyp)
+        p.Braces(apply(stats, "; "))
+      case TptRepeat(tpt) =>
+        apply(tpt, Typ)
         p.str("*")
       case TptSelect(qual, id) =>
-        apply(qual)
+        apply(qual, SimpleExpr)
         p.str(".")
-        apply(id)
+        apply(id, SimpleTyp)
+      case TptSingleton(path) =>
+        apply(path, SimpleExpr)
+        p.str(".type")
       case TptTuple(targs) =>
-        p.Parens(apply(targs, ", "))
-      case TypeParam(mods, id, ubound, lbound) =>
-        apply(mods, " ")
+        p.Parens(apply(targs, ", ", Typ))
+      case TptWildcard(lbound, ubound) =>
+        p.str("_")
+        p.Prefix(" >: ")(lbound)(apply(_, ""))
+        p.Prefix(" <: ")(ubound)(apply(_, ""))
+      case TptWildcardExistential(_, tpt) =>
+        apply(tpt, Typ)
+      case TptWith(tpts) =>
+        apply(tpts, " with ", WithTyp)
+      case TypeParam(mods, id, tparams, lbound, ubound, vbounds, cbounds) =>
+        apply(mods)
         apply(id)
-        p.Prefix(" >: ")(ubound)(apply(_, ""))
-        p.Prefix(" <: ")(lbound)(apply(_, ""))
+        p.Brackets(tparams)(apply(_, ", "))
+        p.Prefix(" >: ")(lbound)(apply(_, ""))
+        p.Prefix(" <: ")(ubound)(apply(_, ""))
+        p.Prefix(" <% ")(vbounds)(apply(_, " <% "))
+        p.Prefix(" : ")(cbounds)(apply(_, " : "))
     }
   }
 
-  def apply(xs: Iterable[Tree], separator: String): Unit = {
-    p.rep(xs, separator)(apply)
+  private def printInterpolation(
+      id: TermId,
+      unescapedParts: List[String],
+      args: List[Tree]): Unit = {
+    apply(id, SimpleExpr1)
+    val quote = {
+      def needsTripleQuote(s: String) = s.exists(c => c == '\n' || c == '"')
+      val n = if (unescapedParts.exists(needsTripleQuote)) 3 else 1
+      "\"" * n
+    }
+    p.str(quote)
+    if (unescapedParts.length == args.length + 1) {
+      val parts = unescapedParts.map(_.replace("$", "$$"))
+      p.ignoringIndent(p.str(parts(0)))
+      args.zip(parts.drop(1)).foreach {
+        case (arg, part) =>
+          p.str("$")
+          val needBraces = {
+            val simpleValue = arg match {
+              case TermId(value) => Some(value)
+              case PatVar(TermId(value), _) => Some(value)
+              case _ => None
+            }
+            simpleValue match {
+              case Some(_) => isSpliceIdPart(part.headOption.getOrElse('_'))
+              case None => true
+            }
+          }
+          if (needBraces) p.Braces(apply(arg))
+          else apply(arg)
+          p.ignoringIndent(p.str(part))
+      }
+    } else {
+      crash("malformed interpolation")
+    }
+    p.str(quote)
+  }
+
+  private def printStats(statList: List[Stat]): Unit = {
+    var i = 0
+    val stats = statList.toArray
+    while (i < stats.length) {
+      val stat = stats(i)
+      apply(stat)
+
+      if (i < stats.length - 1) {
+        stats(i + 1) match {
+          case _: Term =>
+            def needsSemicolon(tree: Option[Tree]): Boolean = tree match {
+              case Some(tree: DefnField) => needsSemicolon(tree.rhs)
+              case Some(tree: DefnMacro) => needsSemicolon(Some(tree.rhs))
+              case Some(tree: DefnMethod) => needsSemicolon(tree.rhs)
+              case Some(tree: DefnPat) => needsSemicolon(tree.rhs)
+              case Some(tree: TermApplyPostfix) => true
+              case _ => false
+            }
+            if (needsSemicolon(Some(stat))) {
+              p.str(";")
+            }
+          case _ =>
+            ()
+        }
+        p.str(EOL)
+      }
+
+      i += 1
+    }
   }
 }

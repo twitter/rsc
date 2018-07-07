@@ -5,4 +5,5 @@ package rsc.report
 trait Reporter {
   def append(msg: Message): Message
   def problems: List[Message]
+  def messages: List[Message]
 }

@@ -1,0 +1,9277 @@
+scalasig {
+  name: "scala/Predef"
+  symbols {
+    tag: MODULEsym
+    id: scala.#Predef.
+    flags: MODULE
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Predef.#
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#
+    flags: MODULE
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#LowPriorityImplicits#
+      }
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#DeprecatedPredef#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Predef.#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#classOf().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: POLYtpe
+        tpe {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#Predef.#
+          }
+          sym: scala.#Predef.#Class#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#classOf().[T]
+          }
+        }
+      }
+      params: scala.#Predef.#classOf().[T]
+    }
+  }
+  symbols {
+    tag: ALIASsym
+    id: scala.#Predef.#Class#
+    flags:
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#Class#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#Class#[T]
+        }
+      }
+      params: scala.#Predef.#Class#[T]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Class#[T]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#classOf().[T]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: ALIASsym
+    id: scala.#Predef.#String#
+    flags:
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: java.#lang.#
+      }
+      sym: java.#lang.#String#
+    }
+  }
+  symbols {
+    tag: ALIASsym
+    id: scala.#Predef.#Function#
+    flags:
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Function1#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#Function#[A]
+        }
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#Function#[B]
+        }
+      }
+      params: scala.#Predef.#Function#[A]
+      params: scala.#Predef.#Function#[B]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Function#[A]
+    flags: DEFERRED | PARAM | CONTRAVARIANT
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Function#[B]
+    flags: DEFERRED | PARAM | COVARIANT
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: ALIASsym
+    id: scala.#Predef.#Map#
+    flags:
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#immutable.#
+        }
+        sym: scala.#collection.#immutable.#Map#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#Map#[A]
+        }
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#Map#[B]
+        }
+      }
+      params: scala.#Predef.#Map#[A]
+      params: scala.#Predef.#Map#[B]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Map#[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Map#[B]
+    flags: DEFERRED | PARAM | COVARIANT
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: ALIASsym
+    id: scala.#Predef.#Set#
+    flags:
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#immutable.#
+        }
+        sym: scala.#collection.#immutable.#Set#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#Set#[A]
+        }
+      }
+      params: scala.#Predef.#Set#[A]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Set#[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Map().
+    flags: METHOD | STABLE | ACCESSOR
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: SINGLEtpe
+        pre {
+          tag: SINGLEtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#collection.#
+          }
+          sym: scala.#collection.#immutable.
+        }
+        sym: scala.#collection.#immutable.#Map.
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Map .
+    flags: PRIVATE | LOCAL
+    info {
+      tag: SINGLEtpe
+      pre {
+        tag: SINGLEtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#
+        }
+        sym: scala.#collection.#immutable.
+      }
+      sym: scala.#collection.#immutable.#Map.
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Set().
+    flags: METHOD | STABLE | ACCESSOR
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: SINGLEtpe
+        pre {
+          tag: SINGLEtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#collection.#
+          }
+          sym: scala.#collection.#immutable.
+        }
+        sym: scala.#collection.#immutable.#Set.
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Set .
+    flags: PRIVATE | LOCAL
+    info {
+      tag: SINGLEtpe
+      pre {
+        tag: SINGLEtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#
+        }
+        sym: scala.#collection.#immutable.
+      }
+      sym: scala.#collection.#immutable.#Set.
+    }
+  }
+  symbols {
+    tag: ALIASsym
+    id: scala.#Predef.#ClassManifest#
+    flags:
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: SINGLEtpe
+          pre {
+            tag: SINGLEtpe
+            pre {
+              tag: SINGLEtpe
+              pre {
+                tag: THIStpe
+                sym: <root>.#
+              }
+              sym: scala.
+            }
+            sym: scala.#reflect.
+          }
+          sym: scala.#reflect.#package.
+        }
+        sym: scala.#reflect.#package.#ClassManifest#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#ClassManifest#[T]
+        }
+      }
+      params: scala.#Predef.#ClassManifest#[T]
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#annotation.#
+        }
+        sym: scala.#annotation.#implicitNotFound#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#ClassManifest#[T]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: ALIASsym
+    id: scala.#Predef.#OptManifest#
+    flags:
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#reflect.#
+        }
+        sym: scala.#reflect.#OptManifest#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#OptManifest#[T]
+        }
+      }
+      params: scala.#Predef.#OptManifest#[T]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#OptManifest#[T]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: ALIASsym
+    id: scala.#Predef.#Manifest#
+    flags:
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#reflect.#
+        }
+        sym: scala.#reflect.#Manifest#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#Manifest#[T]
+        }
+      }
+      params: scala.#Predef.#Manifest#[T]
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#annotation.#
+        }
+        sym: scala.#annotation.#implicitNotFound#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Manifest#[T]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ClassManifest().
+    flags: METHOD | STABLE | ACCESSOR
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: SINGLEtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#reflect.#
+        }
+        sym: scala.#reflect.#ClassManifestFactory.
+      }
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ClassManifest .
+    flags: PRIVATE | LOCAL
+    info {
+      tag: SINGLEtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#reflect.#
+      }
+      sym: scala.#reflect.#ClassManifestFactory.
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Manifest().
+    flags: METHOD | STABLE | ACCESSOR
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: SINGLEtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#reflect.#
+        }
+        sym: scala.#reflect.#ManifestFactory.
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Manifest .
+    flags: PRIVATE | LOCAL
+    info {
+      tag: SINGLEtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#reflect.#
+      }
+      sym: scala.#reflect.#ManifestFactory.
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#NoManifest().
+    flags: METHOD | STABLE | ACCESSOR
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: SINGLEtpe
+        pre {
+          tag: SINGLEtpe
+          pre {
+            tag: SINGLEtpe
+            pre {
+              tag: THIStpe
+              sym: <root>.#
+            }
+            sym: scala.
+          }
+          sym: scala.#reflect.
+        }
+        sym: scala.#reflect.#NoManifest.
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#NoManifest .
+    flags: PRIVATE | LOCAL
+    info {
+      tag: SINGLEtpe
+      pre {
+        tag: SINGLEtpe
+        pre {
+          tag: SINGLEtpe
+          pre {
+            tag: THIStpe
+            sym: <root>.#
+          }
+          sym: scala.
+        }
+        sym: scala.#reflect.
+      }
+      sym: scala.#reflect.#NoManifest.
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#manifest().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#Predef.#
+          }
+          sym: scala.#Predef.#Manifest#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#manifest().[T]
+          }
+        }
+        params: scala.#Predef.#manifest().(m)
+      }
+      params: scala.#Predef.#manifest().[T]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#manifest().[T]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#manifest().(m)
+    flags: IMPLICIT | PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#Manifest#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#manifest().[T]
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#classManifest().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#Predef.#
+          }
+          sym: scala.#Predef.#ClassManifest#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#classManifest().[T]
+          }
+        }
+        params: scala.#Predef.#classManifest().(m)
+      }
+      params: scala.#Predef.#classManifest().[T]
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#classManifest().[T]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#classManifest().(m)
+    flags: IMPLICIT | PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#ClassManifest#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#classManifest().[T]
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#optManifest().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#Predef.#
+          }
+          sym: scala.#Predef.#OptManifest#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#optManifest().[T]
+          }
+        }
+        params: scala.#Predef.#optManifest().(m)
+      }
+      params: scala.#Predef.#optManifest().[T]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#optManifest().[T]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#optManifest().(m)
+    flags: IMPLICIT | PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#OptManifest#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#optManifest().[T]
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#identity().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#identity().[A]
+        }
+        params: scala.#Predef.#identity().(x)
+      }
+      params: scala.#Predef.#identity().[A]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#identity().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#identity().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#identity().[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#implicitly().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#implicitly().[T]
+        }
+        params: scala.#Predef.#implicitly().(e)
+      }
+      params: scala.#Predef.#implicitly().[T]
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#inline#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#implicitly().[T]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#implicitly().(e)
+    flags: IMPLICIT | PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#implicitly().[T]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#locally().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#locally().[T]
+        }
+        params: scala.#Predef.#locally().(x)
+      }
+      params: scala.#Predef.#locally().[T]
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#inline#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#locally().[T]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#locally().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#locally().[T]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#error().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      params: scala.#Predef.#error().(message)
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#error().(message)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#String#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#assert().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Unit#
+      }
+      params: scala.#Predef.#assert().(assertion)
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#annotation.#
+        }
+        sym: scala.#annotation.#elidable#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALint
+          value: 2000
+        }
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#assert().(assertion)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Boolean#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#assert()+1.
+    flags: FINAL | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Unit#
+      }
+      params: scala.#Predef.#assert()+1.(assertion)
+      params: scala.#Predef.#assert()+1.(message)
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#inline#
+      }
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#annotation.#
+        }
+        sym: scala.#annotation.#elidable#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALint
+          value: 2000
+        }
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#assert()+1.(assertion)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Boolean#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#assert()+1.(message)
+    flags: PARAM | BYNAMEPARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#<byname>#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#assume().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Unit#
+      }
+      params: scala.#Predef.#assume().(assumption)
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#annotation.#
+        }
+        sym: scala.#annotation.#elidable#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALint
+          value: 2000
+        }
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#assume().(assumption)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Boolean#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#assume()+1.
+    flags: FINAL | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Unit#
+      }
+      params: scala.#Predef.#assume()+1.(assumption)
+      params: scala.#Predef.#assume()+1.(message)
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#inline#
+      }
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#annotation.#
+        }
+        sym: scala.#annotation.#elidable#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALint
+          value: 2000
+        }
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#assume()+1.(assumption)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Boolean#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#assume()+1.(message)
+    flags: PARAM | BYNAMEPARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#<byname>#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#require().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Unit#
+      }
+      params: scala.#Predef.#require().(requirement)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#require().(requirement)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Boolean#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#require()+1.
+    flags: FINAL | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Unit#
+      }
+      params: scala.#Predef.#require()+1.(requirement)
+      params: scala.#Predef.#require()+1.(message)
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#inline#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#require()+1.(requirement)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Boolean#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#require()+1.(message)
+    flags: PARAM | BYNAMEPARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#<byname>#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#$qmark$qmark$qmark().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+    }
+  }
+  symbols {
+    tag: ALIASsym
+    id: scala.#Predef.#Pair#
+    flags:
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Tuple2#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#Pair#[A]
+        }
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#Pair#[B]
+        }
+      }
+      params: scala.#Predef.#Pair#[A]
+      params: scala.#Predef.#Pair#[B]
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Pair#[A]
+    flags: DEFERRED | PARAM | COVARIANT
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Pair#[B]
+    flags: DEFERRED | PARAM | COVARIANT
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: MODULEsym
+    id: scala.#Predef.#Pair.
+    flags: MODULE
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#Pair.#
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#Pair.#
+    flags: MODULE
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#Pair.#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#AnyRef#
+      }
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Pair.#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#Pair.#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Pair.#apply().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Tuple2#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#Pair.#apply().[A]
+          }
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#Pair.#apply().[B]
+          }
+        }
+        params: scala.#Predef.#Pair.#apply().(x)
+        params: scala.#Predef.#Pair.#apply().(y)
+      }
+      params: scala.#Predef.#Pair.#apply().[A]
+      params: scala.#Predef.#Pair.#apply().[B]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Pair.#apply().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Pair.#apply().[B]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Pair.#apply().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#Pair.#apply().[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Pair.#apply().(y)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#Pair.#apply().[B]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Pair.#unapply().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Option#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#
+            }
+            sym: scala.#Tuple2#
+            targs {
+              tag: TYPEREFtpe
+              pre {
+                tag: NOPREFIXtpe
+              }
+              sym: scala.#Predef.#Pair.#unapply().[A]
+            }
+            targs {
+              tag: TYPEREFtpe
+              pre {
+                tag: NOPREFIXtpe
+              }
+              sym: scala.#Predef.#Pair.#unapply().[B]
+            }
+          }
+        }
+        params: scala.#Predef.#Pair.#unapply().(x)
+      }
+      params: scala.#Predef.#Pair.#unapply().[A]
+      params: scala.#Predef.#Pair.#unapply().[B]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Pair.#unapply().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Pair.#unapply().[B]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Pair.#unapply().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Tuple2#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Pair.#unapply().[A]
+      }
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Pair.#unapply().[B]
+      }
+    }
+  }
+  symbols {
+    tag: ALIASsym
+    id: scala.#Predef.#Triple#
+    flags:
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Tuple3#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#Triple#[A]
+        }
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#Triple#[B]
+        }
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#Triple#[C]
+        }
+      }
+      params: scala.#Predef.#Triple#[A]
+      params: scala.#Predef.#Triple#[B]
+      params: scala.#Predef.#Triple#[C]
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Triple#[A]
+    flags: DEFERRED | PARAM | COVARIANT
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Triple#[B]
+    flags: DEFERRED | PARAM | COVARIANT
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Triple#[C]
+    flags: DEFERRED | PARAM | COVARIANT
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: MODULEsym
+    id: scala.#Predef.#Triple.
+    flags: MODULE
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#Triple.#
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#Triple.#
+    flags: MODULE
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#Triple.#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#AnyRef#
+      }
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Triple.#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#Triple.#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Triple.#apply().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Tuple3#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#Triple.#apply().[A]
+          }
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#Triple.#apply().[B]
+          }
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#Triple.#apply().[C]
+          }
+        }
+        params: scala.#Predef.#Triple.#apply().(x)
+        params: scala.#Predef.#Triple.#apply().(y)
+        params: scala.#Predef.#Triple.#apply().(z)
+      }
+      params: scala.#Predef.#Triple.#apply().[A]
+      params: scala.#Predef.#Triple.#apply().[B]
+      params: scala.#Predef.#Triple.#apply().[C]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Triple.#apply().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Triple.#apply().[B]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Triple.#apply().[C]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Triple.#apply().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#Triple.#apply().[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Triple.#apply().(y)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#Triple.#apply().[B]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Triple.#apply().(z)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#Triple.#apply().[C]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Triple.#unapply().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Option#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#
+            }
+            sym: scala.#Tuple3#
+            targs {
+              tag: TYPEREFtpe
+              pre {
+                tag: NOPREFIXtpe
+              }
+              sym: scala.#Predef.#Triple.#unapply().[A]
+            }
+            targs {
+              tag: TYPEREFtpe
+              pre {
+                tag: NOPREFIXtpe
+              }
+              sym: scala.#Predef.#Triple.#unapply().[B]
+            }
+            targs {
+              tag: TYPEREFtpe
+              pre {
+                tag: NOPREFIXtpe
+              }
+              sym: scala.#Predef.#Triple.#unapply().[C]
+            }
+          }
+        }
+        params: scala.#Predef.#Triple.#unapply().(x)
+      }
+      params: scala.#Predef.#Triple.#unapply().[A]
+      params: scala.#Predef.#Triple.#unapply().[B]
+      params: scala.#Predef.#Triple.#unapply().[C]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Triple.#unapply().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Triple.#unapply().[B]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Triple.#unapply().[C]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Triple.#unapply().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Tuple3#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Triple.#unapply().[A]
+      }
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Triple.#unapply().[B]
+      }
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Triple.#unapply().[C]
+      }
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#ArrowAssoc#
+    flags: IMPLICIT | FINAL
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: CLASSINFOtpe
+        sym: scala.#Predef.#ArrowAssoc#
+        parents {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#AnyVal#
+        }
+      }
+      params: scala.#Predef.#ArrowAssoc#[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc#scala$Predef$ArrowAssoc$$self().
+    flags: PRIVATE | METHOD | STABLE | ACCESSOR | PARAMACCESSOR | EXPANDEDNAME | notPRIVATE
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#ArrowAssoc#[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#ArrowAssoc#[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc#scala$Predef$ArrowAssoc$$self .
+    flags: PRIVATE | LOCAL | PARAMACCESSOR | EXPANDEDNAME
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#ArrowAssoc#[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#ArrowAssoc#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#ArrowAssoc#[A]
+        }
+      }
+      params: scala.#Predef.#ArrowAssoc#<init>().(self)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc#<init>().(self)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#ArrowAssoc#[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc#$minus$greater().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Tuple2#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#ArrowAssoc#[A]
+          }
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#ArrowAssoc#$minus$greater().[B]
+          }
+        }
+        params: scala.#Predef.#ArrowAssoc#$minus$greater().(y)
+      }
+      params: scala.#Predef.#ArrowAssoc#$minus$greater().[B]
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#inline#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#ArrowAssoc#$minus$greater().[B]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc#$minus$greater().(y)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#ArrowAssoc#$minus$greater().[B]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc#$u2192().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Tuple2#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#ArrowAssoc#[A]
+          }
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#ArrowAssoc#$u2192().[B]
+          }
+        }
+        params: scala.#Predef.#ArrowAssoc#$u2192().(y)
+      }
+      params: scala.#Predef.#ArrowAssoc#$u2192().[B]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#ArrowAssoc#$u2192().[B]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc#$u2192().(y)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#ArrowAssoc#$u2192().[B]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc#hashCode().
+    flags: OVERRIDE | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Int#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc#equals().
+    flags: OVERRIDE | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Boolean#
+      }
+      params: scala.#Predef.#ArrowAssoc#equals().(x$1)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc#equals().(x$1)
+    flags: PARAM | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Any#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc().
+    flags: IMPLICIT | METHOD | SYNTHETIC
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#Predef.#
+          }
+          sym: scala.#Predef.#ArrowAssoc#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#ArrowAssoc().[A]
+          }
+        }
+        params: scala.#Predef.#ArrowAssoc().(self)
+      }
+      params: scala.#Predef.#ArrowAssoc().[A]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#ArrowAssoc().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc().(self)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#ArrowAssoc().[A]
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#Ensuring#
+    flags: IMPLICIT | FINAL
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: CLASSINFOtpe
+        sym: scala.#Predef.#Ensuring#
+        parents {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#AnyVal#
+        }
+      }
+      params: scala.#Predef.#Ensuring#[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#scala$Predef$Ensuring$$self().
+    flags: PRIVATE | METHOD | STABLE | ACCESSOR | PARAMACCESSOR | EXPANDEDNAME | notPRIVATE
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Ensuring#[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Ensuring#[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#scala$Predef$Ensuring$$self .
+    flags: PRIVATE | LOCAL | PARAMACCESSOR | EXPANDEDNAME
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#Ensuring#[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#Ensuring#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#Ensuring#[A]
+        }
+      }
+      params: scala.#Predef.#Ensuring#<init>().(self)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#<init>().(self)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#Ensuring#[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#ensuring().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Ensuring#[A]
+      }
+      params: scala.#Predef.#Ensuring#ensuring().(cond)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#ensuring().(cond)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Boolean#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#ensuring()+1.
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Ensuring#[A]
+      }
+      params: scala.#Predef.#Ensuring#ensuring()+1.(cond)
+      params: scala.#Predef.#Ensuring#ensuring()+1.(msg)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#ensuring()+1.(cond)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Boolean#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#ensuring()+1.(msg)
+    flags: PARAM | BYNAMEPARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#<byname>#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#ensuring()+2.
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Ensuring#[A]
+      }
+      params: scala.#Predef.#Ensuring#ensuring()+2.(cond)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#ensuring()+2.(cond)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Function1#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Ensuring#[A]
+      }
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Boolean#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#ensuring()+3.
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Ensuring#[A]
+      }
+      params: scala.#Predef.#Ensuring#ensuring()+3.(cond)
+      params: scala.#Predef.#Ensuring#ensuring()+3.(msg)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#ensuring()+3.(cond)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Function1#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Ensuring#[A]
+      }
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Boolean#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#ensuring()+3.(msg)
+    flags: PARAM | BYNAMEPARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#<byname>#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#hashCode().
+    flags: OVERRIDE | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Int#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#equals().
+    flags: OVERRIDE | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Boolean#
+      }
+      params: scala.#Predef.#Ensuring#equals().(x$1)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring#equals().(x$1)
+    flags: PARAM | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Any#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring().
+    flags: IMPLICIT | METHOD | SYNTHETIC
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#Predef.#
+          }
+          sym: scala.#Predef.#Ensuring#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#Ensuring().[A]
+          }
+        }
+        params: scala.#Predef.#Ensuring().(self)
+      }
+      params: scala.#Predef.#Ensuring().[A]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Ensuring().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring().(self)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#Ensuring().[A]
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#StringFormat#
+    flags: IMPLICIT | FINAL
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: CLASSINFOtpe
+        sym: scala.#Predef.#StringFormat#
+        parents {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#AnyVal#
+        }
+      }
+      params: scala.#Predef.#StringFormat#[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat#scala$Predef$StringFormat$$self().
+    flags: PRIVATE | METHOD | STABLE | ACCESSOR | PARAMACCESSOR | EXPANDEDNAME | notPRIVATE
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#StringFormat#[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#StringFormat#[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat#scala$Predef$StringFormat$$self .
+    flags: PRIVATE | LOCAL | PARAMACCESSOR | EXPANDEDNAME
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#StringFormat#[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#StringFormat#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#StringFormat#[A]
+        }
+      }
+      params: scala.#Predef.#StringFormat#<init>().(self)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat#<init>().(self)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#StringFormat#[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat#formatted().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#String#
+      }
+      params: scala.#Predef.#StringFormat#formatted().(fmtstr)
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#inline#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat#formatted().(fmtstr)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#String#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat#hashCode().
+    flags: OVERRIDE | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Int#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat#equals().
+    flags: OVERRIDE | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Boolean#
+      }
+      params: scala.#Predef.#StringFormat#equals().(x$1)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat#equals().(x$1)
+    flags: PARAM | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Any#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat().
+    flags: IMPLICIT | METHOD | SYNTHETIC
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#Predef.#
+          }
+          sym: scala.#Predef.#StringFormat#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#StringFormat().[A]
+          }
+        }
+        params: scala.#Predef.#StringFormat().(self)
+      }
+      params: scala.#Predef.#StringFormat().[A]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#StringFormat().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat().(self)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#StringFormat().[A]
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#StringAdd#
+    flags: FINAL
+    within: scala.#
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: CLASSINFOtpe
+        sym: scala.#Predef.#StringAdd#
+        parents {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#AnyVal#
+        }
+      }
+      params: scala.#Predef.#StringAdd#[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd#scala$Predef$StringAdd$$self().
+    flags: PRIVATE | METHOD | STABLE | ACCESSOR | PARAMACCESSOR | EXPANDEDNAME | notPRIVATE
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#StringAdd#[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#StringAdd#[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd#scala$Predef$StringAdd$$self .
+    flags: PRIVATE | LOCAL | PARAMACCESSOR | EXPANDEDNAME
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#StringAdd#[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#StringAdd#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#StringAdd#[A]
+        }
+      }
+      params: scala.#Predef.#StringAdd#<init>().(self)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd#<init>().(self)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#StringAdd#[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd#$plus().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#String#
+      }
+      params: scala.#Predef.#StringAdd#$plus().(other)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd#$plus().(other)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#String#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd#hashCode().
+    flags: OVERRIDE | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Int#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd#equals().
+    flags: OVERRIDE | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Boolean#
+      }
+      params: scala.#Predef.#StringAdd#equals().(x$1)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd#equals().(x$1)
+    flags: PARAM | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Any#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd().
+    flags: METHOD
+    within: scala.#
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+      params: scala.#Predef.#StringAdd().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Any#
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#any2stringadd#
+    flags: IMPLICIT | FINAL
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: CLASSINFOtpe
+        sym: scala.#Predef.#any2stringadd#
+        parents {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#AnyVal#
+        }
+      }
+      params: scala.#Predef.#any2stringadd#[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd#scala$Predef$any2stringadd$$self().
+    flags: PRIVATE | METHOD | STABLE | ACCESSOR | PARAMACCESSOR | EXPANDEDNAME | notPRIVATE
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#any2stringadd#[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#any2stringadd#[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd#scala$Predef$any2stringadd$$self .
+    flags: PRIVATE | LOCAL | PARAMACCESSOR | EXPANDEDNAME
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#any2stringadd#[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#any2stringadd#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#any2stringadd#[A]
+        }
+      }
+      params: scala.#Predef.#any2stringadd#<init>().(self)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd#<init>().(self)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#any2stringadd#[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd#$plus().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#String#
+      }
+      params: scala.#Predef.#any2stringadd#$plus().(other)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd#$plus().(other)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#String#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd#hashCode().
+    flags: OVERRIDE | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Int#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd#equals().
+    flags: OVERRIDE | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Boolean#
+      }
+      params: scala.#Predef.#any2stringadd#equals().(x$1)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd#equals().(x$1)
+    flags: PARAM | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Any#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd().
+    flags: IMPLICIT | METHOD | SYNTHETIC
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#Predef.#
+          }
+          sym: scala.#Predef.#any2stringadd#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#any2stringadd().[A]
+          }
+        }
+        params: scala.#Predef.#any2stringadd().(self)
+      }
+      params: scala.#Predef.#any2stringadd().[A]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#any2stringadd().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd().(self)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#any2stringadd().[A]
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#RichException#
+    flags: IMPLICIT | FINAL
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#RichException#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#AnyVal#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException#scala$Predef$RichException$$self().
+    flags: PRIVATE | METHOD | STABLE | ACCESSOR | PARAMACCESSOR | EXPANDEDNAME | notPRIVATE
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: SINGLEtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#package.
+        }
+        sym: scala.#package.#Throwable#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException#scala$Predef$RichException$$self .
+    flags: PRIVATE | LOCAL | PARAMACCESSOR | EXPANDEDNAME
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: SINGLEtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#package.
+      }
+      sym: scala.#package.#Throwable#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#RichException#
+      }
+      params: scala.#Predef.#RichException#<init>().(self)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException#<init>().(self)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: SINGLEtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#package.
+      }
+      sym: scala.#package.#Throwable#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException#getStackTraceString().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: SINGLEtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Predef.
+        }
+        sym: scala.#Predef.#String#
+      }
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException#hashCode().
+    flags: OVERRIDE | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Int#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException#equals().
+    flags: OVERRIDE | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Boolean#
+      }
+      params: scala.#Predef.#RichException#equals().(x$1)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException#equals().(x$1)
+    flags: PARAM | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Any#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException().
+    flags: IMPLICIT | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#RichException#
+      }
+      params: scala.#Predef.#RichException().(self)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException().(self)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: SINGLEtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#package.
+      }
+      sym: scala.#package.#Throwable#
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#SeqCharSequence#
+    flags: IMPLICIT | FINAL
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#SeqCharSequence#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#Object#
+      }
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#CharSequence#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#SeqCharSequence#__sequenceOfChars().
+    flags: METHOD | STABLE | ACCESSOR | PARAMACCESSOR
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#
+        }
+        sym: scala.#collection.#IndexedSeq#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Char#
+        }
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#SeqCharSequence#__sequenceOfChars .
+    flags: PRIVATE | LOCAL | PARAMACCESSOR
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#collection.#
+      }
+      sym: scala.#collection.#IndexedSeq#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Char#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#SeqCharSequence#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#SeqCharSequence#
+      }
+      params: scala.#Predef.#SeqCharSequence#<init>().(__sequenceOfChars)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#SeqCharSequence#<init>().(__sequenceOfChars)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#collection.#
+      }
+      sym: scala.#collection.#IndexedSeq#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Char#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#SeqCharSequence#length().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Int#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#SeqCharSequence#charAt().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Char#
+      }
+      params: scala.#Predef.#SeqCharSequence#charAt().(index)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#SeqCharSequence#charAt().(index)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Int#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#SeqCharSequence#subSequence().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#CharSequence#
+      }
+      params: scala.#Predef.#SeqCharSequence#subSequence().(start)
+      params: scala.#Predef.#SeqCharSequence#subSequence().(end)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#SeqCharSequence#subSequence().(start)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Int#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#SeqCharSequence#subSequence().(end)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Int#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#SeqCharSequence#toString().
+    flags: OVERRIDE | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: SINGLEtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Predef.
+        }
+        sym: scala.#Predef.#String#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#SeqCharSequence().
+    flags: IMPLICIT | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#SeqCharSequence#
+      }
+      params: scala.#Predef.#SeqCharSequence().(__sequenceOfChars)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#SeqCharSequence().(__sequenceOfChars)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#collection.#
+      }
+      sym: scala.#collection.#IndexedSeq#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Char#
+      }
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#ArrayCharSequence#
+    flags: IMPLICIT | FINAL
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#ArrayCharSequence#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#Object#
+      }
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#CharSequence#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrayCharSequence#__arrayOfChars().
+    flags: METHOD | STABLE | ACCESSOR | PARAMACCESSOR
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Array#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Char#
+        }
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrayCharSequence#__arrayOfChars .
+    flags: PRIVATE | LOCAL | PARAMACCESSOR
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Array#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Char#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrayCharSequence#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#ArrayCharSequence#
+      }
+      params: scala.#Predef.#ArrayCharSequence#<init>().(__arrayOfChars)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrayCharSequence#<init>().(__arrayOfChars)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Array#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Char#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrayCharSequence#length().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Int#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrayCharSequence#charAt().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Char#
+      }
+      params: scala.#Predef.#ArrayCharSequence#charAt().(index)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrayCharSequence#charAt().(index)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Int#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrayCharSequence#subSequence().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#CharSequence#
+      }
+      params: scala.#Predef.#ArrayCharSequence#subSequence().(start)
+      params: scala.#Predef.#ArrayCharSequence#subSequence().(end)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrayCharSequence#subSequence().(start)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Int#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrayCharSequence#subSequence().(end)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Int#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrayCharSequence#toString().
+    flags: OVERRIDE | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: SINGLEtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Predef.
+        }
+        sym: scala.#Predef.#String#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrayCharSequence().
+    flags: IMPLICIT | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#ArrayCharSequence#
+      }
+      params: scala.#Predef.#ArrayCharSequence().(__arrayOfChars)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrayCharSequence().(__arrayOfChars)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Array#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Char#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringCanBuildFrom().
+    flags: IMPLICIT | METHOD | STABLE | ACCESSOR
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#generic.#
+        }
+        sym: scala.#collection.#generic.#CanBuildFrom#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#Predef.#
+          }
+          sym: scala.#Predef.#String#
+        }
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Char#
+        }
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#Predef.#
+          }
+          sym: scala.#Predef.#String#
+        }
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringCanBuildFrom .
+    flags: PRIVATE | LOCAL
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#collection.#generic.#
+      }
+      sym: scala.#collection.#generic.#CanBuildFrom#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#String#
+      }
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Char#
+      }
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#String#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#augmentString().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#immutable.#
+        }
+        sym: scala.#collection.#immutable.#StringOps#
+      }
+      params: scala.#Predef.#augmentString().(x)
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#inline#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#augmentString().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#String#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#unaugmentString().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#String#
+      }
+      params: scala.#Predef.#unaugmentString().(x)
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#inline#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#unaugmentString().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#collection.#immutable.#
+      }
+      sym: scala.#collection.#immutable.#StringOps#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#print().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Unit#
+      }
+      params: scala.#Predef.#print().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#print().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Any#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#println().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Unit#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#println()+1.
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Unit#
+      }
+      params: scala.#Predef.#println()+1.(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#println()+1.(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Any#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#printf().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Unit#
+      }
+      params: scala.#Predef.#printf().(text)
+      params: scala.#Predef.#printf().(xs)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#printf().(text)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#String#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#printf().(xs)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#<repeated>#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#tuple2ToZippedOps().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: SINGLEtpe
+            pre {
+              tag: SINGLEtpe
+              pre {
+                tag: THIStpe
+                sym: scala.#
+              }
+              sym: scala.#runtime.
+            }
+            sym: scala.#runtime.#Tuple2Zipped.
+          }
+          sym: scala.#runtime.#Tuple2Zipped.#Ops#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#tuple2ToZippedOps().[T1]
+          }
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#tuple2ToZippedOps().[T2]
+          }
+        }
+        params: scala.#Predef.#tuple2ToZippedOps().(x)
+      }
+      params: scala.#Predef.#tuple2ToZippedOps().[T1]
+      params: scala.#Predef.#tuple2ToZippedOps().[T2]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#tuple2ToZippedOps().[T1]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#tuple2ToZippedOps().[T2]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#tuple2ToZippedOps().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Tuple2#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#tuple2ToZippedOps().[T1]
+      }
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#tuple2ToZippedOps().[T2]
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#tuple3ToZippedOps().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: SINGLEtpe
+            pre {
+              tag: SINGLEtpe
+              pre {
+                tag: THIStpe
+                sym: scala.#
+              }
+              sym: scala.#runtime.
+            }
+            sym: scala.#runtime.#Tuple3Zipped.
+          }
+          sym: scala.#runtime.#Tuple3Zipped.#Ops#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#tuple3ToZippedOps().[T1]
+          }
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#tuple3ToZippedOps().[T2]
+          }
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#tuple3ToZippedOps().[T3]
+          }
+        }
+        params: scala.#Predef.#tuple3ToZippedOps().(x)
+      }
+      params: scala.#Predef.#tuple3ToZippedOps().[T1]
+      params: scala.#Predef.#tuple3ToZippedOps().[T2]
+      params: scala.#Predef.#tuple3ToZippedOps().[T3]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#tuple3ToZippedOps().[T1]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#tuple3ToZippedOps().[T2]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#tuple3ToZippedOps().[T3]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#tuple3ToZippedOps().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Tuple3#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#tuple3ToZippedOps().[T1]
+      }
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#tuple3ToZippedOps().[T2]
+      }
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#tuple3ToZippedOps().[T3]
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#genericArrayOps().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#collection.#mutable.#
+          }
+          sym: scala.#collection.#mutable.#ArrayOps#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#genericArrayOps().[T]
+          }
+        }
+        params: scala.#Predef.#genericArrayOps().(xs)
+      }
+      params: scala.#Predef.#genericArrayOps().[T]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#genericArrayOps().[T]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#genericArrayOps().(xs)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Array#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#genericArrayOps().[T]
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#booleanArrayOps().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#mutable.#
+        }
+        sym: scala.#collection.#mutable.#ArrayOps#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Boolean#
+        }
+      }
+      params: scala.#Predef.#booleanArrayOps().(xs)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#booleanArrayOps().(xs)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Array#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Boolean#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#byteArrayOps().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#mutable.#
+        }
+        sym: scala.#collection.#mutable.#ArrayOps#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Byte#
+        }
+      }
+      params: scala.#Predef.#byteArrayOps().(xs)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#byteArrayOps().(xs)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Array#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Byte#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#charArrayOps().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#mutable.#
+        }
+        sym: scala.#collection.#mutable.#ArrayOps#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Char#
+        }
+      }
+      params: scala.#Predef.#charArrayOps().(xs)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#charArrayOps().(xs)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Array#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Char#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#doubleArrayOps().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#mutable.#
+        }
+        sym: scala.#collection.#mutable.#ArrayOps#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Double#
+        }
+      }
+      params: scala.#Predef.#doubleArrayOps().(xs)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#doubleArrayOps().(xs)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Array#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Double#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#floatArrayOps().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#mutable.#
+        }
+        sym: scala.#collection.#mutable.#ArrayOps#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Float#
+        }
+      }
+      params: scala.#Predef.#floatArrayOps().(xs)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#floatArrayOps().(xs)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Array#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Float#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#intArrayOps().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#mutable.#
+        }
+        sym: scala.#collection.#mutable.#ArrayOps#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Int#
+        }
+      }
+      params: scala.#Predef.#intArrayOps().(xs)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#intArrayOps().(xs)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Array#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Int#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#longArrayOps().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#mutable.#
+        }
+        sym: scala.#collection.#mutable.#ArrayOps#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Long#
+        }
+      }
+      params: scala.#Predef.#longArrayOps().(xs)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#longArrayOps().(xs)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Array#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Long#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#refArrayOps().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#collection.#mutable.#
+          }
+          sym: scala.#collection.#mutable.#ArrayOps#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#refArrayOps().[T]
+          }
+        }
+        params: scala.#Predef.#refArrayOps().(xs)
+      }
+      params: scala.#Predef.#refArrayOps().[T]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#refArrayOps().[T]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#AnyRef#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#refArrayOps().(xs)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Array#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#refArrayOps().[T]
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#shortArrayOps().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#mutable.#
+        }
+        sym: scala.#collection.#mutable.#ArrayOps#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Short#
+        }
+      }
+      params: scala.#Predef.#shortArrayOps().(xs)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#shortArrayOps().(xs)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Array#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Short#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#unitArrayOps().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#collection.#mutable.#
+        }
+        sym: scala.#collection.#mutable.#ArrayOps#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Unit#
+        }
+      }
+      params: scala.#Predef.#unitArrayOps().(xs)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#unitArrayOps().(xs)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Array#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Unit#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#byte2Byte().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#Byte#
+      }
+      params: scala.#Predef.#byte2Byte().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#byte2Byte().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Byte#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#short2Short().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#Short#
+      }
+      params: scala.#Predef.#short2Short().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#short2Short().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Short#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#char2Character().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#Character#
+      }
+      params: scala.#Predef.#char2Character().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#char2Character().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Char#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#int2Integer().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#Integer#
+      }
+      params: scala.#Predef.#int2Integer().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#int2Integer().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Int#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#long2Long().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#Long#
+      }
+      params: scala.#Predef.#long2Long().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#long2Long().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Long#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#float2Float().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#Float#
+      }
+      params: scala.#Predef.#float2Float().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#float2Float().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Float#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#double2Double().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#Double#
+      }
+      params: scala.#Predef.#double2Double().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#double2Double().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Double#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#boolean2Boolean().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#Boolean#
+      }
+      params: scala.#Predef.#boolean2Boolean().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#boolean2Boolean().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Boolean#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Byte2byte().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Byte#
+      }
+      params: scala.#Predef.#Byte2byte().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Byte2byte().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: java.#lang.#
+      }
+      sym: java.#lang.#Byte#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Short2short().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Short#
+      }
+      params: scala.#Predef.#Short2short().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Short2short().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: java.#lang.#
+      }
+      sym: java.#lang.#Short#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Character2char().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Char#
+      }
+      params: scala.#Predef.#Character2char().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Character2char().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: java.#lang.#
+      }
+      sym: java.#lang.#Character#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Integer2int().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Int#
+      }
+      params: scala.#Predef.#Integer2int().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Integer2int().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: java.#lang.#
+      }
+      sym: java.#lang.#Integer#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Long2long().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Long#
+      }
+      params: scala.#Predef.#Long2long().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Long2long().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: java.#lang.#
+      }
+      sym: java.#lang.#Long#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Float2float().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Float#
+      }
+      params: scala.#Predef.#Float2float().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Float2float().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: java.#lang.#
+      }
+      sym: java.#lang.#Float#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Double2double().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Double#
+      }
+      params: scala.#Predef.#Double2double().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Double2double().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: java.#lang.#
+      }
+      sym: java.#lang.#Double#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Boolean2boolean().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Boolean#
+      }
+      params: scala.#Predef.#Boolean2boolean().(x)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Boolean2boolean().(x)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: java.#lang.#
+      }
+      sym: java.#lang.#Boolean#
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#$less$colon$less#
+    flags: SEALED | ABSTRACT
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: CLASSINFOtpe
+        sym: scala.#Predef.#$less$colon$less#
+        parents {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#AnyRef#
+        }
+        parents {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Function1#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#$less$colon$less#[From]
+          }
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#$less$colon$less#[To]
+          }
+        }
+        parents {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Serializable#
+        }
+      }
+      params: scala.#Predef.#$less$colon$less#[From]
+      params: scala.#Predef.#$less$colon$less#[To]
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#annotation.#
+        }
+        sym: scala.#annotation.#implicitNotFound#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+    children: scala.#Predef.#$less$colon$less#<local child>#
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#$less$colon$less#[From]
+    flags: DEFERRED | PARAM | CONTRAVARIANT
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#$less$colon$less#[To]
+    flags: DEFERRED | PARAM | COVARIANT
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#$less$colon$less#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#$less$colon$less#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#$less$colon$less#[From]
+        }
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#$less$colon$less#[To]
+        }
+      }
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#$less$colon$less#<local child>#
+    flags:
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#$less$colon$less#<local child>#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#$less$colon$less#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#$less$colon$less#[From]
+        }
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#$less$colon$less#[To]
+        }
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#singleton_$less$colon$less.
+    flags: FINAL | PRIVATE | LOCAL
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#$less$colon$less#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#$conforms().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: POLYtpe
+        tpe {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#Predef.#
+          }
+          sym: scala.#Predef.#$less$colon$less#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#$conforms().[A]
+          }
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#$conforms().[A]
+          }
+        }
+      }
+      params: scala.#Predef.#$conforms().[A]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#$conforms().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#conforms().
+    flags: METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: POLYtpe
+        tpe {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#Predef.#
+          }
+          sym: scala.#Predef.#$less$colon$less#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#conforms().[A]
+          }
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#conforms().[A]
+          }
+        }
+      }
+      params: scala.#Predef.#conforms().[A]
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#conforms().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#$eq$colon$eq#
+    flags: SEALED | ABSTRACT
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: CLASSINFOtpe
+        sym: scala.#Predef.#$eq$colon$eq#
+        parents {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#AnyRef#
+        }
+        parents {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Function1#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#$eq$colon$eq#[From]
+          }
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#$eq$colon$eq#[To]
+          }
+        }
+        parents {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Serializable#
+        }
+      }
+      params: scala.#Predef.#$eq$colon$eq#[From]
+      params: scala.#Predef.#$eq$colon$eq#[To]
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#annotation.#
+        }
+        sym: scala.#annotation.#implicitNotFound#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+    children: scala.#Predef.#$eq$colon$eq#<local child>#
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#$eq$colon$eq#[From]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#$eq$colon$eq#[To]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#$eq$colon$eq#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#$eq$colon$eq#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#$eq$colon$eq#[From]
+        }
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#$eq$colon$eq#[To]
+        }
+      }
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#$eq$colon$eq#<local child>#
+    flags:
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#$eq$colon$eq#<local child>#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#$eq$colon$eq#
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#$eq$colon$eq#[From]
+        }
+        targs {
+          tag: TYPEREFtpe
+          pre {
+            tag: NOPREFIXtpe
+          }
+          sym: scala.#Predef.#$eq$colon$eq#[To]
+        }
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#singleton_$eq$colon$eq.
+    flags: FINAL | PRIVATE | LOCAL
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#$eq$colon$eq#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: MODULEsym
+    id: scala.#Predef.#$eq$colon$eq.
+    flags: MODULE
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#$eq$colon$eq.#
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#$eq$colon$eq.#
+    flags: MODULE
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#$eq$colon$eq.#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#AnyRef#
+      }
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Serializable#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#$eq$colon$eq.#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#$eq$colon$eq.#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#$eq$colon$eq.#tpEquals().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: POLYtpe
+        tpe {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#Predef.#
+          }
+          sym: scala.#Predef.#$eq$colon$eq#
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#$eq$colon$eq.#tpEquals().[A]
+          }
+          targs {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#$eq$colon$eq.#tpEquals().[A]
+          }
+        }
+      }
+      params: scala.#Predef.#$eq$colon$eq.#tpEquals().[A]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#$eq$colon$eq.#tpEquals().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#$eq$colon$eq.#readResolve().
+    flags: PRIVATE | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: java.#lang.#
+        }
+        sym: java.#lang.#Object#
+      }
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#DummyImplicit#
+    flags:
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#DummyImplicit#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#AnyRef#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#DummyImplicit#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#DummyImplicit#
+      }
+    }
+  }
+  symbols {
+    tag: MODULEsym
+    id: scala.#Predef.#DummyImplicit.
+    flags: MODULE
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#DummyImplicit.#
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#DummyImplicit.#
+    flags: MODULE
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#DummyImplicit.#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#AnyRef#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#DummyImplicit.#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#DummyImplicit.#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#DummyImplicit.#dummyImplicit().
+    flags: IMPLICIT | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#DummyImplicit#
+      }
+    }
+  }
+  symbols {
+    tag: MODULEsym
+    id: scala.#Predef.#RichException.
+    flags: MODULE | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#RichException.#
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#RichException.#
+    flags: MODULE | SYNTHETIC
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#RichException.#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#AnyRef#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException.#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#RichException.#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException.#getStackTraceString$extension().
+    flags: FINAL | METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: SINGLEtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Predef.
+        }
+        sym: scala.#Predef.#String#
+      }
+      params: scala.#Predef.#RichException.#getStackTraceString$extension().($this)
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+        }
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException.#getStackTraceString$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#RichException#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException.#hashCode$extension().
+    flags: FINAL | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Int#
+        }
+      }
+      params: scala.#Predef.#RichException.#hashCode$extension().($this)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException.#hashCode$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#RichException#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException.#equals$extension().
+    flags: FINAL | METHOD | SYNTHETIC
+    info {
+      tag: METHODtpe
+      ret {
+        tag: METHODtpe
+        ret {
+          tag: TYPEREFtpe
+          pre {
+            tag: THIStpe
+            sym: scala.#
+          }
+          sym: scala.#Boolean#
+        }
+        params: scala.#Predef.#RichException.#equals$extension().(x$1)
+      }
+      params: scala.#Predef.#RichException.#equals$extension().($this)
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException.#equals$extension().(x$1)
+    flags: PARAM | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Any#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#RichException.#equals$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#RichException#
+    }
+  }
+  symbols {
+    tag: MODULEsym
+    id: scala.#Predef.#any2stringadd.
+    flags: MODULE | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#any2stringadd.#
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#any2stringadd.#
+    flags: MODULE | SYNTHETIC
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#any2stringadd.#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#AnyRef#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd.#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#any2stringadd.#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd.#$plus$extension().
+    flags: FINAL | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#Predef.#
+            }
+            sym: scala.#Predef.#String#
+          }
+          params: scala.#Predef.#any2stringadd.#$plus$extension().(other)
+        }
+        params: scala.#Predef.#any2stringadd.#$plus$extension().($this)
+      }
+      params: scala.#Predef.#any2stringadd.#$plus$extension().[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd.#$plus$extension().(other)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#String#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd.#$plus$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#any2stringadd#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#any2stringadd.#$plus$extension().[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#any2stringadd.#$plus$extension().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd.#hashCode$extension().
+    flags: FINAL | METHOD | SYNTHETIC
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#
+            }
+            sym: scala.#Int#
+          }
+        }
+        params: scala.#Predef.#any2stringadd.#hashCode$extension().($this)
+      }
+      params: scala.#Predef.#any2stringadd.#hashCode$extension().[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd.#hashCode$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#any2stringadd#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#any2stringadd.#hashCode$extension().[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#any2stringadd.#hashCode$extension().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd.#equals$extension().
+    flags: FINAL | METHOD | SYNTHETIC
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#
+            }
+            sym: scala.#Boolean#
+          }
+          params: scala.#Predef.#any2stringadd.#equals$extension().(x$1)
+        }
+        params: scala.#Predef.#any2stringadd.#equals$extension().($this)
+      }
+      params: scala.#Predef.#any2stringadd.#equals$extension().[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd.#equals$extension().(x$1)
+    flags: PARAM | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Any#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#any2stringadd.#equals$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#any2stringadd#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#any2stringadd.#equals$extension().[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#any2stringadd.#equals$extension().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: MODULEsym
+    id: scala.#Predef.#StringFormat.
+    flags: MODULE | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#StringFormat.#
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#StringFormat.#
+    flags: MODULE | SYNTHETIC
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#StringFormat.#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#AnyRef#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat.#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#StringFormat.#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat.#formatted$extension().
+    flags: FINAL | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#Predef.#
+            }
+            sym: scala.#Predef.#String#
+          }
+          params: scala.#Predef.#StringFormat.#formatted$extension().(fmtstr)
+        }
+        params: scala.#Predef.#StringFormat.#formatted$extension().($this)
+      }
+      params: scala.#Predef.#StringFormat.#formatted$extension().[A]
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#inline#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat.#formatted$extension().(fmtstr)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#String#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat.#formatted$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#StringFormat#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#StringFormat.#formatted$extension().[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#StringFormat.#formatted$extension().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat.#hashCode$extension().
+    flags: FINAL | METHOD | SYNTHETIC
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#
+            }
+            sym: scala.#Int#
+          }
+        }
+        params: scala.#Predef.#StringFormat.#hashCode$extension().($this)
+      }
+      params: scala.#Predef.#StringFormat.#hashCode$extension().[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat.#hashCode$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#StringFormat#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#StringFormat.#hashCode$extension().[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#StringFormat.#hashCode$extension().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat.#equals$extension().
+    flags: FINAL | METHOD | SYNTHETIC
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#
+            }
+            sym: scala.#Boolean#
+          }
+          params: scala.#Predef.#StringFormat.#equals$extension().(x$1)
+        }
+        params: scala.#Predef.#StringFormat.#equals$extension().($this)
+      }
+      params: scala.#Predef.#StringFormat.#equals$extension().[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat.#equals$extension().(x$1)
+    flags: PARAM | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Any#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringFormat.#equals$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#StringFormat#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#StringFormat.#equals$extension().[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#StringFormat.#equals$extension().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: MODULEsym
+    id: scala.#Predef.#Ensuring.
+    flags: MODULE | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#Ensuring.#
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#Ensuring.#
+    flags: MODULE | SYNTHETIC
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#Ensuring.#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#AnyRef#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#Ensuring.#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension0().
+    flags: FINAL | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#Ensuring.#ensuring$extension0().[A]
+          }
+          params: scala.#Predef.#Ensuring.#ensuring$extension0().(cond)
+        }
+        params: scala.#Predef.#Ensuring.#ensuring$extension0().($this)
+      }
+      params: scala.#Predef.#Ensuring.#ensuring$extension0().[A]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension0().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension0().(cond)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Boolean#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension0().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#Ensuring#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Ensuring.#ensuring$extension0().[A]
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension1().
+    flags: FINAL | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#Ensuring.#ensuring$extension1().[A]
+          }
+          params: scala.#Predef.#Ensuring.#ensuring$extension1().(cond)
+          params: scala.#Predef.#Ensuring.#ensuring$extension1().(msg)
+        }
+        params: scala.#Predef.#Ensuring.#ensuring$extension1().($this)
+      }
+      params: scala.#Predef.#Ensuring.#ensuring$extension1().[A]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension1().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension1().(cond)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Boolean#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension1().(msg)
+    flags: PARAM | BYNAMEPARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#<byname>#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension1().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#Ensuring#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Ensuring.#ensuring$extension1().[A]
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension2().
+    flags: FINAL | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#Ensuring.#ensuring$extension2().[A]
+          }
+          params: scala.#Predef.#Ensuring.#ensuring$extension2().(cond)
+        }
+        params: scala.#Predef.#Ensuring.#ensuring$extension2().($this)
+      }
+      params: scala.#Predef.#Ensuring.#ensuring$extension2().[A]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension2().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension2().(cond)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Function1#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Ensuring.#ensuring$extension2().[A]
+      }
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Boolean#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension2().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#Ensuring#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Ensuring.#ensuring$extension2().[A]
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension3().
+    flags: FINAL | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: NOPREFIXtpe
+            }
+            sym: scala.#Predef.#Ensuring.#ensuring$extension3().[A]
+          }
+          params: scala.#Predef.#Ensuring.#ensuring$extension3().(cond)
+          params: scala.#Predef.#Ensuring.#ensuring$extension3().(msg)
+        }
+        params: scala.#Predef.#Ensuring.#ensuring$extension3().($this)
+      }
+      params: scala.#Predef.#Ensuring.#ensuring$extension3().[A]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension3().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension3().(cond)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Function1#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Ensuring.#ensuring$extension3().[A]
+      }
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Boolean#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension3().(msg)
+    flags: PARAM | BYNAMEPARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#<byname>#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#ensuring$extension3().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#Ensuring#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Ensuring.#ensuring$extension3().[A]
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#hashCode$extension().
+    flags: FINAL | METHOD | SYNTHETIC
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#
+            }
+            sym: scala.#Int#
+          }
+        }
+        params: scala.#Predef.#Ensuring.#hashCode$extension().($this)
+      }
+      params: scala.#Predef.#Ensuring.#hashCode$extension().[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#hashCode$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#Ensuring#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Ensuring.#hashCode$extension().[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Ensuring.#hashCode$extension().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#equals$extension().
+    flags: FINAL | METHOD | SYNTHETIC
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#
+            }
+            sym: scala.#Boolean#
+          }
+          params: scala.#Predef.#Ensuring.#equals$extension().(x$1)
+        }
+        params: scala.#Predef.#Ensuring.#equals$extension().($this)
+      }
+      params: scala.#Predef.#Ensuring.#equals$extension().[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#equals$extension().(x$1)
+    flags: PARAM | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Any#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#Ensuring.#equals$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#Ensuring#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#Ensuring.#equals$extension().[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#Ensuring.#equals$extension().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: MODULEsym
+    id: scala.#Predef.#ArrowAssoc.
+    flags: MODULE | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#ArrowAssoc.#
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#ArrowAssoc.#
+    flags: MODULE | SYNTHETIC
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#ArrowAssoc.#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#AnyRef#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc.#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#ArrowAssoc.#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc.#$minus$greater$extension().
+    flags: FINAL | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#
+            }
+            sym: scala.#Tuple2#
+            targs {
+              tag: TYPEREFtpe
+              pre {
+                tag: NOPREFIXtpe
+              }
+              sym: scala.#Predef.#ArrowAssoc.#$minus$greater$extension().[A]
+            }
+            targs {
+              tag: TYPEREFtpe
+              pre {
+                tag: NOPREFIXtpe
+              }
+              sym: scala.#Predef.#ArrowAssoc.#$minus$greater$extension().[B]
+            }
+          }
+          params: scala.#Predef.#ArrowAssoc.#$minus$greater$extension().(y)
+        }
+        params: scala.#Predef.#ArrowAssoc.#$minus$greater$extension().($this)
+      }
+      params: scala.#Predef.#ArrowAssoc.#$minus$greater$extension().[B]
+      params: scala.#Predef.#ArrowAssoc.#$minus$greater$extension().[A]
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#inline#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#ArrowAssoc.#$minus$greater$extension().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#ArrowAssoc.#$minus$greater$extension().[B]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc.#$minus$greater$extension().(y)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#ArrowAssoc.#$minus$greater$extension().[B]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc.#$minus$greater$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#ArrowAssoc#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#ArrowAssoc.#$minus$greater$extension().[A]
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc.#$u2192$extension().
+    flags: FINAL | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#
+            }
+            sym: scala.#Tuple2#
+            targs {
+              tag: TYPEREFtpe
+              pre {
+                tag: NOPREFIXtpe
+              }
+              sym: scala.#Predef.#ArrowAssoc.#$u2192$extension().[A]
+            }
+            targs {
+              tag: TYPEREFtpe
+              pre {
+                tag: NOPREFIXtpe
+              }
+              sym: scala.#Predef.#ArrowAssoc.#$u2192$extension().[B]
+            }
+          }
+          params: scala.#Predef.#ArrowAssoc.#$u2192$extension().(y)
+        }
+        params: scala.#Predef.#ArrowAssoc.#$u2192$extension().($this)
+      }
+      params: scala.#Predef.#ArrowAssoc.#$u2192$extension().[B]
+      params: scala.#Predef.#ArrowAssoc.#$u2192$extension().[A]
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#ArrowAssoc.#$u2192$extension().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#ArrowAssoc.#$u2192$extension().[B]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc.#$u2192$extension().(y)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: NOPREFIXtpe
+      }
+      sym: scala.#Predef.#ArrowAssoc.#$u2192$extension().[B]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc.#$u2192$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#ArrowAssoc#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#ArrowAssoc.#$u2192$extension().[A]
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc.#hashCode$extension().
+    flags: FINAL | METHOD | SYNTHETIC
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#
+            }
+            sym: scala.#Int#
+          }
+        }
+        params: scala.#Predef.#ArrowAssoc.#hashCode$extension().($this)
+      }
+      params: scala.#Predef.#ArrowAssoc.#hashCode$extension().[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc.#hashCode$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#ArrowAssoc#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#ArrowAssoc.#hashCode$extension().[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#ArrowAssoc.#hashCode$extension().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc.#equals$extension().
+    flags: FINAL | METHOD | SYNTHETIC
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#
+            }
+            sym: scala.#Boolean#
+          }
+          params: scala.#Predef.#ArrowAssoc.#equals$extension().(x$1)
+        }
+        params: scala.#Predef.#ArrowAssoc.#equals$extension().($this)
+      }
+      params: scala.#Predef.#ArrowAssoc.#equals$extension().[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc.#equals$extension().(x$1)
+    flags: PARAM | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Any#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#ArrowAssoc.#equals$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#ArrowAssoc#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#ArrowAssoc.#equals$extension().[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#ArrowAssoc.#equals$extension().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: MODULEsym
+    id: scala.#Predef.#StringAdd.
+    flags: MODULE | SYNTHETIC
+    within: scala.#
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#StringAdd.#
+    }
+  }
+  symbols {
+    tag: CLASSsym
+    id: scala.#Predef.#StringAdd.#
+    flags: MODULE | SYNTHETIC
+    within: scala.#
+    info {
+      tag: CLASSINFOtpe
+      sym: scala.#Predef.#StringAdd.#
+      parents {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#AnyRef#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd.#<init>().
+    flags: METHOD
+    info {
+      tag: METHODtpe
+      ret {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#Predef.#
+        }
+        sym: scala.#Predef.#StringAdd.#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd.#$plus$extension().
+    flags: FINAL | METHOD
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#Predef.#
+            }
+            sym: scala.#Predef.#String#
+          }
+          params: scala.#Predef.#StringAdd.#$plus$extension().(other)
+        }
+        params: scala.#Predef.#StringAdd.#$plus$extension().($this)
+      }
+      params: scala.#Predef.#StringAdd.#$plus$extension().[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd.#$plus$extension().(other)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#String#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd.#$plus$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#StringAdd#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#StringAdd.#$plus$extension().[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#StringAdd.#$plus$extension().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd.#hashCode$extension().
+    flags: FINAL | METHOD | SYNTHETIC
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#
+            }
+            sym: scala.#Int#
+          }
+        }
+        params: scala.#Predef.#StringAdd.#hashCode$extension().($this)
+      }
+      params: scala.#Predef.#StringAdd.#hashCode$extension().[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd.#hashCode$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#StringAdd#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#StringAdd.#hashCode$extension().[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#StringAdd.#hashCode$extension().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd.#equals$extension().
+    flags: FINAL | METHOD | SYNTHETIC
+    info {
+      tag: POLYtpe
+      tpe {
+        tag: METHODtpe
+        ret {
+          tag: METHODtpe
+          ret {
+            tag: TYPEREFtpe
+            pre {
+              tag: THIStpe
+              sym: scala.#
+            }
+            sym: scala.#Boolean#
+          }
+          params: scala.#Predef.#StringAdd.#equals$extension().(x$1)
+        }
+        params: scala.#Predef.#StringAdd.#equals$extension().($this)
+      }
+      params: scala.#Predef.#StringAdd.#equals$extension().[A]
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd.#equals$extension().(x$1)
+    flags: PARAM | SYNTHETIC
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#
+      }
+      sym: scala.#Any#
+    }
+  }
+  symbols {
+    tag: VALsym
+    id: scala.#Predef.#StringAdd.#equals$extension().($this)
+    flags: PARAM
+    info {
+      tag: TYPEREFtpe
+      pre {
+        tag: THIStpe
+        sym: scala.#Predef.#
+      }
+      sym: scala.#Predef.#StringAdd#
+      targs {
+        tag: TYPEREFtpe
+        pre {
+          tag: NOPREFIXtpe
+        }
+        sym: scala.#Predef.#StringAdd.#equals$extension().[A]
+      }
+    }
+  }
+  symbols {
+    tag: TYPEsym
+    id: scala.#Predef.#StringAdd.#equals$extension().[A]
+    flags: DEFERRED | PARAM
+    info {
+      tag: TYPEBOUNDStpe
+      lo {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Nothing#
+      }
+      hi {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#Any#
+      }
+    }
+  }
+}

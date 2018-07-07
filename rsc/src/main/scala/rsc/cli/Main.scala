@@ -17,8 +17,12 @@ object Main {
       case Some(settings) =>
         val reporter = ConsoleReporter(settings)
         val compiler = Compiler(settings, reporter)
-        compiler.run()
-        if (reporter.problems.nonEmpty) 1 else 0
+        try {
+          compiler.run()
+          if (reporter.problems.nonEmpty) 1 else 0
+        } finally {
+          compiler.close()
+        }
       case None =>
         1
     }

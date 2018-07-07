@@ -6,80 +6,93 @@ trait Contexts {
   self: Parser =>
 
   sealed trait ParamContext {
-    def allowsAnonymous: Boolean
+    def allowsAnonymousParams: Boolean
+    def allowsAnonymousTypeParams: Boolean
     def allowsContextBounds: Boolean
     def allowsDefaults: Boolean
     def allowsInferred: Boolean
-    def allowsTermParams: Boolean
+    def allowsParams: Boolean
     def allowsTypeBounds: Boolean
     def allowsTypeParams: Boolean
     def allowsVariance: Boolean
     def allowsViewBounds: Boolean
   }
 
-  sealed trait TemplateContext
-
-  final case object DefnClassContext extends ParamContext with TemplateContext {
-    def allowsAnonymous = false
+  case object DefnClassContext extends ParamContext {
+    def allowsAnonymousParams = false
+    def allowsAnonymousTypeParams = true
     def allowsContextBounds = true
     def allowsDefaults = true
     def allowsInferred = false
-    def allowsTermParams = true
+    def allowsParams = true
     def allowsTypeBounds = true
     def allowsTypeParams = true
     def allowsVariance = true
     def allowsViewBounds = true
   }
 
-  final case object DefnObjectContext extends TemplateContext
-
-  final case object DefnTraitContext extends ParamContext with TemplateContext {
-    def allowsAnonymous = false
+  case object DefnTraitContext extends ParamContext {
+    def allowsAnonymousParams = false
+    def allowsAnonymousTypeParams = true
     def allowsContextBounds = false
     def allowsDefaults = true
     def allowsInferred = false
-    def allowsTermParams = true
+    def allowsParams = false
     def allowsTypeBounds = true
     def allowsTypeParams = true
     def allowsVariance = true
     def allowsViewBounds = false
   }
 
-  final case object DefnDefContext extends ParamContext {
-    def allowsAnonymous = false
+  case object DefnDefContext extends ParamContext {
+    def allowsAnonymousParams = false
+    def allowsAnonymousTypeParams = true
     def allowsContextBounds = true
     def allowsDefaults = true
     def allowsInferred = false
-    def allowsTermParams = true
+    def allowsParams = true
     def allowsTypeBounds = true
-    def allowsTypeParams = false
+    def allowsTypeParams = true
     def allowsVariance = false
     def allowsViewBounds = true
   }
 
-  final case object DefnTypeContext extends ParamContext {
-    def allowsAnonymous = true
+  case object DefnTypeContext extends ParamContext {
+    def allowsAnonymousParams = false
+    def allowsAnonymousTypeParams = true
     def allowsContextBounds = false
     def allowsDefaults = false
     def allowsInferred = false
-    def allowsTermParams = false
+    def allowsParams = false
     def allowsTypeBounds = true
     def allowsTypeParams = true
     def allowsVariance = true
     def allowsViewBounds = false
   }
 
-  final case object PrimaryCtorContext extends ParamContext {
-    def allowsAnonymous = false
+  case object CtorContext extends ParamContext {
+    def allowsAnonymousParams = false
+    def allowsAnonymousTypeParams = false
     def allowsContextBounds = false
     def allowsDefaults = true
     def allowsInferred = false
-    def allowsTermParams = true
+    def allowsParams = true
     def allowsTypeBounds = false
     def allowsTypeParams = false
     def allowsVariance = false
     def allowsViewBounds = false
   }
 
-  final case object TermNewContext extends TemplateContext
+  case object TypeParamContext extends ParamContext {
+    def allowsAnonymousParams = false
+    def allowsAnonymousTypeParams = true
+    def allowsContextBounds = false
+    def allowsDefaults = false
+    def allowsInferred = false
+    def allowsParams = false
+    def allowsTypeBounds = true
+    def allowsTypeParams = true
+    def allowsVariance = true
+    def allowsViewBounds = false
+  }
 }
