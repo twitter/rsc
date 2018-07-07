@@ -7,10 +7,6 @@
 Rsc is an experimental Scala compiler focused on compilation speed.
 This project is developed by Eugene Burmako and his team at Twitter.
 
-Our research goal is to achieve dramatic compilation speedups (5-10x)
-for typical Scala codebases, and we are currently well on track to reaching
-this goal.
-
 In this document, we aim to publish the results of running our benchmark suite
 on the most recent commit in our repository. Since running benchmarks takes time,
 there may be short periods of time when this document is out of date. If you're
