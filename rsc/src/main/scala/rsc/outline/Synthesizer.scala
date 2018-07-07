@@ -9,6 +9,7 @@ import rsc.settings._
 import rsc.syntax._
 import rsc.util._
 
+// FIXME: https://github.com/twitter/rsc/issues/98
 final class Synthesizer private (
     settings: Settings,
     reporter: Reporter,

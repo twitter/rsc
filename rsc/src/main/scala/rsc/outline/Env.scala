@@ -118,6 +118,7 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
   }
 
   def resolveSuper(mix: Option[Name]): Resolution = {
+    // FIXME: https://github.com/twitter/rsc/issues/96
     ???
   }
 

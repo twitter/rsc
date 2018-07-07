@@ -10,6 +10,7 @@ import rsc.settings._
 import rsc.syntax._
 import rsc.util._
 
+// FIXME: https://github.com/twitter/rsc/issues/98
 final class Scheduler private (
     settings: Settings,
     reporter: Reporter,

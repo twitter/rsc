@@ -109,6 +109,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
             val thisType = owners.inThisType(ssym.sself.map(emitTpe))
             ClassSymbol(name, owner, flags, within, info, thisType)
           } else if (ssym.isDef || ssym.isParam || ssym.isField) {
+            // FIXME: https://github.com/twitter/rsc/issues/100
             val alias = None
             ValSymbol(name, owner, flags, within, info, alias)
           } else {
@@ -248,8 +249,10 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
           val sym = emitSym(ssym, RefMode)
           ThisType(sym)
         case s.SuperType(spre, ssym) =>
+          // FIXME: https://github.com/twitter/rsc/issues/96
           crash(stpe.toTypeMessage.toProtoString)
         case s.ConstantType(sconst) =>
+          // FIXME: https://github.com/twitter/rsc/issues/118
           crash(stpe.toTypeMessage.toProtoString)
         case stpe @ s.StructuralType(sret, sdecls) =>
           val srefinement = Transients.srefinement(stpe)
@@ -295,6 +298,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
 
   private def emitAnnot(sannot: s.Annotation): Ref = {
     entries.getOrElseUpdate(AnnotationKey(sannot)) {
+      // FIXME: https://github.com/twitter/rsc/issues/93
       val tpe = emitTpe(sannot.tpe)
       AnnotInfo(tpe, Nil)
     }
@@ -377,6 +381,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         symtab.get(ssym) match {
           case Some(sinfo) =>
             if (ssym.isExistential) {
+              // FIXME: https://github.com/twitter/rsc/issues/94
               TypeName(gensym.wildcardExistential())
             } else {
               sinfo.kind match {
@@ -609,6 +614,8 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       symtab.contains(ssym) && symtab(ssym).name == "<refinement>"
     }
     def isExistential: Boolean = {
+      // FIXME: https://github.com/twitter/rsc/issues/94
+      // FIXME: https://github.com/twitter/rsc/issues/95
       ssym.isLocal
     }
     def isValueClass: Boolean = {
@@ -915,6 +922,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
     }
     def scaseAccessor(sgetterSym: String): s.SymbolInformation = {
       val saccessorName = {
+        // FIXME: https://github.com/twitter/rsc/issues/99
         if (abi == Scalac211) gensym.caseAccessor(sgetterSym.desc.name)
         else crash(abi)
       }

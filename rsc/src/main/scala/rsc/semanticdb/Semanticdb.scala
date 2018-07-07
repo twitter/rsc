@@ -230,6 +230,7 @@ final class Semanticdb private (
     }
 
     def annotations: List[s.Annotation] = {
+      // FIXME: https://github.com/twitter/rsc/issues/93
       Nil
     }
 
@@ -330,6 +331,7 @@ final class Semanticdb private (
 
   implicit class ModSemanticdbOps(mods: Mods) {
     def annotations: List[s.Annotation] = {
+      // FIXME: https://github.com/twitter/rsc/issues/93
       mods.annots.map(annot => s.Annotation(tpe = s.NoType))
     }
   }
@@ -378,27 +380,36 @@ final class Semanticdb private (
                 s.ExistentialType(typeRef(targs1), scope)
               }
             case other =>
+              // FIXME: https://github.com/scalameta/scalameta/issues/1565
               crash(other)
           }
         case TptByName(tpt) =>
           s.ByNameType(tpt.tpe)
         case TptExistential(tpt, stats) =>
+          // FIXME: https://github.com/twitter/rsc/issues/94
           s.NoType
         case tpt: TptId =>
+          // FIXME: https://github.com/twitter/rsc/issues/90
           s.TypeRef(s.NoType, tpt.sym, Nil)
         case tpt: TptProject =>
+          // FIXME: https://github.com/twitter/rsc/issues/91
           s.NoType
         case TptRefine(tpt, stats) =>
+          // FIXME: https://github.com/twitter/rsc/issues/95
           s.NoType
         case TptRepeat(tpt) =>
           s.RepeatedType(tpt.tpe)
         case tpt: TptSelect =>
+          // FIXME: https://github.com/twitter/rsc/issues/90
           s.TypeRef(s.NoType, tpt.id.sym, Nil)
         case TptSingleton(id: TermId) =>
+          // FIXME: https://github.com/twitter/rsc/issues/90
           s.SingleType(s.NoType, id.sym)
         case TptSingleton(TermSelect(_, id)) =>
+          // FIXME: https://github.com/twitter/rsc/issues/90
           s.SingleType(s.NoType, id.sym)
         case TptSingleton(_: TermSuper) =>
+          // FIXME: https://github.com/twitter/rsc/issues/96
           s.NoType
         case TptSingleton(TermThis(id)) =>
           s.ThisType(id.sym)

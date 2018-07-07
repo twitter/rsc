@@ -194,6 +194,7 @@ class ScalasigHighlevel(lscalasig: l.Scalasig) {
             val hvalues = lvalues.map(_.resolve[h.JavaAnnotValue])
             h.AnnotArgArray(hvalues)
           case l.Tree(lpayload) =>
+            // FIXME: https://github.com/twitter/rsc/issues/93
             val hpayload = lpayload
             h.Tree(hpayload)
           case _: l.Children =>

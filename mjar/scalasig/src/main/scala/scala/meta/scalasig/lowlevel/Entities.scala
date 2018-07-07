@@ -67,5 +67,6 @@ sealed trait ScalaAnnotValue extends Entry
 sealed trait JavaAnnotValue extends Entry
 case class AnnotArgArray(values: List[Ref]) extends Entry with JavaAnnotValue
 
+// FIXME: https://github.com/twitter/rsc/issues/93
 case class Tree(payload: List[Byte]) extends Entry with ScalaAnnotValue
 case class Modifiers(payload: List[Byte]) extends Entry

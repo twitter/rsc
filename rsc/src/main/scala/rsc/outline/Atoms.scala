@@ -5,6 +5,8 @@ package rsc.outline
 import rsc.pretty._
 import rsc.syntax._
 
+// FIXME: https://github.com/twitter/rsc/issues/104
+
 sealed trait Atom extends Pretty with Product {
   def printStr(p: Printer): Unit = PrettyAtom.str(p, this)
   def printRepl(p: Printer): Unit = PrettyAtom.repl(p, this)

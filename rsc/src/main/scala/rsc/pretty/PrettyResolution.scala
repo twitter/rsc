@@ -9,6 +9,7 @@ object PrettyResolution {
     x match {
       case BlockedResolution(work) =>
         p.str("b:")
+        // FIXME: https://github.com/twitter/rsc/issues/104
         if (work != null) PrettyWork.abbr(p, work)
         else p.str("null")
       case MissingResolution =>

@@ -7,6 +7,7 @@ import scala.meta.scalasig.{lowlevel => l}
 
 object ScalasigLowlevel {
   def apply(hscalasig: h.Scalasig): l.Scalasig = {
+    // WONTFIX: https://github.com/twitter/rsc/issues/119
     ???
   }
 }

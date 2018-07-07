@@ -10,6 +10,7 @@ abstract class Work extends Pretty {
   var status: Status = PendingStatus
 
   def block(dep: Work): Unit = {
+    // FIXME: https://github.com/twitter/rsc/issues/104
     if (dep == null) return
     status match {
       case PendingStatus =>

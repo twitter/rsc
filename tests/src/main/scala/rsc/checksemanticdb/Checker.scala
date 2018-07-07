@@ -35,6 +35,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
           }
         case (Some(nscInfo), None) =>
           if (nscInfo.symbol.contains("#_#")) {
+            // FIXME: https://github.com/scalameta/scalameta/issues/1586
             ()
           } else {
             problems += MissingRscProblem(sym)
@@ -44,6 +45,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
               rscInfo.name == "hashCode" ||
               rscInfo.name == "toString" ||
               rscInfo.symbol.contains("#equals().(x$1)")) {
+            // FIXME: https://github.com/twitter/rsc/issues/98
             ()
           } else {
             problems += MissingNscProblem(sym)
@@ -71,7 +73,9 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   private def highlevelPatch(
       map: Map[String, SymbolInformation]): Map[String, SymbolInformation] = {
     var infos1 = map.values.toList
+    // WONTFIX: https://github.com/scalameta/scalameta/issues/1340
     infos1 = infos1.filter(_.kind != k.PACKAGE)
+    // WONTFIX: https://github.com/twitter/rsc/issues/121
     infos1 = infos1.filter { info =>
       info.kind match {
         case k.LOCAL | k.PARAMETER | k.SELF_PARAMETER | k.TYPE_PARAMETER |
@@ -107,30 +111,42 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     def nhas(prop: Property) = (n.properties & prop.value) != 0
     def rhas(prop: Property) = (r.properties & prop.value) != 0
     if (n.kind == k.PARAMETER && nhas(p.VAL) && !rhas(p.VAL)) {
+      // WONTFIX: https://github.com/scalameta/scalameta/issues/1538
       n1 = n1.copy(properties = n1.properties & ~p.VAL.value)
     }
+    // FIXME: https://github.com/scalameta/scalameta/issues/1492
     r1 = r1.copy(properties = r1.properties & ~p.SYNTHETIC.value)
+    // FIXME: https://github.com/scalameta/scalameta/issues/1645
     r1 = r1.copy(properties = r1.properties & ~p.DEFAULT.value)
 
     n.signature match {
       case ClassSignature(ntparams, nps, nself, Some(ndecls)) =>
         var nps1 = nps
+        // FIXME: https://github.com/twitter/rsc/issues/98
         nps1 = nps1.filter {
           case TypeRef(_, SerializableClass, _) => false
           case _ => true
         }
+        // FIXME: https://github.com/twitter/rsc/issues/120
         val nself1 = NoType
         var nds1 = ndecls.symlinks
+        // FIXME: https://github.com/scalameta/scalameta/issues/1548
         nds1 = nds1.sorted
+        // WONTFIX: https://github.com/twitter/rsc/issues/121
         nds1 = nds1.filter(_.desc.name != "readResolve")
+        // FIXME: https://github.com/twitter/rsc/issues/98
         nds1 = nds1.filter(_.desc.name != "equals")
+        // FIXME: https://github.com/twitter/rsc/issues/98
         nds1 = nds1.filter(_.desc.name != "hashCode")
+        // FIXME: https://github.com/twitter/rsc/issues/98
         nds1 = nds1.filter(_.desc.name != "toString")
+        // FIXME: https://github.com/scalameta/scalameta/issues/1586
         nds1 = nds1.filter(!_.contains("#_#"))
         val ndecls1 = Some(Scope(nds1))
         val nsig1 = ClassSignature(ntparams, nps1, nself1, ndecls1)
         n1 = n1.update(_.signature := nsig1)
       case MethodSignature(ntparams, npss, nret) =>
+        // FIXME: https://github.com/twitter/rsc/issues/103
         if (npss.isEmpty) {
           val npss1 = List(Scope())
           n1 = n1.update(_.signature := MethodSignature(ntparams, npss1, nret))
@@ -142,28 +158,38 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     r.signature match {
       case ClassSignature(rtparams, rps, rself, Some(rdecls)) =>
         var rps1 = rps
+        // FIXME: https://github.com/twitter/rsc/issues/98
         rps1 = rps1.filter {
           case TypeRef(_, SerializableClass, _) => false
           case _ => true
         }
+        // FIXME: https://github.com/twitter/rsc/issues/120
         val rself1 = NoType
         var rds1 = rdecls.symlinks
+        // FIXME: https://github.com/scalameta/scalameta/issues/1548
         rds1 = rds1.sorted
+        // WONTFIX: https://github.com/twitter/rsc/issues/121
         rds1 = rds1.filter(_.desc.name != "readResolve")
+        // FIXME: https://github.com/twitter/rsc/issues/98
         rds1 = rds1.filter(_.desc.name != "equals")
+        // FIXME: https://github.com/twitter/rsc/issues/98
         rds1 = rds1.filter(_.desc.name != "hashCode")
+        // FIXME: https://github.com/twitter/rsc/issues/98
         rds1 = rds1.filter(_.desc.name != "toString")
         val rdecls1 = Some(Scope(rds1))
         val rsig1 = ClassSignature(rtparams, rps1, rself1, rdecls1)
         r1 = r1.update(_.signature := rsig1)
       case MethodSignature(rtparams, rpss, rret) =>
+        // FIXME: https://github.com/twitter/rsc/issues/103
         val rpss1 = if (rpss.isEmpty) List(Scope()) else rpss
         r1 = r1.update(_.signature := MethodSignature(rtparams, rpss1, rret))
       case _ =>
         ()
     }
 
+    // FIXME: https://github.com/scalameta/scalameta/issues/1315
     n1 = n1.copy(annotations = Nil)
+    // FIXME: https://github.com/twitter/rsc/issues/93
     r1 = r1.copy(annotations = Nil)
 
     (n1, r1)

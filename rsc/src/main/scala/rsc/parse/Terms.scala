@@ -44,7 +44,7 @@ trait Terms {
       }
       accept(ARROW)
       val rhs = term(inBlock)
-      crash("implicit blocks")
+      crash("https://github.com/twitter/rsc/issues/102")
     } else {
       wrapEscapingTermWildcards {
         val start = in.offset

@@ -74,3 +74,4 @@ sealed trait ScalaAnnotValue extends Entity
 sealed trait JavaAnnotValue extends Entity
 case class AnnotArgArray(values: List[JavaAnnotValue]) extends JavaAnnotValue
 case class Tree(payload: List[Byte]) extends ScalaAnnotValue
+// FIXME: https://github.com/twitter/rsc/issues/93
