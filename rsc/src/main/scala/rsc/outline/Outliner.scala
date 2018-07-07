@@ -8,6 +8,7 @@ import rsc.settings._
 import rsc.syntax._
 import rsc.util._
 
+// FIXME: https://github.com/twitter/rsc/issues/104
 final class Outliner private (
     settings: Settings,
     reporter: Reporter,
@@ -105,6 +106,7 @@ final class Outliner private (
         }
       }
     }
+    // FIXME: https://github.com/twitter/rsc/issues/98
     def synthesizeParents(env: Env, tree: DefnTemplate): Unit = {
       scope.tree match {
         case tree if tree.hasCase =>
@@ -249,10 +251,12 @@ final class Outliner private (
       case TptByName(tpt) =>
         apply(env, sketch, tpt)
       case TptExistential(tpt, stats) =>
+        // FIXME: https://github.com/twitter/rsc/issues/94
         ()
       case tpt: TptPath =>
         apply(env, sketch, tpt: Path)
       case TptRefine(tpt, stats) =>
+        // FIXME: https://github.com/twitter/rsc/issues/95
         ()
       case TptRepeat(tpt) =>
         apply(env, sketch, tpt)
@@ -260,6 +264,7 @@ final class Outliner private (
         ubound.foreach(apply(env, sketch, _))
         lbound.foreach(apply(env, sketch, _))
       case TptWildcardExistential(_, tpt) =>
+        // FIXME: https://github.com/twitter/rsc/issues/94
         apply(env, sketch, tpt)
       case TptWith(tpts) =>
         tpts.foreach(apply(env, sketch, _))
@@ -324,6 +329,7 @@ final class Outliner private (
                   resolution
               }
             case TptProject(qual, id) =>
+              // FIXME: https://github.com/twitter/rsc/issues/91
               reporter.append(IllegalOutline(qual))
               ErrorResolution
             case TptSelect(qual, id) =>
@@ -376,6 +382,7 @@ final class Outliner private (
           case tpt: TptPath =>
             tpt.id.sym match {
               case NoSymbol =>
+                // FIXME: https://github.com/twitter/rsc/issues/104
                 BlockedResolution(null)
               case sym =>
                 FoundResolution(sym)

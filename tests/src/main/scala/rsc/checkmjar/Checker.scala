@@ -45,8 +45,10 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
                     rscSym.name.value == "hashCode" ||
                     rscSym.name.value == "toString" ||
                     rscSym.id.contains("#equals().(x$1)")) {
+                  // FIXME: https://github.com/twitter/rsc/issues/98
                   ()
                 } else if (rscSym.id == "com.#twitter.#util.#TimeLike#<refinement>#") {
+                  // FIXME: https://github.com/twitter/rsc/issues/120
                   ()
                 } else {
                   problems += MissingNscProblem(id)
@@ -85,21 +87,26 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   private def highlevelPatch(
       map: Map[String, EmbeddedSymbol]): Map[String, EmbeddedSymbol] = {
     var syms1 = map.values.toList
+    // WONTFIX: https://github.com/twitter/rsc/issues/121
     syms1 = syms1.filter {
       case _: ClassSymbol => true
       case _: ModuleSymbol => true
       case sym => (sym.flags & PRIVATE) == 0
     }
     syms1 = syms1.filter(sym => (sym.flags & EXISTENTIAL) == 0)
+    // FIXME: https://github.com/twitter/rsc/issues/101
     syms1 = syms1.filter(_.name != TypeName("<local child>"))
     syms1.map(sym => sym.id -> sym).toMap
   }
 
   private def highlevelPatch(sym: EmbeddedSymbol): Unit = {
+    // WONTFIX: https://github.com/twitter/rsc/issues/122
     sym.flags &= ~OVERRIDE
 
+    // WONTFIX: https://github.com/twitter/rsc/issues/123
     sym.flags &= ~DEFAULTINIT
 
+    // FIXME: https://github.com/twitter/rsc/issues/103
     if (sym.isInstanceOf[ValSymbol] && (sym.flags & METHOD) != 0) {
       sym.info = sym.info match {
         case PolyType(tpe, Nil) => MethodType(tpe, Nil)
@@ -114,10 +121,13 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
       case tpe => tpe
     }
 
+    // FIXME: https://github.com/twitter/rsc/issues/120
     if (sym.id == "com.#twitter.#util.#TimeLike#") sym.thisType = null
 
+    // FIXME: https://github.com/twitter/rsc/issues/93
     sym.annots = Nil
 
+    // FIXME: https://github.com/twitter/rsc/issues/101
     sym.children = Nil
   }
 
@@ -145,9 +155,11 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         case NoPrefix =>
           NoPrefix
         case ThisType(sym) =>
+          // WONTFIX: https://github.com/twitter/rsc/issues/90
           val sym1 = NoSymbol
           ThisType(sym1)
         case SingleType(pre: Type, sym: Symbol) =>
+          // WONTFIX: https://github.com/twitter/rsc/issues/90
           val pre1 = loop(normalizePrefix(pre))
           val sym1 = sym
           SingleType(pre1, sym1)
@@ -155,6 +167,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
           val lit1 = lit
           ConstantType(lit1)
         case TypeRef(pre, sym, targs) =>
+          // WONTFIX: https://github.com/twitter/rsc/issues/90
           val pre1 = loop(normalizePrefix(pre))
           val sym1 = sym
           val targs1 = targs.map(loop)
@@ -170,6 +183,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         case ClassInfoType(sym, parents) =>
           val sym1 = sym
           val parents1 = parents.flatMap {
+            // FIXME: https://github.com/twitter/rsc/issues/98
             case TypeRef(_, sym, _) if sym.id == "scala.#Serializable#" => None
             case other => Some(loop(other))
           }
@@ -190,6 +204,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
           val tpe1 = loop(tpe)
           val annots1 = annots.map {
             case AnnotInfo(tpe, args) =>
+              // FIXME: https://github.com/twitter/rsc/issues/98
               val tpe1 = NoType
               val args1 = Nil
               AnnotInfo(tpe1, args1)
@@ -221,6 +236,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
               case Field(_, _, Scalar(id: Id)) =>
                 var id1 = id
                 id1 = id1.replaceAll("_\\$(\\d+)", "_")
+                // FIXME: https://github.com/twitter/rsc/issues/124
                 id1 = id1.replace("#<init>().(cause)_#", "#cause._#")
                 Field(field.owner, field.name, Scalar(id1))
               case _ =>
