@@ -14,8 +14,13 @@ jdk:
 matrix:
   include:
     - env:
+      - CI_COMMAND: ci-fmt
+    - env:
       - CI_SCALA_VERSION: 2.11.12
-      - CI_COMMAND: ci
+      - CI_COMMAND: ci-fast
+    - env:
+      - CI_SCALA_VERSION: 2.11.12
+      - CI_COMMAND: ci-slow
 
 script:
   - bin/ci

@@ -6,6 +6,9 @@ lazy val V = new {
   val scalatest = "3.0.5"
 }
 
+addCommandAlias("ci-fmt", ui.ciFmt)
+addCommandAlias("ci-fast", ui.ciFast)
+addCommandAlias("ci-slow", ui.ciSlow)
 addCommandAlias("ci", ui.ci)
 addCommandAlias("cleanAll", ui.cleanAll)
 addCommandAlias("compileAll", ui.compileAll)
