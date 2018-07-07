@@ -94,4 +94,4 @@ To reproduce, run `bin/bench` (this will take a while).
 
 At the moment, generating SemanticDB signatures from an automatically rewritten core of [Twitter Util](https://github.com/twitter/util)
 is ~28x faster than full Scalac compilation.
-Generating ScalaSignatures is is ~10x faster.
+Generating ScalaSignatures is ~10x faster.
