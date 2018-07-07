@@ -64,38 +64,38 @@ To reproduce, run `bin/bench` (this will take a while).
   </th>
   <tr>
     <td width="208px"><a href="https://github.com/xeno-by/rsc/tree/ca9582e79c24763cb9fbde35d252cfd2826cc9fc/bench/src/main/scala/rsc/bench/RscParse.scala">RscParse</a></td>
-    <td width="208px">18.799 ms</td>
-    <td width="208px">18.799 ms</td>
+    <td width="208px">18.775 ms</td>
+    <td width="208px">18.775 ms</td>
   </tr>
   <tr>
     <td><a href="https://github.com/xeno-by/rsc/tree/ca9582e79c24763cb9fbde35d252cfd2826cc9fc/bench/src/main/scala/rsc/bench/RscLink.scala">RscLink</a></td>
-    <td>49.721 ms</td>
-    <td>68.520 ms</td>
+    <td>49.648 ms</td>
+    <td>68.423 ms</td>
   </tr>
   <tr>
     <td><a href="https://github.com/xeno-by/rsc/tree/ca9582e79c24763cb9fbde35d252cfd2826cc9fc/bench/src/main/scala/rsc/bench/RscOutline.scala">RscOutline</a></td>
-    <td>42.383 ms</td>
-    <td>110.903 ms</td>
+    <td>44.429 ms</td>
+    <td>112.852 ms</td>
   </tr>
   <tr>
     <td><a href="https://github.com/xeno-by/rsc/tree/ca9582e79c24763cb9fbde35d252cfd2826cc9fc/bench/src/main/scala/rsc/bench/RscSemanticdb.scala">RscSemanticdb</a></td>
-    <td>24.648 ms</td>
-    <td>135.551 ms</td>
+    <td>23.557 ms</td>
+    <td>136.409 ms</td>
   </tr>
   <tr>
     <td><a href="https://github.com/xeno-by/rsc/tree/ca9582e79c24763cb9fbde35d252cfd2826cc9fc/bench/src/main/scala/rsc/bench/RscMjar.scala">RscMjar</a></td>
-    <td>254.956 ms</td>
-    <td>390.507 ms</td>
+    <td>255.012 ms</td>
+    <td>391.421 ms</td>
   </tr>
   <tr>
     <td><a href="https://github.com/xeno-by/rsc/tree/ca9582e79c24763cb9fbde35d252cfd2826cc9fc/bench/src/main/scala/rsc/bench/ScalacCompile.scala">ScalacCompile</a></td>
-    <td>3909.930 ms</td>
-    <td>3909.930 ms</td>
+    <td>3732.371 ms</td>
+    <td>3732.371 ms</td>
   </tr>
 </table>
 
 ## Summary
 
 At the moment, generating SemanticDB signatures from an automatically rewritten core of [Twitter Util](https://github.com/twitter/util)
-is ~29x faster than full Scalac compilation.
+is ~27x faster than full Scalac compilation.
 Generating ScalaSignatures is is ~10x faster.
