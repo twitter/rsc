@@ -48,7 +48,7 @@ for i, pr in enumerate(prs):
   comments_accepted = False
   comments_finished = False
   for comment in comments:
-    if comment["user"]["login"] == "xeno-by":
+    if comment["user"]["login"] == "rscbenchbox":
       body = comment["body"]
       if re.match(r"Blocked.*" + head_ref.sha, body): comments_blocked = True
       if re.match(r"Accepted.*" + head_ref.sha, body): comments_accepted = True
