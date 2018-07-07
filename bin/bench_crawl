@@ -80,7 +80,7 @@ print "Analyzing commits..."
 with GithubRef(root_user, root_repo, "master") as root_ref:
   root_ref.download_ssh()
   cd(root_ref.path)
-  parent_of_first_eligible_commit = stdout("git log -1 --format=%H ':/Upgrade to Scala Native 0.3.7 (#83)'")
+  parent_of_first_eligible_commit = stdout("git log -1 --format=%H ':/Upgrade to Scala Native 0.3.7'")
   root_shas = stdout("git log --format=%H --merges " + parent_of_first_eligible_commit + "..HEAD").split("\n")
   print "Found " + str(len(root_shas)) + " merge commits"
   root_shas = filter(lambda sha: not sha in done, root_shas)
