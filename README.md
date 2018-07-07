@@ -29,11 +29,11 @@ to run [Rsc 0.0.0-107-3626f503](https://github.com/twitter/rsc/commit/3626f503f5
 To benchmark JVM applications, we use sbt-jmh 0.2.27 that runs in sbt 0.13.17.
 
 Our benchmarks run different fragments of compilation pipelines of
-different compilers on [an automatically rewritten core of [Twitter Util](https://github.com/twitter/util)](https://github.com/twitter/rsc/tree/3626f503f55fcc31b07bec2bc5d6df9606ea2d0c/examples/core)
+different compilers on an automatically rewritten core of [Twitter Util](https://github.com/twitter/util)
 that contains 96 files totaling 20143 lines of code.
 
 Every benchmark runs in in hot mode, i.e. it computes performance of a steady
-state of the JVM achieved by doing a large number of warmup runs in JMH.
+state of the JVM achieved by doing a number of warmup runs in JMH.
 
 ## Disclaimer
 
