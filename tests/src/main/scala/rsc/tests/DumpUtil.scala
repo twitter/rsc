@@ -9,7 +9,7 @@ import scala.meta.scalasig._
 trait DumpUtil {
   implicit class StringDumpOps(s: String) {
     def dump(): Path = {
-      val tmpPath = Files.createTempFile("", ".scala")
+      val tmpPath = Files.createTempFile("", ".txt")
       Files.write(tmpPath, s.getBytes(UTF_8))
       tmpPath
     }
