@@ -24,6 +24,7 @@ addCommandAlias("test", ui.test)
 addCommandAlias("fmt", ui.fmtAll)
 addCommandAlias("bench", ui.bench)
 addCommandAlias("publish", ui.publishAll)
+addCommandAlias("publishLocal", ui.publishLocal)
 
 version.in(ThisBuild) := {
   val rscVersion = version.in(ThisBuild).value.replace("+", "-")
