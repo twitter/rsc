@@ -100,6 +100,12 @@ object Build extends AutoPlugin {
         "scalasig/publish",
         "scalap/publish"
       )
+      val publishLocal = command(
+        "mjar/publishLocal",
+        "rsc/publishLocal",
+        "scalasig/publishLocal",
+        "scalap/publishLocal"
+      )
       val compile = "tests/test:compile"
       val fastTest = "tests/fast:test"
       val slowTest = "tests/slow:test"
