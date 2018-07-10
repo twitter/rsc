@@ -166,6 +166,12 @@ lazy val commonSettings = Seq(
 )
 
 lazy val publishableSettings = Seq(
+  publishTo := Some {
+    val prop = sys.props("repository")
+    if (prop != null) "adhoc" at prop
+    else if (version.value.endsWith("SNAPSHOT")) Opts.resolver.sonatypeSnapshots
+    else Opts.resolver.sonatypeStaging
+  },
   credentials ++= {
     val prop = sys.props("credentials")
     if (prop != null) List(new FileCredentials(file(prop)))
