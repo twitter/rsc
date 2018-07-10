@@ -110,7 +110,11 @@ object Build extends AutoPlugin {
       val fastTest = "tests/fast:test"
       val slowTest = "tests/slow:test"
       val test = fastTest
-      val bench = "bench/jmh:run RscMjar"
+      val benchParse = "bench/jmh:run RscParse"
+      val benchLink = "bench/jmh:run RscLink"
+      val benchOutline = "bench/jmh:run RscOutline"
+      val benchSemanticdb = "bench/jmh:run RscSemanticdb"
+      val benchMjar = "bench/jmh:run RscMjar"
     }
 
     val isCI = sys.env.contains("CI")
