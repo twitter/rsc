@@ -14,12 +14,18 @@ trait Tpts {
   }
 
   def paramTpt(): Tpt = {
+    val start = in.offset
     if (in.token == ARROW) {
-      val start = in.offset
       in.nextToken()
       atPos(start)(TptByName(tpt()))
     } else {
-      tpt()
+      val unfinished = tpt()
+      if (in.token == ID && in.idValue == "*") {
+        in.nextToken()
+        atPos(start)(TptRepeat(unfinished))
+      } else {
+        unfinished
+      }
     }
   }
 
@@ -81,23 +87,17 @@ trait Tpts {
 
   private def infixTptRest(start: Offset, unfinished: Tpt): Tpt = {
     if (in.token == ID) {
-      if (in.idValue == "*") {
-        in.nextToken()
-        val tpt = unfinished
-        atPos(start)(TptRepeat(tpt))
-      } else {
-        val reducer = TptParameterizeInfix(_, _, _)
-        val base = opStack
-        var top = unfinished
-        while (in.token == ID && in.idValue != "*") {
-          val op = tptId()
-          top = reduceStack(reducer, base, top, op.value, force = false)
-          opStack = OpInfo(top, op, in.offset) :: opStack
-          newLineOptWhenFollowedBy(introTokens.tpt)
-          top = refinedTpt()
-        }
-        reduceStack(reducer, base, top, "", force = true)
+      val reducer = TptParameterizeInfix(_, _, _)
+      val base = opStack
+      var top = unfinished
+      while (in.token == ID && in.idValue != "*") {
+        val op = tptId()
+        top = reduceStack(reducer, base, top, op.value, force = false)
+        opStack = OpInfo(top, op, in.offset) :: opStack
+        newLineOptWhenFollowedBy(introTokens.tpt)
+        top = refinedTpt()
       }
+      reduceStack(reducer, base, top, "", force = true)
     } else {
       unfinished
     }
