@@ -493,7 +493,7 @@ class TreeStr(val p: Printer) {
       case TptFunction(targs) =>
         val params :+ ret = targs
         val needsParens = params match {
-          case List(tpt: TptTuple) => true
+          case List(_: TptTuple | _: TptFunction) => true
           case List(_) => false
           case _ => true
         }
