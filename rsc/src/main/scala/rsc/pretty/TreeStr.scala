@@ -594,13 +594,14 @@ class TreeStr(val p: Printer) {
 
       if (i < stats.length - 1) {
         stats(i + 1) match {
-          case _: Term =>
-            def needsSemicolon(tree: Option[Tree]): Boolean = tree match {
-              case Some(tree: DefnField) => needsSemicolon(tree.rhs)
-              case Some(tree: DefnMacro) => needsSemicolon(Some(tree.rhs))
-              case Some(tree: DefnMethod) => needsSemicolon(tree.rhs)
-              case Some(tree: DefnPat) => needsSemicolon(tree.rhs)
-              case Some(tree: TermApplyPostfix) => true
+          case next: Term =>
+            def needsSemicolon(prev: Option[Tree]): Boolean = prev match {
+              case Some(prev: DefnField) => needsSemicolon(prev.rhs)
+              case Some(prev: DefnMacro) => needsSemicolon(Some(prev.rhs))
+              case Some(prev: DefnMethod) => needsSemicolon(prev.rhs)
+              case Some(prev: DefnPat) => needsSemicolon(prev.rhs)
+              case Some(prev: TermApplyPostfix) => true
+              case Some(prev: Term) => next.isInstanceOf[TermBlock]
               case _ => false
             }
             if (needsSemicolon(Some(stat))) {
