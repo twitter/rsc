@@ -491,9 +491,15 @@ class TreeStr(val p: Printer) {
         p.str(" forSome ")
         p.Braces(apply(stats, "; "))
       case TptFunction(targs) =>
-        p.Parens.when(targs.size != 2)(apply(targs.init, ", ", ParamTyp))
+        val params :+ ret = targs
+        val needsParens = params match {
+          case List(tpt: TptTuple) => true
+          case List(_) => false
+          case _ => true
+        }
+        p.Parens.when(needsParens)(apply(params, ", ", ParamTyp))
         p.str(" => ")
-        apply(targs.last, Typ)
+        apply(ret, Typ)
       case TptParameterize(fun, targs) =>
         apply(fun, SimpleTyp)
         p.Brackets(apply(targs, ", ", Typ))
