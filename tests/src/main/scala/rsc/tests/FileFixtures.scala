@@ -43,9 +43,13 @@ trait FileFixtures extends ToolUtil {
     sys.env.get("EXTERNAL_FILES") match {
       case Some(listFile) =>
         val listPath = Paths.get(listFile)
-        val listText = new String(Files.readAllBytes(listPath), UTF_8)
-        val listLines = listText.split(EOL).map(_.trim).filter(_.nonEmpty)
-        listLines.map(s => Paths.get(s)).toList
+        if (Files.exists(listPath)) {
+          val listText = new String(Files.readAllBytes(listPath), UTF_8)
+          val listLines = listText.split(EOL).map(_.trim).filter(_.nonEmpty)
+          listLines.map(s => Paths.get(s)).toList
+        } else {
+          Nil
+        }
       case _ =>
         Nil
     }
