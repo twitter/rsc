@@ -9,8 +9,8 @@ import rsc.tests._
 @State(Scope.Benchmark)
 class BenchmarkState extends FileFixtures {
   lazy val files = coreFiles
-  lazy val metacpClasspath = metacp(Nil, scalacClasspath).right.get
-  lazy val rscDeps = metacpClasspath.mkString(pathSeparator)
+  lazy val rscClasspath = rsci(scalacClasspath).right.get
+  lazy val rscDeps = rscClasspath.mkString(pathSeparator)
   lazy val scalacClasspath = coreClasspath
   lazy val scalacDeps = scalacClasspath.mkString(pathSeparator)
 }

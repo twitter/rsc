@@ -7,6 +7,7 @@ import java.io.File.pathSeparator
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file._
 import rsc.pretty._
+import scala.collection.JavaConverters._
 import scala.meta.cli._
 import scala.meta.io._
 import scala.sys.process._
@@ -36,36 +37,24 @@ trait ToolUtil extends CacheUtil with NscUtil {
       classpath: List[Path]): ToolResult[List[Path]] = {
     withConsole { console =>
       import scala.meta.metacp._
-      val metaDp = Classpath(dependencyClasspath.map(AbsolutePath.apply))
-      val metaCp = Classpath(classpath.map(AbsolutePath.apply))
-      val settings = Settings()
-        .withDependencyClasspath(metaDp)
-        .withClasspath(metaCp)
-        .withScalaLibrarySynthetics(true)
-      Metacp.process(settings, console.reporter) match {
-        case Some(classpath) => Right(classpath.entries.map(_.toNIO))
-        case None => Left(List(console.output))
-      }
-    }
-  }
-
-  def metac(classpath: List[Path], sources: List[Path]): ToolResult[Path] = {
-    withConsole { console =>
-      import scala.meta.metac.Settings
-      val fingerprint = Fingerprint(classpath ++ sources)
-      val out = cacheDir("metac", fingerprint).resolve("nsc.jar")
+      val relative = Paths.get(scalametaVersion).resolve("out")
+      val fingerprint = Fingerprint(dependencyClasspath ++ classpath)
+      val out = cacheDir("metacp", fingerprint).resolve(relative)
       if (Files.exists(out)) {
-        Right(out)
+        Right(Files.list(out).iterator.asScala.toList)
       } else {
-        val settings = Settings().withScalacArgs(
-          List(
-            "-classpath",
-            classpath.mkString(pathSeparator),
-            "-d",
-            out.toString
-          ) ++ sources.map(_.toString))
-        if (Metac.process(settings, console.reporter)) Right(out)
-        else Left(List(console.output))
+        val metaDp = Classpath(dependencyClasspath.map(AbsolutePath.apply))
+        val metaCp = Classpath(classpath.map(AbsolutePath.apply))
+        val metaOut = AbsolutePath(out)
+        val settings = Settings()
+          .withDependencyClasspath(metaDp)
+          .withClasspath(metaCp)
+          .withScalaLibrarySynthetics(true)
+          .withOut(metaOut)
+        Metacp.process(settings, console.reporter) match {
+          case Some(classpath) => Right(classpath.entries.map(_.toNIO))
+          case None => Left(List(console.output))
+        }
       }
     }
   }
@@ -87,14 +76,41 @@ trait ToolUtil extends CacheUtil with NscUtil {
     }
   }
 
+  def rsci(classpath: List[Path]): ToolResult[List[Path]] = {
+    metacp(Nil, classpath).right.flatMap { metacpClasspath =>
+      var success = true
+      val errors = List.newBuilder[String]
+      metacpClasspath.foreach { entry =>
+        val relative = Paths.get(scalametaVersion).resolve("done")
+        val fingerprint = Fingerprint(entry)
+        val done = cacheDir("metai", fingerprint).resolve(relative)
+        if (Files.exists(done)) {
+          ()
+        } else {
+          withConsole { console =>
+            import scala.meta.metai._
+            val metaiClasspath = Classpath(AbsolutePath(entry))
+            val settings = Settings().withClasspath(metaiClasspath)
+            success &= Metai.process(settings, console.reporter)
+            if (console.output.nonEmpty) errors += console.output
+          }
+          Files.createDirectories(done.getParent)
+          Files.createFile(done)
+        }
+      }
+      if (success) Right(metacpClasspath)
+      else Left(errors.result)
+    }
+  }
+
   def rsc(classpath: List[Path], sources: List[Path]): ToolResult[Path] = {
     import _root_.rsc.Compiler
     import _root_.rsc.report._
     import _root_.rsc.settings._
     val semanticdbDir = Files.createTempDirectory("rsc-semanticdb_")
-    metacp(Nil, classpath).right.flatMap { metacpClasspath =>
+    rsci(classpath).right.flatMap { rscClasspath =>
       val out = semanticdbDir.resolve("META-INF/semanticdb/rsc.semanticdb")
-      val settings = Settings(metacpClasspath, sources, out)
+      val settings = Settings(rscClasspath, sources, out)
       val reporter = StoreReporter(settings)
       val compiler = Compiler(settings, reporter)
       try {
@@ -144,6 +160,10 @@ trait ToolUtil extends CacheUtil with NscUtil {
     val output = buf.toString
     if (exitcode == 0) Right(output)
     else Left(List(output))
+  }
+
+  private def scalametaVersion: String = {
+    scala.meta.internal.metacp.BuildInfo.version
   }
 
   private def withConsole[T](fn: Console => T): T = {

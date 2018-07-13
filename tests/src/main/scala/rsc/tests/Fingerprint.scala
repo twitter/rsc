@@ -43,8 +43,11 @@ object Fingerprint {
       val children = Files.walk(path).iterator.asScala.toList
       children.map { child =>
         digest.update(child.toString.getBytes())
-        digest.update(Files.getLastModifiedTime(child).toMillis.toBytes)
-        if (!Files.isDirectory(child)) digest.update(Files.readAllBytes(child))
+        if (Files.isDirectory(child)) {
+          digest.update(Files.getLastModifiedTime(child).toMillis.toBytes)
+        } else {
+          digest.update(Files.readAllBytes(child))
+        }
       }
     }
     val hash = DatatypeConverter.printHexBinary(digest.digest())
