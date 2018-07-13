@@ -12,6 +12,7 @@ import scala.collection.JavaConverters._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.{Language => l}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
+import scala.meta.internal.{semanticidx => i}
 
 final class Index private (entries: HashMap[Symbol, Entry]) extends Closeable {
   private val infos = new HashMap[Symbol, s.SymbolInformation]
@@ -85,18 +86,22 @@ object Index {
         val indexPath = path.resolve("META-INF/semanticdb.semanticidx")
         val semanticdbRoot = path.resolve("META-INF/semanticdb")
         if (Files.exists(indexPath)) {
-          val sindex = {
+          val iindexes = {
             val unbufferedStream = Files.newInputStream(indexPath)
             val stream = new BufferedInputStream(unbufferedStream)
-            try s.Index.parseFrom(stream)
+            try i.Indexes.parseFrom(stream)
             finally stream.close()
           }
-          sindex.toplevels.foreach { sentry =>
-            val semanticdbPath = semanticdbRoot.resolve(sentry.uri)
-            entries.put(sentry.symbol, UncompressedEntry(semanticdbPath))
-          }
-          sindex.packages.foreach { sentry =>
-            entries.put(sentry.symbol, PackageEntry())
+          iindexes.indexes.foreach { iindex =>
+            iindex.entries.foreach {
+              case (isym, i.PackageEntry()) =>
+                entries.put(isym, PackageEntry())
+              case (isym, i.ToplevelEntry(iuri)) =>
+                val semanticdbPath = semanticdbRoot.resolve(iuri)
+                entries.put(isym, UncompressedEntry(semanticdbPath))
+              case (isym, i.Entry.Empty) =>
+                ()
+            }
           }
         } else {
           crash(path.toString)
@@ -105,17 +110,21 @@ object Index {
         val jar = new JarFile(path.toFile)
         val indexEntry = jar.getEntry("META-INF/semanticdb.semanticidx")
         if (indexEntry != null) {
-          val sindex = {
+          val iindexes = {
             val stream = jar.getInputStream(indexEntry)
-            try s.Index.parseFrom(stream)
+            try i.Indexes.parseFrom(stream)
             finally stream.close()
           }
-          sindex.toplevels.foreach { sentry =>
-            val jarEntry = jar.getEntry("META-INF/semanticdb/" + sentry.uri)
-            entries.put(sentry.symbol, CompressedEntry(jar, jarEntry))
-          }
-          sindex.packages.foreach { sentry =>
-            entries.put(sentry.symbol, PackageEntry())
+          iindexes.indexes.foreach { iindex =>
+            iindex.entries.foreach {
+              case (isym, i.PackageEntry()) =>
+                entries.put(isym, PackageEntry())
+              case (isym, i.ToplevelEntry(iuri)) =>
+                val jarEntry = jar.getEntry("META-INF/semanticdb/" + iuri)
+                entries.put(isym, CompressedEntry(jar, jarEntry))
+              case (isym, i.Entry.Empty) =>
+                ()
+            }
           }
         } else {
           crash(path.toString)

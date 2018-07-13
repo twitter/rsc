@@ -1,7 +1,7 @@
 lazy val V = new {
   val asm = "6.0"
   val scala = computeScalaVersionFromTravisYml("2.11")
-  val scalameta = "4.0.0-M4-143-94de8771-SNAPSHOT"
+  val scalameta = "4.0.0-M4-177-091fb201-SNAPSHOT"
   val scalapb = _root_.scalapb.compiler.Version.scalapbVersion
   val scalatest = "3.0.5"
 }
@@ -119,9 +119,11 @@ lazy val tests = project
   .settings(
     commonSettings,
     libraryDependencies += "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
+    libraryDependencies += "io.github.soc" % "directories" % "10",
     libraryDependencies += "org.scala-lang" % "scala-compiler" % V.scala,
     libraryDependencies += "org.scalameta" %% "metac" % V.scalameta cross CrossVersion.full,
     libraryDependencies += "org.scalameta" %% "metacp" % V.scalameta,
+    libraryDependencies += "org.scalameta" %% "metai" % V.scalameta,
     libraryDependencies += "org.scalameta" %% "metap" % V.scalameta,
     libraryDependencies += "org.scalatest" %% "scalatest" % V.scalatest,
     libraryDependencies += "org.scalatest" %% "scalatest" % V.scalatest % "test",
