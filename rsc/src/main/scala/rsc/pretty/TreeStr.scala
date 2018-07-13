@@ -491,9 +491,15 @@ class TreeStr(val p: Printer) {
         p.str(" forSome ")
         p.Braces(apply(stats, "; "))
       case TptFunction(targs) =>
-        p.Parens.when(targs.size != 2)(apply(targs.init, ", ", ParamTyp))
+        val params :+ ret = targs
+        val needsParens = params match {
+          case List(_: TptTuple | _: TptFunction) => true
+          case List(_) => false
+          case _ => true
+        }
+        p.Parens.when(needsParens)(apply(params, ", ", ParamTyp))
         p.str(" => ")
-        apply(targs.last, Typ)
+        apply(ret, Typ)
       case TptParameterize(fun, targs) =>
         apply(fun, SimpleTyp)
         p.Brackets(apply(targs, ", ", Typ))
@@ -588,13 +594,14 @@ class TreeStr(val p: Printer) {
 
       if (i < stats.length - 1) {
         stats(i + 1) match {
-          case _: Term =>
-            def needsSemicolon(tree: Option[Tree]): Boolean = tree match {
-              case Some(tree: DefnField) => needsSemicolon(tree.rhs)
-              case Some(tree: DefnMacro) => needsSemicolon(Some(tree.rhs))
-              case Some(tree: DefnMethod) => needsSemicolon(tree.rhs)
-              case Some(tree: DefnPat) => needsSemicolon(tree.rhs)
-              case Some(tree: TermApplyPostfix) => true
+          case next: Term =>
+            def needsSemicolon(prev: Option[Tree]): Boolean = prev match {
+              case Some(prev: DefnField) => needsSemicolon(prev.rhs)
+              case Some(prev: DefnMacro) => needsSemicolon(Some(prev.rhs))
+              case Some(prev: DefnMethod) => needsSemicolon(prev.rhs)
+              case Some(prev: DefnPat) => needsSemicolon(prev.rhs)
+              case Some(prev: TermApplyPostfix) => true
+              case Some(prev: Term) => next.isInstanceOf[TermBlock]
               case _ => false
             }
             if (needsSemicolon(Some(stat))) {
