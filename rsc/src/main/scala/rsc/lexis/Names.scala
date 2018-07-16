@@ -47,10 +47,5 @@ trait Names {
     def isPatVar: Boolean = {
       value.nonEmpty && value.head.isLower && value.head.isLetter
     }
-
-    def needsBackquotes: Boolean = {
-      keywords.containsKey(value) ||
-      value == "then"
-    }
   }
 }

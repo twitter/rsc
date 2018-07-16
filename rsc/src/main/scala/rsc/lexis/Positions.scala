@@ -13,6 +13,7 @@ sealed class Position protected (
   def startColumn: Int = start - input.lineToOffset(startLine)
   def endLine: Int = input.offsetToLine(end)
   def endColumn: Int = end - input.lineToOffset(endLine)
+  def string: String = input.string.substring(start, end)
   def printStr(p: Printer): Unit = PrettyPosition.str(p, this)
   def printRepl(p: Printer): Unit = PrettyPosition.repl(p, this)
 }
@@ -28,4 +29,5 @@ object NoPosition extends Position(NoInput, NoOffset, NoOffset) {
   override def startColumn: Int = NoColumn
   override def endLine: Int = NoLine
   override def endColumn: Int = NoColumn
+  override def string: String = ""
 }
