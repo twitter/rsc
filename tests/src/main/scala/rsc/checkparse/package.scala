@@ -99,6 +99,7 @@ package object checkparse extends NscUtil {
         .replaceAll("\\$(\\d+)", "\\$NNN")
         .replace("{ _ :", "{ x$NNN:")
         .replaceAll(";\\n(\\s*)<empty>", "")
+        .replaceAll("\\s\\{\\n(\\s*)<empty>\\n(\\s)*\\}", "")
     }
   }
 }
