@@ -98,13 +98,17 @@ final class Scheduler private (
             case outline: DefnClass =>
               TypeSymbol(scope.sym, outline.id.value)
             case outline: DefnDef =>
-              def loop(attempt: Int): String = {
-                val disambig = if (attempt == 0) s"()" else s"(+$attempt)"
-                val sym = MethodSymbol(scope.sym, outline.id.value, disambig)
-                if (symtab._outlines.containsKey(sym)) loop(attempt + 1)
-                else sym
+              if (outline.hasVal) {
+                TermSymbol(scope.sym, outline.id.value)
+              } else {
+                def loop(attempt: Int): String = {
+                  val disambig = if (attempt == 0) s"()" else s"(+$attempt)"
+                  val sym = MethodSymbol(scope.sym, outline.id.value, disambig)
+                  if (symtab._outlines.containsKey(sym)) loop(attempt + 1)
+                  else sym
+                }
+                loop(0)
               }
-              loop(0)
             case outline: DefnField =>
               crash(outline)
             case outline: DefnObject =>
