@@ -46,7 +46,8 @@ trait Weights {
         case _: PatRepeat => Pat2
         case _: PatSelect => SimplePat
         case _: PatTuple => SimplePat
-        case _: PatVar => SimplePat
+        case PatVar(_, None) => SimplePat
+        case PatVar(_, Some(_)) => Pat1
         case _: TermAnnotate => Expr1
         case _: TermApply => SimpleExpr1
         case tree: TermApplyInfix => InfixExpr(tree.op)
