@@ -57,7 +57,7 @@ trait Weights {
         case _: TermAssign => Expr1
         case _: TermBlock => SimpleExpr
         case _: TermDo => Expr1
-        case _: TermEta => SimpleExpr
+        case _: TermEta => PrefixExpr
         case _: TermFor => Expr1
         case _: TermForYield => Expr1
         case _: TermFunction => Expr

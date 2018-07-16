@@ -339,7 +339,7 @@ class TreeStr(val p: Printer) {
         apply(op, SimpleExpr1)
       case TermApplyPrefix(op, arg) =>
         apply(op, SimpleExpr1)
-        apply(arg, SimpleExpr)
+        apply(arg, PrefixExpr)
       case TermApplyType(fun, targs) =>
         apply(fun, SimpleExpr)
         p.Brackets(apply(targs, ", ", Typ))
