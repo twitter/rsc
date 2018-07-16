@@ -92,7 +92,7 @@ trait Templates {
           val stats = List.newBuilder[Stat]
           if (in.token.isTermIntro) {
             val snapshot = in.snapshot()
-            val firstStat = term1()
+            val firstStat = term1(InTemplate)
             if (in.token == ARROW) {
               in.restore(snapshot)
               val start = in.offset
@@ -129,7 +129,7 @@ trait Templates {
             if (in.token == IMPORT) {
               stats += `import`()
             } else if (in.token.isTermIntro) {
-              stats += term1()
+              stats += term1(InTemplate)
             } else if (in.token.isTemplateDefnIntro) {
               val start = in.offset
               val mods = defnMods(modTokens.templateDefn)
