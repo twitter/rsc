@@ -230,7 +230,13 @@ trait Terms {
   }
 
   def postfixTerm(): Term = {
-    val reducer = TermApplyInfix(_: Term, _: TermId, Nil, _: Term): Term
+    def reducer(lhs: Term, op: TermId, rhs: Term): Term = {
+      val args = rhs match {
+        case TermTuple(args) => args
+        case arg => List(arg)
+      }
+      TermApplyInfix(lhs, op, Nil, args)
+    }
     val base = opStack
     var top = prefixTerm()
     while (in.token == ID) {
@@ -245,7 +251,14 @@ trait Terms {
         val od = reduceStack(reducer, base, operand, "", force = true)
         return atPos(od.pos.start)(TermApplyPostfix(od, op))
       }
-      top = prefixTerm()
+      val start = in.offset
+      top = prefixTerm() match {
+        case tuple @ TermTuple(args) if args.length != 1 =>
+          if (tuple.pos.start != start) atPos(start)(TermTuple(List(tuple)))
+          else tuple
+        case other =>
+          other
+      }
     }
     reduceStack(reducer, base, top, "", force = true)
   }

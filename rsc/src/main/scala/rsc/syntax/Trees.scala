@@ -383,7 +383,7 @@ final case class TermApplyInfix(
     lhs: Term,
     op: TermId,
     targs: List[Tpt],
-    rhs: Term)
+    args: List[Term])
     extends Term
 
 final case class TermApplyPostfix(arg: Term, op: TermId) extends Term

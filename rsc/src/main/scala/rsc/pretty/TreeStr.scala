@@ -326,13 +326,17 @@ class TreeStr(val p: Printer) {
       case TermApply(fun, args) =>
         apply(fun, SimpleExpr1)
         p.Parens(apply(args, ", ", Expr))
-      case TermApplyInfix(lhs, op, targs, rhs) =>
+      case TermApplyInfix(lhs, op, targs, args) =>
         apply(lhs, InfixExpr(op))
         p.str(" ")
         apply(op, SimpleExpr1)
         p.Brackets(targs)(apply(_, ", ", Typ))
         p.str(" ")
-        apply(rhs, RhsInfixExpr(op))
+        args match {
+          case List(arg: TermTuple) => p.Parens(apply(arg, Expr))
+          case List(arg) => apply(arg, RhsInfixExpr(op))
+          case args => p.Parens(apply(args, ", ", Expr))
+        }
       case TermApplyPostfix(arg, op) =>
         apply(arg, InfixExpr(op))
         p.str(" ")
