@@ -233,7 +233,7 @@ class TreeStr(val p: Printer) {
         p.str("var")
       case x @ NamedId(v) =>
         if (x.sym != NoSymbol) p.str("<" + x.sym + ">")
-        else if (keywords.containsKey(v)) p.str("`" + v + "`")
+        else if (v.needsBackquotes) p.str("`" + v + "`")
         else if (x.isInstanceOf[PatId] && v.isPatVar) p.str("`" + v + "`")
         else p.str(v)
       case Param(mods, id, tpt, rhs) =>
