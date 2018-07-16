@@ -38,14 +38,14 @@ trait Tpts {
           in.nextToken()
           accept(ARROW)
           val ret = tpt()
-          atPos(start)(TptFunction(List(ret)))
+          wrapEscapingTptWildcards(atPos(start)(TptFunction(List(ret))))
         } else {
           val params = commaSeparated(paramTpt)
           accept(RPAREN)
           if (in.token == ARROW) {
             in.nextToken()
             val ret = tpt()
-            atPos(start)(TptFunction(params :+ ret))
+            wrapEscapingTptWildcards(atPos(start)(TptFunction(params :+ ret)))
           } else {
             var unfinished = makeTptTuple(start, params)
             unfinished = simpleTptRest(start, unfinished)
@@ -64,7 +64,7 @@ trait Tpts {
         in.nextToken()
         val params = List(unfinished)
         val ret = tpt()
-        atPos(start)(TptFunction(params :+ ret))
+        wrapEscapingTptWildcards(atPos(start)(TptFunction(params :+ ret)))
       case FORSOME =>
         in.nextToken()
         val tpt = unfinished
