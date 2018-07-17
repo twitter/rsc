@@ -26,7 +26,12 @@ object Escape {
       case other =>
         val needsEscape = {
           val block = UnicodeBlock.of(x)
-          Character.isISOControl(x) || block == null || block == SPECIALS
+          Character.isISOControl(x) ||
+          block == null ||
+          block == SPECIALS ||
+          block == HIGH_SURROGATES ||
+          block == HIGH_PRIVATE_USE_SURROGATES ||
+          block == LOW_SURROGATES
         }
         if (needsEscape) {
           "\\u" + x.toHexString.reverse.padTo(4, '0').reverse
