@@ -233,14 +233,16 @@ class TreeStr(val p: Printer) {
         p.str("var")
       case x @ NamedId(v) =>
         if (x.sym != NoSymbol) p.str("<" + x.sym + ">")
-        else x match {
-          case PatId(v) if v.isPatVar =>
-            p.str("`" + v + "`")
-          case _ =>
-            def hasBackquotes = x.pos.string.startsWith("`")
-            def guessBackquotes = keywords.containsKey(v) || v == "then"
-            if (hasBackquotes || guessBackquotes) p.str("`" + v + "`")
-            else p.str(v)
+        else {
+          x match {
+            case PatId(v) if v.isPatVar =>
+              p.str("`" + v + "`")
+            case _ =>
+              def hasBackquotes = x.pos.string.startsWith("`")
+              def guessBackquotes = keywords.containsKey(v) || v == "then"
+              if (hasBackquotes || guessBackquotes) p.str("`" + v + "`")
+              else p.str(v)
+          }
         }
       case Param(mods, id, tpt, rhs) =>
         apply(Mods(mods.trees.filter(!_.isInstanceOf[ModImplicit])))
