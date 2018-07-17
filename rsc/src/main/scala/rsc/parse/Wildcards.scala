@@ -61,7 +61,7 @@ trait Wildcards {
           term
         case _ =>
           val ids = _termWildcards.map(w => atPos(w.pos)(anonId()))
-          _termWildcards = Nil
+          _termWildcards = saved
           atPos(term.pos)(TermWildcardFunction(ids, term))
       }
     } else {
