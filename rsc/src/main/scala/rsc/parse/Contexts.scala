@@ -5,6 +5,11 @@ package rsc.parse
 trait Contexts {
   self: Parser =>
 
+  sealed trait Location
+  case object InBlock extends Location
+  case object InTemplate extends Location
+  case object Elsewhere extends Location
+
   sealed trait ParamContext {
     def allowsAnonymousParams: Boolean
     def allowsAnonymousTypeParams: Boolean

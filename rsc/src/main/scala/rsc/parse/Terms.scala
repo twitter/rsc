@@ -29,7 +29,7 @@ trait Terms {
     }
   }
 
-  def term(inBlock: Boolean = false): Term = {
+  def term(location: Location = Elsewhere): Term = {
     if (in.token == IMPLICIT) {
       in.nextToken()
       val id = {
@@ -43,12 +43,12 @@ trait Terms {
         }
       }
       accept(ARROW)
-      val rhs = term(inBlock)
+      val rhs = term(location)
       crash("https://github.com/twitter/rsc/issues/102")
     } else {
       wrapEscapingTermWildcards {
         val start = in.offset
-        val unfinished = term1()
+        val unfinished = term1(location)
         if (in.token == ARROW) {
           in.nextToken()
           val unfinishedReinterpretedAsParams = {
@@ -85,7 +85,7 @@ trait Terms {
             }
           }
           val body =
-            if (inBlock) {
+            if (location == InBlock) {
               blockStats() match {
                 case List(stat: TermBlock) => stat
                 case stats => TermBlock(stats)
@@ -99,7 +99,7 @@ trait Terms {
     }
   }
 
-  def term1(): Term = {
+  def term1(location: Location): Term = {
     val start = in.offset
     in.token match {
       case IF =>
@@ -213,7 +213,10 @@ trait Terms {
                 TermAnnotate(term, mods)
               case _ =>
                 val term = unfinished
-                val tpt = infixTpt()
+                val tpt = {
+                  if (location == Elsewhere) this.tpt()
+                  else this.infixTpt()
+                }
                 TermAscribe(term, tpt)
             }
           case MATCH =>
@@ -227,7 +230,13 @@ trait Terms {
   }
 
   def postfixTerm(): Term = {
-    val reducer = TermApplyInfix(_: Term, _: TermId, Nil, _: Term): Term
+    def reducer(lhs: Term, op: TermId, rhs: Term): Term = {
+      val args = rhs match {
+        case TermTuple(args) => args
+        case arg => List(arg)
+      }
+      TermApplyInfix(lhs, op, Nil, args)
+    }
     val base = opStack
     var top = prefixTerm()
     while (in.token == ID) {
@@ -242,7 +251,14 @@ trait Terms {
         val od = reduceStack(reducer, base, operand, "", force = true)
         return atPos(od.pos.start)(TermApplyPostfix(od, op))
       }
-      top = prefixTerm()
+      val start = in.offset
+      top = prefixTerm() match {
+        case tuple @ TermTuple(args) if args.length != 1 =>
+          if (tuple.pos.start != start) atPos(start)(TermTuple(List(tuple)))
+          else tuple
+        case other =>
+          other
+      }
     }
     reduceStack(reducer, base, top, "", force = true)
   }
@@ -400,7 +416,7 @@ trait Terms {
       if (in.token == IMPORT) {
         stats += `import`()
       } else if (in.token.isTermIntro) {
-        stats += term(inBlock = true)
+        stats += term(InBlock)
       } else if (in.token.isLocalDefnIntro) {
         val start = in.offset
         val mods = defnMods(modTokens.localDefn)

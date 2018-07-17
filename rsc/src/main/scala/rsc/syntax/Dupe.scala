@@ -234,12 +234,12 @@ trait Dupe {
           val fun1 = fun.dupe
           val args1 = args.map(_.dupe)
           TermApply(fun1, args1)
-        case TermApplyInfix(lhs, op, targs, rhs) =>
+        case TermApplyInfix(lhs, op, targs, args) =>
           val lhs1 = lhs.dupe
           val op1 = op.dupe
           val targs1 = targs.map(_.dupe)
-          val rhs1 = rhs.dupe
-          TermApplyInfix(lhs1, op1, targs1, rhs1)
+          val args1 = args.map(_.dupe)
+          TermApplyInfix(lhs1, op1, targs1, args1)
         case TermApplyPostfix(arg, op) =>
           val arg1 = arg.dupe
           val op1 = op.dupe

@@ -85,7 +85,7 @@ trait Helpers {
     tpts match {
       case Nil => crash(tpts)
       case tpt :: Nil => tpt
-      case tpts => atPos(start)(TptTuple(tpts))
+      case tpts => wrapEscapingTptWildcards(atPos(start)(TptTuple(tpts)))
     }
   }
 

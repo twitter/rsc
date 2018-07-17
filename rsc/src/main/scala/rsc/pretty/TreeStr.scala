@@ -233,9 +233,17 @@ class TreeStr(val p: Printer) {
         p.str("var")
       case x @ NamedId(v) =>
         if (x.sym != NoSymbol) p.str("<" + x.sym + ">")
-        else if (keywords.containsKey(v)) p.str("`" + v + "`")
-        else if (x.isInstanceOf[PatId] && v.isPatVar) p.str("`" + v + "`")
-        else p.str(v)
+        else {
+          x match {
+            case PatId(v) if v.isPatVar =>
+              p.str("`" + v + "`")
+            case _ =>
+              def hasBackquotes = x.pos.string.startsWith("`")
+              def guessBackquotes = keywords.containsKey(v) || v == "then"
+              if (hasBackquotes || guessBackquotes) p.str("`" + v + "`")
+              else p.str(v)
+          }
+        }
       case Param(mods, id, tpt, rhs) =>
         apply(Mods(mods.trees.filter(!_.isInstanceOf[ModImplicit])))
         apply(id)
@@ -326,20 +334,24 @@ class TreeStr(val p: Printer) {
       case TermApply(fun, args) =>
         apply(fun, SimpleExpr1)
         p.Parens(apply(args, ", ", Expr))
-      case TermApplyInfix(lhs, op, targs, rhs) =>
+      case TermApplyInfix(lhs, op, targs, args) =>
         apply(lhs, InfixExpr(op))
         p.str(" ")
         apply(op, SimpleExpr1)
         p.Brackets(targs)(apply(_, ", ", Typ))
         p.str(" ")
-        apply(rhs, RhsInfixExpr(op))
+        args match {
+          case List(arg: TermTuple) => p.Parens(apply(arg, Expr))
+          case List(arg) => apply(arg, RhsInfixExpr(op))
+          case args => p.Parens(apply(args, ", ", Expr))
+        }
       case TermApplyPostfix(arg, op) =>
         apply(arg, InfixExpr(op))
         p.str(" ")
         apply(op, SimpleExpr1)
       case TermApplyPrefix(op, arg) =>
         apply(op, SimpleExpr1)
-        apply(arg, SimpleExpr)
+        apply(arg, PrefixExpr)
       case TermApplyType(fun, targs) =>
         apply(fun, SimpleExpr)
         p.Brackets(apply(targs, ", ", Typ))

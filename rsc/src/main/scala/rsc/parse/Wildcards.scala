@@ -51,7 +51,6 @@ trait Wildcards {
   }
 
   def wrapEscapingTermWildcards[T <: Term](fn: => T): Term = {
-    val start = in.offset
     val saved = _termWildcards
     _termWildcards = Nil
     val term = fn
@@ -61,9 +60,9 @@ trait Wildcards {
           _termWildcards = saved ++ _termWildcards
           term
         case _ =>
-          val ids = _termWildcards.map(_ => atPos(start, start)(anonId()))
-          _termWildcards = Nil
-          atPos(start)(TermWildcardFunction(ids, term))
+          val ids = _termWildcards.map(w => atPos(w.pos)(anonId()))
+          _termWildcards = saved
+          atPos(term.pos)(TermWildcardFunction(ids, term))
       }
     } else {
       _termWildcards = saved
@@ -72,12 +71,11 @@ trait Wildcards {
   }
 
   def wrapEscapingTptWildcards[T <: Tpt](fn: => T): Tpt = {
-    val start = in.offset
     val tpt = fn
     if (_tptWildcards.nonEmpty) {
-      val ids = _tptWildcards.map(_ => atPos(start, start)(anonId()))
+      val ids = _tptWildcards.map(w => atPos(w.pos)(anonId()))
       _tptWildcards = Nil
-      atPos(start)(TptWildcardExistential(ids, tpt))
+      atPos(tpt.pos)(TptWildcardExistential(ids, tpt))
     } else {
       tpt
     }
