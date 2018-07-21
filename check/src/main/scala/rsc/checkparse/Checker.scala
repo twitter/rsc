@@ -4,7 +4,6 @@ package rsc.checkparse
 
 import rsc.checkbase._
 import rsc.pretty._
-import rsc.tests._
 import rsc.{syntax => r}
 import scala.tools.nsc.{Global => NscGlobal}
 import scala.util._

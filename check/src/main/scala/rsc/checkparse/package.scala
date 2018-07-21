@@ -3,6 +3,7 @@
 package rsc
 
 import java.nio.file._
+import rsc.checkbase._
 import rsc.gensym._
 import rsc.lexis.{BOF => RSC_BOF, EOF => RSC_EOF}
 import rsc.lexis.{Input => RscInput, Position => RscPosition}
@@ -11,7 +12,6 @@ import rsc.pretty._
 import rsc.report.{StoreReporter => RscReporter}
 import rsc.settings.{Settings => RscSettings}
 import rsc.syntax.{Tree => RscTree}
-import rsc.tests._
 import rsc.util._
 import scala.reflect.internal.util.{BatchSourceFile => NscSourceFile}
 import scala.reflect.io.{AbstractFile => NscAbstractFile}

@@ -3,7 +3,6 @@
 package rsc.checkbase
 
 import rsc.pretty._
-import rsc.tests._
 
 sealed trait Problem
 

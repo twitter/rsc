@@ -48,6 +48,22 @@ lazy val bench = project
   .enablePlugins(JmhPlugin)
   .settings(commonSettings)
 
+lazy val check = project
+  .in(file("check"))
+  .dependsOn(mjar, rsc)
+  .settings(
+    commonSettings,
+    publishableSettings,
+    moduleName := "rsc-check",
+    libraryDependencies += "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
+    libraryDependencies += "io.github.soc" % "directories" % "10",
+    libraryDependencies += "org.scala-lang" % "scala-compiler" % V.scala,
+    libraryDependencies += "org.scalameta" %% "metac" % V.scalameta cross CrossVersion.full,
+    libraryDependencies += "org.scalameta" %% "metacp" % V.scalameta,
+    libraryDependencies += "org.scalameta" %% "metai" % V.scalameta,
+    libraryDependencies += "org.scalameta" %% "metap" % V.scalameta
+  )
+
 lazy val core = project
   .in(file("examples/core"))
   .dependsOn(function)
@@ -75,13 +91,17 @@ lazy val function = project
 lazy val mjar = project
   .in(file("mjar/mjar"))
   .dependsOn(scalasig)
+  .enablePlugins(BuildInfoPlugin)
   .disablePlugins(BackgroundRunPlugin)
   .settings(
     commonSettings,
     publishableSettings,
     libraryDependencies += "org.scalameta" %% "cli" % V.scalameta,
     libraryDependencies += "org.scalameta" %% "semanticdb" % V.scalameta,
-    mainClass := Some("scala.meta.cli.Mjar")
+    mainClass := Some("scala.meta.cli.Mjar"),
+    buildInfoUsePackageAsPath := true,
+    buildInfoKeys := Seq(version),
+    buildInfoPackage := "scala.meta.internal.mjar"
   )
 
 lazy val rsc = project
@@ -116,19 +136,11 @@ lazy val scalap = project
 
 lazy val tests = project
   .in(file("tests"))
-  .dependsOn(function, mjar, rsc, scalap)
+  .dependsOn(check, function, mjar, rsc, scalap)
   .enablePlugins(BuildInfoPlugin)
-  .disablePlugins(BackgroundRunPlugin)
   .configs(Fast, Slow)
   .settings(
     commonSettings,
-    libraryDependencies += "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
-    libraryDependencies += "io.github.soc" % "directories" % "10",
-    libraryDependencies += "org.scala-lang" % "scala-compiler" % V.scala,
-    libraryDependencies += "org.scalameta" %% "metac" % V.scalameta cross CrossVersion.full,
-    libraryDependencies += "org.scalameta" %% "metacp" % V.scalameta,
-    libraryDependencies += "org.scalameta" %% "metai" % V.scalameta,
-    libraryDependencies += "org.scalameta" %% "metap" % V.scalameta,
     libraryDependencies += "org.scalatest" %% "scalatest" % V.scalatest,
     libraryDependencies += "org.scalatest" %% "scalatest" % V.scalatest % "test",
     buildInfoUsePackageAsPath := true,

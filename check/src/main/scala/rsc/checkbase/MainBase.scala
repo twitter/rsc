@@ -4,7 +4,6 @@ package rsc.checkbase
 
 import scala.collection.mutable
 import scala.util._
-import rsc.tests._
 
 trait MainBase[S, I, N, R] extends DiffUtil with NscUtil with ToolUtil {
   def main(args: Array[String]): Unit = {

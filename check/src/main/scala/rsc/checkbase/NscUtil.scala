@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Twitter, Inc.
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
-package rsc.tests
+package rsc.checkbase
 
 import scala.tools.nsc.reporters._
 import scala.reflect.internal.util._
