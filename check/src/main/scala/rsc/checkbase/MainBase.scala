@@ -11,7 +11,7 @@ trait MainBase[S, I, N, R] extends DiffUtil with NscUtil with ToolUtil {
       case Right(settings) =>
         val problems = process(settings)
         System.out.flush()
-        if (problems.nonEmpty) sys.exit(0) else sys.exit(1)
+        if (problems.nonEmpty) sys.exit(1) else sys.exit(0)
       case Left(failures) =>
         failures.foreach(println)
         sys.exit(1)
