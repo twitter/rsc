@@ -3,6 +3,7 @@
 package rsc.tests
 
 import org.scalatest._
+import rsc.checkbase._
 import rsc.Compiler
 import rsc.pretty._
 import rsc.report._

@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file._
 import org.scalatest.exceptions._
 import org.scalatest.tagobjects._
+import rsc.checkbase._
 import rsc.util._
 import scala.collection.mutable
 import scala.meta.scalasig._

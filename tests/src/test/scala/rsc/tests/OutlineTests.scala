@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.tests
 
-import rsc.checksemanticdb._
+import rsc.checkoutline._
 
-class SemanticdbTests extends RscTests {
-  test("semanticdb for core") {
+class OutlineTests extends RscTests {
+  test("outline for core") {
     val settings = Settings(coreClasspath, coreFiles)
     val problems = Main.process(settings)
     if (problems.nonEmpty) fail()

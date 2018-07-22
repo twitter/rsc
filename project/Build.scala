@@ -64,6 +64,7 @@ object Build extends AutoPlugin {
       val cleanAll = command(
         "reload",
         "bench/clean",
+        "check/clean",
         "core/clean",
         "function/clean",
         "mjar/clean",
@@ -74,6 +75,7 @@ object Build extends AutoPlugin {
       )
       val compileAll = command(
         "bench/compile",
+        "check/compile",
         "core/compile",
         "function/compile",
         "mjar/compile",
@@ -95,12 +97,14 @@ object Build extends AutoPlugin {
         "bench/jmh:run RscParse RscLink RscOutline RscSemanticdb RscMjar ScalacCompile"
       )
       val publishAll = command(
+        "check/publish",
         "mjar/publish",
         "rsc/publish",
         "scalasig/publish",
         "scalap/publish"
       )
       val publishLocal = command(
+        "check/publishLocal",
         "mjar/publishLocal",
         "rsc/publishLocal",
         "scalasig/publishLocal",

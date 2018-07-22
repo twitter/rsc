@@ -4,6 +4,6 @@ package rsc
 
 import scala.util._
 
-package object tests extends DumpUtil {
+package object checkbase extends DumpUtil {
   type ToolResult[T] = Either[List[String], T]
 }

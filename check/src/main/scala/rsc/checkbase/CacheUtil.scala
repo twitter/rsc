@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Twitter, Inc.
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
-package rsc.tests
+package rsc.checkbase
 
 import io.github.soc.directories.ProjectDirectories
 import java.nio.file._

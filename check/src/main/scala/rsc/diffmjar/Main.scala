@@ -1,9 +1,10 @@
 // Copyright (c) 2017-2018 Twitter, Inc.
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
-package rsc.checksemanticdb
+package rsc.diffmjar
 
 import java.nio.file._
 import rsc.checkbase._
+import rsc.checkmjar.Checker
 
 object Main extends SimpleBase[Settings, Path, Path] {
   def settings(args: List[String]) = {
@@ -11,13 +12,11 @@ object Main extends SimpleBase[Settings, Path, Path] {
   }
 
   def nscResult(settings: Settings) = {
-    val nscJar = scalac(settings.cp, settings.ins)
-    val metaJars = nscJar.right.flatMap(path => metacp(settings.cp, List(path)))
-    metaJars.right.map(_.head)
+    Right(settings.nscMjar)
   }
 
   def rscResult(settings: Settings) = {
-    rsc(settings.cp, settings.ins)
+    Right(settings.rscMjar)
   }
 
   def checker(nscResult: Path, rscResult: Path) = {

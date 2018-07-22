@@ -2,17 +2,29 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.checkbase
 
+import java.nio.charset.StandardCharsets.UTF_8
+import java.nio.file._
+import rsc.pretty._
 import scala.collection.mutable
 import scala.util._
-import rsc.tests._
 
 trait MainBase[S, I, N, R] extends DiffUtil with NscUtil with ToolUtil {
   def main(args: Array[String]): Unit = {
-    settings(args.toList) match {
+    val expandedArgs = {
+      args match {
+        case Array(arg) if arg.startsWith("@") =>
+          val argPath = Paths.get(arg.substring(1))
+          val argText = new String(Files.readAllBytes(argPath), UTF_8)
+          argText.split(EOL).map(_.trim).filter(_.nonEmpty).toList
+        case other =>
+          other.toList
+      }
+    }
+    settings(expandedArgs) match {
       case Right(settings) =>
         val problems = process(settings)
         System.out.flush()
-        if (problems.nonEmpty) sys.exit(0) else sys.exit(1)
+        if (problems.nonEmpty) sys.exit(1) else sys.exit(0)
       case Left(failures) =>
         failures.foreach(println)
         sys.exit(1)
