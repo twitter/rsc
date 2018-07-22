@@ -91,17 +91,13 @@ lazy val function = project
 lazy val mjar = project
   .in(file("mjar/mjar"))
   .dependsOn(scalasig)
-  .enablePlugins(BuildInfoPlugin)
   .disablePlugins(BackgroundRunPlugin)
   .settings(
     commonSettings,
     publishableSettings,
     libraryDependencies += "org.scalameta" %% "cli" % V.scalameta,
     libraryDependencies += "org.scalameta" %% "semanticdb" % V.scalameta,
-    mainClass := Some("scala.meta.cli.Mjar"),
-    buildInfoUsePackageAsPath := true,
-    buildInfoKeys := Seq(version),
-    buildInfoPackage := "scala.meta.internal.mjar"
+    mainClass := Some("scala.meta.cli.Mjar")
   )
 
 lazy val rsc = project
@@ -151,8 +147,7 @@ lazy val tests = project
       },
       BuildInfoKey.map(dependencyClasspath.in(function, Compile)) {
         case (k, v) => "functionDeps" -> v.map(_.data)
-      },
-      "mjarOut" -> classDirectory.in(mjar, Compile).value
+      }
     ),
     buildInfoPackage := "rsc.tests",
     testOptions.in(Test) += Tests.Argument("-l", "org.scalatest.tags.Slow"),

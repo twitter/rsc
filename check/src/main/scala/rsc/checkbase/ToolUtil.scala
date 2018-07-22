@@ -42,17 +42,11 @@ trait ToolUtil extends CacheUtil with NscUtil {
   def mjar(classpath: List[Path]): ToolResult[Path] = {
     withConsole { console =>
       import scala.meta.mjar._
-      val relative = Paths.get(mjarVersion).resolve("out.jar")
-      val fingerprint = Fingerprint(classpath)
-      val out = cacheDir("mjar", fingerprint).resolve(relative)
-      if (Files.exists(out)) {
-        Right(out)
-      } else {
-        val settings = Settings().withClasspath(classpath).withOut(out)
-        Mjar.process(settings, console.reporter) match {
-          case Some(out) => Right(out)
-          case None => Left(List(console.output))
-        }
+      val out = Files.createTempFile("out", ".jar")
+      val settings = Settings().withClasspath(classpath).withOut(out)
+      Mjar.process(settings, console.reporter) match {
+        case Some(out) => Right(out)
+        case None => Left(List(console.output))
       }
     }
   }
@@ -138,10 +132,6 @@ trait ToolUtil extends CacheUtil with NscUtil {
 
   private def metaiVersion: String = {
     metacpVersion
-  }
-
-  private def mjarVersion: String = {
-    scala.meta.internal.mjar.BuildInfo.version
   }
 
   private def withConsole[T](fn: Console => T): T = {
