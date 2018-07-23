@@ -11,7 +11,7 @@ In this document, we aim to publish the results of running our benchmark suite
 on the most recent commit in our repository. Since running benchmarks takes time,
 there may be short periods of time when this document is out of date. If you're
 curious about the exact version of Rsc that is benchmarked in this document,
-[click here](https://github.com/xeno-by/rsc/commit/3faa0671926d43a28fcfe8acbbf41e68f4bc03aa).
+[click here](https://github.com/xeno-by/rsc/commit/afdd8e4bfe9b655733b1c9945a447eb9db207813).
 
 ## Hardware
 
@@ -25,11 +25,11 @@ configured to run 4 physical cores and
 ## Software
 
 In our benchmarks, we use Debian GNU/Linux 9.4 (stretch) and Java(TM) SE Runtime Environment (build 1.8.0_171-b11)
-to run [Rsc 0.0.0-150-3faa0671](https://github.com/xeno-by/rsc/commit/3faa0671926d43a28fcfe8acbbf41e68f4bc03aa) and Scalac 2.11.12.
+to run [Rsc 0.0.0-152-afdd8e4b](https://github.com/xeno-by/rsc/commit/afdd8e4bfe9b655733b1c9945a447eb9db207813) and Scalac 2.11.12.
 To benchmark JVM applications, we use sbt-jmh 0.2.27 that runs in sbt 0.13.17.
 
 Our benchmarks run different fragments of compilation pipelines of
-different compilers on https://github.com/xeno-by/rsc/tree/3faa0671926d43a28fcfe8acbbf41e68f4bc03aa/examples/core
+different compilers on https://github.com/xeno-by/rsc/tree/afdd8e4bfe9b655733b1c9945a447eb9db207813/examples/core
 that contains 96 files totaling 20143 lines of code.
 
 Every benchmark runs in in hot mode, i.e. it computes performance of a steady
@@ -46,7 +46,7 @@ be interpreted with utmost care. Concretely:
     is very likely to slow down our compiler by a significant factor.
   * Direct comparisons of Rsc and Scalac performance numbers should take
     into account similarities and differences in provided functionality.
-    Consult [the summary in the "Compiler" document](https://github.com/xeno-by/rsc/tree/3faa0671926d43a28fcfe8acbbf41e68f4bc03aa/docs/compiler.md#summary)
+    Consult [the summary in the "Compiler" document](https://github.com/xeno-by/rsc/tree/afdd8e4bfe9b655733b1c9945a447eb9db207813/docs/compiler.md#summary)
     for more information.
 
 ## Results
@@ -59,39 +59,39 @@ To reproduce, run `bin/bench` (this will take a while).
     <td>Cumulative</td>
   </th>
   <tr>
-    <td width="208px"><a href="https://github.com/xeno-by/rsc/tree/3faa0671926d43a28fcfe8acbbf41e68f4bc03aa/bench/src/main/scala/rsc/bench/RscParse.scala">RscParse</a></td>
-    <td width="208px">19.456 ms</td>
-    <td width="208px">19.456 ms</td>
+    <td width="208px"><a href="https://github.com/xeno-by/rsc/tree/afdd8e4bfe9b655733b1c9945a447eb9db207813/bench/src/main/scala/rsc/bench/RscParse.scala">RscParse</a></td>
+    <td width="208px">19.667 ms</td>
+    <td width="208px">19.667 ms</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/xeno-by/rsc/tree/3faa0671926d43a28fcfe8acbbf41e68f4bc03aa/bench/src/main/scala/rsc/bench/RscLink.scala">RscLink</a></td>
-    <td>53.213 ms</td>
-    <td>72.669 ms</td>
+    <td><a href="https://github.com/xeno-by/rsc/tree/afdd8e4bfe9b655733b1c9945a447eb9db207813/bench/src/main/scala/rsc/bench/RscLink.scala">RscLink</a></td>
+    <td>52.396 ms</td>
+    <td>72.063 ms</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/xeno-by/rsc/tree/3faa0671926d43a28fcfe8acbbf41e68f4bc03aa/bench/src/main/scala/rsc/bench/RscOutline.scala">RscOutline</a></td>
-    <td>39.327 ms</td>
-    <td>111.996 ms</td>
+    <td><a href="https://github.com/xeno-by/rsc/tree/afdd8e4bfe9b655733b1c9945a447eb9db207813/bench/src/main/scala/rsc/bench/RscOutline.scala">RscOutline</a></td>
+    <td>40.076 ms</td>
+    <td>112.139 ms</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/xeno-by/rsc/tree/3faa0671926d43a28fcfe8acbbf41e68f4bc03aa/bench/src/main/scala/rsc/bench/RscSemanticdb.scala">RscSemanticdb</a></td>
-    <td>25.187 ms</td>
-    <td>137.183 ms</td>
+    <td><a href="https://github.com/xeno-by/rsc/tree/afdd8e4bfe9b655733b1c9945a447eb9db207813/bench/src/main/scala/rsc/bench/RscSemanticdb.scala">RscSemanticdb</a></td>
+    <td>26.023 ms</td>
+    <td>138.162 ms</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/xeno-by/rsc/tree/3faa0671926d43a28fcfe8acbbf41e68f4bc03aa/bench/src/main/scala/rsc/bench/RscMjar.scala">RscMjar</a></td>
-    <td>284.993 ms</td>
-    <td>422.176 ms</td>
+    <td><a href="https://github.com/xeno-by/rsc/tree/afdd8e4bfe9b655733b1c9945a447eb9db207813/bench/src/main/scala/rsc/bench/RscMjar.scala">RscMjar</a></td>
+    <td>264.044 ms</td>
+    <td>402.206 ms</td>
   </tr>
   <tr>
-    <td><a href="https://github.com/xeno-by/rsc/tree/3faa0671926d43a28fcfe8acbbf41e68f4bc03aa/bench/src/main/scala/rsc/bench/ScalacCompile.scala">ScalacCompile</a></td>
-    <td>3826.044 ms</td>
-    <td>3826.044 ms</td>
+    <td><a href="https://github.com/xeno-by/rsc/tree/afdd8e4bfe9b655733b1c9945a447eb9db207813/bench/src/main/scala/rsc/bench/ScalacCompile.scala">ScalacCompile</a></td>
+    <td>3746.912 ms</td>
+    <td>3746.912 ms</td>
   </tr>
 </table>
 
 ## Summary
 
 At the moment, generating SemanticDB signatures from an automatically rewritten core of [Twitter Util](https://github.com/twitter/util)
-is ~28x faster than full Scalac compilation.
+is ~27x faster than full Scalac compilation.
 Generating ScalaSignatures is ~9x faster.
