@@ -77,11 +77,11 @@ object Build extends AutoPlugin {
     }
 
     object ui {
-      val ciFmt = "scalafmtTest"
-      val ciFast = fastTest
-      val ciSlow = slowTest
-      val ci = command(ciFmt, ciFast, ciSlow)
-      val cleanAll = command(
+      lazy val ciFmt = "scalafmtTest"
+      lazy val ciFast = fastTest
+      lazy val ciSlow = slowTest
+      lazy val ci = command(ciFmt, ciFast, ciSlow)
+      lazy val cleanAll = command(
         "reload",
         "bench/clean",
         "check/clean",
@@ -97,7 +97,7 @@ object Build extends AutoPlugin {
         "scalap/clean",
         "tests/clean"
       )
-      val compileAll = command(
+      lazy val compileAll = command(
         "bench/compile",
         "check/compile",
         "core/compile",
@@ -114,46 +114,46 @@ object Build extends AutoPlugin {
         "tests/compile",
         "tests/test:compile"
       )
-      val fmtAll = "scalafmtFormat"
-      val testAll = command(
+      lazy val fmtAll = "scalafmtFormat"
+      lazy val testAll = command(
         "reload",
         "cleanAll",
         ci
       )
-      val benchAll = command(
+      lazy val benchAll = command(
         "cleanAll",
         "compileAll",
         "bench/jmh:run RscParse RscLink RscOutline RscSemanticdb RscMjar ScalacCompile"
       )
-      val publishAll = command(
+      lazy val publishAll = command(
         "check/publish",
         "mjar/publish",
         "rsc/publish",
         "scalasig/publish",
         "scalap/publish"
       )
-      val publishLocal = command(
+      lazy val publishLocal = command(
         "check/publishLocal",
         "mjar/publishLocal",
         "rsc/publishLocal",
         "scalasig/publishLocal",
         "scalap/publishLocal"
       )
-      val compile = "tests/test:compile"
-      val fastTest = "tests/fast:test"
-      val slowTest = command(
+      lazy val compile = "tests/test:compile"
+      lazy val fastTest = "tests/fast:test"
+      lazy val slowTest = command(
         "tests/slow:test",
         "scalafixTests/test"
       )
-      val test = fastTest
-      val benchParse = "bench/jmh:run RscParse"
-      val benchLink = "bench/jmh:run RscLink"
-      val benchOutline = "bench/jmh:run RscOutline"
-      val benchSemanticdb = "bench/jmh:run RscSemanticdb"
-      val benchMjar = "bench/jmh:run RscMjar"
+      lazy val test = fastTest
+      lazy val benchParse = "bench/jmh:run RscParse"
+      lazy val benchLink = "bench/jmh:run RscLink"
+      lazy val benchOutline = "bench/jmh:run RscOutline"
+      lazy val benchSemanticdb = "bench/jmh:run RscSemanticdb"
+      lazy val benchMjar = "bench/jmh:run RscMjar"
     }
 
-    val isCI = sys.env.contains("CI")
+    lazy val isCI = sys.env.contains("CI")
 
     // https://stackoverflow.com/questions/41229451/how-to-disable-slow-tagged-scalatests-by-default-allow-execution-with-option
     lazy val Fast = config("fast").extend(Test)
