@@ -78,8 +78,8 @@ object Build extends AutoPlugin {
 
     object ui {
       val ciFmt = "scalafmtTest"
-      val ciFast = "tests/fast:test"
-      val ciSlow = "tests/slow:test"
+      val ciFast = fastTest
+      val ciSlow = slowTest
       val ci = command(ciFmt, ciFast, ciSlow)
       val cleanAll = command(
         "reload",

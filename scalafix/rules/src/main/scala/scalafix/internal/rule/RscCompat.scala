@@ -1,6 +1,7 @@
 // Copyright (c) 2017-2018 Twitter, Inc.
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 // NOTE: This file has been partially copy/pasted from scalacenter/scalafix.
+// NOTE: This file has been partially copy/pasted from scalameta/scalameta.
 package scalafix.internal.rule
 
 import java.io._
@@ -65,6 +66,7 @@ case class RscCompat(index: SemanticdbIndex)
         case Defn.Def(_, name, _, _, None, body) =>
           append(env, name, body)
         case _ =>
+          // FIXME: https://github.com/twitter/rsc/issues/149
           ()
       }
     }
