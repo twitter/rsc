@@ -38,12 +38,16 @@ object Build extends AutoPlugin {
     }
   }
   private def scalafmt(args: List[String], cwd: Path): Unit = {
-    val bin = buildRoot.resolve("bin/scalafmt").toAbsolutePath.toString
+    val bin = buildRoot.resolve("bin/scalafmt").abs
     shellout(bin +: args, cwd)
   }
   private def scalafix(args: List[String], cwd: Path): Unit = {
-    val bin = buildRoot.resolve("bin/scalafix").toAbsolutePath.toString
+    val bin = buildRoot.resolve("bin/scalafix").abs
     shellout(bin +: args, cwd)
+  }
+
+  implicit class PathOps(path: Path) {
+    def abs: String = path.toAbsolutePath.toString
   }
 
   object autoImport {
@@ -61,14 +65,14 @@ object Build extends AutoPlugin {
     def scalafixRscCompat(baseDirectory: File): Unit = {
       val args = List.newBuilder[String]
       args += "--tool-classpath"
-      args += buildRoot.resolve("scalafix/rules/target/scala-2.11/classes").toAbsolutePath.toString
+      args += buildRoot.resolve("scalafix/rules/target/scala-2.11/classes").abs
       args += "--classpath"
-      args += baseDirectory.toPath.resolve("target/scala-2.11/classes").toAbsolutePath.toString
+      args += baseDirectory.toPath.resolve("target/scala-2.11/classes").abs
       args += "--sourceroot"
-      args += buildRoot.toAbsolutePath.toString
+      args += buildRoot.abs
       args += "--rules"
       args += "scala:scalafix.internal.rule.RscCompat"
-      args += baseDirectory.toPath.toAbsolutePath.toString
+      args += baseDirectory.toPath.abs
       scalafix(args.result, baseDirectory.toPath)
     }
 

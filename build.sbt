@@ -253,7 +253,8 @@ lazy val semanticdbSettings = Def.settings(
   scalacOptions -= "-feature",
   scalacOptions -= "-Ywarn-unused-import",
   scalacOptions -= "-Xfatal-warnings",
-  addCompilerPlugin("org.scalameta" %% "semanticdb-scalac" % V.scalameta cross CrossVersion.full),
+  addCompilerPlugin(
+    "org.scalameta" %% "semanticdb-scalac" % V.scalameta cross CrossVersion.full),
   scalacOptions += "-Yrangepos",
   scalacOptions += "-P:semanticdb:text:off",
   scalacOptions += "-P:semanticdb:symbols:on",

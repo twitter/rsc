@@ -27,7 +27,8 @@ import scalafix.v0._
 // to be compatible with Rsc. At the moment, it is far from perfect -
 // for details, see https://github.com/twitter/rsc/labels/Scalafix.
 
-case class RscCompat(index: SemanticdbIndex) extends SemanticRule(index, "RscCompat") {
+case class RscCompat(index: SemanticdbIndex)
+    extends SemanticRule(index, "RscCompat") {
   override def fix(ctx: RuleCtx): Patch = {
     val targets = collectRewriteTargets(ctx.tree)
     targets.map(ascribeReturnType(ctx, _)).asPatch
@@ -101,12 +102,16 @@ case class RscCompat(index: SemanticdbIndex) extends SemanticRule(index, "RscCom
               printer.pprint(returnType)
               printer.toString
             }
-            if (TokenOps.needsLeadingSpaceBeforeColon(token)) s" : $returnTypeString"
-            else s": $returnTypeString"
+            if (TokenOps.needsLeadingSpaceBeforeColon(token)) {
+              s" : $returnTypeString"
+            } else {
+              s": $returnTypeString"
+            }
           }
           ctx.addRight(token, ascription)
         case other =>
-          sys.error(s"unsupported outline: ${other.toSignatureMessage.toProtoString}")
+          val details = other.toSignatureMessage.toProtoString
+          sys.error(s"unsupported outline: $details")
       }
     } catch {
       case ex: Throwable =>
@@ -208,10 +213,6 @@ class TypePrinter(env: Env) {
         case s.ThisType(sym) =>
           opt(sym, ".")(pprint)
           out.print("this")
-        case s.SuperType(pre, sym) =>
-          opt(pre, ".")(prefix)
-          out.print("super")
-          opt("[", sym, "]")(pprint)
         case s.WithType(types) =>
           rep(types, " with ") { tpe =>
             // FIXME: https://github.com/twitter/rsc/issues/142
@@ -251,8 +252,10 @@ class TypePrinter(env: Env) {
         case s.RepeatedType(utpe) =>
           opt(utpe)(normal)
           out.print("*")
-        case _: s.ConstantType | _: s.IntersectionType | _: s.UnionType | s.NoType =>
-          sys.error(s"unsupported type: ${tpe.toTypeMessage.toProtoString}")
+        case _: s.SuperType | _: s.ConstantType | _: s.IntersectionType |
+            _: s.UnionType | s.NoType =>
+          val details = tpe.toTypeMessage.toProtoString
+          sys.error(s"unsupported type: $details")
       }
     }
     def normal(tpe: s.Type): Unit = {
@@ -332,7 +335,8 @@ class TypePrinter(env: Env) {
         out.print(": ")
         pprint(tpe)
       case other =>
-        sys.error(s"unsupported signature: ${other.toSignatureMessage.toProtoString}")
+        val details = other.toSignatureMessage.toProtoString
+        sys.error(s"unsupported signature: $details")
     }
   }
 
@@ -393,7 +397,8 @@ class TypePrinter(env: Env) {
     }
   }
 
-  private def rep[T](pre: String, xs: Seq[T], sep: String, suf: String)(f: T => Unit): Unit = {
+  private def rep[T](pre: String, xs: Seq[T], sep: String, suf: String)(
+      f: T => Unit): Unit = {
     if (xs.nonEmpty) {
       out.print(pre)
       rep(xs, sep)(f)
@@ -401,11 +406,13 @@ class TypePrinter(env: Env) {
     }
   }
 
-  private def rep[T](pre: String, xs: Seq[T], sep: String)(f: T => Unit): Unit = {
+  private def rep[T](pre: String, xs: Seq[T], sep: String)(
+      f: T => Unit): Unit = {
     rep(pre, xs, sep, "")(f)
   }
 
-  private def rep[T](xs: Seq[T], sep: String, suf: String)(f: T => Unit): Unit = {
+  private def rep[T](xs: Seq[T], sep: String, suf: String)(
+      f: T => Unit): Unit = {
     rep("", xs, sep, suf)(f)
   }
 
@@ -417,7 +424,8 @@ class TypePrinter(env: Env) {
     }
   }
 
-  private def opt[T](pre: String, xs: Option[T], suf: String)(f: T => Unit): Unit = {
+  private def opt[T](pre: String, xs: Option[T], suf: String)(
+      f: T => Unit): Unit = {
     xs.foreach { x =>
       out.print(pre)
       f(x)
@@ -433,7 +441,8 @@ class TypePrinter(env: Env) {
     opt(pre, if (xs.nonEmpty) Some(xs) else None)(f)
   }
 
-  private def opt[T](pre: String, xs: s.Signature)(f: s.Signature => Unit): Unit = {
+  private def opt[T](pre: String, xs: s.Signature)(
+      f: s.Signature => Unit): Unit = {
     opt(pre, if (xs.nonEmpty) Some(xs) else None)(f)
   }
 
@@ -445,7 +454,8 @@ class TypePrinter(env: Env) {
     opt("", if (xs.nonEmpty) Some(xs) else None, suf)(f)
   }
 
-  private def opt[T](xs: s.Signature, suf: String)(f: s.Signature => Unit): Unit = {
+  private def opt[T](xs: s.Signature, suf: String)(
+      f: s.Signature => Unit): Unit = {
     opt("", if (xs.nonEmpty) Some(xs) else None, suf)(f)
   }
 
@@ -461,7 +471,8 @@ class TypePrinter(env: Env) {
     opt("", xs, "")(f)
   }
 
-  private def opt(pre: String, s: String, suf: String)(f: String => Unit): Unit = {
+  private def opt(pre: String, s: String, suf: String)(
+      f: String => Unit): Unit = {
     if (s.nonEmpty) {
       out.print(pre)
       f(s)
