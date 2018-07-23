@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+VERSION="0.6.0-M12"
+CACHE="$HOME/.scalafix"
+COURSIER="$CACHE/coursier"
+SCALAFIX="$CACHE/scalafix-$VERSION"
+
+if [ ! -d $CACHE ]; then
+  mkdir -p $CACHE
+fi
+
+if [ ! -f $COURSIER ]; then
+  curl -L -o $COURSIER https://git.io/vgvpD
+  chmod +x $COURSIER
+fi
+
+if [ ! -f $SCALAFIX ]; then
+  $COURSIER bootstrap ch.epfl.scala:scalafix-cli_2.11.12:$VERSION --main scalafix.cli.Cli -o $SCALAFIX
+  chmod +x $SCALAFIX
+fi
+
+$SCALAFIX "$@"

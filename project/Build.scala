@@ -18,42 +18,58 @@ object Build extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
   import autoImport._
 
+  private def buildRoot: Path = Paths.get("").toAbsolutePath
+
   private def command(commands: String*): String = command(commands.toList)
   private def command(commands: List[String]): String = {
     commands.map(c => s";$c ").mkString("")
   }
 
-  private def scalafmt(options: String*): Unit = {
-    val projectRoot = Paths.get(".")
-    val dotScalafmt = projectRoot.resolve("./scalafmt")
-    val binScalafmt = projectRoot.resolve("bin/scalafmt")
-    val scalafmtBinary = List(dotScalafmt, binScalafmt).filter(f => exists(f))
-    scalafmtBinary match {
-      case List(scalafmtBinary, _*) =>
-        val command = scalafmtBinary.toString :: options.toList
-        val scalafmt = new java.lang.ProcessBuilder()
-        scalafmt.command(command.asJava)
-        scalafmt.directory(projectRoot.toFile)
-        scalafmt.redirectOutput(Redirect.INHERIT)
-        scalafmt.redirectError(Redirect.INHERIT)
-        val exitcode = scalafmt.start().waitFor()
-        if (exitcode != 0) {
-          sys.error(s"scalafmt --test has failed with code $exitcode")
-        }
-      case Nil =>
-        sys.error("Scalafmt binary not found")
+  private def shellout(command: List[String], cwd: Path): Unit = {
+    val builder = new java.lang.ProcessBuilder()
+    builder.command(command.asJava)
+    builder.directory(cwd.toFile)
+    builder.redirectOutput(Redirect.INHERIT)
+    builder.redirectError(Redirect.INHERIT)
+    val exitcode = builder.start().waitFor()
+    if (exitcode != 0) {
+      val what = command.mkString(" ")
+      sys.error(s"$what in $cwd has failed with code $exitcode")
     }
+  }
+  private def scalafmt(args: List[String], cwd: Path): Unit = {
+    val bin = buildRoot.resolve("bin/scalafmt").toAbsolutePath.toString
+    shellout(bin +: args, cwd)
+  }
+  private def scalafix(args: List[String], cwd: Path): Unit = {
+    val bin = buildRoot.resolve("bin/scalafix").toAbsolutePath.toString
+    shellout(bin +: args, cwd)
   }
 
   object autoImport {
     val scalafmtFormat = taskKey[Unit]("Automatically format all files")
     val scalafmtTest = taskKey[Unit]("Test that all files are formatted")
+    val rewrite = taskKey[Unit]("Rewrite the project to be compatible with Rsc")
 
     def computeScalaVersionFromTravisYml(prefix: String): String = {
       val travisYml = IO.read(file(".travis.yml"))
       val scalaRegex = (prefix + ".\\d+").r
       val scalaMatch = scalaRegex.findFirstMatchIn(travisYml)
       scalaMatch.map(_.group(0)).get
+    }
+
+    def scalafixRscCompat(baseDirectory: File): Unit = {
+      val args = List.newBuilder[String]
+      args += "--tool-classpath"
+      args += buildRoot.resolve("scalafix/rules/target/scala-2.11/classes").toAbsolutePath.toString
+      args += "--classpath"
+      args += baseDirectory.toPath.resolve("target/scala-2.11/classes").toAbsolutePath.toString
+      args += "--sourceroot"
+      args += buildRoot.toAbsolutePath.toString
+      args += "--rules"
+      args += "scala:scalafix.internal.rule.RscCompat"
+      args += baseDirectory.toPath.toAbsolutePath.toString
+      scalafix(args.result, baseDirectory.toPath)
     }
 
     object ui {
@@ -141,7 +157,11 @@ object Build extends AutoPlugin {
   }
 
   override def globalSettings: Seq[Def.Setting[_]] = List(
-    scalafmtFormat := scalafmt("--non-interactive"),
-    scalafmtTest := scalafmt("--test", "--non-interactive", "--quiet")
+    scalafmtFormat := {
+      scalafmt(List("--non-interactive"), buildRoot)
+    },
+    scalafmtTest := {
+      scalafmt(List("--test", "--non-interactive", "--quiet"), buildRoot)
+    }
   )
 }

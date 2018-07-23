@@ -73,7 +73,7 @@ lazy val core = project
     semanticdbSettings,
     libraryDependencies += "org.scala-lang" % "scala-reflect" % V.scala,
     libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
-    addCommandAlias("rewrite", "core/scalafixCli --rules ExplicitResultTypes")
+    rewrite := scalafixRscCompat(baseDirectory.value)
   )
 
 lazy val function = project
