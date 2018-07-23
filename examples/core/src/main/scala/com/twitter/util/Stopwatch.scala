@@ -101,7 +101,7 @@ object Stopwatch extends Stopwatch {
    * elapsed [[Duration duration]].
    */
   def const(dur: Duration): Stopwatch = new Stopwatch {
-    private[this] val fn: () => _root_.com.twitter.util.Duration = () => dur
+    private[this] val fn = () => dur
     def start(): Elapsed = fn
   }
 }
@@ -155,7 +155,7 @@ object Stopwatches {
  * @see `NilStopwatch.get` for accessing this instance from Java.
  */
 object NilStopwatch extends Stopwatch {
-  private[this] val fn: () => _root_.com.twitter.util.Duration = () => Duration.Bottom
+  private[this] val fn: _root_.scala.Function0[_root_.com.twitter.util.Duration] = () => Duration.Bottom
 
   def start(): Elapsed = fn
 

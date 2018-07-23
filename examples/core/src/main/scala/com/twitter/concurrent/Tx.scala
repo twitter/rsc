@@ -43,7 +43,7 @@ object Tx {
    * A transaction that will always `ack()` with `Abort`.
    */
   val aborted: Tx[Nothing] = new Tx[Nothing] {
-    def ack(): _root_.com.twitter.util.Future[_root_.com.twitter.concurrent.Tx.Abort.type] = Future.value(Abort)
+    def ack() = Future.value(Abort)
     def nack(): Unit = {}
   }
 
@@ -53,7 +53,7 @@ object Tx {
    * Note: Updates here must also be done at [[com.twitter.concurrent.Txs.newConstTx()]].
    */
   def const[T](msg: T): Tx[T] = new Tx[T] {
-    def ack(): _root_.com.twitter.util.Future[_root_.com.twitter.concurrent.Tx.Commit[T]] = Future.value(Commit(msg))
+    def ack() = Future.value(Commit(msg))
     def nack(): Unit = {}
   }
 

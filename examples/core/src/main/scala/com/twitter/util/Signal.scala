@@ -43,8 +43,8 @@ object SunSignalHandler {
 }
 
 class SunSignalHandler extends SignalHandler {
-  private val signalHandlerClass: _root_.java.lang.Class[_] = Class.forName("sun.misc.SignalHandler")
-  private val signalClass: _root_.java.lang.Class[_] = Class.forName("sun.misc.Signal")
+  private val signalHandlerClass: _root_.java.lang.Class[T1] forSome { type T1 } = Class.forName("sun.misc.SignalHandler")
+  private val signalClass: _root_.java.lang.Class[T1] forSome { type T1 } = Class.forName("sun.misc.Signal")
   private val handleMethod: _root_.java.lang.reflect.Method = signalClass.getMethod("handle", signalClass, signalHandlerClass)
   private val nameMethod: _root_.java.lang.reflect.Method = signalClass.getMethod("getName")
 
@@ -56,7 +56,7 @@ class SunSignalHandler extends SignalHandler {
         signalHandlerClass.getClassLoader,
         Array[Class[_]](signalHandlerClass),
         new InvocationHandler {
-          def invoke(proxy: Object, method: Method, args: Array[Object]): _root_.scala.Null = {
+          def invoke(proxy: Object, method: Method, args: Array[Object]) = {
             if (method.getName() == "handle") {
               handlers(signal).foreach { x =>
                 x(nameMethod.invoke(args(0)).asInstanceOf[String])
@@ -73,7 +73,7 @@ class SunSignalHandler extends SignalHandler {
 }
 
 object HandleSignal {
-  private val handlers: _root_.scala.collection.mutable.HashMap[_root_.scala.Predef.String, _root_.scala.collection.mutable.Set[_root_.scala.Predef.String => _root_.scala.Unit]] = new mutable.HashMap[String, mutable.Set[String => Unit]]()
+  private val handlers: _root_.scala.collection.mutable.HashMap[_root_.scala.Predef.String, _root_.scala.collection.mutable.Set[_root_.scala.Function1[_root_.scala.Predef.String, _root_.scala.Unit]]] = new mutable.HashMap[String, mutable.Set[String => Unit]]()
 
   /**
    * Set the callback function for a named unix signal.

@@ -90,8 +90,8 @@ object Diffable {
   }
 
   implicit val ofSet: Diffable[Set] = new Diffable[Set] {
-    def diff[T](left: Set[T], right: Set[T]): _root_.com.twitter.util.Diffable.SetDiff[T] = SetDiff(right -- left, left -- right)
-    def empty[T]: _root_.scala.collection.immutable.Set[T] = Set.empty
+    def diff[T](left: Set[T], right: Set[T]) = SetDiff(right -- left, left -- right)
+    def empty[T] = Set.empty
   }
 
   implicit val ofSeq: Diffable[Seq] = new Diffable[Seq] {
@@ -109,7 +109,7 @@ object Diffable {
         SeqDiff(left.length, insert.toMap)
       }
 
-    def empty[T]: _root_.scala.collection.Seq[_root_.scala.Nothing] = Seq.empty
+    def empty[T] = Seq.empty
   }
 
   /**

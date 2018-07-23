@@ -714,7 +714,7 @@ object Buf {
                 equalsBytes(bs.bytes, bs.begin)
               case None =>
                 val processor = new Processor {
-                  private[this] var pos: _root_.scala.Int = 0
+                  private[this] var pos = 0
                   def apply(b: Byte): Boolean = {
                     if (b == bytes(begin + pos)) {
                       pos += 1
@@ -970,7 +970,7 @@ object Buf {
     }
 
     val processor = new Processor {
-      private[this] var pos: _root_.scala.Int = 0
+      private[this] var pos = 0
       def apply(b: Byte): Boolean = {
         if (b == y.get(pos)) {
           pos += 1

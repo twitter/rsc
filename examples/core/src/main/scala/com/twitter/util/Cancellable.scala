@@ -30,7 +30,7 @@ trait Cancellable {
 
 object Cancellable {
   val nil: Cancellable = new Cancellable {
-    def isCancelled: _root_.scala.Boolean = false
+    def isCancelled = false
     def cancel(): Unit = {}
     def linkTo(other: Cancellable): Unit = {}
   }

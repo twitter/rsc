@@ -90,8 +90,8 @@ object Future {
   private def emptyMap[A, B]: Future[Map[A, B]] = emptyMapInstance.asInstanceOf[Future[Map[A, B]]]
 
   // Exception used to raise on Futures.
-  private[this] val RaiseException: Exception = new Exception with NoStackTrace
-  @inline private final def raiseException = RaiseException
+  private[this] val RaiseException: _root_.scala.`package`.Exception with _root_.scala.util.control.NoStackTrace = new Exception with NoStackTrace
+  @inline private final def raiseException: _root_.scala.`package`.Exception with _root_.scala.util.control.NoStackTrace = RaiseException
 
   /**
    * Creates a satisfied `Future` from a [[Try]].
@@ -1974,7 +1974,7 @@ abstract class Future[+A] extends Awaitable[A] { self =>
    */
   def toJavaFuture: JavaFuture[_ <: A] = {
     new JavaFuture[A] {
-      private[this] val wasCancelled: _root_.java.util.concurrent.atomic.AtomicBoolean = new AtomicBoolean(false)
+      private[this] val wasCancelled = new AtomicBoolean(false)
 
       def cancel(mayInterruptIfRunning: Boolean): Boolean = {
         if (wasCancelled.compareAndSet(false, true))

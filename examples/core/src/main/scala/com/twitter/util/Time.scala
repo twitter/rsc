@@ -403,7 +403,7 @@ object Time extends TimeLikeOps[Time] {
   /**
    * Note, this should only ever be updated by methods used for testing.
    */
-  private[util] val localGetTime: _root_.com.twitter.util.Local[() => _root_.com.twitter.util.Time] = new Local[() => Time]
+  private[util] val localGetTime: _root_.com.twitter.util.Local[_root_.scala.Function0[_root_.com.twitter.util.Time]] = new Local[() => Time]
   private[util] val localGetTimer: _root_.com.twitter.util.Local[_root_.com.twitter.util.MockTimer] = new Local[MockTimer]
 
   /**

@@ -299,7 +299,7 @@ trait ExecutorScheduler { self: Scheduler =>
   protected val threadGroup: ThreadGroup = new ThreadGroup(name)
 
   protected val threadFactory: ThreadFactory = new ThreadFactory {
-    private val n: _root_.java.util.concurrent.atomic.AtomicInteger = new AtomicInteger(1)
+    private val n = new AtomicInteger(1)
 
     def newThread(r: Runnable): Thread = {
       val thread = new Thread(threadGroup, r, name + "-" + n.getAndIncrement())

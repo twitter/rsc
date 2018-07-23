@@ -61,7 +61,7 @@ trait Var[+T] { self =>
    * unobserved Var returned by flatMap will not invoke `f`
    */
   def flatMap[U](f: T => Var[U]): Var[U] = new Var[U] {
-    def observe(depth: Int, obs: Observer[U]): _root_.com.twitter.util.Closable = {
+    def observe(depth: Int, obs: Observer[U]) = {
       val inner = new AtomicReference(Closable.nop)
       val outer = self.observe(
         depth,
@@ -97,7 +97,7 @@ trait Var[+T] { self =>
    * Event.
    */
   lazy val changes: Event[T] = new Event[T] {
-    def register(s: Witness[T]): _root_.com.twitter.util.Closable =
+    def register(s: Witness[T]) =
       self.observe { newv =>
         s.notify(newv)
       }
@@ -386,7 +386,7 @@ object Var {
     import create._
     private var state: State[T] = Idle
 
-    private val closable: _root_.com.twitter.util.Closable = Closable.make { deadline =>
+    private val closable = Closable.make { deadline =>
       self.synchronized {
         state match {
           case Idle =>
@@ -438,7 +438,7 @@ private object UpdatableVar {
     def :=(newv: T): _root_.com.twitter.util.UpdatableVar.State[T] = copy(value = newv, version = version + 1)
   }
 
-  implicit def order[T]: Ordering[Party[T]] = new Ordering[Party[T]] {
+  implicit def order[T]: _root_.java.lang.Object with _root_.scala.`package`.Ordering[_root_.com.twitter.util.UpdatableVar.Party[T]] = new Ordering[Party[T]] {
     // This is safe because observers are compared
     // only from the same counter.
     def compare(a: Party[T], b: Party[T]): Int = {
@@ -483,7 +483,7 @@ private[util] class UpdatableVar[T](init: T) extends Var[T] with Updatable[T] wi
     obs.publish(this, value, version)
 
     new Closable {
-      def close(deadline: Time): _root_.com.twitter.util.Future[_root_.scala.Unit] = {
+      def close(deadline: Time) = {
         party.active = false
         cas(_ - party)
         Future.Done

@@ -66,9 +66,9 @@ trait Disposable[+T] {
 }
 
 object Disposable {
-  def const[T](t: T): _root_.com.twitter.util.Disposable[T] = new Disposable[T] {
-    def get: T = t
-    def dispose(deadline: Time): _root_.com.twitter.util.Future[_root_.scala.Unit] = Future.value(())
+  def const[T](t: T): _root_.scala.AnyRef with _root_.com.twitter.util.Disposable[T] = new Disposable[T] {
+    def get = t
+    def dispose(deadline: Time) = Future.value(())
   }
 }
 
@@ -94,10 +94,10 @@ trait Managed[+T] { selfT =>
    * Compose a new managed resource that depends on `this' managed resource.
    */
   def flatMap[U](f: T => Managed[U]): Managed[U] = new Managed[U] {
-    def make(): _root_.com.twitter.util.Disposable[U] = new Disposable[U] {
-      val t: _root_.com.twitter.util.Disposable[T] = selfT.make()
+    def make() = new Disposable[U] {
+      val t = selfT.make()
 
-      val u: _root_.com.twitter.util.Disposable[U] = try {
+      val u = try {
         f(t.get).make()
       } catch {
         case e: Exception =>
@@ -105,9 +105,9 @@ trait Managed[+T] { selfT =>
           throw e
       }
 
-      def get: U = u.get
+      def get = u.get
 
-      def dispose(deadline: Time): _root_.com.twitter.util.Future[_root_.scala.Unit] = {
+      def dispose(deadline: Time) = {
         u.dispose(deadline) transform {
           case Return(_) => t.dispose(deadline)
           case Throw(outer) =>
@@ -131,8 +131,8 @@ trait Managed[+T] { selfT =>
 }
 
 object Managed {
-  def singleton[T](t: Disposable[T]): _root_.com.twitter.util.Managed[T] = new Managed[T] { def make(): _root_.com.twitter.util.Disposable[T] = t }
-  def const[T](t: T): _root_.com.twitter.util.Managed[T] = singleton(Disposable.const(t))
+  def singleton[T](t: Disposable[T]): _root_.scala.AnyRef with _root_.com.twitter.util.Managed[T] = new Managed[T] { def make() = t }
+  def const[T](t: T): _root_.scala.AnyRef with _root_.com.twitter.util.Managed[T] = singleton(Disposable.const(t))
 }
 
 class DoubleTrouble(cause1: Throwable, cause2: Throwable) extends Exception {

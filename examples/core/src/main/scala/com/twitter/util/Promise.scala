@@ -153,7 +153,7 @@ object Promise {
 
     // It's not possible (yet) to embed K[A] into Promise because
     // Promise[A] (Linked) and WaitQueue (Waiting) states become ambiguous.
-    private[this] val k: _root_.com.twitter.util.Promise.K[A] = new K[A] {
+    private[this] val k: _root_.scala.AnyRef with _root_.com.twitter.util.Promise.K[A] = new K[A] {
       // This is only called after the underlying has been successfully satisfied
       def apply(result: Try[A]): Unit = self.update(result)
     }

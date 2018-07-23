@@ -60,7 +60,7 @@ class Broker[T] {
 
   def send(msg: T): Offer[Unit] = new Offer[Unit] {
     @tailrec
-    def prepare(): _root_.com.twitter.util.Future[_root_.com.twitter.concurrent.Tx[_root_.scala.Unit]] = {
+    def prepare() = {
       state.get match {
         case s @ Receiving(rq) =>
           if (rq.isEmpty) throw new IllegalStateException()
@@ -92,7 +92,7 @@ class Broker[T] {
 
   val recv: Offer[T] = new Offer[T] {
     @tailrec
-    def prepare(): _root_.com.twitter.util.Future[_root_.com.twitter.concurrent.Tx[T]] =
+    def prepare() =
       state.get match {
         case s @ Sending(sq) =>
           if (sq.isEmpty) throw new IllegalStateException()

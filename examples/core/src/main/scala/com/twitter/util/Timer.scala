@@ -86,7 +86,7 @@ trait Timer {
    */
   def doAt[A](time: Time)(f: => A): Future[A] =
     new Promise[A] with Promise.InterruptHandler {
-      private[this] val task: _root_.com.twitter.util.TimerTask = schedule(time) {
+      private[this] val task = schedule(time) {
         updateIfEmpty(Try(f))
       }
 
@@ -264,7 +264,7 @@ class JavaTimer(isDaemon: Boolean, name: Option[String]) extends Timer {
     def run(): Unit = f
   }
 
-  private[this] final def toTimerTask(task: java.util.TimerTask): _root_.com.twitter.util.TimerTask = new TimerTask {
+  private[this] final def toTimerTask(task: java.util.TimerTask): _root_.scala.AnyRef with _root_.com.twitter.util.TimerTask = new TimerTask {
     def cancel(): Unit = task.cancel()
   }
 }

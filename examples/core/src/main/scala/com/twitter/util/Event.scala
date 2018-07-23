@@ -263,7 +263,7 @@ trait Event[+T] { self =>
    * builder. A value containing the current version of the collection
    * is notified for each incoming event.
    */
-  def build[U >: T, That](implicit cbf: CanBuild[U, That]): _root_.com.twitter.util.Event[That] = new Event[That] {
+  def build[U >: T, That](implicit cbf: CanBuild[U, That]): _root_.scala.AnyRef with _root_.com.twitter.util.Event[That] = new Event[That] {
     def register(s: Witness[That]): Closable = {
       val b = cbf()
       self.respond { t =>
@@ -365,7 +365,7 @@ object Event {
    * A new [[Event]] of type `T` which is also a [[Witness]].
    */
   def apply[T](): Event[T] with Witness[T] = new Event[T] with Witness[T] {
-    private[this] val witnesses: _root_.java.util.concurrent.atomic.AtomicReference[_root_.scala.collection.immutable.Set[_root_.com.twitter.util.Witness[T]]] = new AtomicReference(Set.empty[Witness[T]])
+    private[this] val witnesses = new AtomicReference(Set.empty[Witness[T]])
 
     def register(w: Witness[T]): Closable = {
       casAdd(w)
@@ -419,7 +419,7 @@ trait Witness[-N] { self =>
   def notify(note: N): Unit
 
   def comap[M](f: M => N): Witness[M] = new Witness[M] {
-    def notify(m: M): _root_.scala.Unit = self.notify(f(m))
+    def notify(m: M) = self.notify(f(m))
   }
 }
 
@@ -468,7 +468,7 @@ object Witness {
    * @see [[Var.patch]] for example.
    */
   def weakReference[T](f: T => Unit): Witness[T] = new Witness[T] {
-    private[this] val weakRef: _root_.java.lang.ref.WeakReference[T => _root_.scala.Unit] = new WeakReference(f)
+    private[this] val weakRef = new WeakReference(f)
 
     def notify(note: T): Unit = {
       val fn = weakRef.get()
@@ -484,7 +484,7 @@ object Witness {
    * @see [[Var.apply]] for example.
    */
   def weakReference[T](u: Updatable[T]): Witness[T] = new Witness[T] {
-    private[this] val weakRef: _root_.java.lang.ref.WeakReference[_root_.com.twitter.util.Updatable[T]] = new WeakReference(u)
+    private[this] val weakRef = new WeakReference(u)
 
     def notify(note: T): Unit = {
       val updatable = weakRef.get()
