@@ -80,45 +80,48 @@ case class RscCompat(index: SemanticdbIndex)
         case Term.ApplyType(Term.Name("implicitly"), _) =>
           Patch.empty
         case _ =>
-      val symbol = {
-        val result = target.name.symbol.get.syntax
-        assert(result.isGlobal)
-        result
-      }
-      val outline = {
-        val symbol = target.name.symbol.get.syntax
-        assert(symbol.isGlobal)
-        val docInfos = index.asInstanceOf[DocSemanticdbIndex].doc.sdoc.symbols
-        val info = docInfos.find(_.symbol == symbol).get
-        info.signature
-      }
-      outline match {
-        case s.MethodSignature(_, _, _: s.ConstantType) =>
-          Patch.empty
-        case s.MethodSignature(_, _, returnType) =>
-          val token = {
-            val start = target.name.tokens.head
-            val end = target.body.tokens.head
-            val slice = ctx.tokenList.slice(start, end)
-            slice.reverse.find(x => !x.is[Token.Equals] && !x.is[Trivia]).get
+          val symbol = {
+            val result = target.name.symbol.get.syntax
+            assert(result.isGlobal)
+            result
           }
-          val ascription = {
-            val returnTypeString = {
-              val printer = new TypePrinter(target.env)
-              printer.pprint(returnType)
-              printer.toString
-            }
-            if (TokenOps.needsLeadingSpaceBeforeColon(token)) {
-              s" : $returnTypeString"
-            } else {
-              s": $returnTypeString"
-            }
+          val outline = {
+            val symbol = target.name.symbol.get.syntax
+            assert(symbol.isGlobal)
+            val docInfos =
+              index.asInstanceOf[DocSemanticdbIndex].doc.sdoc.symbols
+            val info = docInfos.find(_.symbol == symbol).get
+            info.signature
           }
-          ctx.addRight(token, ascription)
-        case other =>
-          val details = other.toSignatureMessage.toProtoString
-          sys.error(s"unsupported outline: $details")
-      }
+          outline match {
+            case s.MethodSignature(_, _, _: s.ConstantType) =>
+              Patch.empty
+            case s.MethodSignature(_, _, returnType) =>
+              val token = {
+                val start = target.name.tokens.head
+                val end = target.body.tokens.head
+                val slice = ctx.tokenList.slice(start, end)
+                slice.reverse
+                  .find(x => !x.is[Token.Equals] && !x.is[Trivia])
+                  .get
+              }
+              val ascription = {
+                val returnTypeString = {
+                  val printer = new TypePrinter(target.env)
+                  printer.pprint(returnType)
+                  printer.toString
+                }
+                if (TokenOps.needsLeadingSpaceBeforeColon(token)) {
+                  s" : $returnTypeString"
+                } else {
+                  s": $returnTypeString"
+                }
+              }
+              ctx.addRight(token, ascription)
+            case other =>
+              val details = other.toSignatureMessage.toProtoString
+              sys.error(s"unsupported outline: $details")
+          }
       }
     } catch {
       case ex: Throwable =>
