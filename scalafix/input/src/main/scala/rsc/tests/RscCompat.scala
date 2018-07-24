@@ -96,6 +96,8 @@ object RscCompat_Test {
     // val repeatedType = ??? : ((Any*) => Any)
   }
 
+  implicit val x: Int = 42
+
   class Bugs {
     val Either = scala.util.Either
 
@@ -125,5 +127,7 @@ object RscCompat_Test {
     val more1 = new { var x = 42 }
     val more2 = new { def foo(implicit x: Int, y: Int) = 42 }
     val more3 = new { implicit def bar = 42 }
+
+    implicit val crazy = implicitly[Int]
   }
 }

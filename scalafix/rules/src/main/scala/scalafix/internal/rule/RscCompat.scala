@@ -76,6 +76,10 @@ case class RscCompat(index: SemanticdbIndex)
 
   private def ascribeReturnType(ctx: RuleCtx, target: RewriteTarget): Patch = {
     try {
+      target.body match {
+        case Term.ApplyType(Term.Name("implicitly"), _) =>
+          Patch.empty
+        case _ =>
       val symbol = {
         val result = target.name.symbol.get.syntax
         assert(result.isGlobal)
@@ -114,6 +118,7 @@ case class RscCompat(index: SemanticdbIndex)
         case other =>
           val details = other.toSignatureMessage.toProtoString
           sys.error(s"unsupported outline: $details")
+      }
       }
     } catch {
       case ex: Throwable =>
