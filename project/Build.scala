@@ -69,6 +69,10 @@ object Build extends AutoPlugin {
         "function/clean",
         "mjar/clean",
         "rsc/clean",
+        "scalafixInput/clean",
+        "scalafixOutput/clean",
+        "scalafixRules/clean",
+        "scalafixTests/clean",
         "scalasig/clean",
         "scalap/clean",
         "tests/clean"
@@ -80,6 +84,11 @@ object Build extends AutoPlugin {
         "function/compile",
         "mjar/compile",
         "rsc/compile",
+        "scalafixInput/compile",
+        "scalafixOutput/compile",
+        "scalafixRules/compile",
+        "scalafixTests/compile",
+        "scalafixTests/test:compile",
         "scalasig/compile",
         "scalap/compile",
         "tests/compile",
@@ -112,7 +121,10 @@ object Build extends AutoPlugin {
       )
       val compile = "tests/test:compile"
       val fastTest = "tests/fast:test"
-      val slowTest = "tests/slow:test"
+      val slowTest = command(
+        "tests/slow:test",
+        "scalafixTests/test"
+      )
       val test = fastTest
       val benchParse = "bench/jmh:run RscParse"
       val benchLink = "bench/jmh:run RscLink"

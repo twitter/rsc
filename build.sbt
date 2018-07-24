@@ -1,6 +1,7 @@
 lazy val V = new {
   val asm = "6.0"
   val scala = computeScalaVersionFromTravisYml("2.11")
+  val scalafix = "0.6.0-M12"
   val scalameta = "4.0.0-M6-31-c9098272-SNAPSHOT"
   val scalapb = _root_.scalapb.compiler.Version.scalapbVersion
   val scalatest = "3.0.5"
@@ -69,18 +70,9 @@ lazy val core = project
   .dependsOn(function)
   .settings(
     commonSettings,
-    scalacOptions -= "-deprecation",
-    scalacOptions -= "-unchecked",
-    scalacOptions -= "-feature",
-    scalacOptions -= "-Ywarn-unused-import",
-    scalacOptions -= "-Xfatal-warnings",
+    semanticdbSettings,
     libraryDependencies += "org.scala-lang" % "scala-reflect" % V.scala,
     libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
-    addCompilerPlugin(scalafixSemanticdb),
-    scalacOptions += "-Yrangepos",
-    scalacOptions += "-P:semanticdb:denotations:definitions",
-    scalacOptions += "-P:semanticdb:mode:fat",
-    scalacOptions += "-P:semanticdb:synthetics:none",
     addCommandAlias("rewrite", "core/scalafixCli --rules ExplicitResultTypes")
   )
 
@@ -108,6 +100,32 @@ lazy val rsc = project
     publishableSettings,
     libraryDependencies += "org.scalameta" %% "semanticdb" % V.scalameta,
     mainClass := Some("rsc.cli.Main")
+  )
+
+lazy val scalafixRules = project
+  .in(file("scalafix/rules"))
+  .settings(
+    commonSettings,
+    libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % V.scalafix
+  )
+
+lazy val scalafixInput = project
+  .in(file("scalafix/input"))
+  .settings(
+    commonSettings,
+    semanticdbSettings
+  )
+
+lazy val scalafixOutput = project
+  .in(file("scalafix/output"))
+  .settings(commonSettings)
+
+lazy val scalafixTests = project
+  .in(file("scalafix/tests"))
+  .dependsOn(scalafixInput, scalafixRules)
+  .settings(
+    commonSettings,
+    libraryDependencies += "ch.epfl.scala" % "scalafix-testkit" % V.scalafix % Test cross CrossVersion.full
   )
 
 lazy val scalasig = project
@@ -227,4 +245,17 @@ lazy val protobufSettings = Def.settings(
     ) -> (target.value / "protobuf-generated")
   ),
   libraryDependencies += "com.thesamet.scalapb" %% "scalapb-runtime" % V.scalapb
+)
+
+lazy val semanticdbSettings = Def.settings(
+  scalacOptions -= "-deprecation",
+  scalacOptions -= "-unchecked",
+  scalacOptions -= "-feature",
+  scalacOptions -= "-Ywarn-unused-import",
+  scalacOptions -= "-Xfatal-warnings",
+  addCompilerPlugin("org.scalameta" %% "semanticdb-scalac" % V.scalameta cross CrossVersion.full),
+  scalacOptions += "-Yrangepos",
+  scalacOptions += "-P:semanticdb:text:off",
+  scalacOptions += "-P:semanticdb:symbols:on",
+  scalacOptions += "-P:semanticdb:synthetics:off"
 )
