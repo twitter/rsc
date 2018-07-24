@@ -80,7 +80,8 @@ object Build extends AutoPlugin {
       lazy val ciFmt = "scalafmtTest"
       lazy val ciFast = fastTest
       lazy val ciSlow = slowTest
-      lazy val ci = command(ciFmt, ciFast, ciSlow)
+      lazy val ciScalafix = scalafixTest
+      lazy val ci = command(ciFmt, ciFast, ciSlow, ciScalafix)
       lazy val cleanAll = command(
         "reload",
         "bench/clean",
@@ -141,10 +142,8 @@ object Build extends AutoPlugin {
       )
       lazy val compile = "tests/test:compile"
       lazy val fastTest = "tests/fast:test"
-      lazy val slowTest = command(
-        "tests/slow:test",
-        "scalafixTests/test"
-      )
+      lazy val slowTest = command("tests/slow:test")
+      lazy val scalafixTest = "scalafixTests/test"
       lazy val test = fastTest
       lazy val benchParse = "bench/jmh:run RscParse"
       lazy val benchLink = "bench/jmh:run RscLink"
