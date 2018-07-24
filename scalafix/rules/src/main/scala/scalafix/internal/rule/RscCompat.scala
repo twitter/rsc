@@ -248,6 +248,7 @@ class TypePrinter(env: Env) {
           opt(utpe)(normal)
           rep(" forSome { ", decls.infos, "; ", " }")(pprint)
         case s.UniversalType(tparams, utpe) =>
+          // FIXME: https://github.com/twitter/rsc/issues/150
           out.append("({ type λ")
           tparams.infos.foreach(notes.append)
           rep("[", tparams.infos, ", ", "] = ")(pprint)
