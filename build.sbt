@@ -106,6 +106,7 @@ lazy val rsc = project
 
 lazy val scalafixRules = project
   .in(file("scalafix/rules"))
+  .dependsOn(rsc)
   .settings(
     commonSettings,
     libraryDependencies += "com.github.xenoby" %% "scalafix-core" % V.scalafix
