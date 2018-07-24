@@ -1,7 +1,7 @@
 lazy val V = new {
   val asm = "6.0"
   val scala = computeScalaVersionFromTravisYml("2.11")
-  val scalameta = "4.0.0-M6"
+  val scalameta = "4.0.0-M6-31-c9098272-SNAPSHOT"
   val scalapb = _root_.scalapb.compiler.Version.scalapbVersion
   val scalatest = "3.0.5"
 }

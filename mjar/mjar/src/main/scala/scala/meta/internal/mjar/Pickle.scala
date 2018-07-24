@@ -250,10 +250,10 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
           ThisType(sym)
         case s.SuperType(spre, ssym) =>
           // FIXME: https://github.com/twitter/rsc/issues/96
-          crash(stpe.toTypeMessage.toProtoString)
+          crash(stpe.asMessage.toProtoString)
         case s.ConstantType(sconst) =>
           // FIXME: https://github.com/twitter/rsc/issues/118
-          crash(stpe.toTypeMessage.toProtoString)
+          crash(stpe.asMessage.toProtoString)
         case stpe @ s.StructuralType(sret, sdecls) =>
           val srefinement = Transients.srefinement(stpe)
           symtab(srefinement.symbol) = srefinement
@@ -284,7 +284,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
           val targs = List(emitTpe(sret))
           TypeRef(pre, sym, targs)
         case _ =>
-          crash(stpe.toTypeMessage.toProtoString)
+          crash(stpe.asMessage.toProtoString)
       }
     }
   }
