@@ -13,7 +13,7 @@ private[io] class OutputStreamWriter(out: OutputStream, bufsize: Int) extends Cl
   import com.twitter.io.OutputStreamWriter._
 
   private[this] val done: _root_.com.twitter.util.Promise[_root_.scala.Unit] = new Promise[Unit]
-  private[this] val writeOp: _root_.java.util.concurrent.atomic.AtomicReference[_root_.com.twitter.io.Buf => _root_.com.twitter.util.Future[_root_.scala.Unit]] = new AtomicReference[Buf => Future[Unit]](doWrite)
+  private[this] val writeOp: _root_.java.util.concurrent.atomic.AtomicReference[_root_.scala.Function1[_root_.com.twitter.io.Buf, _root_.com.twitter.util.Future[_root_.scala.Unit]]] = new AtomicReference[Buf => Future[Unit]](doWrite)
 
   // Byte array reused on each write to avoid multiple allocations.
   private[this] val bytes: _root_.scala.Array[_root_.scala.Byte] = new Array[Byte](bufsize)

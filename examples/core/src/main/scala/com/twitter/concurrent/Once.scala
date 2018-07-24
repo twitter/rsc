@@ -16,7 +16,7 @@ object Once {
       // this `val self = this` indirection convinces the scala compiler to use object
       // synchronization instead of method synchronization
       val self = this
-      @volatile var executed: _root_.scala.Boolean = false
+      @volatile var executed = false
       def apply(): Unit = if (!executed) {
         self.synchronized {
           if (!executed) {

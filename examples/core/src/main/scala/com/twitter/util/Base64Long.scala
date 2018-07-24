@@ -50,8 +50,8 @@ object Base64Long {
   /**
    * Enable re-use of the StringBuilder for toBase64(Long): String
    */
-  private[this] val threadLocalBuilder = new ThreadLocal[StringBuilder] {
-    override def initialValue: _root_.scala.collection.mutable.StringBuilder = new StringBuilder
+  private[this] val threadLocalBuilder: _root_.java.lang.ThreadLocal[_root_.scala.`package`.StringBuilder] = new ThreadLocal[StringBuilder] {
+    override def initialValue = new StringBuilder
   }
 
   /**
@@ -107,8 +107,8 @@ object Base64Long {
       // If all of the characters fit in a byte, then pack the mapping
       // into an array indexed by the value of the char.
       new PartialFunction[Char, Int] {
-        private[this] val maxChar: _root_.scala.Char = chars.max
-        private[this] val reverse: _root_.scala.Array[_root_.scala.Byte] = Array.fill[Byte](maxChar.toInt + 1)(-1)
+        private[this] val maxChar = chars.max
+        private[this] val reverse = Array.fill[Byte](maxChar.toInt + 1)(-1)
         0.until(AlphabetSize).foreach { i =>
           reverse(forward(i)) = i.toByte
         }

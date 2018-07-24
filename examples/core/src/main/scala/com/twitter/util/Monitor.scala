@@ -203,7 +203,7 @@ object Monitor extends Monitor {
   def handle(exc: Throwable): Boolean =
     get.orElse(RootMonitor).handle(exc)
 
-  private[this] val AlwaysFalse: _root_.scala.Any => _root_.scala.Boolean = scala.Function.const(false) _
+  private[this] val AlwaysFalse: _root_.scala.Function1[_root_.scala.Any, _root_.scala.Boolean] = scala.Function.const(false) _
 
   /**
    * Create a new monitor from a partial function.

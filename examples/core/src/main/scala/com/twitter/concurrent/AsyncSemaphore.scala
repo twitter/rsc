@@ -59,8 +59,8 @@ class AsyncSemaphore protected (initialPermits: Int, maxWaiters: Option[Int]) {
   // Serves as our intrinsic lock.
   private[this] final def lock: Object = waitq
 
-  private[this] val semaphorePermit: _root_.com.twitter.concurrent.Permit = new Permit {
-    private[this] val ReturnThis: _root_.com.twitter.util.Return[_root_.com.twitter.concurrent.Permit] = Return(this)
+  private[this] val semaphorePermit: _root_.scala.AnyRef with _root_.com.twitter.concurrent.Permit = new Permit {
+    private[this] val ReturnThis = Return(this)
 
     @tailrec override def release(): Unit = {
       val waiter = lock.synchronized {
@@ -81,7 +81,7 @@ class AsyncSemaphore protected (initialPermits: Int, maxWaiters: Option[Int]) {
     }
   }
 
-  private[this] val futurePermit: _root_.com.twitter.util.Future[_root_.com.twitter.concurrent.Permit] = Future.value(semaphorePermit)
+  private[this] val futurePermit: _root_.com.twitter.util.Future[_root_.scala.AnyRef with _root_.com.twitter.concurrent.Permit] = Future.value(semaphorePermit)
 
   def numWaiters: Int = lock.synchronized(waitq.size)
   def numInitialPermits: Int = initialPermits

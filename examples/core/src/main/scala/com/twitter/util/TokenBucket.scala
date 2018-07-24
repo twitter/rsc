@@ -41,7 +41,7 @@ object TokenBucket {
    * @param limit: the upper bound on the number of tokens in the bucket.
    */
   def newBoundedBucket(limit: Long): TokenBucket = new TokenBucket {
-    private[this] var counter: _root_.scala.Long = 0L
+    private[this] var counter = 0L
 
     /**
      * Put `n` tokens into the bucket.
@@ -85,7 +85,7 @@ object TokenBucket {
    */
   def newLeakyBucket(ttl: Duration, reserve: Int, nowMs: () => Long): TokenBucket =
     new TokenBucket {
-      private[this] val w: _root_.com.twitter.util.WindowedAdder = WindowedAdder(ttl.inMilliseconds, 10, nowMs)
+      private[this] val w = WindowedAdder(ttl.inMilliseconds, 10, nowMs)
 
       def put(n: Int): Unit = {
         require(n >= 0)

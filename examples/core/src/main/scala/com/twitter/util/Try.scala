@@ -256,10 +256,10 @@ final case class Throw[+R](e: Throwable) extends Try[R] {
   def map[X](f: R => X): Try[X] = this.asInstanceOf[Throw[X]]
   def cast[X]: Try[X] = this.asInstanceOf[Throw[X]]
   def exists(p: R => Boolean): _root_.scala.Boolean = false
-  def filter(p: R => Boolean): Throw[R] = this
-  def withFilter(p: R => Boolean): Throw[R] = this
-  def onFailure(rescueException: Throwable => Unit): Throw[R] = { rescueException(e); this }
-  def onSuccess(f: R => Unit): Throw[R] = this
+  def filter(p: R => Boolean): _root_.com.twitter.util.Throw[R] = this
+  def withFilter(p: R => Boolean): _root_.com.twitter.util.Throw[R] = this
+  def onFailure(rescueException: Throwable => Unit): _root_.com.twitter.util.Throw[R] = { rescueException(e); this }
+  def onSuccess(f: R => Unit): _root_.com.twitter.util.Throw[R] = this
   def handle[R2 >: R](rescueException: PartialFunction[Throwable, R2]): _root_.com.twitter.util.Try[R2] =
     if (rescueException.isDefinedAt(e)) {
       Try(rescueException(e))

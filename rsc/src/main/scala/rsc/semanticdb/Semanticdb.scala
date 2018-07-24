@@ -300,7 +300,7 @@ final class Semanticdb private (
                       case s.TypeSignature(_, _, s.TypeRef(_, sym, _)) =>
                         sym
                       case other =>
-                        crash(other.toSignatureMessage.toProtoString)
+                        crash(other.asMessage.toProtoString)
                     }
                     val aliasDeep = superClass(List(aliasShallow))
                     if (aliasShallow != aliasDeep) aliasDeep

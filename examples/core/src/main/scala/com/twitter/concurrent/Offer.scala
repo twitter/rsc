@@ -298,7 +298,7 @@ object Offer {
    * An offer that is available after the given time out.
    */
   def timeout(timeout: Duration)(implicit timer: Timer): Offer[Unit] = new Offer[Unit] {
-    private[this] val deadline: _root_.com.twitter.util.Time = timeout.fromNow
+    private[this] val deadline = timeout.fromNow
 
     def prepare(): Future[Tx[Unit]] = {
       if (deadline <= Time.now) FutureTxUnit

@@ -126,7 +126,7 @@ class ExecutorServiceFuturePool protected[this] (
     val runOk = new AtomicBoolean(true)
     val p = new Promise[T]
     val task = new Runnable {
-      private[this] val saved: _root_.com.twitter.util.Local.Context = Local.save()
+      private[this] val saved = Local.save()
 
       def run(): Unit = {
         // Make an effort to skip work in the case the promise

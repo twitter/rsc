@@ -41,7 +41,7 @@ class LastWriteWinsQueue[A] extends java.util.Queue[A] {
     } else Array[Any]().asInstanceOf[Array[T with java.lang.Object]]
   }
 
-  def toArray: _root_.scala.Array[_root_.java.lang.Object] = toArray(new Array[AnyRef](0))
+  def toArray: _root_.scala.Array[_root_.scala.AnyRef with _root_.java.lang.Object] = toArray(new Array[AnyRef](0))
 
   def iterator: _root_.scala.Null = null
 

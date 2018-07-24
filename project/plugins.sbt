@@ -5,5 +5,4 @@ addSbtPlugin("com.dwijnand" % "sbt-dynver" % "2.0.0")
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.1")
 addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.18")
 libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin-shaded" % "0.7.1"
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.6.0-M5")
 libraryDependencies += "org.slf4j" % "slf4j-nop" % "1.7.25"

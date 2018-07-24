@@ -84,10 +84,10 @@ class BoundedStack[A: ClassTag](val maxSize: Int) extends Seq[A] {
     }
   }
 
-  override def iterator: Iterator[A] = new Iterator[A] {
-    var idx: _root_.scala.Int = 0
-    def hasNext: _root_.scala.Boolean = idx != count_
-    def next: A = {
+  override def iterator: _root_.scala.AnyRef with _root_.scala.`package`.Iterator[A] = new Iterator[A] {
+    var idx = 0
+    def hasNext = idx != count_
+    def next = {
       val res = apply(idx)
       idx += 1
       res
