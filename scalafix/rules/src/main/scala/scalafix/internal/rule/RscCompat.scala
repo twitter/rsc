@@ -352,8 +352,7 @@ class TypePrinter(env: Env) {
     }
   }
 
-  private val notes = new InfoNotes
-  private class InfoNotes {
+  private object notes {
     private val map = mutable.Map[String, s.SymbolInformation]()
     def append(info: s.SymbolInformation): Unit = map(info.symbol) = info
     def apply(sym: String): s.SymbolInformation = map(sym)
@@ -361,8 +360,7 @@ class TypePrinter(env: Env) {
   }
 
   private val gensymCache = mutable.Map[String, String]()
-  private val gensym = new Gensym
-  private class Gensym {
+  private object gensym {
     private val counters = mutable.Map[String, Int]()
     def apply(prefix: String): String = {
       val nextCounter = counters.getOrElse(prefix, 0) + 1
@@ -372,6 +370,8 @@ class TypePrinter(env: Env) {
   }
 
   private implicit class SymbolOps(sym: String) {
+    // NOTE: See https://github.com/scalameta/scalameta/blob/master/semanticdb/semanticdb3/semanticdb3.md#scala-type
+    // for an explanation of what is a trivial prefix.
     def trivialPrefix: s.Type = {
       if (sym.isRootPackage) {
         s.NoType
