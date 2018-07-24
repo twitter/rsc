@@ -24,6 +24,13 @@ object RscCompat_Test {
     protected[rsc] def x6 = ""
   }
 
+  private class Private { def x1 = "" }
+  private[this] class PrivateThis { def x1 = "" }
+  private[rsc] class PrivateRsc { def x1 = "" }
+  protected class Protected { def x1 = "" }
+  protected[this] class ProtectedThis { def x1 = "" }
+  protected[rsc] class ProtectedRsc { def x1 = "" }
+
   object TypesHelpers {
     class C
     class E {
@@ -130,4 +137,8 @@ object RscCompat_Test {
 
     implicit val crazy = implicitly[Int]
   }
+}
+
+private class RscCompat_Test {
+  def x1 = ""
 }

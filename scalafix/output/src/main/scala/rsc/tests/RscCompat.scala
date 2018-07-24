@@ -13,13 +13,20 @@ object RscCompat_Test {
   }
 
   class Visibility {
-    private def x1: _root_.java.lang.String = ""
-    private[this] def x2: _root_.java.lang.String = ""
+    private def x1 = ""
+    private[this] def x2 = ""
     private[rsc] def x3: _root_.java.lang.String = ""
     protected def x4: _root_.java.lang.String = ""
     protected[this] def x5: _root_.java.lang.String = ""
     protected[rsc] def x6: _root_.java.lang.String = ""
   }
+
+  private class Private { def x1 = "" }
+  private[this] class PrivateThis { def x1 = "" }
+  private[rsc] class PrivateRsc { def x1: _root_.java.lang.String = "" }
+  protected class Protected { def x1: _root_.java.lang.String = "" }
+  protected[this] class ProtectedThis { def x1: _root_.java.lang.String = "" }
+  protected[rsc] class ProtectedRsc { def x1: _root_.java.lang.String = "" }
 
   object TypesHelpers {
     class C
@@ -127,4 +134,8 @@ object RscCompat_Test {
 
     implicit val crazy = implicitly[Int]
   }
+}
+
+private class RscCompat_Test {
+  def x1: _root_.java.lang.String = ""
 }
