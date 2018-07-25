@@ -25,4 +25,3 @@ case class Env(scopes: List[Scope]) {
     loop(scopes)
   }
 }
-
