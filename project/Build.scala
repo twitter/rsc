@@ -2,12 +2,10 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.build
 
-import java.io.File.pathSeparatorChar
+import java.io._
+import java.io.File.pathSeparator
 import java.lang.ProcessBuilder._
-import java.nio.file._
-import java.nio.file.Files._
 import scala.collection.JavaConverters._
-import scala.sys.process._
 import sbt._
 import sbt.Keys._
 import sbt.plugins._
@@ -18,17 +16,18 @@ object Build extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
   import autoImport._
 
-  private def buildRoot: Path = Paths.get("").toAbsolutePath
+  private lazy val buildRoot: File = file("").getAbsoluteFile
+  private lazy val scalafixRulesProject = ProjectRef(file(""), "scalafixRules")
 
   private def command(commands: String*): String = command(commands.toList)
   private def command(commands: List[String]): String = {
     commands.map(c => s";$c ").mkString("")
   }
 
-  private def shellout(command: List[String], cwd: Path): Unit = {
+  private def shellout(command: List[String], cwd: File): Unit = {
     val builder = new java.lang.ProcessBuilder()
     builder.command(command.asJava)
-    builder.directory(cwd.toFile)
+    builder.directory(cwd)
     builder.redirectOutput(Redirect.INHERIT)
     builder.redirectError(Redirect.INHERIT)
     val exitcode = builder.start().waitFor()
@@ -37,20 +36,21 @@ object Build extends AutoPlugin {
       sys.error(s"$what in $cwd has failed with code $exitcode")
     }
   }
-  private def scalafmt(args: List[String], cwd: Path): Unit = {
-    val bin = buildRoot.resolve("bin/scalafmt").abs
+  private def scalafmt(args: List[String], cwd: File): Unit = {
+    val bin = new File(buildRoot, "bin/scalafmt").abs
     shellout(bin +: args, cwd)
   }
-  private def scalafix(args: List[String], cwd: Path): Unit = {
-    val bin = buildRoot.resolve("bin/scalafix").abs
+  private def scalafix(args: List[String], cwd: File): Unit = {
+    val bin = new File(buildRoot, "bin/scalafix").abs
     shellout(bin +: args, cwd)
   }
 
-  implicit class PathOps(path: Path) {
-    def abs: String = path.toAbsolutePath.toString
+  implicit class FileOps(file: File) {
+    def abs: String = file.getAbsolutePath
   }
 
   object autoImport {
+    val shell = inputKey[Unit]("Run shell command")
     val scalafmtFormat = taskKey[Unit]("Automatically format all files")
     val scalafmtTest = taskKey[Unit]("Test that all files are formatted")
     val rewrite = taskKey[Unit]("Rewrite the project to be compatible with Rsc")
@@ -67,20 +67,6 @@ object Build extends AutoPlugin {
       val scalaRegex = "VERSION=\"(.*?)\"".r
       val scalaMatch = scalaRegex.findFirstMatchIn(binScalafix)
       scalaMatch.map(_.group(1)).get
-    }
-
-    def scalafixRscCompat(baseDirectory: File): Unit = {
-      val args = List.newBuilder[String]
-      args += "--tool-classpath"
-      args += buildRoot.resolve("scalafix/rules/target/scala-2.11/classes").abs
-      args += "--classpath"
-      args += baseDirectory.toPath.resolve("target/scala-2.11/classes").abs
-      args += "--sourceroot"
-      args += buildRoot.abs
-      args += "--rules"
-      args += "scala:scalafix.internal.rule.RscCompat"
-      args += baseDirectory.toPath.abs
-      scalafix(args.result, baseDirectory.toPath)
     }
 
     object ui {
@@ -157,6 +143,7 @@ object Build extends AutoPlugin {
       lazy val benchOutline = "bench/jmh:run RscOutline"
       lazy val benchSemanticdb = "bench/jmh:run RscSemanticdb"
       lazy val benchMjar = "bench/jmh:run RscMjar"
+      lazy val rewrite = "core/rewrite"
     }
 
     lazy val isCI = sys.env.contains("CI")
@@ -166,12 +153,35 @@ object Build extends AutoPlugin {
     lazy val Slow = config("slow").extend(Test)
   }
 
-  override def globalSettings: Seq[Def.Setting[_]] = List(
+  override lazy val globalSettings: Seq[Def.Setting[_]] = List(
     scalafmtFormat := {
       scalafmt(List("--non-interactive"), buildRoot)
     },
     scalafmtTest := {
       scalafmt(List("--test", "--non-interactive", "--quiet"), buildRoot)
+    },
+    shell := {
+      val args = spaceDelimited("<arg>").parsed
+      val command = args.mkString(" ")
+      val retcode = command.!
+      if (retcode != 0) sys.error(s"$command returned $retcode")
+    }
+  )
+
+  override lazy val projectSettings: Seq[Def.Setting[_]] = List(
+    rewrite := {
+      val toolClasspath = fullClasspath.in(scalafixRulesProject, Compile).value
+      val args = List.newBuilder[String]
+      args += "--tool-classpath"
+      args += toolClasspath.map(_.data.abs).mkString(pathSeparator)
+      args += "--classpath"
+      args += products.in(Compile).value.map(_.abs).mkString(pathSeparator)
+      args += "--sourceroot"
+      args += buildRoot.abs
+      args += "--rules"
+      args += "scala:scalafix.internal.rule.RscCompat"
+      args += baseDirectory.value.abs
+      scalafix(args.result, baseDirectory.value)
     }
   )
 }

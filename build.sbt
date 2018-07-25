@@ -32,6 +32,7 @@ addCommandAlias("benchSemanticdb", ui.benchSemanticdb)
 addCommandAlias("benchMjar", ui.benchMjar)
 addCommandAlias("publish", ui.publishAll)
 addCommandAlias("publishLocal", ui.publishLocal)
+addCommandAlias("rewrite", ui.rewrite)
 
 version.in(ThisBuild) := {
   val rscVersion = version.in(ThisBuild).value.replace("+", "-")
@@ -74,8 +75,7 @@ lazy val core = project
     commonSettings,
     semanticdbSettings,
     libraryDependencies += "org.scala-lang" % "scala-reflect" % V.scala,
-    libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
-    rewrite := scalafixRscCompat(baseDirectory.value)
+    libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
   )
 
 lazy val function = project
