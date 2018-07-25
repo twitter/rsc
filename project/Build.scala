@@ -62,6 +62,13 @@ object Build extends AutoPlugin {
       scalaMatch.map(_.group(0)).get
     }
 
+    def computeScalafixVersionFromBinScalafix(): String = {
+      val binScalafix = IO.read(file("bin/scalafix"))
+      val scalaRegex = "VERSION=\"(.*?)\"".r
+      val scalaMatch = scalaRegex.findFirstMatchIn(binScalafix)
+      scalaMatch.map(_.group(1)).get
+    }
+
     def scalafixRscCompat(baseDirectory: File): Unit = {
       val args = List.newBuilder[String]
       args += "--tool-classpath"
