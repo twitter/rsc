@@ -119,7 +119,7 @@ case class RscCompat(index: SemanticdbIndex)
               }
               ctx.addRight(token, ascription)
             case other =>
-              val details = other.toSignatureMessage.toProtoString
+              val details = other.asMessage.toProtoString
               sys.error(s"unsupported outline: $details")
           }
       }
@@ -265,7 +265,7 @@ class TypePrinter(env: Env) {
           out.print("*")
         case _: s.SuperType | _: s.ConstantType | _: s.IntersectionType |
             _: s.UnionType | s.NoType =>
-          val details = tpe.toTypeMessage.toProtoString
+          val details = tpe.asMessage.toProtoString
           sys.error(s"unsupported type: $details")
       }
     }
@@ -346,7 +346,7 @@ class TypePrinter(env: Env) {
         out.print(": ")
         pprint(tpe)
       case other =>
-        val details = other.toSignatureMessage.toProtoString
+        val details = other.asMessage.toProtoString
         sys.error(s"unsupported signature: $details")
     }
   }

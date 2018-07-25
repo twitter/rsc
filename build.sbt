@@ -1,7 +1,7 @@
 lazy val V = new {
   val asm = "6.0"
   val scala = computeScalaVersionFromTravisYml("2.11")
-  val scalafix = "0.6.0-M12"
+  val scalafix = "0.6.0-M12-patch1"
   val scalameta = "4.0.0-M7"
   val scalapb = _root_.scalapb.compiler.Version.scalapbVersion
   val scalatest = "3.0.5"
@@ -108,7 +108,7 @@ lazy val scalafixRules = project
   .in(file("scalafix/rules"))
   .settings(
     commonSettings,
-    libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % V.scalafix
+    libraryDependencies += "com.github.xenoby" %% "scalafix-core" % V.scalafix
   )
 
 lazy val scalafixInput = project
@@ -127,7 +127,7 @@ lazy val scalafixTests = project
   .dependsOn(scalafixInput, scalafixRules)
   .settings(
     commonSettings,
-    libraryDependencies += "ch.epfl.scala" % "scalafix-testkit" % V.scalafix % Test cross CrossVersion.full
+    libraryDependencies += "com.github.xenoby" % "scalafix-testkit" % V.scalafix % Test cross CrossVersion.full
   )
 
 lazy val scalasig = project
