@@ -1,7 +1,6 @@
 package scalafix.internal.rule.pretty
 
 import scala.meta._
-import rsc.{syntax => r}
 import rsc.pretty._
 import scala.meta.internal.metap.{BasePrinter, RangePrinter}
 import scala.meta.internal.{semanticdb => s}
