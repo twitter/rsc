@@ -113,7 +113,6 @@ class TypePrinter(env: Env) extends Printer {
   def pprint(sym: String): Unit = {
     val printableName = {
       val sourceName = notes.get(sym).map(_.name)
-      println(sym, notes.get(sym))
       sourceName match {
         case Some(name) =>
           if (name == "") {
