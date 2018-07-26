@@ -3,7 +3,6 @@ lazy val V = new {
   val scala = computeScalaVersionFromTravisYml("2.11")
   val scalafix = computeScalafixVersionFromBinScalafix()
   val scalameta = "4.0.0-M7"
-  val scalapb = _root_.scalapb.compiler.Version.scalapbVersion
   val scalatest = "3.0.5"
 }
 
@@ -238,16 +237,6 @@ lazy val publishableSettings = Seq(
       </developer>
     </developers>
   )
-)
-
-lazy val protobufSettings = Def.settings(
-  managedSourceDirectories in Compile += target.value / "protobuf-generated",
-  PB.targets.in(Compile) := Seq(
-    scalapb.gen(
-      flatPackage = true // Don't append filename to package
-    ) -> (target.value / "protobuf-generated")
-  ),
-  libraryDependencies += "com.thesamet.scalapb" %% "scalapb-runtime" % V.scalapb
 )
 
 lazy val semanticdbSettings = Def.settings(
