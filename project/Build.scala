@@ -42,16 +42,12 @@ object Build extends AutoPlugin {
     }
   }
   private def scalafmt(args: List[String], cwd: File): Unit = {
-    val bin = new File(buildRoot, "bin/scalafmt").abs
+    val bin = new File(buildRoot, "bin/scalafmt").absolutePath
     shellout(bin +: args, cwd)
   }
   private def scalafix(args: List[String], cwd: File): Unit = {
-    val bin = new File(buildRoot, "bin/scalafix").abs
+    val bin = new File(buildRoot, "bin/scalafix").absolutePath
     shellout(bin +: args, cwd)
-  }
-
-  private implicit class FileOps(file: File) {
-    def abs: String = file.getAbsolutePath
   }
 
   private object projects {
@@ -157,14 +153,15 @@ object Build extends AutoPlugin {
       val toolClasspath = fullClasspath.in(scalafixRulesProject, Compile).value
       val args = List.newBuilder[String]
       args += "--tool-classpath"
-      args += toolClasspath.map(_.data.abs).mkString(pathSeparator)
+      args += toolClasspath.map(_.data.absolutePath).mkString(pathSeparator)
       args += "--classpath"
-      args += products.in(Compile).value.map(_.abs).mkString(pathSeparator)
+      args +=
+        products.in(Compile).value.map(_.absolutePath).mkString(pathSeparator)
       args += "--sourceroot"
-      args += buildRoot.abs
+      args += buildRoot.absolutePath
       args += "--rules"
       args += "scala:scalafix.internal.rule.RscCompat"
-      args += baseDirectory.value.abs
+      args += baseDirectory.value.absolutePath
       scalafix(args.result, baseDirectory.value)
     }
   )
