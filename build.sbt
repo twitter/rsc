@@ -220,7 +220,7 @@ lazy val publishableSettings = Seq(
     "https://github.com/twitter/rsc/blob/master/LICENSE.md"),
   pomExtra := (
     <url>https://github.com/twitter/rsc</url>
-    <inceptionYear>2018</inceptionYear>
+    <inceptionYear>2017</inceptionYear>
     <scm>
       <url>git://github.com/twitter/rsc.git</url>
       <connection>scm:git:git://github.com/twitter/rsc.git</connection>
