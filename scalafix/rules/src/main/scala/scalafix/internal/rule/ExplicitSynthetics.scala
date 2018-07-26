@@ -12,7 +12,7 @@ import scalafix.syntax._
 import scalafix.v0._
 
 case class ExplicitSynthetics(index: SemanticdbIndex)
-  extends SemanticRule(index, "ExplicitSynthetics") {
+    extends SemanticRule(index, "ExplicitSynthetics") {
 
   implicit class PositionOps(pos: Position) {
     def toRange: s.Range = s.Range(
@@ -82,7 +82,8 @@ case class ExplicitSynthetics(index: SemanticdbIndex)
     def apply(): Patch = {
       var p = Patch.empty
       rewriteTargets.foreach { target =>
-        val treePrinter = new SyntheticTreePrinter(target.env, ctx.input, doc, treePositions)
+        val treePrinter =
+          new SyntheticTreePrinter(target.env, ctx.input, doc, treePositions)
         treePrinter.pprint(target.syntheticTree)
         p += ctx.replaceTree(target.sourceTree, treePrinter.toString)
       }

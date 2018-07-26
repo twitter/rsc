@@ -10,7 +10,12 @@ import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.internal.semanticdb.Scala._
 import scalafix.internal.rule.semantics.Env
 
-class SyntheticTreePrinter(env: Env, input: Input, doc: s.TextDocument, treePositions: Map[s.Range, Tree]) extends Printer {
+class SyntheticTreePrinter(
+    env: Env,
+    input: Input,
+    doc: s.TextDocument,
+    treePositions: Map[s.Range, Tree])
+    extends Printer {
 
   implicit class ScalametaTermOps(term: Term) {
     def rscWeight: Weight = term match {
@@ -18,7 +23,8 @@ class SyntheticTreePrinter(env: Env, input: Input, doc: s.TextDocument, treePosi
       case term: Term.Apply =>
         r.TermApply(null, null).weight
       case term: Term.ApplyInfix =>
-        r.TermApplyInfix(r.TermId("$synth"), term.op.toRscId, List(), List()).weight
+        r.TermApplyInfix(r.TermId("$synth"), term.op.toRscId, List(), List())
+          .weight
       case term: Term.ApplyType =>
         r.TermApplyType(null, null).weight
       case term: Lit =>
@@ -49,7 +55,7 @@ class SyntheticTreePrinter(env: Env, input: Input, doc: s.TextDocument, treePosi
       rep("(", args, ", ", ")")(t => pprint(t))
     case s.TypeApplyTree(fn, targs) =>
       pprint(fn)
-      rep("[", targs, ", ", "]") {t =>
+      rep("[", targs, ", ", "]") { t =>
         val typePrinter = new TypePrinter(env)
         typePrinter.pprint(t)
         str(typePrinter.toString)
