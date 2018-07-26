@@ -89,6 +89,7 @@ class SyntheticTreePrinter(
       typePrinter.pprint(tpe)
       str("??? : ")
       str(typePrinter.toString)
+    case _ => sys.error(s"unsupported tree $tree")
   }
 
   def pprintName(env: Env, sym: String): Unit = {
@@ -113,6 +114,7 @@ class SyntheticTreePrinter(
             pprintName(env, owner)
             str(".this.")
           } else str(".")
+        case desc => sys.error(s"unsupported desc $desc")
       }
     }
     pprintName(env, sym)
