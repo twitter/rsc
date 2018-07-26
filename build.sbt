@@ -104,14 +104,6 @@ lazy val rsc = project
     mainClass := Some("rsc.cli.Main")
   )
 
-lazy val scalafixRules = project
-  .in(file("scalafix/rules"))
-  .dependsOn(rsc)
-  .settings(
-    commonSettings,
-    libraryDependencies += "com.github.xenoby" %% "scalafix-core" % V.scalafix
-  )
-
 lazy val scalafixInput = project
   .in(file("scalafix/input"))
   .settings(
@@ -122,6 +114,14 @@ lazy val scalafixInput = project
 lazy val scalafixOutput = project
   .in(file("scalafix/output"))
   .settings(commonSettings)
+
+lazy val scalafixRules = project
+  .in(file("scalafix/rules"))
+  .dependsOn(rsc)
+  .settings(
+    commonSettings,
+    libraryDependencies += "com.github.xenoby" %% "scalafix-core" % V.scalafix
+  )
 
 lazy val scalafixTests = project
   .in(file("scalafix/tests"))

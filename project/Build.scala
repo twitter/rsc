@@ -45,8 +45,33 @@ object Build extends AutoPlugin {
     shellout(bin +: args, cwd)
   }
 
-  implicit class FileOps(file: File) {
+  private implicit class FileOps(file: File) {
     def abs: String = file.getAbsolutePath
+  }
+
+  private object projects {
+    def all: List[String] = List(
+      "bench",
+      "check",
+      "core",
+      "function",
+      "mjar",
+      "rsc",
+      "scalafixInput",
+      "scalafixOutput",
+      "scalafixRules",
+      "scalafixTests",
+      "scalasig",
+      "scalap",
+      "tests"
+    )
+    def public: List[String] = List(
+      "check",
+      "mjar",
+      "rsc",
+      "scalasig",
+      "scalap"
+    )
   }
 
   object autoImport {
@@ -75,64 +100,17 @@ object Build extends AutoPlugin {
       lazy val ciSlow = slowTest
       lazy val ciScalafix = scalafixTest
       lazy val ci = command(ciFmt, ciFast, ciSlow, ciScalafix)
-      lazy val cleanAll = command(
-        "reload",
-        "bench/clean",
-        "check/clean",
-        "core/clean",
-        "function/clean",
-        "mjar/clean",
-        "rsc/clean",
-        "scalafixInput/clean",
-        "scalafixOutput/clean",
-        "scalafixRules/clean",
-        "scalafixTests/clean",
-        "scalasig/clean",
-        "scalap/clean",
-        "tests/clean"
-      )
-      lazy val compileAll = command(
-        "bench/compile",
-        "check/compile",
-        "core/compile",
-        "function/compile",
-        "mjar/compile",
-        "rsc/compile",
-        "scalafixInput/compile",
-        "scalafixOutput/compile",
-        "scalafixRules/compile",
-        "scalafixTests/compile",
-        "scalafixTests/test:compile",
-        "scalasig/compile",
-        "scalap/compile",
-        "tests/compile",
-        "tests/test:compile"
-      )
+      lazy val cleanAll = command(projects.all.map(_ + "/clean"))
+      lazy val compileAll = command(projects.all.map(_ + "/compile"))
       lazy val fmtAll = "scalafmtFormat"
-      lazy val testAll = command(
-        "reload",
-        "cleanAll",
-        ci
-      )
+      lazy val testAll = command("reload", "cleanAll", ci)
       lazy val benchAll = command(
         "cleanAll",
         "compileAll",
         "bench/jmh:run RscParse RscLink RscOutline RscSemanticdb RscMjar ScalacCompile"
       )
-      lazy val publishAll = command(
-        "check/publish",
-        "mjar/publish",
-        "rsc/publish",
-        "scalasig/publish",
-        "scalap/publish"
-      )
-      lazy val publishLocal = command(
-        "check/publishLocal",
-        "mjar/publishLocal",
-        "rsc/publishLocal",
-        "scalasig/publishLocal",
-        "scalap/publishLocal"
-      )
+      lazy val publishAll = command(projects.public.map(_ + "/publish"))
+      lazy val publishLocal = command(projects.public.map(_ + "/publishLocal"))
       lazy val compile = "tests/test:compile"
       lazy val fastTest = "tests/fast:test"
       lazy val slowTest = command("tests/slow:test")
