@@ -1,6 +1,5 @@
 package scalafix.internal.rule.pretty
 
-import rsc.pretty.Printer
 import scala.meta._
 import rsc.{syntax => r}
 import rsc.pretty._
