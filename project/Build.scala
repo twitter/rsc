@@ -21,7 +21,12 @@ object Build extends AutoPlugin {
 
   private def command(commands: String*): String = command(commands.toList)
   private def command(commands: List[String]): String = {
-    commands.map(c => s";$c ").mkString("")
+    val buf = List.newBuilder[String]
+    commands.foreach { c =>
+      if (c.startsWith(";")) buf += c
+      else buf += s";$c"
+    }
+    buf.result.mkString(" ")
   }
 
   private def shellout(command: List[String], cwd: File): Unit = {
