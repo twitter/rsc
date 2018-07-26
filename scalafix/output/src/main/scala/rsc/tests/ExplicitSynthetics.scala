@@ -17,8 +17,8 @@ class ExplicitSynthetics_Test {
   _root_.scala.Predef.any2stringadd[_root_.scala.collection.immutable.Stream[_root_.scala.Int]](lst) + "foo"
 
   (1 to 10).foreach[_root_.scala.Unit]({x => (0 until 10).foreach[_root_.scala.Unit]({y => println(x -> x)})})
-  for (i <- 1 to 10; j <- 0 until 10) yield (i, j)
-  for (i <- 1 to 10; j <- 0 until 10 if i % 2 == 0) yield (i, j)
+  (1 to 10).flatMap[_root_.scala.Tuple2[_root_.scala.Int, _root_.scala.Int], _root_.scala.collection.immutable.IndexedSeq[_root_.scala.Tuple2[_root_.scala.Int, _root_.scala.Int]]]({i => (0 until 10).map[_root_.scala.Tuple2[_root_.scala.Int, _root_.scala.Int], _root_.scala.collection.immutable.IndexedSeq[_root_.scala.Tuple2[_root_.scala.Int, _root_.scala.Int]]]({j => (i, j)})(_root_.scala.collection.immutable.IndexedSeq.canBuildFrom[_root_.scala.Tuple2[_root_.scala.Int, _root_.scala.Int]])})(_root_.scala.collection.immutable.IndexedSeq.canBuildFrom[_root_.scala.Tuple2[_root_.scala.Int, _root_.scala.Int]])
+  (1 to 10).flatMap[_root_.scala.Tuple2[_root_.scala.Int, _root_.scala.Int], _root_.scala.collection.immutable.IndexedSeq[_root_.scala.Tuple2[_root_.scala.Int, _root_.scala.Int]]]({i => (0 until 10).withFilter({j => i % 2 == 0}).map[_root_.scala.Tuple2[_root_.scala.Int, _root_.scala.Int], _root_.scala.collection.immutable.IndexedSeq[_root_.scala.Tuple2[_root_.scala.Int, _root_.scala.Int]]]({j => (i, j)})(_root_.scala.collection.immutable.IndexedSeq.canBuildFrom[_root_.scala.Tuple2[_root_.scala.Int, _root_.scala.Int]])})(_root_.scala.collection.immutable.IndexedSeq.canBuildFrom[_root_.scala.Tuple2[_root_.scala.Int, _root_.scala.Int]])
 
   object s {
     def apply() = 2
@@ -29,7 +29,7 @@ class ExplicitSynthetics_Test {
     null.asInstanceOf[Int => Int].apply(2)
   }
 
-  class J[T: Manifest] { val arr = Array.empty[T] }
+  class J[T: Manifest] { val arr = Array.empty[T](J.this.evidence$1) }
 
   class F
   implicit val ordering: Ordering[F] = ???

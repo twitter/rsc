@@ -3,14 +3,7 @@
 // NOTE: This file has been partially copy/pasted from twitter/rsc.
 package scalafix.internal.rule
 
-import java.io.{ByteArrayOutputStream, PrintStream}
-import java.nio.charset.StandardCharsets.UTF_8
-import scala.collection.mutable
 import scala.meta.internal.{semanticdb => s}
-import scala.meta.internal.semanticdb.Scala._
-import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
-import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
-import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 import scala.meta._
 import scalafix.internal.rule.semantics._
 import scalafix.internal.rule.pretty._
@@ -86,74 +79,12 @@ case class ExplicitSynthetics(index: SemanticdbIndex)
       pos.result
     }
 
-    def pprint(env: Env, tree: s.Tree): String = tree match {
-      case s.OriginalTree(range) =>
-        val r = range.get
-        val lines = ctx.input.text.split('\n').toSeq
-        val linesSubseq = lines.slice(r.startLine, r.endLine + 1)
-        if (r.startLine == r.endLine) {
-          linesSubseq.head.substring(r.startCharacter, r.endCharacter)
-        } else {
-          val mid = linesSubseq.tail.init
-          val newFirstLine = linesSubseq.head.substring(r.startCharacter)
-          val newEndLine = linesSubseq.last.substring(0, r.endCharacter)
-          (newFirstLine +: mid :+ newEndLine).mkString("\n")
-        }
-      case s.ApplyTree(fn, args) =>
-        pprint(env, fn) + args.map(t => pprint(env, t)).mkString("(", ", ", ")")
-      case s.TypeApplyTree(fn, targs) =>
-        val types = targs.map { t =>
-          val typePrinter = new TypePrinter(env)
-          typePrinter.pprint(t)
-          typePrinter.toString
-        }
-        pprint(env, fn) + types.mkString("[", ", ", "]")
-      case s.SelectTree(qual, id) =>
-        pprint(env, qual) + "." + id.get.sym.desc.name
-      case s.IdTree(sym) => pprintFqn(env, sym)
-      case s.FunctionTree(params, term) =>
-        val paramsString = params match {
-          case Seq() => ""
-          case Seq(id) =>  pprintName(env, id.sym) + " => "
-          case _ => params.map(id => pprintName(env, id.sym)).mkString("(", ", ", ") => ")
-        }
-        "{" + paramsString + pprint(env, term) + "}"
-      case s.MacroExpansionTree(tpe) =>
-        val typePrinter = new TypePrinter(env)
-        typePrinter.pprint(tpe)
-        s"??? : $typePrinter"
-    }
-
-    def pprintName(env: Env, sym: String): String = {
-      val typePrinter = new TypePrinter(env)
-      doc.symbols.foreach(typePrinter.addInfo)
-      typePrinter.pprint(sym)
-      typePrinter.toString
-    }
-
-    def pprintFqn(env: Env, sym: String): String = {
-      val prefixFqn = {
-        val owner = sym.owner
-        if (owner == Symbols.None) "" else {
-          val ownerFqn = pprintFqn(env, sym.owner)
-          owner.desc match {
-            case _: d.Package => ownerFqn + "."
-            case _: d.Term => ownerFqn + "."
-            case desc: d.Type =>
-              if (env.lookupThis(desc.name) == owner) {
-                pprintName(env, owner) + ".this."
-              } else ownerFqn + "."
-          }
-        }
-      }
-      prefixFqn + pprintName(env, sym)
-    }
-
     def apply(): Patch = {
       var p = Patch.empty
       rewriteTargets.foreach { target =>
-        val newTree = pprint(target.env, target.syntheticTree)
-        p += ctx.replaceTree(target.sourceTree, newTree)
+        val treePrinter = new SyntheticTreePrinter(target.env, ctx.input, doc, treePositions)
+        treePrinter.pprint(target.syntheticTree)
+        p += ctx.replaceTree(target.sourceTree, treePrinter.toString)
       }
       p
     }
