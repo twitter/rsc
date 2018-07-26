@@ -74,6 +74,7 @@ object Build extends AutoPlugin {
       "check",
       "mjar",
       "rsc",
+      "scalafixRules",
       "scalasig",
       "scalap"
     )
