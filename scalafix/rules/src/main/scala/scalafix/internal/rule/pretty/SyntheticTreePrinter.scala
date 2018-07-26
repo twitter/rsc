@@ -20,26 +20,6 @@ class SyntheticTreePrinter(
   val syms: Map[String, s.SymbolInformation] =
     doc.symbols.map(info => info.symbol -> info).toMap
 
-  implicit class ScalametaTermOps(term: Term) {
-    def rscWeight: Weight = term match {
-      case term: Term.Name => r.TermId(null).weight
-      case term: Term.Apply =>
-        r.TermApply(null, null).weight
-      case term: Term.ApplyInfix =>
-        r.TermApplyInfix(r.TermId("$synth"), term.op.toRscId, List(), List())
-          .weight
-      case term: Term.ApplyType =>
-        r.TermApplyType(null, null).weight
-      case term: Lit =>
-        r.TermLit(null).weight
-      case term: Term.Select =>
-        r.TermSelect(null, null).weight
-    }
-    def toRscId: r.TermId = term match {
-      case Term.Name(value) => r.TermId(value)
-    }
-  }
-
   def pprint(tree: s.Tree): Unit = tree match {
     case s.OriginalTree(range) =>
       str(doc.substring(range).get)
