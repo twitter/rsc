@@ -115,7 +115,7 @@ object Build extends AutoPlugin {
         "compileAll",
         "bench/jmh:run RscParse RscLink RscOutline RscSemanticdb RscMjar ScalacCompile"
       )
-      lazy val publishAll = command(projects.public.map(_ + "/publish"))
+      lazy val publish = command(projects.public.map(_ + "/publish"))
       lazy val publishLocal = command(projects.public.map(_ + "/publishLocal"))
       lazy val compile = "tests/test:compile"
       lazy val fastTest = "tests/fast:test"
