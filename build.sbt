@@ -120,7 +120,8 @@ lazy val scalafixRules = project
     commonSettings,
     publishableSettings,
     moduleName := "rsc-rules",
-    libraryDependencies += "com.github.xenoby" %% "scalafix-core" % V.scalafix
+    libraryDependencies += "com.github.xenoby" %% "scalafix-core" % V.scalafix,
+    libraryDependencies += "org.scalameta" %% "metap" % V.scalameta
   )
 
 lazy val scalafixTests = project

@@ -69,25 +69,13 @@ case class ExplicitSynthetics(index: SemanticdbIndex)
       buf.result
     }
 
-    val treePositions: Map[s.Range, Tree] = {
-      val pos = Map.newBuilder[s.Range, Tree]
-      def loop(tree: Tree): Unit = {
-        pos += tree.pos.toRange -> tree
-        tree.children.foreach(loop)
-      }
-      loop(ctx.tree)
-      pos.result
-    }
-
     def apply(): Patch = {
-      var p = Patch.empty
-      rewriteTargets.foreach { target =>
+      rewriteTargets.map { target =>
         val treePrinter =
-          new SyntheticTreePrinter(target.env, ctx.input, doc, treePositions)
+          new SyntheticTreePrinter(target.env, doc.copy(text = ctx.input.text))
         treePrinter.pprint(target.syntheticTree)
-        p += ctx.replaceTree(target.sourceTree, treePrinter.toString)
-      }
-      p
+        ctx.replaceTree(target.sourceTree, treePrinter.toString)
+      }.asPatch
     }
 
   }

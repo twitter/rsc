@@ -3,7 +3,7 @@ package scalafix.internal.rule.pretty
 import scala.meta._
 import rsc.{syntax => r}
 import rsc.pretty._
-import scala.meta.inputs._
+import scala.meta.internal.metap.{BasePrinter, RangePrinter}
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.internal.semanticdb.Scala._
@@ -11,12 +11,14 @@ import scalafix.internal.rule.semantics.Env
 
 class SyntheticTreePrinter(
     env: Env,
-    input: Input,
-    doc: s.TextDocument,
-    treePositions: Map[s.Range, Tree])
-    extends Printer {
+    doc: s.TextDocument
+) extends Printer {
 
-  val syms: Map[String, s.SymbolInformation] = doc.symbols.map(info => info.symbol -> info).toMap
+  private val rp = new BasePrinter(null, null, null) with RangePrinter {}
+  import rp.DocumentOps
+
+  val syms: Map[String, s.SymbolInformation] =
+    doc.symbols.map(info => info.symbol -> info).toMap
 
   implicit class ScalametaTermOps(term: Term) {
     def rscWeight: Weight = term match {
@@ -40,17 +42,7 @@ class SyntheticTreePrinter(
 
   def pprint(tree: s.Tree): Unit = tree match {
     case s.OriginalTree(range) =>
-      val r = range.get
-      val lines = input.text.split('\n').toSeq
-      val linesSubseq = lines.slice(r.startLine, r.endLine + 1)
-      if (r.startLine == r.endLine) {
-        str(linesSubseq.head.substring(r.startCharacter, r.endCharacter))
-      } else {
-        val mid = linesSubseq.tail.init
-        val newFirstLine = linesSubseq.head.substring(r.startCharacter)
-        val newEndLine = linesSubseq.last.substring(0, r.endCharacter)
-        str((newFirstLine +: mid :+ newEndLine).mkString("\n"))
-      }
+      str(doc.substring(range).get)
     case s.ApplyTree(fn, args) =>
       pprint(fn)
       rep("(", args, ", ", ")")(t => pprint(t))
@@ -64,8 +56,11 @@ class SyntheticTreePrinter(
     case s.SelectTree(qual, id) =>
       val needsParens = qual match {
         case s.OriginalTree(range) =>
-          val rscWeight = treePositions(range.get).asInstanceOf[Term].rscWeight
-          rscWeight.value < SimpleExpr1.value
+          val originalTerm = doc.substring(range).get.parse[Term].get
+          originalTerm match {
+            case _: Term.ApplyInfix => true
+            case _ => false
+          }
         case _ => false
       }
       if (needsParens) str("(")
@@ -98,7 +93,6 @@ class SyntheticTreePrinter(
     case Some(info) => str(info.name)
     case None => str(sym.desc.name)
   }
-
 
   def pprintFqn(sym: String): Unit = {
     if (sym.owner != Symbols.None) {
