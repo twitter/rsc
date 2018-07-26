@@ -1,8 +1,8 @@
 lazy val V = new {
   val asm = "6.0"
   val scala = computeScalaVersionFromTravisYml("2.11")
-  val scalafix = "0.6.0-M12"
-  val scalameta = "4.0.0-M6-31-c9098272-SNAPSHOT"
+  val scalafix = computeScalafixVersionFromBinScalafix()
+  val scalameta = "4.0.0-M7"
   val scalapb = _root_.scalapb.compiler.Version.scalapbVersion
   val scalatest = "3.0.5"
 }
@@ -10,6 +10,7 @@ lazy val V = new {
 addCommandAlias("ci-fmt", ui.ciFmt)
 addCommandAlias("ci-fast", ui.ciFast)
 addCommandAlias("ci-slow", ui.ciSlow)
+addCommandAlias("ci-scalafix", ui.ciScalafix)
 addCommandAlias("ci", ui.ci)
 addCommandAlias("cleanAll", ui.cleanAll)
 addCommandAlias("compileAll", ui.compileAll)
@@ -21,6 +22,7 @@ addCommandAlias("clean", ui.cleanAll)
 addCommandAlias("compile", ui.compile)
 addCommandAlias("fast", ui.fastTest)
 addCommandAlias("slow", ui.slowTest)
+addCommandAlias("fest", ui.scalafixTest)
 addCommandAlias("test", ui.test)
 addCommandAlias("fmt", ui.fmtAll)
 addCommandAlias("benchParse", ui.benchParse)
@@ -30,6 +32,7 @@ addCommandAlias("benchSemanticdb", ui.benchSemanticdb)
 addCommandAlias("benchMjar", ui.benchMjar)
 addCommandAlias("publish", ui.publishAll)
 addCommandAlias("publishLocal", ui.publishLocal)
+addCommandAlias("rewrite", ui.rewrite)
 
 version.in(ThisBuild) := {
   val rscVersion = version.in(ThisBuild).value.replace("+", "-")
@@ -72,8 +75,7 @@ lazy val core = project
     commonSettings,
     semanticdbSettings,
     libraryDependencies += "org.scala-lang" % "scala-reflect" % V.scala,
-    libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4",
-    rewrite := scalafixRscCompat(baseDirectory.value)
+    libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
   )
 
 lazy val function = project
@@ -104,9 +106,10 @@ lazy val rsc = project
 
 lazy val scalafixRules = project
   .in(file("scalafix/rules"))
+  .dependsOn(rsc)
   .settings(
     commonSettings,
-    libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % V.scalafix
+    libraryDependencies += "com.github.xenoby" %% "scalafix-core" % V.scalafix
   )
 
 lazy val scalafixInput = project
@@ -125,7 +128,7 @@ lazy val scalafixTests = project
   .dependsOn(scalafixInput, scalafixRules)
   .settings(
     commonSettings,
-    libraryDependencies += "ch.epfl.scala" % "scalafix-testkit" % V.scalafix % Test cross CrossVersion.full
+    libraryDependencies += "com.github.xenoby" % "scalafix-testkit" % V.scalafix % Test cross CrossVersion.full
   )
 
 lazy val scalasig = project

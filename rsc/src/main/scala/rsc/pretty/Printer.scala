@@ -3,8 +3,9 @@
 package rsc.pretty
 
 import java.lang.StringBuilder
+import scala.meta.internal.{semanticdb => s}
 
-final class Printer {
+class Printer {
   private var sb = new StringBuilder
   private var indentation = 0
   private var afterNewline = true
@@ -84,6 +85,26 @@ final class Printer {
   }
 
   def opt[T](xs: Option[T])(f: T => Unit): Unit = {
+    opt("", xs, "")(f)
+  }
+
+  def opt[T](pre: String, xs: s.Type, suf: String)(f: s.Type => Unit): Unit = {
+    if (xs.nonEmpty) {
+      append(pre)
+      f(xs)
+      append(suf)
+    }
+  }
+
+  def opt[T](pre: String, xs: s.Type)(f: s.Type => Unit): Unit = {
+    opt(pre, xs, "")(f)
+  }
+
+  def opt[T](xs: s.Type, suf: String)(f: s.Type => Unit): Unit = {
+    opt("", xs, suf)(f)
+  }
+
+  def opt[T](xs: s.Type)(f: s.Type => Unit): Unit = {
     opt("", xs, "")(f)
   }
 
