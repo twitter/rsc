@@ -3,7 +3,6 @@ lazy val V = new {
   val scala = computeScalaVersionFromTravisYml("2.11")
   val scalafix = computeScalafixVersionFromBinScalafix()
   val scalameta = "4.0.0-M7"
-  val scalapb = _root_.scalapb.compiler.Version.scalapbVersion
   val scalatest = "3.0.5"
 }
 
@@ -17,7 +16,6 @@ addCommandAlias("compileAll", ui.compileAll)
 addCommandAlias("fmtAll", ui.fmtAll)
 addCommandAlias("testAll", ui.testAll)
 addCommandAlias("benchAll", ui.benchAll)
-addCommandAlias("publishAll", ui.publishAll)
 addCommandAlias("clean", ui.cleanAll)
 addCommandAlias("compile", ui.compile)
 addCommandAlias("fast", ui.fastTest)
@@ -30,7 +28,7 @@ addCommandAlias("benchLink", ui.benchLink)
 addCommandAlias("benchOutline", ui.benchOutline)
 addCommandAlias("benchSemanticdb", ui.benchSemanticdb)
 addCommandAlias("benchMjar", ui.benchMjar)
-addCommandAlias("publish", ui.publishAll)
+addCommandAlias("publish", ui.publish)
 addCommandAlias("publishLocal", ui.publishLocal)
 addCommandAlias("rewrite", ui.rewrite)
 
@@ -104,14 +102,6 @@ lazy val rsc = project
     mainClass := Some("rsc.cli.Main")
   )
 
-lazy val scalafixRules = project
-  .in(file("scalafix/rules"))
-  .dependsOn(rsc)
-  .settings(
-    commonSettings,
-    libraryDependencies += "com.github.xenoby" %% "scalafix-core" % V.scalafix
-  )
-
 lazy val scalafixInput = project
   .in(file("scalafix/input"))
   .settings(
@@ -122,6 +112,16 @@ lazy val scalafixInput = project
 lazy val scalafixOutput = project
   .in(file("scalafix/output"))
   .settings(commonSettings)
+
+lazy val scalafixRules = project
+  .in(file("scalafix/rules"))
+  .dependsOn(rsc)
+  .settings(
+    commonSettings,
+    publishableSettings,
+    moduleName := "rsc-rules",
+    libraryDependencies += "com.github.xenoby" %% "scalafix-core" % V.scalafix
+  )
 
 lazy val scalafixTests = project
   .in(file("scalafix/tests"))
@@ -221,7 +221,7 @@ lazy val publishableSettings = Seq(
     "https://github.com/twitter/rsc/blob/master/LICENSE.md"),
   pomExtra := (
     <url>https://github.com/twitter/rsc</url>
-    <inceptionYear>2018</inceptionYear>
+    <inceptionYear>2017</inceptionYear>
     <scm>
       <url>git://github.com/twitter/rsc.git</url>
       <connection>scm:git:git://github.com/twitter/rsc.git</connection>
@@ -234,20 +234,20 @@ lazy val publishableSettings = Seq(
       <developer>
         <id>xeno-by</id>
         <name>Eugene Burmako</name>
-        <url>http://xeno.by</url>
+        <url>https://github.com/xeno-by</url>
+      </developer>
+      <developer>
+        <id>ShaneDelmore</id>
+        <name>Shane Delmore</name>
+        <url>https://github.com/ShaneDelmore</url>
+      </developer>
+      <developer>
+        <id>maxov</id>
+        <name>Max Ovsiankin</name>
+        <url>https://github.com/maxov</url>
       </developer>
     </developers>
   )
-)
-
-lazy val protobufSettings = Def.settings(
-  managedSourceDirectories in Compile += target.value / "protobuf-generated",
-  PB.targets.in(Compile) := Seq(
-    scalapb.gen(
-      flatPackage = true // Don't append filename to package
-    ) -> (target.value / "protobuf-generated")
-  ),
-  libraryDependencies += "com.thesamet.scalapb" %% "scalapb-runtime" % V.scalapb
 )
 
 lazy val semanticdbSettings = Def.settings(

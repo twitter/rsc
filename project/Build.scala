@@ -21,7 +21,12 @@ object Build extends AutoPlugin {
 
   private def command(commands: String*): String = command(commands.toList)
   private def command(commands: List[String]): String = {
-    commands.map(c => s";$c ").mkString("")
+    val buf = List.newBuilder[String]
+    commands.foreach { c =>
+      if (c.startsWith(";")) buf += c
+      else buf += s";$c"
+    }
+    buf.result.mkString(" ")
   }
 
   private def shellout(command: List[String], cwd: File): Unit = {
@@ -37,16 +42,38 @@ object Build extends AutoPlugin {
     }
   }
   private def scalafmt(args: List[String], cwd: File): Unit = {
-    val bin = new File(buildRoot, "bin/scalafmt").abs
+    val bin = new File(buildRoot, "bin/scalafmt").absolutePath
     shellout(bin +: args, cwd)
   }
   private def scalafix(args: List[String], cwd: File): Unit = {
-    val bin = new File(buildRoot, "bin/scalafix").abs
+    val bin = new File(buildRoot, "bin/scalafix").absolutePath
     shellout(bin +: args, cwd)
   }
 
-  implicit class FileOps(file: File) {
-    def abs: String = file.getAbsolutePath
+  private object projects {
+    def all: List[String] = List(
+      "bench",
+      "check",
+      "core",
+      "function",
+      "mjar",
+      "rsc",
+      "scalafixInput",
+      "scalafixOutput",
+      "scalafixRules",
+      "scalafixTests",
+      "scalasig",
+      "scalap",
+      "tests"
+    )
+    def public: List[String] = List(
+      "check",
+      "mjar",
+      "rsc",
+      "scalafixRules",
+      "scalasig",
+      "scalap"
+    )
   }
 
   object autoImport {
@@ -75,64 +102,17 @@ object Build extends AutoPlugin {
       lazy val ciSlow = slowTest
       lazy val ciScalafix = scalafixTest
       lazy val ci = command(ciFmt, ciFast, ciSlow, ciScalafix)
-      lazy val cleanAll = command(
-        "reload",
-        "bench/clean",
-        "check/clean",
-        "core/clean",
-        "function/clean",
-        "mjar/clean",
-        "rsc/clean",
-        "scalafixInput/clean",
-        "scalafixOutput/clean",
-        "scalafixRules/clean",
-        "scalafixTests/clean",
-        "scalasig/clean",
-        "scalap/clean",
-        "tests/clean"
-      )
-      lazy val compileAll = command(
-        "bench/compile",
-        "check/compile",
-        "core/compile",
-        "function/compile",
-        "mjar/compile",
-        "rsc/compile",
-        "scalafixInput/compile",
-        "scalafixOutput/compile",
-        "scalafixRules/compile",
-        "scalafixTests/compile",
-        "scalafixTests/test:compile",
-        "scalasig/compile",
-        "scalap/compile",
-        "tests/compile",
-        "tests/test:compile"
-      )
+      lazy val cleanAll = command(projects.all.map(_ + "/clean"))
+      lazy val compileAll = command(projects.all.map(_ + "/compile"))
       lazy val fmtAll = "scalafmtFormat"
-      lazy val testAll = command(
-        "reload",
-        "cleanAll",
-        ci
-      )
+      lazy val testAll = command("reload", "cleanAll", ci)
       lazy val benchAll = command(
         "cleanAll",
         "compileAll",
         "bench/jmh:run RscParse RscLink RscOutline RscSemanticdb RscMjar ScalacCompile"
       )
-      lazy val publishAll = command(
-        "check/publish",
-        "mjar/publish",
-        "rsc/publish",
-        "scalasig/publish",
-        "scalap/publish"
-      )
-      lazy val publishLocal = command(
-        "check/publishLocal",
-        "mjar/publishLocal",
-        "rsc/publishLocal",
-        "scalasig/publishLocal",
-        "scalap/publishLocal"
-      )
+      lazy val publish = command(projects.public.map(_ + "/publish"))
+      lazy val publishLocal = command(projects.public.map(_ + "/publishLocal"))
       lazy val compile = "tests/test:compile"
       lazy val fastTest = "tests/fast:test"
       lazy val slowTest = command("tests/slow:test")
@@ -173,14 +153,15 @@ object Build extends AutoPlugin {
       val toolClasspath = fullClasspath.in(scalafixRulesProject, Compile).value
       val args = List.newBuilder[String]
       args += "--tool-classpath"
-      args += toolClasspath.map(_.data.abs).mkString(pathSeparator)
+      args += toolClasspath.map(_.data.absolutePath).mkString(pathSeparator)
       args += "--classpath"
-      args += products.in(Compile).value.map(_.abs).mkString(pathSeparator)
+      args +=
+        products.in(Compile).value.map(_.absolutePath).mkString(pathSeparator)
       args += "--sourceroot"
-      args += buildRoot.abs
+      args += buildRoot.absolutePath
       args += "--rules"
       args += "scala:scalafix.internal.rule.RscCompat"
-      args += baseDirectory.value.abs
+      args += baseDirectory.value.absolutePath
       scalafix(args.result, baseDirectory.value)
     }
   )
