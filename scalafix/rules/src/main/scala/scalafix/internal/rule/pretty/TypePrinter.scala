@@ -110,7 +110,7 @@ class TypePrinter(env: Env) extends Printer {
     normal(tpe)
   }
 
-  private def pprint(sym: String): Unit = {
+  def pprint(sym: String): Unit = {
     val printableName = {
       val sourceName = notes.get(sym).map(_.name)
       sourceName match {
@@ -188,6 +188,10 @@ class TypePrinter(env: Env) extends Printer {
       case tpe =>
         pprint(tpe)
     }
+  }
+
+  def addInfo(info: s.SymbolInformation): Unit = {
+    notes.append(info)
   }
 
   private object notes {

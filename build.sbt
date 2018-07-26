@@ -261,5 +261,5 @@ lazy val semanticdbSettings = Def.settings(
   scalacOptions += "-Yrangepos",
   scalacOptions += "-P:semanticdb:text:off",
   scalacOptions += "-P:semanticdb:symbols:on",
-  scalacOptions += "-P:semanticdb:synthetics:off"
+  scalacOptions += "-P:semanticdb:synthetics:on"
 )

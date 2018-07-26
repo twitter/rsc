@@ -160,6 +160,8 @@ class Printer {
 
   override def toString = sb.toString
 
+  def reset(): Unit = sb = new StringBuilder
+
   trait Wrap {
     def prefix: Unit = ()
     def suffix: Unit = ()
