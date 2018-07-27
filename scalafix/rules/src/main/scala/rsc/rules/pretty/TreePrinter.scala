@@ -5,7 +5,6 @@ package rsc.rules.pretty
 import scala.meta._
 import rsc.pretty._
 import rsc.rules.semantics._
-import scala.meta.internal.metap.{BasePrinter, RangePrinter}
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.internal.semanticdb.Scala._
@@ -13,12 +12,9 @@ import scalafix.v0._
 
 class TreePrinter(env: Env, index: DocumentIndex) extends Printer {
 
-  private val rp = new BasePrinter(null, null, null) with RangePrinter {}
-  import rp.DocumentOps
-
   def pprint(tree: s.Tree): Unit = tree match {
     case s.OriginalTree(range) =>
-      str(index.doc.substring(range).get)
+      str(index.substring(range).get)
     case s.ApplyTree(fn, args) =>
       pprint(fn)
       rep("(", args, ", ", ")")(t => pprint(t))
@@ -32,7 +28,7 @@ class TreePrinter(env: Env, index: DocumentIndex) extends Printer {
     case s.SelectTree(qual, id) =>
       val needsParens = qual match {
         case s.OriginalTree(range) =>
-          val originalTerm = index.doc.substring(range).get.parse[Term].get
+          val originalTerm = index.substring(range).get.parse[Term].get
           originalTerm match {
             case _: Term.ApplyInfix => true
             case _ => false
@@ -86,5 +82,4 @@ class TreePrinter(env: Env, index: DocumentIndex) extends Printer {
     }
     pprintName(sym)
   }
-
 }
