@@ -6,6 +6,7 @@ package rsc.rules
 import java.io._
 import rsc.rules.pretty._
 import rsc.rules.semantics._
+import rsc.rules.syntax._
 import scala.meta._
 import scala.meta.contrib._
 import scala.meta.internal.{semanticdb => s}
@@ -38,7 +39,6 @@ case class RscCompat(legacyIndex: SemanticdbIndex)
       buf += RewriteTarget(env, name, body)
     }
     def loop(env: Env, tree: Tree): Unit = {
-      // FIXME: https://github.com/twitter/rsc/issues/140
       tree match {
         case Source(stats) =>
           stats.foreach(loop(env, _))
@@ -46,19 +46,21 @@ case class RscCompat(legacyIndex: SemanticdbIndex)
           stats.foreach(loop(env, _))
         case Pkg.Object(_, name, templ) =>
           loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
-        case Defn.Class(_, name, _, _, templ) =>
+        case defn @ Defn.Class(_, name, _, _, templ) if defn.isVisible =>
           loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
-        case Defn.Trait(_, name, _, _, templ) =>
+        case defn @ Defn.Trait(_, name, _, _, templ) if defn.isVisible =>
           loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
-        case Defn.Object(_, name, templ) =>
+        case defn @ Defn.Object(_, name, templ) if defn.isVisible =>
           loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
         case Template(early, _, _, stats) =>
           (early ++ stats).foreach(loop(env, _))
-        case Defn.Val(_, List(Pat.Var(name)), None, body) =>
+        case defn @ Defn.Val(_, List(Pat.Var(name)), None, body)
+            if defn.isVisible =>
           append(env, name, body)
-        case Defn.Var(_, List(Pat.Var(name)), None, Some(body)) =>
+        case defn @ Defn.Var(_, List(Pat.Var(name)), None, Some(body))
+            if defn.isVisible =>
           append(env, name, body)
-        case Defn.Def(_, name, _, _, None, body) =>
+        case defn @ Defn.Def(_, name, _, _, None, body) if defn.isVisible =>
           append(env, name, body)
         case _ =>
           // FIXME: https://github.com/twitter/rsc/issues/149

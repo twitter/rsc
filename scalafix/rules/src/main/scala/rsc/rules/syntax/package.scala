@@ -2,4 +2,4 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.rules
 
-package object syntax extends Positions
+package object syntax extends Positions with Trees
