@@ -154,6 +154,8 @@ object RscCompat_Test {
 
     implicit val crazy1 = implicitly[Int]
     implicit val crazy2 = Bijection.connect[In, Out]
+
+    val X, List(y) = List(1, 2)
   }
 }
 

@@ -19,15 +19,25 @@ trait Trees {
   }
 
   object InferredDefnPat {
-    def unapply(tree: Defn): Option[(List[Name], Term)] = {
+    // NOTE: When applied to `val x, List(y, z) = ???`, this will return:
+    //   * fnames = List(<x>)
+    //   * pnames = List(<y>, <z>)
+    //   * body = <???>
+    def unapply(tree: Defn): Option[(List[Name], List[Name], Term)] = {
       tree match {
         case defn @ Defn.Val(_, pats, None, body) =>
-          Some((pats.flatMap(_.binders), body))
+          val (fnames, pnames) = names(pats)
+          Some(fnames, pnames, body)
         case defn @ Defn.Var(_, pats, None, Some(body)) =>
-          Some((pats.flatMap(_.binders), body))
+          val (fnames, pnames) = names(pats)
+          Some(fnames, pnames, body)
         case _ =>
           None
       }
+    }
+    private def names(pats: List[Pat]): (List[Name], List[Name]) = {
+      val (fpats, ppats) = pats.partition(_.isInstanceOf[Pat.Var])
+      (fpats.flatMap(_.binders), ppats.flatMap(_.binders))
     }
   }
 

@@ -54,8 +54,21 @@ case class RscCompat(legacyIndex: SemanticdbIndex)
           val before = name.tokens.head
           val after = name.tokens.last
           buf += RewriteTarget(env, before, name, after, body, parens = false)
-        case defn @ InferredDefnPat(names, body) if defn.isVisible =>
-          names.foreach { name =>
+        case defn @ InferredDefnPat(fnames, pnames, body) if defn.isVisible =>
+          if (fnames.nonEmpty) {
+            val name = fnames.head
+            val before = name.tokens.head
+            val after = {
+              val start = name.tokens.head
+              val end = body.tokens.head
+              val slice = ctx.tokenList.slice(start, end)
+              slice.reverse
+                .find(x => !x.is[Token.Equals] && !x.is[Trivia])
+                .get
+            }
+            buf += RewriteTarget(env, before, name, after, body, parens = false)
+          }
+          pnames.foreach { name =>
             val before = name.tokens.head
             val after = name.tokens.last
             // FIXME: https://github.com/twitter/rsc/issues/142

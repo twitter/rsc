@@ -17,12 +17,12 @@ object RscCompat_Test {
     val List() = List()
     val List((x2: _root_.scala.Int)) = List(2)
     val List((x3: _root_.scala.Int), (y3: _root_.scala.Int)) = List(3, 3)
-    val (x4: _root_.scala.Int), (y4: _root_.scala.Int) = 4
+    val x4, y4: _root_.scala.Int = 4
     val (x9: _root_.scala.Int) :: (y9: _root_.scala.collection.immutable.List[_root_.scala.Int]) = List(9, 9, 9)
     var List() = List()
     var List((x6: _root_.scala.Int)) = List(6)
     var List((x7: _root_.scala.Int), (y7: _root_.scala.Int)) = List(7, 7)
-    var (x8: _root_.scala.Int), (y8: _root_.scala.Int) = 8
+    var x8, y8: _root_.scala.Int = 8
     var (x10: _root_.scala.Int) :: (y10: _root_.scala.collection.immutable.List[_root_.scala.Int]) = List(10, 10, 10)
   }
 
@@ -151,6 +151,8 @@ object RscCompat_Test {
 
     implicit val crazy1 = implicitly[Int]
     implicit val crazy2 = Bijection.connect[In, Out]
+
+    val X, List((y: _root_.scala.Int)): _root_.scala.collection.immutable.List[_root_.scala.Int] = List(1, 2)
   }
 }
 
