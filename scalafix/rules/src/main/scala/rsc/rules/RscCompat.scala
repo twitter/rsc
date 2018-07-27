@@ -103,8 +103,8 @@ case class RscCompat(legacyIndex: SemanticdbIndex)
             }
           }
           val before = {
-            val parenOpt = if (target.parens) "(" else ""
-            ctx.addLeft(target.before, parenOpt)
+            val lparenOpt = if (target.parens) "(" else ""
+            ctx.addLeft(target.before, lparenOpt)
           }
           val after = {
             val whitespaceOpt = {
@@ -116,8 +116,8 @@ case class RscCompat(legacyIndex: SemanticdbIndex)
               printer.pprint(returnType)
               s": ${printer.toString}"
             }
-            val parenOpt = if (target.parens) ")" else ""
-            ctx.addRight(target.after, whitespaceOpt + ascription + parenOpt)
+            val rparenOpt = if (target.parens) ")" else ""
+            ctx.addRight(target.after, whitespaceOpt + ascription + rparenOpt)
           }
           before + after
       }
