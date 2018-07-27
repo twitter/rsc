@@ -5,23 +5,15 @@ package scalafix.internal.rule
 
 import scala.meta.internal.{semanticdb => s}
 import scala.meta._
-import scalafix.internal.rule.semantics._
 import scalafix.internal.rule.pretty._
+import scalafix.internal.rule.semantics._
+import scalafix.internal.rule.syntax._
 import scalafix.internal.patch.DocSemanticdbIndex
 import scalafix.syntax._
 import scalafix.v0._
 
 case class ExplicitSynthetics(index: SemanticdbIndex)
     extends SemanticRule(index, "ExplicitSynthetics") {
-
-  implicit class PositionOps(pos: Position) {
-    def toRange: s.Range = s.Range(
-      startLine = pos.startLine,
-      endLine = pos.endLine,
-      startCharacter = pos.startColumn,
-      endCharacter = pos.endColumn
-    )
-  }
 
   override def fix(ctx: RuleCtx): Patch = new SyntheticsRuleImpl(ctx)()
 
