@@ -2,8 +2,7 @@ lazy val V = new {
   val asm = "6.0"
   val scala = computeScalaVersionFromTravisYml("2.11")
   val scalafix = computeScalafixVersionFromBinScalafix()
-  // NOTE: Published from https://github.com/scalameta/scalameta/pull/1723
-  val scalameta = "4.0.0-M7-15-dd80713f-SNAPSHOT"
+  val scalameta = "4.0.0-M7-16-21ef75d6-SNAPSHOT"
   val scalatest = "3.0.5"
 }
 
