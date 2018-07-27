@@ -112,7 +112,10 @@ lazy val scalafixInput = project
 
 lazy val scalafixOutput = project
   .in(file("scalafix/output"))
-  .settings(commonSettings)
+  .settings(
+    commonSettings,
+    semanticdbSettings
+  )
 
 lazy val scalafixRules = project
   .in(file("scalafix/rules"))
