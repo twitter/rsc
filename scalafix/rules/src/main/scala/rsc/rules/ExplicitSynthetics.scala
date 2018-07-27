@@ -13,9 +13,9 @@ import scalafix.v0._
 case class ExplicitSynthetics(legacyIndex: SemanticdbIndex)
     extends SemanticdbRule(legacyIndex, "ExplicitSynthetics") {
 
-  override def fix(ctx: RuleCtx): Patch = new SyntheticsRuleImpl(ctx)()
+  override def fix(ctx: RuleCtx): Patch = new ExplicitSyntheticsImpl(ctx)()
 
-  class SyntheticsRuleImpl(ctx: RuleCtx) {
+  class ExplicitSyntheticsImpl(ctx: RuleCtx) {
     val index = ExplicitSynthetics.this.index.withText(ctx.input.text)
 
     case class RewriteTarget(env: Env, sourceTree: Tree, syntheticTree: s.Tree)
