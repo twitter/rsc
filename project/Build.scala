@@ -163,7 +163,7 @@ object Build extends AutoPlugin {
       args += "--sourceroot"
       args += buildRoot.absolutePath
       args += "--rules"
-      args += "scala:scalafix.internal.rule.RscCompat"
+      args += "scala:rsc.rules.RscCompat"
       args += baseDirectory.value.absolutePath
       scalafix(args.result, baseDirectory.value)
     }
