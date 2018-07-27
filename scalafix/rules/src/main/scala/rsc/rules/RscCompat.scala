@@ -18,12 +18,6 @@ import scalafix.syntax._
 import scalafix.util.TokenOps
 import scalafix.v0._
 
-// ============ Introduction ============
-//
-// RscCompat is a Scalafix rule that rewrites Scala codebases
-// to be compatible with Rsc. At the moment, it is far from perfect -
-// for details, see https://github.com/twitter/rsc/labels/Scalafix.
-
 case class RscCompat(legacyIndex: SemanticdbIndex)
     extends SemanticdbRule(legacyIndex, "RscCompat") {
   override def fix(ctx: RuleCtx): Patch = {
