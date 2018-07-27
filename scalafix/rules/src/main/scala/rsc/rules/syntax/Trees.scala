@@ -36,4 +36,23 @@ trait Trees {
       }
     }
   }
+
+  implicit class PatOps(pat: Pat) {
+    def binders: List[Name] = {
+      pat match {
+        case _: Term => Nil
+        case Pat.Var(name) => List(name)
+        case Pat.Wildcard() => Nil
+        case Pat.SeqWildcard() => Nil
+        case Pat.Bind(lhs, rhs) => lhs.binders ++ rhs.binders
+        case Pat.Alternative(lhs, rhs) => lhs.binders ++ rhs.binders
+        case Pat.Tuple(pats) => pats.flatMap(_.binders)
+        case Pat.Extract(_, args) => args.flatMap(_.binders)
+        case Pat.ExtractInfix(lhs, _, rhs) => (lhs +: rhs).flatMap(_.binders)
+        case Pat.Interpolate(_, _, args) => args.flatMap(_.binders)
+        case Pat.Xml(_, args) => args.flatMap(_.binders)
+        case Pat.Typed(lhs, _) => lhs.binders
+      }
+    }
+  }
 }

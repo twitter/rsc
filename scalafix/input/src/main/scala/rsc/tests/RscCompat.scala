@@ -15,6 +15,18 @@ object RscCompat_Test {
     var x4 = ""
   }
 
+  // FIXME: https://github.com/twitter/rsc/issues/149
+  class Patterns {
+    val List() = List()
+    val List(x2) = List(2)
+    val List(x3, y3) = List(3, 3)
+    val x4, y4 = 4
+    var List() = List()
+    var List(x6) = List(6)
+    var List(x7, y7) = List(7, 7)
+    var x8, y8 = 8
+  }
+
   class Visibility {
     private def x1 = ""
     private[this] def x2 = ""
