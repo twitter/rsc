@@ -116,7 +116,10 @@ object Build extends AutoPlugin {
       lazy val compile = "tests/test:compile"
       lazy val fastTest = "tests/fast:test"
       lazy val slowTest = command("tests/slow:test")
-      lazy val scalafixTest = "scalafixTests/test"
+      lazy val scalafixTest = command(
+        "scalafixTests/test",
+        "scalafixOutput/compile"
+      )
       lazy val test = fastTest
       lazy val benchParse = "bench/jmh:run RscParse"
       lazy val benchLink = "bench/jmh:run RscLink"

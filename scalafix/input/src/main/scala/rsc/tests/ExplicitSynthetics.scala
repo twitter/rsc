@@ -1,5 +1,5 @@
 /*
-rules = "scala:scalafix.internal.rule.ExplicitSynthetics"
+rules = "scala:rsc.rules.ExplicitSynthetics"
  */
 package rsc.tests
 

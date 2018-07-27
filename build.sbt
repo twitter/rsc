@@ -2,7 +2,8 @@ lazy val V = new {
   val asm = "6.0"
   val scala = computeScalaVersionFromTravisYml("2.11")
   val scalafix = computeScalafixVersionFromBinScalafix()
-  val scalameta = "4.0.0-M7"
+  // NOTE: Published from https://github.com/scalameta/scalameta/pull/1723
+  val scalameta = "4.0.0-M7-15-dd80713f-SNAPSHOT"
   val scalatest = "3.0.5"
 }
 
@@ -111,7 +112,10 @@ lazy val scalafixInput = project
 
 lazy val scalafixOutput = project
   .in(file("scalafix/output"))
-  .settings(commonSettings)
+  .settings(
+    commonSettings,
+    semanticdbSettings
+  )
 
 lazy val scalafixRules = project
   .in(file("scalafix/rules"))
@@ -120,8 +124,7 @@ lazy val scalafixRules = project
     commonSettings,
     publishableSettings,
     moduleName := "rsc-rules",
-    libraryDependencies += "com.github.xenoby" %% "scalafix-core" % V.scalafix,
-    libraryDependencies += "org.scalameta" %% "metap" % V.scalameta
+    libraryDependencies += "com.github.xenoby" %% "scalafix-core" % V.scalafix
   )
 
 lazy val scalafixTests = project

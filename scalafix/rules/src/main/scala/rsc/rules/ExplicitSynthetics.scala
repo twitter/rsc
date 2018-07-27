@@ -1,35 +1,22 @@
 // Copyright (c) 2017-2018 Twitter, Inc.
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
-// NOTE: This file has been partially copy/pasted from twitter/rsc.
-package scalafix.internal.rule
+package rsc.rules
 
+import rsc.rules.pretty._
+import rsc.rules.semantics._
+import rsc.rules.syntax._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta._
-import scalafix.internal.rule.semantics._
-import scalafix.internal.rule.pretty._
-import scalafix.internal.patch.DocSemanticdbIndex
 import scalafix.syntax._
 import scalafix.v0._
 
-case class ExplicitSynthetics(index: SemanticdbIndex)
-    extends SemanticRule(index, "ExplicitSynthetics") {
-
-  implicit class PositionOps(pos: Position) {
-    def toRange: s.Range = s.Range(
-      startLine = pos.startLine,
-      endLine = pos.endLine,
-      startCharacter = pos.startColumn,
-      endCharacter = pos.endColumn
-    )
-  }
+case class ExplicitSynthetics(legacyIndex: SemanticdbIndex)
+    extends SemanticdbRule(legacyIndex, "ExplicitSynthetics") {
 
   override def fix(ctx: RuleCtx): Patch = new SyntheticsRuleImpl(ctx)()
 
   class SyntheticsRuleImpl(ctx: RuleCtx) {
-
-    val doc = index.asInstanceOf[DocSemanticdbIndex].doc.sdoc
-    val synthetics = doc.synthetics.map(synth => synth.range.get -> synth).toMap
-    val syntheticRanges = synthetics.keySet
+    val index = ExplicitSynthetics.this.index.withText(ctx.input.text)
 
     case class RewriteTarget(env: Env, sourceTree: Tree, syntheticTree: s.Tree)
 
@@ -58,8 +45,10 @@ case class ExplicitSynthetics(index: SemanticdbIndex)
           loop(env, body)
         case Term.Block(stats) =>
           stats.foreach(loop(env, _))
-        case _ if synthetics.contains(tree.pos.toRange) =>
-          buf += RewriteTarget(env, tree, synthetics(tree.pos.toRange).tree)
+        case _ if index.synthetics.contains(tree.pos.toRange) =>
+          val sourceTree = tree
+          val syntheticTree = index.synthetics(tree.pos.toRange).tree
+          buf += RewriteTarget(env, sourceTree, syntheticTree)
         case _ =>
           tree.children.foreach { child =>
             loop(env, child)
@@ -71,10 +60,9 @@ case class ExplicitSynthetics(index: SemanticdbIndex)
 
     def apply(): Patch = {
       rewriteTargets.map { target =>
-        val treePrinter =
-          new SyntheticTreePrinter(target.env, doc.copy(text = ctx.input.text))
-        treePrinter.pprint(target.syntheticTree)
-        ctx.replaceTree(target.sourceTree, treePrinter.toString)
+        val printer = new SemanticdbPrinter(target.env, index)
+        printer.pprint(target.syntheticTree)
+        ctx.replaceTree(target.sourceTree, printer.toString)
       }.asPatch
     }
 
