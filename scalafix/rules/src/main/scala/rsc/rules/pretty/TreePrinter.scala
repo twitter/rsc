@@ -41,16 +41,33 @@ class TreePrinter(env: Env, index: DocumentIndex) extends Printer {
       if (needsParens) str(")")
       str(".")
       str(id.get.sym.desc.name)
-    case s.IdTree(sym) => pprintFqn(sym)
+    case s.IdTree(sym) =>
+      sym.owner.desc match {
+        case d.None =>
+          pprint(sym)
+        case _: d.Package | _: d.Term =>
+          pprint(s.SelectTree(s.IdTree(sym.owner), Some(s.IdTree(sym))))
+        case d.Type(name) =>
+          if (env.lookupThis(name) == sym.owner) {
+            pprint(sym.owner)
+            str(".this.")
+            pprint(sym)
+          } else {
+            // TODO: This looks incorrect.
+            // str(".")
+            ???
+          }
+        case desc => sys.error(s"unsupported desc $desc")
+      }
     case s.FunctionTree(params, term) =>
       str("{")
       params match {
         case Seq() => str("() => ")
         case Seq(id) =>
-          pprintName(id.sym)
+          pprint(id.sym)
           str(" => ")
         case _ =>
-          rep("(", params, ", ", ") => ")(id => pprintName(id.sym))
+          rep("(", params, ", ", ") => ")(id => pprint(id.sym))
       }
       pprint(term)
       str("}")
@@ -59,28 +76,8 @@ class TreePrinter(env: Env, index: DocumentIndex) extends Printer {
     case _ => sys.error(s"unsupported tree $tree")
   }
 
-  private def pprintName(sym: String): Unit = index.symbols.get(sym) match {
+  private def pprint(sym: String): Unit = index.symbols.get(sym) match {
     case Some(info) => str(info.name)
     case None => str(sym.desc.name)
-  }
-
-  private def pprintFqn(sym: String): Unit = {
-    if (sym.owner != Symbols.None) {
-      sym.owner.desc match {
-        case _: d.Package =>
-          pprintFqn(sym.owner)
-          str(".")
-        case _: d.Term =>
-          pprintFqn(sym.owner)
-          str(".")
-        case desc: d.Type =>
-          if (env.lookupThis(desc.name) == sym.owner) {
-            pprintName(sym.owner)
-            str(".this.")
-          } else str(".")
-        case desc => sys.error(s"unsupported desc $desc")
-      }
-    }
-    pprintName(sym)
   }
 }
