@@ -40,7 +40,7 @@ class TreePrinter(env: Env, index: DocumentIndex) extends Printer {
       pprint(qual)
       if (needsParens) str(")")
       str(".")
-      str(id.get.sym.desc.name)
+      pprint(id.get.sym)
     case s.IdTree(sym) =>
       sym.owner.desc match {
         case d.None =>
