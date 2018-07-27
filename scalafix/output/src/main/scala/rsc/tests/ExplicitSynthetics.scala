@@ -5,7 +5,7 @@ class ExplicitSynthetics_Test {
   val a = List.apply[_root_.scala.Int](1, 2, 3)
 
   List(1).map(_ + 2)(_root_.scala.collection.immutable.List.canBuildFrom[_root_.scala.Int])
-  Array.empty[Int](??? : _root_.scala.reflect.ClassTag[_root_.scala.Int]).headOption
+  Array.empty[Int](_root_.scala.reflect.package.materializeClassTag).headOption
   _root_.scala.Predef.augmentString("fooo").stripPrefix("o")
 
   val Name = _root_.scala.Predef.augmentString("name:(.*)").r

@@ -60,11 +60,8 @@ class SyntheticTreePrinter(
       }
       pprint(term)
       str("}")
-    case s.MacroExpansionTree(tpe) =>
-      val typePrinter = new TypePrinter(env)
-      typePrinter.pprint(tpe)
-      str("??? : ")
-      str(typePrinter.toString)
+    case s.MacroExpansionTree(expandee, _) =>
+      pprint(expandee)
     case _ => sys.error(s"unsupported tree $tree")
   }
 
