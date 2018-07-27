@@ -26,6 +26,7 @@ class TreePrinter(env: Env, index: DocumentIndex) extends Printer {
         str(typePrinter.toString)
       }
     case s.SelectTree(qual, id) =>
+      // FIXME: https://github.com/twitter/rsc/issues/142
       val needsParens = qual match {
         case s.OriginalTree(range) =>
           val originalTerm = index.substring(range).get.parse[Term].get
