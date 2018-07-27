@@ -58,12 +58,12 @@ class TreePrinter(env: Env, index: DocumentIndex) extends Printer {
     case _ => sys.error(s"unsupported tree $tree")
   }
 
-  def pprintName(sym: String): Unit = index.symbols.get(sym) match {
+  private def pprintName(sym: String): Unit = index.symbols.get(sym) match {
     case Some(info) => str(info.name)
     case None => str(sym.desc.name)
   }
 
-  def pprintFqn(sym: String): Unit = {
+  private def pprintFqn(sym: String): Unit = {
     if (sym.owner != Symbols.None) {
       sym.owner.desc match {
         case _: d.Package =>
