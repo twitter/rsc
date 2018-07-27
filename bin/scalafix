@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-# NOTE: Published from https://github.com/xeno-by/scalafix/pull/4
-VERSION="0.6.0-M12-patch1-1-9a805cea-SNAPSHOT"
+VERSION="0.6.0-M12-patch1-4-a631bf30-SNAPSHOT"
 CACHE="$HOME/.scalafix"
 COURSIER="$CACHE/coursier"
 SCALAFIX="$CACHE/scalafix-$VERSION"

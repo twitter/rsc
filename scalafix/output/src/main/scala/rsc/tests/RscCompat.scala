@@ -12,16 +12,17 @@ object RscCompat_Test {
     var x4: _root_.java.lang.String = ""
   }
 
-  // FIXME: https://github.com/twitter/rsc/issues/149
   class Patterns {
     val List() = List()
-    val List(x2) = List(2)
-    val List(x3, y3) = List(3, 3)
-    val x4, y4 = 4
+    val List((x2: _root_.scala.Int)) = List(2)
+    val List((x3: _root_.scala.Int), (y3: _root_.scala.Int)) = List(3, 3)
+    val (x4: _root_.scala.Int), (y4: _root_.scala.Int) = 4
+    val (x9: _root_.scala.Int) :: (y9: _root_.scala.collection.immutable.List[_root_.scala.Int]) = List(9, 9, 9)
     var List() = List()
-    var List(x6) = List(6)
-    var List(x7, y7) = List(7, 7)
-    var x8, y8 = 8
+    var List((x6: _root_.scala.Int)) = List(6)
+    var List((x7: _root_.scala.Int), (y7: _root_.scala.Int)) = List(7, 7)
+    var (x8: _root_.scala.Int), (y8: _root_.scala.Int) = 8
+    var (x10: _root_.scala.Int) :: (y10: _root_.scala.collection.immutable.List[_root_.scala.Int]) = List(10, 10, 10)
   }
 
   class Visibility {

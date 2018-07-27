@@ -5,6 +5,43 @@ package rsc.rules.syntax
 import scala.meta._
 
 trait Trees {
+  object InferredDefnField {
+    def unapply(tree: Defn): Option[(Name, Term)] = {
+      tree match {
+        case defn @ Defn.Val(_, List(Pat.Var(name)), None, body) =>
+          Some((name, body))
+        case defn @ Defn.Var(_, List(Pat.Var(name)), None, Some(body)) =>
+          Some((name, body))
+        case _ =>
+          None
+      }
+    }
+  }
+
+  object InferredDefnPat {
+    def unapply(tree: Defn): Option[(List[Name], Term)] = {
+      tree match {
+        case defn @ Defn.Val(_, pats, None, body) =>
+          Some((pats.flatMap(_.binders), body))
+        case defn @ Defn.Var(_, pats, None, Some(body)) =>
+          Some((pats.flatMap(_.binders), body))
+        case _ =>
+          None
+      }
+    }
+  }
+
+  object InferredDefnDef {
+    def unapply(tree: Defn): Option[(Name, Term)] = {
+      tree match {
+        case defn @ Defn.Def(_, name, _, _, None, body) =>
+          Some((name, body))
+        case _ =>
+          None
+      }
+    }
+  }
+
   implicit class DefnOps(defn: Defn) {
     def isVisible: Boolean = {
       defn match {
