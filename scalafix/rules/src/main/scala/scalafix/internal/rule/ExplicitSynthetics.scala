@@ -63,7 +63,7 @@ case class ExplicitSynthetics(index: SemanticdbIndex)
     def apply(): Patch = {
       rewriteTargets.map { target =>
         val treePrinter =
-          new SyntheticTreePrinter(target.env, doc.copy(text = ctx.input.text))
+          new TreePrinter(target.env, doc.copy(text = ctx.input.text))
         treePrinter.pprint(target.syntheticTree)
         ctx.replaceTree(target.sourceTree, treePrinter.toString)
       }.asPatch

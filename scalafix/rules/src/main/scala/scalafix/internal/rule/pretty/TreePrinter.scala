@@ -8,10 +8,7 @@ import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.internal.semanticdb.Scala._
 import scalafix.internal.rule.semantics.Env
 
-class SyntheticTreePrinter(
-    env: Env,
-    doc: s.TextDocument
-) extends Printer {
+class TreePrinter(env: Env, doc: s.TextDocument) extends Printer {
 
   private val rp = new BasePrinter(null, null, null) with RangePrinter {}
   import rp.DocumentOps
