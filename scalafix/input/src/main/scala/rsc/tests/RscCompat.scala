@@ -15,7 +15,6 @@ object RscCompat_Test {
     var x4 = ""
   }
 
-  // FIXME: https://github.com/twitter/rsc/issues/149
   class Patterns {
     val List() = List()
     val List(x2) = List(2)

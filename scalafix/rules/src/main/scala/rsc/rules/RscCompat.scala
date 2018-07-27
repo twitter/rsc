@@ -26,9 +26,11 @@ case class RscCompat(legacyIndex: SemanticdbIndex)
 
   private case class RewriteTarget(
       env: Env,
+      before: Token,
       name: Name,
       after: Token,
-      body: Term)
+      body: Term,
+      parens: Boolean)
 
   private def collectRewriteTargets(ctx: RuleCtx): List[RewriteTarget] = {
     val buf = List.newBuilder[RewriteTarget]
@@ -49,14 +51,18 @@ case class RscCompat(legacyIndex: SemanticdbIndex)
         case Template(early, _, _, stats) =>
           (early ++ stats).foreach(loop(env, _))
         case defn @ InferredDefnField(name, body) if defn.isVisible =>
+          val before = name.tokens.head
           val after = name.tokens.last
-          buf += RewriteTarget(env, name, after, body)
+          buf += RewriteTarget(env, before, name, after, body, parens = false)
         case defn @ InferredDefnPat(names, body) if defn.isVisible =>
           names.foreach { name =>
+            val before = name.tokens.head
             val after = name.tokens.last
-            buf += RewriteTarget(env, name, after, body)
+            // FIXME: https://github.com/twitter/rsc/issues/142
+            buf += RewriteTarget(env, before, name, after, body, parens = true)
           }
         case defn @ InferredDefnDef(name, body) if defn.isVisible =>
+          val before = name.tokens.head
           val after = {
             val start = name.tokens.head
             val end = body.tokens.head
@@ -65,7 +71,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex)
               .find(x => !x.is[Token.Equals] && !x.is[Trivia])
               .get
           }
-          buf += RewriteTarget(env, name, after, body)
+          buf += RewriteTarget(env, before, name, after, body, parens = false)
         case _ =>
           ()
       }
@@ -80,33 +86,40 @@ case class RscCompat(legacyIndex: SemanticdbIndex)
         case Term.ApplyType(Term.Name("implicitly"), _) =>
           Patch.empty
         case _ =>
-          val symbol = target.name.symbol.get.syntax
-          val outline = index.symbols(symbol).signature
-          val returnType = outline match {
-            case s.MethodSignature(_, _, _: s.ConstantType) =>
-              return Patch.empty
-            case s.MethodSignature(_, _, returnType) =>
-              returnType
-            case s.ValueSignature(tpe) =>
-              // FIXME: https://github.com/scalameta/scalameta/issues/1725
-              tpe
-            case other =>
-              val details = other.asMessage.toProtoString
-              sys.error(s"unsupported outline: $details")
+          val returnType = {
+            val symbol = target.name.symbol.get.syntax
+            val outline = index.symbols(symbol).signature
+            outline match {
+              case s.MethodSignature(_, _, _: s.ConstantType) =>
+                return Patch.empty
+              case s.MethodSignature(_, _, returnType) =>
+                returnType
+              case s.ValueSignature(tpe) =>
+                // FIXME: https://github.com/scalameta/scalameta/issues/1725
+                tpe
+              case other =>
+                val details = other.asMessage.toProtoString
+                sys.error(s"unsupported outline: $details")
+            }
           }
-          val ascription = {
-            val returnTypeString = {
+          val before = {
+            val parenOpt = if (target.parens) "(" else ""
+            ctx.addLeft(target.before, parenOpt)
+          }
+          val after = {
+            val whitespaceOpt = {
+              if (TokenOps.needsLeadingSpaceBeforeColon(target.after)) " "
+              else ""
+            }
+            val ascription = {
               val printer = new SemanticdbPrinter(target.env, index)
               printer.pprint(returnType)
-              printer.toString
+              s": ${printer.toString}"
             }
-            if (TokenOps.needsLeadingSpaceBeforeColon(target.after)) {
-              s" : $returnTypeString"
-            } else {
-              s": $returnTypeString"
-            }
+            val parenOpt = if (target.parens) ")" else ""
+            ctx.addRight(target.after, whitespaceOpt + ascription + parenOpt)
           }
-          ctx.addRight(target.after, ascription)
+          before + after
       }
     } catch {
       case ex: Throwable =>
