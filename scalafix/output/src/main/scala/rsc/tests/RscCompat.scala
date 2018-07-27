@@ -1,5 +1,6 @@
 package rsc.tests
 
+import com.twitter.bijection._
 import java.util.Base64
 import scala.language.existentials
 import scala.language.higherKinds
@@ -114,6 +115,9 @@ object RscCompat_Test {
   }
 
   implicit val x: Int = 42
+  trait In
+  trait Out
+  implicit val i2o: ImplicitBijection[In, Out] = ???
 
   class Bugs {
     val Either: _root_.scala.util.Either.type = scala.util.Either
@@ -145,7 +149,8 @@ object RscCompat_Test {
     val more2: _root_.scala.AnyRef { def foo(implicit x: _root_.scala.Int, y: _root_.scala.Int): _root_.scala.Int } = new { def foo(implicit x: Int, y: Int) = 42 }
     val more3: _root_.scala.AnyRef { def bar: _root_.scala.Int } = new { implicit def bar = 42 }
 
-    implicit val crazy = implicitly[Int]
+    implicit val crazy1 = implicitly[Int]
+    implicit val crazy2 = Bijection.connect[In, Out]
   }
 }
 

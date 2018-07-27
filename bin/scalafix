@@ -15,10 +15,10 @@ if [ ! -f $COURSIER ]; then
 fi
 
 if [ ! -f $SCALAFIX ]; then
-  $COURSIER bootstrap com.github.xenoby:scalafix-cli_2.11.12:$VERSION \\
-  -r https://oss.sonatype.org/content/repositories/snapshots \\
-  -r https://oss.sonatype.org/content/repositories/releases \\
-  --main scalafix.cli.Cli \\
+  $COURSIER bootstrap com.github.xenoby:scalafix-cli_2.11.12:$VERSION \
+  -r https://oss.sonatype.org/content/repositories/snapshots \
+  -r https://oss.sonatype.org/content/repositories/releases \
+  --main scalafix.cli.Cli \
   -o $SCALAFIX
 
   chmod +x $SCALAFIX

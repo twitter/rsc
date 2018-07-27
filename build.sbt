@@ -106,14 +106,16 @@ lazy val scalafixInput = project
   .in(file("scalafix/input"))
   .settings(
     commonSettings,
-    semanticdbSettings
+    semanticdbSettings,
+    libraryDependencies += "com.twitter" %% "bijection-core" % "0.9.5"
   )
 
 lazy val scalafixOutput = project
   .in(file("scalafix/output"))
   .settings(
     commonSettings,
-    semanticdbSettings
+    semanticdbSettings,
+    libraryDependencies += "com.twitter" %% "bijection-core" % "0.9.5"
   )
 
 lazy val scalafixRules = project

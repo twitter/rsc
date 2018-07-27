@@ -85,6 +85,10 @@ case class RscCompat(legacyIndex: SemanticdbIndex)
       target.body match {
         case Term.ApplyType(Term.Name("implicitly"), _) =>
           Patch.empty
+        case Term.ApplyType(
+            Term.Select(Term.Name("Bijection"), Term.Name("connect")),
+            _) =>
+          Patch.empty
         case _ =>
           val returnType = {
             val symbol = target.name.symbol.get.syntax
