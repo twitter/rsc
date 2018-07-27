@@ -72,7 +72,14 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
       pprint(term)
       str("}")
     case s.MacroExpansionTree(expandee, _) =>
-      pprint(expandee)
+      expandee match {
+        case s.ApplyTree(
+            s.IdTree("scala/reflect/package.materializeClassTag()."),
+            Nil) =>
+          str("_root_.scala.reflect.`package`.classTag")
+        case _ =>
+          pprint(expandee)
+      }
     case _ => sys.error(s"unsupported tree $tree")
   }
 
