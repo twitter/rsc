@@ -12,14 +12,33 @@ object RscCompat_Test {
     var x4: _root_.java.lang.String = ""
   }
 
+  // FIXME: https://github.com/twitter/rsc/issues/149
+  class Patterns {
+    val List() = List()
+    val List(x2) = List(2)
+    val List(x3, y3) = List(3, 3)
+    val x4, y4 = 4
+    var List() = List()
+    var List(x6) = List(6)
+    var List(x7, y7) = List(7, 7)
+    var x8, y8 = 8
+  }
+
   class Visibility {
-    private def x1: _root_.java.lang.String = ""
-    private[this] def x2: _root_.java.lang.String = ""
+    private def x1 = ""
+    private[this] def x2 = ""
     private[rsc] def x3: _root_.java.lang.String = ""
     protected def x4: _root_.java.lang.String = ""
     protected[this] def x5: _root_.java.lang.String = ""
     protected[rsc] def x6: _root_.java.lang.String = ""
   }
+
+  private class Private { def x1 = "" }
+  private[this] class PrivateThis { def x1 = "" }
+  private[rsc] class PrivateRsc { def x1: _root_.java.lang.String = "" }
+  protected class Protected { def x1: _root_.java.lang.String = "" }
+  protected[this] class ProtectedThis { def x1: _root_.java.lang.String = "" }
+  protected[rsc] class ProtectedRsc { def x1: _root_.java.lang.String = "" }
 
   object TypesHelpers {
     class C
@@ -127,4 +146,8 @@ object RscCompat_Test {
 
     implicit val crazy = implicitly[Int]
   }
+}
+
+private class RscCompat_Test {
+  def x1: _root_.java.lang.String = ""
 }

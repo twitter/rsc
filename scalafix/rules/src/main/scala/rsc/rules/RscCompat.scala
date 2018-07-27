@@ -6,6 +6,7 @@ package rsc.rules
 import java.io._
 import rsc.rules.pretty._
 import rsc.rules.semantics._
+import rsc.rules.syntax._
 import scala.meta._
 import scala.meta.contrib._
 import scala.meta.internal.{semanticdb => s}
@@ -17,28 +18,21 @@ import scalafix.syntax._
 import scalafix.util.TokenOps
 import scalafix.v0._
 
-// ============ Introduction ============
-//
-// RscCompat is a Scalafix rule that rewrites Scala codebases
-// to be compatible with Rsc. At the moment, it is far from perfect -
-// for details, see https://github.com/twitter/rsc/labels/Scalafix.
-
 case class RscCompat(legacyIndex: SemanticdbIndex)
     extends SemanticdbRule(legacyIndex, "RscCompat") {
   override def fix(ctx: RuleCtx): Patch = {
-    val targets = collectRewriteTargets(ctx.tree)
+    val targets = collectRewriteTargets(ctx)
     targets.map(ascribeReturnType(ctx, _)).asPatch
   }
 
-  private case class RewriteTarget(env: Env, name: Name, body: Term)
+  private case class RewriteTarget(env: Env, name: Name, tok: Token, body: Term)
 
-  private def collectRewriteTargets(tree: Tree): List[RewriteTarget] = {
+  private def collectRewriteTargets(ctx: RuleCtx): List[RewriteTarget] = {
     val buf = List.newBuilder[RewriteTarget]
-    def append(env: Env, name: Name, body: Term): Unit = {
-      buf += RewriteTarget(env, name, body)
+    def append(env: Env, name: Name, tok: Token, body: Term): Unit = {
+      buf += RewriteTarget(env, name, tok, body)
     }
     def loop(env: Env, tree: Tree): Unit = {
-      // FIXME: https://github.com/twitter/rsc/issues/140
       tree match {
         case Source(stats) =>
           stats.foreach(loop(env, _))
@@ -46,26 +40,38 @@ case class RscCompat(legacyIndex: SemanticdbIndex)
           stats.foreach(loop(env, _))
         case Pkg.Object(_, name, templ) =>
           loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
-        case Defn.Class(_, name, _, _, templ) =>
+        case defn @ Defn.Class(_, name, _, _, templ) if defn.isVisible =>
           loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
-        case Defn.Trait(_, name, _, _, templ) =>
+        case defn @ Defn.Trait(_, name, _, _, templ) if defn.isVisible =>
           loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
-        case Defn.Object(_, name, templ) =>
+        case defn @ Defn.Object(_, name, templ) if defn.isVisible =>
           loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
         case Template(early, _, _, stats) =>
           (early ++ stats).foreach(loop(env, _))
-        case Defn.Val(_, List(Pat.Var(name)), None, body) =>
-          append(env, name, body)
-        case Defn.Var(_, List(Pat.Var(name)), None, Some(body)) =>
-          append(env, name, body)
-        case Defn.Def(_, name, _, _, None, body) =>
-          append(env, name, body)
+        case defn @ Defn.Val(_, List(Pat.Var(name)), None, body)
+            if defn.isVisible =>
+          val tok = name.tokens.last
+          append(env, name, tok, body)
+        case defn @ Defn.Var(_, List(Pat.Var(name)), None, Some(body))
+            if defn.isVisible =>
+          val tok = name.tokens.last
+          append(env, name, tok, body)
+        case defn @ Defn.Def(_, name, _, _, None, body) if defn.isVisible =>
+          val tok = {
+            val start = name.tokens.head
+            val end = body.tokens.head
+            val slice = ctx.tokenList.slice(start, end)
+            slice.reverse
+              .find(x => !x.is[Token.Equals] && !x.is[Trivia])
+              .get
+          }
+          append(env, name, tok, body)
         case _ =>
           // FIXME: https://github.com/twitter/rsc/issues/149
           ()
       }
     }
-    loop(Env(Nil), tree)
+    loop(Env(Nil), ctx.tree)
     buf.result
   }
 
@@ -89,27 +95,19 @@ case class RscCompat(legacyIndex: SemanticdbIndex)
             case s.MethodSignature(_, _, _: s.ConstantType) =>
               Patch.empty
             case s.MethodSignature(_, _, returnType) =>
-              val token = {
-                val start = target.name.tokens.head
-                val end = target.body.tokens.head
-                val slice = ctx.tokenList.slice(start, end)
-                slice.reverse
-                  .find(x => !x.is[Token.Equals] && !x.is[Trivia])
-                  .get
-              }
               val ascription = {
                 val returnTypeString = {
                   val printer = new SemanticdbPrinter(target.env, index)
                   printer.pprint(returnType)
                   printer.toString
                 }
-                if (TokenOps.needsLeadingSpaceBeforeColon(token)) {
+                if (TokenOps.needsLeadingSpaceBeforeColon(target.tok)) {
                   s" : $returnTypeString"
                 } else {
                   s": $returnTypeString"
                 }
               }
-              ctx.addRight(token, ascription)
+              ctx.addRight(target.tok, ascription)
             case other =>
               val details = other.asMessage.toProtoString
               sys.error(s"unsupported outline: $details")
