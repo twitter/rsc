@@ -21,7 +21,6 @@ case class ExplicitSynthetics(index: SemanticdbIndex)
 
     val doc = index.asInstanceOf[DocSemanticdbIndex].doc.sdoc
     val synthetics = doc.synthetics.map(synth => synth.range.get -> synth).toMap
-    val syntheticRanges = synthetics.keySet
 
     case class RewriteTarget(env: Env, sourceTree: Tree, syntheticTree: s.Tree)
 
