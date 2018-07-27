@@ -120,7 +120,8 @@ lazy val scalafixRules = project
     commonSettings,
     publishableSettings,
     moduleName := "rsc-rules",
-    libraryDependencies += "com.github.xenoby" %% "scalafix-core" % V.scalafix
+    libraryDependencies += "com.github.xenoby" %% "scalafix-core" % V.scalafix,
+    libraryDependencies += "org.scalameta" %% "metap" % V.scalameta
   )
 
 lazy val scalafixTests = project
@@ -261,5 +262,5 @@ lazy val semanticdbSettings = Def.settings(
   scalacOptions += "-Yrangepos",
   scalacOptions += "-P:semanticdb:text:off",
   scalacOptions += "-P:semanticdb:symbols:on",
-  scalacOptions += "-P:semanticdb:synthetics:off"
+  scalacOptions += "-P:semanticdb:synthetics:on"
 )
