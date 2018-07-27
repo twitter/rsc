@@ -3,6 +3,7 @@ rules = "scala:rsc.rules.RscCompat"
  */
 package rsc.tests
 
+import com.twitter.bijection._
 import java.util.Base64
 import scala.language.existentials
 import scala.language.higherKinds
@@ -117,6 +118,9 @@ object RscCompat_Test {
   }
 
   implicit val x: Int = 42
+  trait In
+  trait Out
+  implicit val i2o: ImplicitBijection[In, Out] = ???
 
   class Bugs {
     val Either = scala.util.Either
@@ -148,7 +152,8 @@ object RscCompat_Test {
     val more2 = new { def foo(implicit x: Int, y: Int) = 42 }
     val more3 = new { implicit def bar = 42 }
 
-    implicit val crazy = implicitly[Int]
+    implicit val crazy1 = implicitly[Int]
+    implicit val crazy2 = Bijection.connect[In, Out]
   }
 }
 
