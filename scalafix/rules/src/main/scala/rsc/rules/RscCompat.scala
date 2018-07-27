@@ -99,7 +99,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex)
               }
               val ascription = {
                 val returnTypeString = {
-                  val printer = new TypePrinter(target.env, index)
+                  val printer = new SemanticdbPrinter(target.env, index)
                   printer.pprint(returnType)
                   printer.toString
                 }
