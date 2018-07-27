@@ -1,18 +1,19 @@
 // Copyright (c) 2017-2018 Twitter, Inc.
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 // NOTE: This file has been partially copy/pasted from scalameta/scalameta.
-package scalafix.internal.rule.pretty
+package rsc.rules.pretty
 
 import rsc.lexis._
 import rsc.pretty._
+import rsc.rules.semantics._
 import scala.collection.mutable
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
-import scalafix.internal.rule.semantics._
+import scalafix.v0._
 
-class TypePrinter(env: Env) extends Printer {
+class TypePrinter(env: Env, index: DocumentIndex) extends Printer {
   def pprint(tpe: s.Type): Unit = {
     def prefix(tpe: s.Type): Unit = {
       tpe match {
@@ -61,7 +62,7 @@ class TypePrinter(env: Env) extends Printer {
             if (needsParens) str(")")
           }
         case s.StructuralType(utpe, decls) =>
-          decls.infos.foreach(notes.append)
+          decls.infos.foreach(index.symbols.append)
           opt(utpe)(normal)
           if (decls.infos.nonEmpty) {
             rep(" { ", decls.infos, "; ", " }")(pprint)
@@ -76,13 +77,13 @@ class TypePrinter(env: Env) extends Printer {
           str(" ")
           rep(anns, " ", "")(pprint)
         case s.ExistentialType(utpe, decls) =>
-          decls.infos.foreach(notes.append)
+          decls.infos.foreach(index.symbols.append)
           opt(utpe)(normal)
           rep(" forSome { ", decls.infos, "; ", " }")(pprint)
         case s.UniversalType(tparams, utpe) =>
           // FIXME: https://github.com/twitter/rsc/issues/150
           str("({ type λ")
-          tparams.infos.foreach(notes.append)
+          tparams.infos.foreach(index.symbols.append)
           rep("[", tparams.infos, ", ", "] = ")(pprint)
           opt(utpe)(normal)
           str(" })#λ")
@@ -112,7 +113,7 @@ class TypePrinter(env: Env) extends Printer {
 
   private def pprint(sym: String): Unit = {
     val printableName = {
-      val sourceName = notes.get(sym).map(_.name)
+      val sourceName = index.symbols.get(sym).map(_.name)
       sourceName match {
         case Some(name) =>
           if (name == "") {
@@ -134,7 +135,7 @@ class TypePrinter(env: Env) extends Printer {
 
   private def pprint(info: s.SymbolInformation): Unit = {
     if (info.kind == k.METHOD && info.name.endsWith("_=")) return
-    notes.append(info)
+    index.symbols.append(info)
     rep(info.annotations, " ", " ")(pprint)
     if (info.has(p.COVARIANT)) str("+")
     if (info.has(p.CONTRAVARIANT)) str("-")
@@ -188,13 +189,6 @@ class TypePrinter(env: Env) extends Printer {
       case tpe =>
         pprint(tpe)
     }
-  }
-
-  private object notes {
-    private val map = mutable.Map[String, s.SymbolInformation]()
-    def append(info: s.SymbolInformation): Unit = map(info.symbol) = info
-    def apply(sym: String): s.SymbolInformation = map(sym)
-    def get(sym: String): Option[s.SymbolInformation] = map.get(sym)
   }
 
   private val gensymCache = mutable.Map[String, String]()

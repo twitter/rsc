@@ -1,16 +1,15 @@
 // Copyright (c) 2017-2018 Twitter, Inc.
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 // NOTE: This file has been partially copy/pasted from scalacenter/scalafix.
-package scalafix.internal.rule
+package rsc.rules
 
 import java.io._
+import rsc.rules.pretty._
+import rsc.rules.semantics._
 import scala.meta._
 import scala.meta.contrib._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala._
-import scalafix.internal.patch.DocSemanticdbIndex
-import scalafix.internal.rule.pretty._
-import scalafix.internal.rule.semantics._
 import scalafix.internal.util._
 import scalafix.lint.LintMessage
 import scalafix.rule._
@@ -24,8 +23,8 @@ import scalafix.v0._
 // to be compatible with Rsc. At the moment, it is far from perfect -
 // for details, see https://github.com/twitter/rsc/labels/Scalafix.
 
-case class RscCompat(index: SemanticdbIndex)
-    extends SemanticRule(index, "RscCompat") {
+case class RscCompat(legacyIndex: SemanticdbIndex)
+    extends SemanticdbRule(legacyIndex, "RscCompat") {
   override def fix(ctx: RuleCtx): Patch = {
     val targets = collectRewriteTargets(ctx.tree)
     targets.map(ascribeReturnType(ctx, _)).asPatch
@@ -84,10 +83,7 @@ case class RscCompat(index: SemanticdbIndex)
           val outline = {
             val symbol = target.name.symbol.get.syntax
             assert(symbol.isGlobal)
-            val docInfos =
-              index.asInstanceOf[DocSemanticdbIndex].doc.sdoc.symbols
-            val info = docInfos.find(_.symbol == symbol).get
-            info.signature
+            index.symbols(symbol).signature
           }
           outline match {
             case s.MethodSignature(_, _, _: s.ConstantType) =>
@@ -103,7 +99,7 @@ case class RscCompat(index: SemanticdbIndex)
               }
               val ascription = {
                 val returnTypeString = {
-                  val printer = new TypePrinter(target.env)
+                  val printer = new TypePrinter(target.env, index)
                   printer.pprint(returnType)
                   printer.toString
                 }

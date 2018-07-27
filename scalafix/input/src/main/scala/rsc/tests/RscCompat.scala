@@ -1,5 +1,5 @@
 /*
-rules = "scala:scalafix.internal.rule.RscCompat"
+rules = "scala:rsc.rules.RscCompat"
  */
 package rsc.tests
 

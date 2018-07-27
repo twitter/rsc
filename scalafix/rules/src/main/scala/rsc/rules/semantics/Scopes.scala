@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2018 Twitter, Inc.
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
-package scalafix.internal.rule.semantics
+package rsc.rules.semantics
 
 import scala.meta.internal.semanticdb.Scala._
 

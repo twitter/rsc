@@ -1,38 +1,38 @@
-package scalafix.internal.rule.pretty
+// Copyright (c) 2017-2018 Twitter, Inc.
+// Licensed under the Apache License, Version 2.0 (see LICENSE.md).
+package rsc.rules.pretty
 
 import scala.meta._
 import rsc.pretty._
+import rsc.rules.semantics._
 import scala.meta.internal.metap.{BasePrinter, RangePrinter}
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.internal.semanticdb.Scala._
-import scalafix.internal.rule.semantics.Env
+import scalafix.v0._
 
-class TreePrinter(env: Env, doc: s.TextDocument) extends Printer {
+class TreePrinter(env: Env, index: DocumentIndex) extends Printer {
 
   private val rp = new BasePrinter(null, null, null) with RangePrinter {}
   import rp.DocumentOps
 
-  val syms: Map[String, s.SymbolInformation] =
-    doc.symbols.map(info => info.symbol -> info).toMap
-
   def pprint(tree: s.Tree): Unit = tree match {
     case s.OriginalTree(range) =>
-      str(doc.substring(range).get)
+      str(index.doc.substring(range).get)
     case s.ApplyTree(fn, args) =>
       pprint(fn)
       rep("(", args, ", ", ")")(t => pprint(t))
     case s.TypeApplyTree(fn, targs) =>
       pprint(fn)
       rep("[", targs, ", ", "]") { t =>
-        val typePrinter = new TypePrinter(env)
+        val typePrinter = new TypePrinter(env, index)
         typePrinter.pprint(t)
         str(typePrinter.toString)
       }
     case s.SelectTree(qual, id) =>
       val needsParens = qual match {
         case s.OriginalTree(range) =>
-          val originalTerm = doc.substring(range).get.parse[Term].get
+          val originalTerm = index.doc.substring(range).get.parse[Term].get
           originalTerm match {
             case _: Term.ApplyInfix => true
             case _ => false
@@ -62,7 +62,7 @@ class TreePrinter(env: Env, doc: s.TextDocument) extends Printer {
     case _ => sys.error(s"unsupported tree $tree")
   }
 
-  def pprintName(sym: String): Unit = syms.get(sym) match {
+  def pprintName(sym: String): Unit = index.symbols.get(sym) match {
     case Some(info) => str(info.name)
     case None => str(sym.desc.name)
   }
