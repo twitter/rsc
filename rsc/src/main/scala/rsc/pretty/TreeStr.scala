@@ -578,7 +578,7 @@ class TreeStr(val p: Printer) {
       args.zip(parts.drop(1)).foreach {
         case (arg, part) =>
           p.str("$")
-          val needBraces = {
+          val needsBraces = {
             val simpleValue = arg match {
               case TermId(value) => Some(value)
               case PatVar(TermId(value), _) => Some(value)
@@ -592,7 +592,7 @@ class TreeStr(val p: Printer) {
                 true
             }
           }
-          if (needBraces) p.Braces(apply(arg))
+          if (needsBraces) p.Braces(apply(arg))
           else apply(arg)
           p.ignoringIndent(p.str(part))
       }
