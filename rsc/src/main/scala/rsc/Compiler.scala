@@ -73,7 +73,7 @@ class Compiler(val settings: Settings, val reporter: Reporter)
 
   private def tasks: List[(String, () => Unit)] = List(
     "parse" -> (() => parse()),
-    "link" -> (() => link()),
+    "index" -> (() => index()),
     "schedule" -> (() => schedule()),
     "outline" -> (() => outline()),
     "semanticdb" -> (() => semanticdb())
@@ -115,7 +115,7 @@ class Compiler(val settings: Settings, val reporter: Reporter)
     }
   }
 
-  private def link(): Unit = {
+  private def index(): Unit = {
     val rootScope = PackageScope(RootPackage, symtab._index)
     symtab.scopes(rootScope.sym) = rootScope
     todo.add(Env(), rootScope)
