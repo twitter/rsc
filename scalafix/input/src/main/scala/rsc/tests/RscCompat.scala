@@ -156,9 +156,15 @@ object RscCompat_Test {
     implicit val crazy2 = Bijection.connect[In, Out]
 
     val X, List(y) = List(1, 2)
+
+    val t = ??? : foo.T
   }
 }
 
 private class RscCompat_Test {
   def x1 = ""
+}
+
+package object foo {
+  class T
 }

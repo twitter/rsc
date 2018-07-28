@@ -153,9 +153,15 @@ object RscCompat_Test {
     implicit val crazy2 = Bijection.connect[In, Out]
 
     val X, List((y: _root_.scala.Int)): _root_.scala.collection.immutable.List[_root_.scala.Int] = List(1, 2)
+
+    val t: _root_.rsc.tests.foo.`package`.T = ??? : foo.T
   }
 }
 
 private class RscCompat_Test {
   def x1: _root_.java.lang.String = ""
+}
+
+package object foo {
+  class T
 }
