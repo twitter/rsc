@@ -8,8 +8,8 @@ import com.twitter.util.{Future, Promise, Return}
 
 object SpoolSource {
   private object DefaultInterruptHandler extends PartialFunction[Any, Nothing] {
-    def isDefinedAt(x: Any): _root_.scala.Boolean = false
-    def apply(x: Any): _root_.scala.Nothing = throw new MatchError(x)
+    def isDefinedAt(x: Any) = false
+    def apply(x: Any) = throw new MatchError(x)
   }
 }
 
@@ -21,14 +21,14 @@ object SpoolSource {
 class SpoolSource[A](interruptHandler: PartialFunction[Throwable, Unit]) {
   def this() = this(SpoolSource.DefaultInterruptHandler)
 
-  private val closedp: _root_.com.twitter.util.Promise[_root_.scala.Unit] = new Promise[Unit]
+  private val closedp = new Promise[Unit]
 
   // a reference to the current outstanding promise for the next Future[Spool[A]] result
-  private val promiseRef: _root_.java.util.concurrent.atomic.AtomicReference[_root_.com.twitter.util.Promise[_root_.com.twitter.concurrent.Spool[A]]] = new AtomicReference[Promise[Spool[A]]]
+  private val promiseRef = new AtomicReference[Promise[Spool[A]]]
 
   // when the SpoolSource is closed, promiseRef will be permanently set to emptyPromise,
   // which always returns an empty spool.
-  private val emptyPromise: _root_.com.twitter.util.Promise[_root_.com.twitter.concurrent.Spool[A]] = new Promise(Return(Spool.empty[A]))
+  private val emptyPromise = new Promise(Return(Spool.empty[A]))
 
   // set the first promise to be fulfilled by the first call to offer()
   promiseRef.set({

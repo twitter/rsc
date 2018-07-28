@@ -7,9 +7,9 @@ import scala.reflect.ClassTag
  * when the stack is full, the oldest element gets dropped off the bottom.
  */
 class BoundedStack[A: ClassTag](val maxSize: Int) extends Seq[A] {
-  private val array: _root_.scala.Array[A] = new Array[A](maxSize)
-  private var top: _root_.scala.Int = 0
-  private var count_ : _root_.scala.Int = 0
+  private val array = new Array[A](maxSize)
+  private var top = 0
+  private var count_ = 0
 
   def length: _root_.scala.Int = count_
   override def size: _root_.scala.Int = count_

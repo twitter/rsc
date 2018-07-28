@@ -129,7 +129,7 @@ object Var {
    */
   private[util] class Observer[-T](observe: T => Unit) {
     private[this] var thisOwner: AnyRef = null
-    private[this] var thisVersion: _root_.scala.Long = Long.MinValue
+    private[this] var thisVersion = Long.MinValue
 
     /**
      * Claim this observer with owner `newOwner`. Claiming
@@ -453,8 +453,8 @@ private[util] class UpdatableVar[T](init: T) extends Var[T] with Updatable[T] wi
   import UpdatableVar._
   import Var.Observer
 
-  private[this] val n: _root_.java.util.concurrent.atomic.AtomicLong = new AtomicLong(0)
-  private[this] val state: _root_.java.util.concurrent.atomic.AtomicReference[_root_.com.twitter.util.UpdatableVar.State[T]] = new AtomicReference(State[T](init, 0, immutable.SortedSet.empty))
+  private[this] val n = new AtomicLong(0)
+  private[this] val state = new AtomicReference(State[T](init, 0, immutable.SortedSet.empty))
 
   @tailrec
   private[this] def cas(next: State[T] => State[T]): State[T] = {

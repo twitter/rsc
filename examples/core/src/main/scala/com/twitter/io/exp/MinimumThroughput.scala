@@ -11,9 +11,9 @@ import scala.util.control.NoStackTrace
  */
 object MinimumThroughput {
 
-  private val BpsNoElapsed: _root_.scala.Double = -1d
+  private val BpsNoElapsed = -1d
 
-  private val MinDeadline: _root_.com.twitter.util.Duration = 1.second
+  private val MinDeadline = 1.second
 
   /** internal marker used to raise on read/write timeouts. */
   private case object MinThroughputTimeoutException extends Exception with NoStackTrace
@@ -24,8 +24,8 @@ object MinimumThroughput {
     // we rely on the `reader.read` and `writer.write` contract that only
     // one read or write can ever be outstanding, so volatile provides
     // us thread-safety.
-    @volatile protected[this] var bytes: _root_.scala.Long = 0L
-    @volatile protected[this] var elapsed: _root_.com.twitter.util.Duration = Duration.Zero
+    @volatile protected[this] var bytes = 0L
+    @volatile protected[this] var elapsed = Duration.Zero
 
     /** Calculate and return the current bps */
     def bps: Double = {

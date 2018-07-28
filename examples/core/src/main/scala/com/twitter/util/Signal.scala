@@ -43,10 +43,10 @@ object SunSignalHandler {
 }
 
 class SunSignalHandler extends SignalHandler {
-  private val signalHandlerClass: _root_.java.lang.Class[T1] forSome { type T1 } = Class.forName("sun.misc.SignalHandler")
-  private val signalClass: _root_.java.lang.Class[T1] forSome { type T1 } = Class.forName("sun.misc.Signal")
-  private val handleMethod: _root_.java.lang.reflect.Method = signalClass.getMethod("handle", signalClass, signalHandlerClass)
-  private val nameMethod: _root_.java.lang.reflect.Method = signalClass.getMethod("getName")
+  private val signalHandlerClass = Class.forName("sun.misc.SignalHandler")
+  private val signalClass = Class.forName("sun.misc.Signal")
+  private val handleMethod = signalClass.getMethod("handle", signalClass, signalHandlerClass)
+  private val nameMethod = signalClass.getMethod("getName")
 
   def handle(signal: String, handlers: Map[String, Set[String => Unit]]): Unit = {
     val sunSignal =
@@ -73,7 +73,7 @@ class SunSignalHandler extends SignalHandler {
 }
 
 object HandleSignal {
-  private val handlers: _root_.scala.collection.mutable.HashMap[_root_.scala.Predef.String, _root_.scala.collection.mutable.Set[_root_.scala.Function1[_root_.scala.Predef.String, _root_.scala.Unit]]] = new mutable.HashMap[String, mutable.Set[String => Unit]]()
+  private val handlers = new mutable.HashMap[String, mutable.Set[String => Unit]]()
 
   /**
    * Set the callback function for a named unix signal.

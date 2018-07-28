@@ -53,13 +53,13 @@ class AsyncSemaphore protected (initialPermits: Int, maxWaiters: Option[Int]) {
   // access to `closed`, `waitq`, and `availablePermits` is synchronized
   // by locking on `lock`
   private[this] var closed: Option[Throwable] = None
-  private[this] val waitq: _root_.java.util.ArrayDeque[_root_.com.twitter.util.Promise[_root_.com.twitter.concurrent.Permit]] = new ArrayDeque[Promise[Permit]]
-  private[this] var availablePermits: _root_.scala.Int = initialPermits
+  private[this] val waitq = new ArrayDeque[Promise[Permit]]
+  private[this] var availablePermits = initialPermits
 
   // Serves as our intrinsic lock.
   private[this] final def lock: Object = waitq
 
-  private[this] val semaphorePermit: _root_.scala.AnyRef with _root_.com.twitter.concurrent.Permit = new Permit {
+  private[this] val semaphorePermit = new Permit {
     private[this] val ReturnThis = Return(this)
 
     @tailrec override def release(): Unit = {
@@ -81,7 +81,7 @@ class AsyncSemaphore protected (initialPermits: Int, maxWaiters: Option[Int]) {
     }
   }
 
-  private[this] val futurePermit: _root_.com.twitter.util.Future[_root_.scala.AnyRef with _root_.com.twitter.concurrent.Permit] = Future.value(semaphorePermit)
+  private[this] val futurePermit = Future.value(semaphorePermit)
 
   def numWaiters: Int = lock.synchronized(waitq.size)
   def numInitialPermits: Int = initialPermits
@@ -185,6 +185,6 @@ class AsyncSemaphore protected (initialPermits: Int, maxWaiters: Option[Int]) {
 }
 
 object AsyncSemaphore {
-  private val MaxWaitersExceededException: _root_.com.twitter.util.Future[_root_.scala.Nothing] =
+  private val MaxWaitersExceededException =
     Future.exception(new RejectedExecutionException("Max waiters exceeded"))
 }

@@ -10,22 +10,22 @@ object Base64Long {
   /**
    * The bit width of a base-64 digit.
    */
-  private[this] val DigitWidth: _root_.scala.Int = 6
+  private[this] val DigitWidth = 6
 
   /**
    * The number of characters in the base 64 alphabet.
    */
-  private[this] val AlphabetSize: _root_.scala.Int = 1 << DigitWidth
+  private[this] val AlphabetSize = 1 << DigitWidth
 
   /**
    * Mask for the least-significant digit.
    */
-  private[this] val DigitMask: _root_.scala.Int = AlphabetSize - 1
+  private[this] val DigitMask = AlphabetSize - 1
 
   /**
    * The amount to shift right for the first base-64 digit in a Long.
    */
-  private[this] val StartingBitPosition: _root_.scala.Int =
+  private[this] val StartingBitPosition =
     AlphabetSize - (AlphabetSize % DigitWidth)
 
   /**
@@ -50,7 +50,7 @@ object Base64Long {
   /**
    * Enable re-use of the StringBuilder for toBase64(Long): String
    */
-  private[this] val threadLocalBuilder: _root_.java.lang.ThreadLocal[_root_.scala.`package`.StringBuilder] = new ThreadLocal[StringBuilder] {
+  private[this] val threadLocalBuilder = new ThreadLocal[StringBuilder] {
     override def initialValue = new StringBuilder
   }
 
@@ -120,7 +120,7 @@ object Base64Long {
     }
   }
 
-  private[this] val StandardBase64AlphabetInverted: _root_.scala.PartialFunction[_root_.scala.Char, _root_.scala.Int] =
+  private[this] val StandardBase64AlphabetInverted =
     invertAlphabet(StandardBase64Alphabet)
 
   /**

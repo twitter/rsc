@@ -797,7 +797,7 @@ object Local {
    * and access are considered verboten.
    */
 
-  private[this] val localCtx: _root_.java.lang.ThreadLocal[_root_.com.twitter.util.Local.Context] = new ThreadLocal[Context] {
+  private[this] val localCtx = new ThreadLocal[Context] {
     override def initialValue(): Context = Context.empty
   }
 
@@ -876,7 +876,7 @@ object Local {
  * restore optimizations are dominant.
  */
 final class Local[T] {
-  private[this] val key: _root_.com.twitter.util.Local.Key = new Local.Key
+  private[this] val key = new Local.Key
 
   /**
    * Update the Local with a given value.

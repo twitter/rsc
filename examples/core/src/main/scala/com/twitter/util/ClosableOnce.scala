@@ -12,8 +12,8 @@ import scala.util.control.NonFatal
 trait ClosableOnce extends Closable {
 
   // Our intrinsic lock for mutating the `closed` field
-  private[this] val closePromise: _root_.com.twitter.util.Promise[_root_.scala.Unit] = Promise[Unit]()
-  private[this] var closed: _root_.scala.Boolean = false
+  private[this] val closePromise = Promise[Unit]()
+  private[this] var closed = false
 
   private[this] def once(): Boolean = closePromise.synchronized {
     if (closed) {

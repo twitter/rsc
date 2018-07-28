@@ -31,7 +31,7 @@ trait Monitor { self =>
    */
   def handle(exc: Throwable): Boolean
 
-  private[this] val someSelf: _root_.scala.Some[_root_.com.twitter.util.Monitor] = Some(self)
+  private[this] val someSelf = Some(self)
 
   /**
    * Run `f` inside of the monitor context. If `f` throws
@@ -106,7 +106,7 @@ abstract class AbstractMonitor extends Monitor
  * Java users should use the `Monitors` class.
  */
 object Monitor extends Monitor {
-  private[this] val local: _root_.com.twitter.util.Local[_root_.com.twitter.util.Monitor] = new Local[Monitor]
+  private[this] val local = new Local[Monitor]
 
   /**
    * Get the current [[Local]] monitor or a [[NullMonitor]]
@@ -203,7 +203,7 @@ object Monitor extends Monitor {
   def handle(exc: Throwable): Boolean =
     get.orElse(RootMonitor).handle(exc)
 
-  private[this] val AlwaysFalse: _root_.scala.Function1[_root_.scala.Any, _root_.scala.Boolean] = scala.Function.const(false) _
+  private[this] val AlwaysFalse = scala.Function.const(false) _
 
   /**
    * Create a new monitor from a partial function.
@@ -237,8 +237,8 @@ object NullMonitor extends Monitor {
 }
 
 object RootMonitor extends Monitor {
-  private[this] val log: _root_.java.util.logging.Logger = Logger.getLogger("monitor")
-  private[this] val root: _root_.com.twitter.util.Monitor = Monitor.mk {
+  private[this] val log = Logger.getLogger("monitor")
+  private[this] val root = Monitor.mk {
     case control.NonFatal(e) =>
       log.log(Level.SEVERE, "Exception propagated to the root monitor!", e)
       true /* Never propagate non fatal exception */

@@ -95,7 +95,7 @@ class RichU64String(string: String) {
 
 @deprecated("Use Java 8 unsigned Long APIs instead", "2018-02-13")
 object U64 {
-  private val bigInt0x8000000000000000L: _root_.scala.math.BigInt = (0x7FFFFFFFFFFFFFFFL: BigInt) + 1
+  private val bigInt0x8000000000000000L = (0x7FFFFFFFFFFFFFFFL: BigInt) + 1
 
   val U64MAX: _root_.scala.Long = 0xFFFFFFFFFFFFFFFFL
   val U64MIN: _root_.scala.Long = 0L

@@ -44,7 +44,7 @@ abstract class AbstractClosable extends Closable
  * Note: There is a Java-friendly API for this object: `com.twitter.util.Closables`.
  */
 object Closable {
-  private[this] val logger: _root_.java.util.logging.Logger = Logger.getLogger("")
+  private[this] val logger = Logger.getLogger("")
 
   /** Provide Java access to the [[com.twitter.util.Closable]] mixin. */
   def close(o: AnyRef): Future[Unit] = o match {
@@ -155,10 +155,10 @@ object Closable {
     def close(deadline: Time): Future[Unit] = r.getAndSet(nop).close(deadline)
   }
 
-  private val refs: _root_.java.util.HashMap[_root_.java.lang.ref.Reference[_root_.java.lang.Object], _root_.com.twitter.util.Closable] = new ju.HashMap[Reference[Object], Closable]
-  private val refq: _root_.java.lang.ref.ReferenceQueue[_root_.java.lang.Object] = new ReferenceQueue[Object]
+  private val refs = new ju.HashMap[Reference[Object], Closable]
+  private val refq = new ReferenceQueue[Object]
 
-  private val collectorThread: _root_.java.lang.Thread = new Thread("CollectClosables") {
+  private val collectorThread = new Thread("CollectClosables") {
     override def run(): Unit = {
       while (true) {
         try {

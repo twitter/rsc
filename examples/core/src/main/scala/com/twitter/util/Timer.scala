@@ -165,7 +165,7 @@ trait ReferenceCountedTimer extends Timer {
 }
 
 class ReferenceCountingTimer(factory: () => Timer) extends ProxyTimer with ReferenceCountedTimer {
-  private[this] var refcount: _root_.scala.Int = 0
+  private[this] var refcount = 0
   private[this] var underlying: Timer = null
 
   protected def self: Timer = underlying
@@ -215,7 +215,7 @@ class JavaTimer(isDaemon: Boolean, name: Option[String]) extends Timer {
     case None => super.toString
   }
 
-  private[this] val underlying: _root_.java.util.Timer = name match {
+  private[this] val underlying = name match {
     case Some(n) => new java.util.Timer(n, isDaemon)
     case None => new java.util.Timer(isDaemon)
   }
@@ -260,11 +260,11 @@ class JavaTimer(isDaemon: Boolean, name: Option[String]) extends Timer {
     t.printStackTrace(System.err)
   }
 
-  private[this] final def toJavaTimerTask(f: => Unit): _root_.java.util.TimerTask = new java.util.TimerTask {
+  private[this] final def toJavaTimerTask(f: => Unit) = new java.util.TimerTask {
     def run(): Unit = f
   }
 
-  private[this] final def toTimerTask(task: java.util.TimerTask): _root_.scala.AnyRef with _root_.com.twitter.util.TimerTask = new TimerTask {
+  private[this] final def toTimerTask(task: java.util.TimerTask) = new TimerTask {
     def cancel(): Unit = task.cancel()
   }
 }
@@ -284,7 +284,7 @@ class ScheduledThreadPoolTimer(
   def this(poolSize: Int = 2, name: String = "timer", makeDaemons: Boolean = false) =
     this(poolSize, new NamedPoolThreadFactory(name, makeDaemons), None)
 
-  private[this] val underlying: _root_.java.util.concurrent.ScheduledThreadPoolExecutor = rejectedExecutionHandler match {
+  private[this] val underlying = rejectedExecutionHandler match {
     case None =>
       new ScheduledThreadPoolExecutor(poolSize, threadFactory)
     case Some(h: RejectedExecutionHandler) =>

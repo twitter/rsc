@@ -9,8 +9,8 @@ object Memoize {
   // A CountDownLatch that may not be awaited on by the thread that constructs it.
   // Used to catch reentrant calls to Snappable apply which would deadlock the thread.
   private[this] class GuardedCountDownLatch(count: Int) {
-    private[this] val owner: _root_.java.lang.Thread = Thread.currentThread
-    private[this] val underlying: _root_.java.util.concurrent.CountDownLatch = new JCountDownLatch(count)
+    private[this] val owner = Thread.currentThread
+    private[this] val underlying = new JCountDownLatch(count)
 
     def countDown(): Unit = underlying.countDown()
 

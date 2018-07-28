@@ -14,7 +14,7 @@ class SimplePool[A](items: mutable.Queue[Future[A]]) extends Pool[A] {
     queue
   }
 
-  private val requests: _root_.scala.collection.mutable.Queue[_root_.com.twitter.util.Promise[A]] = new mutable.Queue[Promise[A]]
+  private val requests = new mutable.Queue[Promise[A]]
 
   def reserve(): Future[A] = synchronized {
     if (items.isEmpty) {
@@ -41,8 +41,8 @@ class SimplePool[A](items: mutable.Queue[Future[A]]) extends Pool[A] {
 }
 
 abstract class FactoryPool[A](numItems: Int) extends Pool[A] {
-  private val healthyQueue: _root_.com.twitter.util.HealthyQueue[A] = new HealthyQueue[A](makeItem, numItems, isHealthy)
-  private val simplePool: _root_.com.twitter.util.SimplePool[A] = new SimplePool[A](healthyQueue)
+  private val healthyQueue = new HealthyQueue[A](makeItem, numItems, isHealthy)
+  private val simplePool = new SimplePool[A](healthyQueue)
 
   def reserve(): Future[A] = simplePool.reserve()
   def release(a: A): Unit = simplePool.release(a)

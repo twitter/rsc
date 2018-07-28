@@ -177,7 +177,7 @@ object Duration extends TimeLikeOps[Duration] {
     private def writeReplace(): Object = DurationBox.Undefined()
   }
 
-  private val timeUnits: _root_.scala.collection.Seq[_root_.java.util.concurrent.TimeUnit] = Seq(
+  private val timeUnits = Seq(
     TimeUnit.DAYS,
     TimeUnit.HOURS,
     TimeUnit.MINUTES,
@@ -197,10 +197,10 @@ object Duration extends TimeLikeOps[Duration] {
       }
       .toMap
 
-  private val SingleDurationRegex: _root_.scala.util.matching.Regex =
+  private val SingleDurationRegex =
     """\s*([+-]?)\s*(?:([0-9]+)\.([a-z]+)|duration\.(top|bottom|undefined))""".r
 
-  private val FullDurationRegex: _root_.scala.util.matching.Regex = ("(" + SingleDurationRegex.pattern.pattern + """)+\s*""").r
+  private val FullDurationRegex = ("(" + SingleDurationRegex.pattern.pattern + """)+\s*""").r
 
   /**
    * Parse a String representation of a duration. This method will

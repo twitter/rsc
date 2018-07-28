@@ -135,8 +135,8 @@ private[concurrent] object LocalScheduler {
       with Iterator[Runnable] {
 
     private[this] var r0, r1, r2: Runnable = null
-    private[this] val rs: _root_.java.util.ArrayDeque[_root_.java.lang.Runnable] = new ArrayDeque[Runnable]
-    private[this] var running: _root_.scala.Boolean = false
+    private[this] val rs = new ArrayDeque[Runnable]
+    private[this] var running = false
 
     @volatile var numDispatches: _root_.scala.Long = 0L
     @volatile var blockingNanos: _root_.scala.Long = 0L
@@ -233,9 +233,9 @@ class LocalScheduler(lifo: Boolean) extends Scheduler {
 
   // use weak refs to prevent Activations from causing a memory leak
   // thread-safety provided by synchronizing on `activations`
-  private[this] val activations: _root_.scala.collection.mutable.WeakHashMap[_root_.com.twitter.concurrent.LocalScheduler.Activation, _root_.scala.Boolean] = new mutable.WeakHashMap[Activation, Boolean]()
+  private[this] val activations = new mutable.WeakHashMap[Activation, Boolean]()
 
-  private[this] val local: _root_.java.lang.ThreadLocal[_root_.com.twitter.concurrent.LocalScheduler.Activation] = new ThreadLocal[Activation]()
+  private[this] val local = new ThreadLocal[Activation]()
 
   private[this] val sampleBlockingFraction: Double =
     try {
@@ -357,7 +357,7 @@ class BridgedThreadPoolScheduler(
   val executorFactory: ThreadFactory => ExecutorService
 ) extends Scheduler
     with ExecutorScheduler {
-  private[this] val local: _root_.com.twitter.concurrent.LocalScheduler = new LocalScheduler
+  private[this] val local = new LocalScheduler
 
   def this(name: String) = this(name, Executors.newCachedThreadPool(_))
 

@@ -4,7 +4,7 @@ import java.io.InputStream
 
 class BufInputStream(val buf: Buf) extends InputStream {
 
-  private[this] val length: _root_.scala.Int = buf.length
+  private[this] val length = buf.length
 
   /**
    * The index of the next byte to be read.

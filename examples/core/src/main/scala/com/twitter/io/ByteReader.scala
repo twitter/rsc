@@ -296,9 +296,9 @@ object ByteReader {
 private class ByteReaderImpl(buf: Buf) extends ByteReader {
   import ByteReader._
 
-  private[this] val len: _root_.scala.Int = buf.length
+  private[this] val len = buf.length
 
-  private[this] var pos: _root_.scala.Int = 0
+  private[this] var pos = 0
 
   def remaining: Int = len - pos
 

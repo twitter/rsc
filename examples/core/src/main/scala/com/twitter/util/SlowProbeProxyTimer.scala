@@ -31,7 +31,7 @@ abstract class SlowProbeProxyTimer(maxRuntime: Duration) extends ProxyTimer {
   protected def slowTaskExecuting(elapsed: Duration): Unit
 
   @volatile
-  private[this] var lastStartAt: _root_.com.twitter.util.Time = Time.Top
+  private[this] var lastStartAt = Time.Top
 
   // let another thread check if the timer thread has been slow.
   // while this could be the timer thread scheduling more work,

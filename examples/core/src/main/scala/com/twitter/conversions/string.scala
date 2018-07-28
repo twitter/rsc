@@ -63,7 +63,7 @@ object string {
       out.toString
     }
 
-    private val QUOTE_RE: _root_.scala.util.matching.Regex = "[\u0000-\u001f\u007f-\uffff\\\\\"]".r
+    private val QUOTE_RE = "[\u0000-\u001f\u007f-\uffff\\\\\"]".r
 
     /**
      * Quote a string so that unprintable chars (in ASCII) are represented by
@@ -94,7 +94,7 @@ object string {
     }
 
     // we intentionally don't unquote "\$" here, so it can be used to escape interpolation later.
-    private val UNQUOTE_RE: _root_.scala.util.matching.Regex = """\\(u[\dA-Fa-f]{4}|x[\dA-Fa-f]{2}|[/rnt\"\\])""".r
+    private val UNQUOTE_RE = """\\(u[\dA-Fa-f]{4}|x[\dA-Fa-f]{2}|[/rnt\"\\])""".r
 
     /**
      * Unquote an ASCII string that has been quoted in a style like

@@ -9,7 +9,7 @@ object TempDirectory {
   /**
    * A thread-safe queue of temp directories to be cleaned up on JVM Shutdown
    */
-  private[this] val dirs: _root_.java.util.concurrent.ConcurrentLinkedQueue[_root_.java.io.File] = new ConcurrentLinkedQueue[File]()
+  private[this] val dirs = new ConcurrentLinkedQueue[File]()
 
   Runtime.getRuntime.addShutdownHook(new Thread {
     override def run(): Unit = {

@@ -66,7 +66,7 @@ object TempFile {
         file
     }
 
-  private[this] def parsePath(path: String): _root_.scala.Tuple2[_root_.scala.Predef.String, _root_.java.lang.String] =
+  private[this] def parsePath(path: String) =
     path.split(File.separatorChar).last.split('.').reverse match {
       case Array(basename) => (basename, "")
       case Array(ext, base @ _*) => (base.reverse.mkString("."), ext)

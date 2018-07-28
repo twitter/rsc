@@ -296,10 +296,10 @@ object Spool {
   }
 
   private class LazyCons[A](val head: A, next: => Future[Spool[A]]) extends Spool[A] {
-    def isEmpty: _root_.scala.Boolean = false
-    lazy val tail: _root_.com.twitter.util.Future[_root_.com.twitter.concurrent.Spool[A]] = next
+    def isEmpty = false
+    lazy val tail = next
     // NB: not touching tail, to avoid forcing unnecessarily
-    override def toString: _root_.scala.Predef.String = "Cons(%s, ?)".format(head)
+    override def toString = "Cons(%s, ?)".format(head)
   }
 
   object Empty extends Spool[Nothing] {

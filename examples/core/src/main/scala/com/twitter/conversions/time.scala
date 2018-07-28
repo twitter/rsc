@@ -39,7 +39,7 @@ object time {
     def day: Duration = days
   }
 
-  private val ZeroRichWholeNumber: _root_.com.twitter.conversions.time.RichWholeNumber = new RichWholeNumber(0) {
+  private val ZeroRichWholeNumber = new RichWholeNumber(0) {
     override def nanoseconds: Duration = Duration.Zero
     override def microseconds: Duration = Duration.Zero
     override def milliseconds: Duration = Duration.Zero

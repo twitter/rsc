@@ -504,7 +504,7 @@ object Witness {
  */
 class WitnessedEvent[T] extends Event[T] with Witness[T] {
 
-  private[this] val underlying: _root_.com.twitter.util.Event[T] with _root_.com.twitter.util.Witness[T] = Event[T]()
+  private[this] val underlying = Event[T]()
 
   def register(s: Witness[T]): Closable = underlying.register(s)
 
