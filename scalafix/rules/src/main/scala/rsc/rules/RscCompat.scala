@@ -4,6 +4,7 @@
 package rsc.rules
 
 import java.io._
+import metaconfig._
 import rsc.rules.pretty._
 import rsc.rules.semantics._
 import rsc.rules.syntax._
@@ -17,8 +18,18 @@ import scalafix.syntax._
 import scalafix.util.TokenOps
 import scalafix.v0._
 
-case class RscCompat(legacyIndex: SemanticdbIndex)
+case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
     extends SemanticdbRule(legacyIndex, "RscCompat") {
+  def this(legacyIndex: SemanticdbIndex) = {
+    this(legacyIndex, RscCompatConfig.default)
+  }
+
+  override def init(config: Conf): Configured[Rule] = {
+    config
+      .getOrElse("rscCompat", "RscCompat")(RscCompatConfig.default)
+      .map(RscCompat(legacyIndex, _))
+  }
+
   override def fix(ctx: RuleCtx): Patch = {
     val targets = collectRewriteTargets(ctx)
     targets.map(ascribeReturnType(ctx, _)).asPatch
@@ -103,40 +114,48 @@ case class RscCompat(legacyIndex: SemanticdbIndex)
             _) =>
           Patch.empty
         case _ =>
-          val returnType = {
+          val returnTypeString = {
             val symbol = target.name.symbol.get.syntax
-            val outline = index.symbols(symbol).signature
-            outline match {
-              case s.MethodSignature(_, _, _: s.ConstantType) =>
-                return Patch.empty
-              case s.MethodSignature(_, _, returnType) =>
-                returnType
-              case s.ValueSignature(tpe) =>
-                // FIXME: https://github.com/scalameta/scalameta/issues/1725
-                tpe
-              case other =>
-                val details = other.asMessage.toProtoString
-                sys.error(s"unsupported outline: $details")
+            config.hardcoded.get(symbol) match {
+              case Some(returnTypeString) =>
+                returnTypeString
+              case _ =>
+                val outline = index.symbols(symbol).signature
+                val returnType = outline match {
+                  case s.MethodSignature(_, _, _: s.ConstantType) =>
+                    return Patch.empty
+                  case s.MethodSignature(_, _, returnType) =>
+                    returnType
+                  case s.ValueSignature(tpe) =>
+                    // FIXME: https://github.com/scalameta/scalameta/issues/1725
+                    tpe
+                  case other =>
+                    val details = other.asMessage.toProtoString
+                    sys.error(s"unsupported outline: $details")
+                }
+                val printer = new SemanticdbPrinter(target.env, index)
+                printer.pprint(returnType)
+                printer.toString
             }
           }
-          val before = {
-            val lparenOpt = if (target.parens) "(" else ""
-            ctx.addLeft(target.before, lparenOpt)
-          }
-          val after = {
-            val whitespaceOpt = {
-              if (TokenOps.needsLeadingSpaceBeforeColon(target.after)) " "
-              else ""
+          if (returnTypeString.nonEmpty) {
+            val before = {
+              val lparenOpt = if (target.parens) "(" else ""
+              ctx.addLeft(target.before, lparenOpt)
             }
-            val ascription = {
-              val printer = new SemanticdbPrinter(target.env, index)
-              printer.pprint(returnType)
-              s": ${printer.toString}"
+            val after = {
+              val whitespaceOpt = {
+                if (TokenOps.needsLeadingSpaceBeforeColon(target.after)) " "
+                else ""
+              }
+              val ascription = s": $returnTypeString"
+              val rparenOpt = if (target.parens) ")" else ""
+              ctx.addRight(target.after, whitespaceOpt + ascription + rparenOpt)
             }
-            val rparenOpt = if (target.parens) ")" else ""
-            ctx.addRight(target.after, whitespaceOpt + ascription + rparenOpt)
+            before + after
+          } else {
+            Patch.empty
           }
-          before + after
       }
     } catch {
       case ex: Throwable =>

@@ -1,5 +1,9 @@
 /*
 rules = "scala:rsc.rules.RscCompat"
+RscCompat.hardcoded = {
+  "rsc/tests/RscCompat_Test.Config.x.": "Int",
+  "rsc/tests/RscCompat_Test.Config.y.": ""
+}
  */
 package rsc.tests
 
@@ -44,6 +48,11 @@ object RscCompat_Test {
   protected class Protected { def x1 = "" }
   protected[this] class ProtectedThis { def x1 = "" }
   protected[rsc] class ProtectedRsc { def x1 = "" }
+
+  object Config {
+    val x = 1
+    val y = 2
+  }
 
   object TypesHelpers {
     class C

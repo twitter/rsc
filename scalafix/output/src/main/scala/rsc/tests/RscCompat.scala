@@ -42,6 +42,11 @@ object RscCompat_Test {
   protected[this] class ProtectedThis { def x1: _root_.java.lang.String = "" }
   protected[rsc] class ProtectedRsc { def x1: _root_.java.lang.String = "" }
 
+  object Config {
+    val x: Int = 1
+    val y = 2
+  }
+
   object TypesHelpers {
     class C
     class E {
