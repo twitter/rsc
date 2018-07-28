@@ -14,7 +14,7 @@ trait Messages {
     val msg = msgFn(pos)
     reporter.append(msg)
     if (msg.sev == FatalSeverity) {
-      crash(msg)
+      crash(msg.str)
     }
     msg
   }

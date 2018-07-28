@@ -20,7 +20,7 @@ trait Messages {
   def reportPos(pos: Position, msgFn: Position => Message): Message = {
     val msg = msgFn(pos)
     if (msg.sev != FatalSeverity) {
-      crash(msg)
+      crash(msg.str)
     }
     reporter.append(msg)
   }
@@ -40,7 +40,7 @@ trait Messages {
     val msg = msgFn(pos)
     reporter.append(msg)
     if (msg.sev == FatalSeverity) {
-      crash(msg)
+      crash(msg.str)
     }
     msg
   }
