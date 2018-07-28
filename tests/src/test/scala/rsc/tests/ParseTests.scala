@@ -10,10 +10,4 @@ class ParseTests extends RscTests {
     val problems = Main.process(settings)
     if (problems.nonEmpty) fail()
   }
-
-  test("parse for external") {
-    val settings = Settings(externalFiles, quiet = true)
-    val problems = Main.process(settings)
-    if (problems.nonEmpty) fail()
-  }
 }
