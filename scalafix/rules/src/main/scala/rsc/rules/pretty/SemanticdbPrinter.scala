@@ -182,15 +182,20 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
 
   private def pprint(sym: String): Unit = {
     val printableName = {
-      val sourceName = index.symbols.get(sym).map(_.name)
-      sourceName match {
-        case Some(name) =>
-          if (name == "") {
-            sys.error(s"unsupported symbol: $sym")
-          } else if (name == "_" || name.startsWith("?")) {
-            gensymCache.getOrElseUpdate(sym, gensym("T"))
+      val info = index.symbols.get(sym)
+      info match {
+        case Some(info) =>
+          if (info.kind == k.PACKAGE_OBJECT) {
+            "package"
           } else {
-            name
+            val name = info.name
+            if (name == "") {
+              sys.error(s"unsupported symbol: $sym")
+            } else if (name == "_" || name.startsWith("?")) {
+              gensymCache.getOrElseUpdate(sym, gensym("T"))
+            } else {
+              name
+            }
           }
         case None =>
           if (sym.isGlobal) sym.desc.name
