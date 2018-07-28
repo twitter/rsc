@@ -903,6 +903,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
           case MethodSig(sscope, _) if sscope.symbols.length == 1 =>
             val List(sparam) = sscope.symbols
             sparam.ssig match {
+              case NoSig => s.NoSignature
               case ValueSig(stpe) => s.ValueSignature(stpe)
               case sother => crash((ssetterSym, sother))
             }
