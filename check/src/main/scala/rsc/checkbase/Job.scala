@@ -5,7 +5,7 @@ package rsc.checkbase
 case class Job[T](xs: List[T], settings: SettingsBase) {
   def foreach(fn: T => Unit): Unit = {
     val startStamp = timestamp()
-    var lastStamp = 0
+    var lastStamp = 0.0
     var n = xs.length
     var i = 0
     val it = xs.iterator
@@ -16,6 +16,7 @@ case class Job[T](xs: List[T], settings: SettingsBase) {
       if ((i % 100) == 0) {
         val currentStamp = timestamp()
         if (currentStamp - lastStamp > 3.0) {
+          lastStamp = currentStamp
           val elapsedSeconds = currentStamp - startStamp
           val remainingSeconds = elapsedSeconds * (n - i) / i
           val remaining = "%.2f".format(remainingSeconds) + "s"
@@ -23,6 +24,9 @@ case class Job[T](xs: List[T], settings: SettingsBase) {
         }
       }
     }
+    val elapsedSeconds = timestamp() - startStamp
+    val elapsed = "%.2f".format(elapsedSeconds) + "s"
+    println(s"Job finished in $elapsed")
   }
 
   private def timestamp(): Double = {
