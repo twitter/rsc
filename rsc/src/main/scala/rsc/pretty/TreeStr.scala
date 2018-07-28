@@ -155,14 +155,20 @@ class TreeStr(val p: Printer) {
       case EnumeratorGenerator(pat, rhs) =>
         apply(pat, AnyPat3)
         p.str(" <- ")
-        apply(rhs, Expr)
+        rhs match {
+          case _: TermApplyPostfix => p.Parens(apply(rhs, Expr))
+          case _ => apply(rhs, Expr)
+        }
       case EnumeratorGuard(cond) =>
         p.str("if ")
         apply(cond, PostfixExpr)
       case EnumeratorVal(pat, rhs) =>
         apply(pat, AnyPat3)
         p.str(" = ")
-        apply(rhs, Expr)
+        rhs match {
+          case _: TermApplyPostfix => p.Parens(apply(rhs, Expr))
+          case _ => apply(rhs, Expr)
+        }
       case Import(importers) =>
         p.str("import ")
         apply(importers, ", ")
