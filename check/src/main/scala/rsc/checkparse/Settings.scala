@@ -5,7 +5,8 @@ package rsc.checkparse
 import java.nio.file._
 import rsc.checkbase._
 
-final case class Settings(ins: List[Path] = Nil, quiet: Boolean = false) extends SettingsBase
+final case class Settings(ins: List[Path] = Nil, quiet: Boolean = false)
+    extends SettingsBase
 
 // FIXME: https://github.com/twitter/rsc/issues/166
 object Settings {

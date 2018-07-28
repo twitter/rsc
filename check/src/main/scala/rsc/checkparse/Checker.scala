@@ -8,7 +8,11 @@ import rsc.{syntax => r}
 import scala.tools.nsc.{Global => NscGlobal}
 import scala.util._
 
-class Checker(settings: Settings, g: NscGlobal, nscTree1: NscGlobal#Tree, rscTree1: r.Tree)
+class Checker(
+    settings: Settings,
+    g: NscGlobal,
+    nscTree1: NscGlobal#Tree,
+    rscTree1: r.Tree)
     extends CheckerBase
     with DiffUtil {
   def check(): Unit = {

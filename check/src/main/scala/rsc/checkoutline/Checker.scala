@@ -13,7 +13,8 @@ import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.Property
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 
-class Checker(settings: Settings, nscResult: Path, rscResult: Path) extends CheckerBase {
+class Checker(settings: Settings, nscResult: Path, rscResult: Path)
+    extends CheckerBase {
   def check(): Unit = {
     val nscMap = load(nscResult)
     val rscMap = load(rscResult)

@@ -5,7 +5,8 @@ package rsc.diffoutline
 import java.nio.file._
 import rsc.checkbase._
 
-final case class Settings(nscOutline: Path, rscOutline: Path, quiet: Boolean) extends SettingsBase
+final case class Settings(nscOutline: Path, rscOutline: Path, quiet: Boolean)
+    extends SettingsBase
 
 // FIXME: https://github.com/twitter/rsc/issues/166
 object Settings {

@@ -5,7 +5,8 @@ package rsc.diffmjar
 import java.nio.file._
 import rsc.checkbase._
 
-final case class Settings(nscMjar: Path, rscMjar: Path, quiet: Boolean) extends SettingsBase
+final case class Settings(nscMjar: Path, rscMjar: Path, quiet: Boolean)
+    extends SettingsBase
 
 // FIXME: https://github.com/twitter/rsc/issues/166
 object Settings {

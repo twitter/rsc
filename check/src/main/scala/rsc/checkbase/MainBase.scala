@@ -8,7 +8,10 @@ import rsc.pretty._
 import scala.collection.mutable
 import scala.util._
 
-trait MainBase[S <: SettingsBase, I, N, R] extends DiffUtil with NscUtil with ToolUtil {
+trait MainBase[S <: SettingsBase, I, N, R]
+    extends DiffUtil
+    with NscUtil
+    with ToolUtil {
   def main(args: Array[String]): Unit = {
     val expandedArgs = {
       args match {
