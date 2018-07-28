@@ -718,7 +718,7 @@ and differences between Rsc and Scalac.
   </tr>
   <tr>
     <td>Load classpath</td>
-    <td>+ (link) </td>
+    <td>+ (index)</td>
     <td>+ (typer)</td>
   </tr>
   <tr>

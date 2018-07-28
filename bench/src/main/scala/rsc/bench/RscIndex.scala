@@ -11,9 +11,9 @@ import org.openjdk.jmh.annotations.Mode._
 @Warmup(iterations = 3, time = 10, timeUnit = TimeUnit.SECONDS)
 @Measurement(iterations = 3, time = 10, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 1, jvmArgs = Array("-Xms4G", "-Xmx4G"))
-class RscLink extends RscBenchmark {
+class RscIndex extends RscBenchmark {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
-    runCompiler("-Ystop-after:link", "-cp", bs.rscDeps, bs.files)
+    runCompiler("-Ystop-after:index", "-cp", bs.rscDeps, bs.files)
   }
 }
