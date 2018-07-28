@@ -8,19 +8,22 @@ trait Enumerators {
 
   def enumerators(): List[Enumerator] = {
     val enumerators = List.newBuilder[Enumerator]
-    if (in.token.isStatSep) {
-      acceptStatSepUnlessAtEnd()
+    enumerators += firstEnumerator()
+    while (in.token.isStatSep) {
+      in.nextToken()
+      enumerators += otherEnumerator()
     }
-    while (in.token.isTermIntro) {
-      enumerators += enumerator()
-      if (in.token.isStatSep) {
-        acceptStatSepUnlessAtEnd()
-      }
-    }
-    enumerators.result()
+    enumerators.result
   }
 
-  def enumerator(): Enumerator = {
+  private def firstEnumerator(): Enumerator = {
+    val pat = infixPat(permitColon = true)
+    accept(LARROW)
+    val rhs = term()
+    EnumeratorGenerator(pat, rhs)
+  }
+
+  private def otherEnumerator(): Enumerator = {
     if (in.token == IF) {
       in.nextToken()
       val cond = postfixTerm()
