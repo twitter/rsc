@@ -18,7 +18,7 @@ object Settings {
       args match {
         case "--" +: rest =>
           loop(settings, false, rest)
-        case ("-classpath" | "-cp") +: s_cp +: rest if allowOptions =>
+        case "--classpath" +: s_cp +: rest if allowOptions =>
           val cp = s_cp.split(pathSeparator).map(s => Paths.get(s)).toList
           loop(settings.copy(cp = settings.cp ++ cp), true, rest)
         case "--quiet" +: rest if allowOptions =>
