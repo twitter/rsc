@@ -194,9 +194,10 @@ class TreeStr(val p: Printer) {
         p.Suffix(" ")(trees)(apply(_, " "))
       case ModAbstract() =>
         p.str("abstract")
-      case ModAnnotation(init) =>
+      case ModAnnotation(Init(tpt, argss)) =>
         p.str("@")
-        apply(init)
+        apply(tpt, SimpleTyp)
+        apply(argss, Expr)
       case ModCase() =>
         p.str("case")
       case ModContravariant() =>
