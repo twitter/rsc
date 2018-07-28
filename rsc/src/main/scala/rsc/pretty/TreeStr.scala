@@ -585,8 +585,11 @@ class TreeStr(val p: Printer) {
               case _ => None
             }
             simpleValue match {
-              case Some(_) => isSpliceIdPart(part.headOption.getOrElse('_'))
-              case None => true
+              case Some(value) =>
+                value.exists(!_.isLetter) ||
+                isSpliceIdPart(part.headOption.getOrElse('_'))
+              case None =>
+                true
             }
           }
           if (needBraces) p.Braces(apply(arg))
