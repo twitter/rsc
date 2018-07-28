@@ -158,6 +158,8 @@ object RscCompat_Test {
     val X, List(y) = List(1, 2)
 
     val t = ??? : foo.T
+
+    val (a: String, b: String, c) = ("foo", "bar", "baz")
   }
 }
 

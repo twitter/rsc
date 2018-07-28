@@ -155,6 +155,8 @@ object RscCompat_Test {
     val X, List((y: _root_.scala.Int)): _root_.scala.collection.immutable.List[_root_.scala.Int] = List(1, 2)
 
     val t: _root_.rsc.tests.foo.`package`.T = ??? : foo.T
+
+    val (a: String, b: String, (c: _root_.java.lang.String)) = ("foo", "bar", "baz")
   }
 }
 
