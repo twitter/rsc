@@ -14,13 +14,14 @@ trait MainBase[S <: SettingsBase, I, N, R]
     with ToolUtil {
   def main(args: Array[String]): Unit = {
     val expandedArgs = {
-      args match {
-        case Array(arg) if arg.startsWith("@") =>
+      args.toList.flatMap { arg =>
+        if (arg.startsWith("@")) {
           val argPath = Paths.get(arg.substring(1))
           val argText = new String(Files.readAllBytes(argPath), UTF_8)
           argText.split(EOL).map(_.trim).filter(_.nonEmpty).toList
-        case other =>
-          other.toList
+        } else {
+          List(arg)
+        }
       }
     }
     settings(expandedArgs) match {
