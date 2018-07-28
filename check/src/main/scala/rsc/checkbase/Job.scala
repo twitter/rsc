@@ -13,7 +13,7 @@ case class Job[T](xs: List[T], settings: SettingsBase) {
       val item = it.next()
       fn(item)
       i += 1
-      if ((i % 100) == 0) {
+      if (!settings.quiet && (i % 100) == 0) {
         val currentStamp = timestamp()
         if (currentStamp - lastStamp > 3.0) {
           lastStamp = currentStamp
@@ -24,9 +24,11 @@ case class Job[T](xs: List[T], settings: SettingsBase) {
         }
       }
     }
-    val elapsedSeconds = timestamp() - startStamp
-    val elapsed = "%.2f".format(elapsedSeconds) + "s"
-    println(s"Job finished in $elapsed")
+    if (!settings.quiet) {
+      val elapsedSeconds = timestamp() - startStamp
+      val elapsed = "%.2f".format(elapsedSeconds) + "s"
+      println(s"Job finished in $elapsed")
+    }
   }
 
   private def timestamp(): Double = {
