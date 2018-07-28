@@ -6,13 +6,13 @@ import rsc.checkparse._
 
 class ParseTests extends RscTests {
   test("parse for core") {
-    val settings = Settings(coreFiles)
+    val settings = Settings(coreFiles, quiet = true)
     val problems = Main.process(settings)
     if (problems.nonEmpty) fail()
   }
 
   test("parse for external") {
-    val settings = Settings(externalFiles)
+    val settings = Settings(externalFiles, quiet = true)
     val problems = Main.process(settings)
     if (problems.nonEmpty) fail()
   }

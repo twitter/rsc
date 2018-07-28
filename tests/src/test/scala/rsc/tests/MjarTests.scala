@@ -6,7 +6,7 @@ import rsc.checkmjar._
 
 class MjarTests extends RscTests {
   test("mjar for core") {
-    val settings = Settings(coreClasspath, coreFiles)
+    val settings = Settings(coreClasspath, coreFiles, quiet = true)
     val problems = Main.process(settings)
     if (problems.nonEmpty) fail()
   }

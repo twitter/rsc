@@ -8,7 +8,7 @@ import rsc.pretty._
 import scala.collection.mutable
 import scala.util._
 
-trait MainBase[S, I, N, R] extends DiffUtil with NscUtil with ToolUtil {
+trait MainBase[S <: SettingsBase, I, N, R] extends DiffUtil with NscUtil with ToolUtil {
   def main(args: Array[String]): Unit = {
     val expandedArgs = {
       args match {
@@ -38,7 +38,8 @@ trait MainBase[S, I, N, R] extends DiffUtil with NscUtil with ToolUtil {
       allProblems += problem
     }
 
-    inputs(settings).foreach { input =>
+    val job = Job(inputs(settings), settings)
+    job.foreach { input =>
       (nscResult(input), rscResult(input)) match {
         case (Left(nscFailures), _) =>
           val nscProblems = nscFailures.map(FailedNscProblem)
@@ -54,7 +55,7 @@ trait MainBase[S, I, N, R] extends DiffUtil with NscUtil with ToolUtil {
           }
           rscProblems.foreach(report)
         case (Right(nscResult), Right(rscResult)) =>
-          val checker = this.checker(nscResult, rscResult)
+          val checker = this.checker(settings, nscResult, rscResult)
           checker.check()
           checker.problems.foreach(report)
       }
@@ -74,5 +75,5 @@ trait MainBase[S, I, N, R] extends DiffUtil with NscUtil with ToolUtil {
   def inputs(settings: S): List[I]
   def nscResult(input: I): Either[List[String], N]
   def rscResult(input: I): Either[List[String], R]
-  def checker(nscResult: N, rscResult: R): CheckerBase
+  def checker(settings: S, nscResult: N, rscResult: R): CheckerBase
 }

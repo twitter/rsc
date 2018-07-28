@@ -13,14 +13,15 @@ import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.Property
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 
-class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
+class Checker(settings: Settings, nscResult: Path, rscResult: Path) extends CheckerBase {
   def check(): Unit = {
     val nscMap = load(nscResult)
     val rscMap = load(rscResult)
     val nscMap1 = highlevelPatch(nscMap)
     val rscMap1 = highlevelPatch(rscMap)
     val syms = (nscMap1.keys ++ rscMap1.keys).toList.sorted
-    syms.foreach { sym =>
+    val job = Job(syms, settings)
+    job.foreach { sym =>
       val nscInfo = nscMap1.get(sym)
       val rscInfo = rscMap1.get(sym)
       (nscInfo, rscInfo) match {
