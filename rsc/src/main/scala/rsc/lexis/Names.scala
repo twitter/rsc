@@ -45,7 +45,11 @@ trait Names {
     }
 
     def isPatVar: Boolean = {
-      value.nonEmpty && value.head.isLower && value.head.isLetter
+      if (value.isEmpty) false
+      else if (value == "false" || value == "true" || value == "null") false
+      else {
+        (value.head.isLower && value.head.isLetter) || (value.head == '_')
+      }
     }
   }
 }
