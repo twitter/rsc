@@ -54,11 +54,23 @@ class TreeStr(val p: Printer) {
   def apply(xss: Iterable[Iterable[Tree]], w: Weight): Unit = {
     p.rep(xss, "") { xs =>
       p.Parens {
-        xs match {
-          case (param: Param) :: _ if param.hasImplicit => p.str("implicit ")
-          case _ => ()
+        val isImplicitParams = xs match {
+          case (param: Param) :: _ => param.hasImplicit
+          case _ => false
         }
-        apply(xs, ", ", w)
+        if (isImplicitParams) p.str("implicit ")
+        val xs1 = xs.map {
+          case p @ Param(mods, id, tpt, rhs) =>
+            val trees1 = mods.trees.filter {
+              case ModImplicit() if isImplicitParams => false
+              case _ => true
+            }
+            val mods1 = Mods(trees1).withPos(mods.pos)
+            Param(mods1, id, tpt, rhs).withPos(p.pos)
+          case other =>
+            other
+        }
+        apply(xs1, ", ", w)
       }
     }
   }
@@ -252,7 +264,7 @@ class TreeStr(val p: Printer) {
           }
         }
       case Param(mods, id, tpt, rhs) =>
-        apply(Mods(mods.trees.filter(!_.isInstanceOf[ModImplicit])))
+        apply(mods)
         apply(id)
         if (id.isSymbolic) p.str(" ")
         p.Prefix(": ")(tpt)(apply(_, "", ParamTyp))
@@ -397,7 +409,7 @@ class TreeStr(val p: Printer) {
       case TermFunction(params, body) =>
         params match {
           case List(param) if param.hasImplicit =>
-            p.str("{ implicit ")
+            p.str("{ ")
             apply(param)
             p.str(" => ")
             apply(body)
