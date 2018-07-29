@@ -371,7 +371,12 @@ class TreeStr(val p: Printer) {
         p.str(" = ")
         apply(rhs, Expr)
       case TermBlock(stats) =>
-        p.Nest(printStats(stats))
+        stats match {
+          case List(fn @ TermFunction(List(param), _)) if param.hasImplicit =>
+            apply(fn)
+          case _ =>
+            p.Nest(printStats(stats))
+        }
       case TermDo(body, cond) =>
         p.str("do ")
         apply(body, Expr)
@@ -390,9 +395,18 @@ class TreeStr(val p: Printer) {
         p.str(" yield ")
         apply(body, Expr)
       case TermFunction(params, body) =>
-        p.Parens(apply(params, ", "))
-        p.str(" =>")
-        p.Indent(apply(body, Expr))
+        params match {
+          case List(param) if param.hasImplicit =>
+            p.str("{ implicit ")
+            apply(param)
+            p.str(" => ")
+            apply(body)
+            p.str(" }")
+          case _ =>
+            p.Parens(apply(params, ", "))
+            p.str(" =>")
+            p.Indent(apply(body, Expr))
+        }
       case TermIf(cond, thenp, elsep) =>
         p.str("if ")
         p.Parens(apply(cond, Expr))
@@ -631,7 +645,8 @@ class TreeStr(val p: Printer) {
                 true
               case Some(prev: Term) =>
                 next.isInstanceOf[TermBlock] ||
-                next.isInstanceOf[TermPartialFunction]
+                next.isInstanceOf[TermPartialFunction] ||
+                next.isInstanceOf[TermFunction]
               case _ =>
                 false
             }
