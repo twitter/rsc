@@ -17,13 +17,14 @@ object Main {
 
   def process(args: Array[String]): Boolean = {
     val expandedArgs = {
-      args match {
-        case Array(arg) if arg.startsWith("@") =>
+      args.toList.flatMap { arg =>
+        if (arg.startsWith("@")) {
           val argPath = Paths.get(arg.substring(1))
           val argText = new String(Files.readAllBytes(argPath), UTF_8)
           argText.split(EOL).map(_.trim).filter(_.nonEmpty).toList
-        case other =>
-          other.toList
+        } else {
+          List(arg)
+        }
       }
     }
     Settings.parse(expandedArgs) match {

@@ -68,6 +68,11 @@ final case class IllegalNumber(pos: Position) extends Message {
   def text = "illegal number"
 }
 
+final case class IllegalXml(pos: Position) extends Message {
+  def sev = FatalSeverity
+  def text = "illegal xml"
+}
+
 final case class LeadingZero(pos: Position) extends Message {
   def sev = FatalSeverity
   def text = "leading zeros not allowed"

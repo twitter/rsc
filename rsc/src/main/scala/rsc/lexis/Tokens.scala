@@ -83,7 +83,9 @@ trait Tokens {
   final val WHILE = 76
   final val WHITESPACE = 77
   final val WITH = 78
-  final val YIELD = 79
+  // FIXME: https://github.com/twitter/rsc/issues/81
+  final val XML = 79
+  final val YIELD = 80
 
   type Token = Int
 

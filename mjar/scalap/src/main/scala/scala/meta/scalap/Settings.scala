@@ -29,6 +29,7 @@ final class Settings private (
   }
 }
 
+// FIXME: https://github.com/twitter/rsc/issues/166
 object Settings {
   def parse(args: List[String], reporter: Reporter): Option[Settings] = {
     def loop(

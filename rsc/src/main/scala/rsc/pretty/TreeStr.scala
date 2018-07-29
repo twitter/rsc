@@ -54,11 +54,23 @@ class TreeStr(val p: Printer) {
   def apply(xss: Iterable[Iterable[Tree]], w: Weight): Unit = {
     p.rep(xss, "") { xs =>
       p.Parens {
-        xs match {
-          case (param: Param) :: _ if param.hasImplicit => p.str("implicit ")
-          case _ => ()
+        val isImplicitParams = xs match {
+          case (param: Param) :: _ => param.hasImplicit
+          case _ => false
         }
-        apply(xs, ", ", w)
+        if (isImplicitParams) p.str("implicit ")
+        val xs1 = xs.map {
+          case p @ Param(mods, id, tpt, rhs) =>
+            val trees1 = mods.trees.filter {
+              case ModImplicit() if isImplicitParams => false
+              case _ => true
+            }
+            val mods1 = Mods(trees1).withPos(mods.pos)
+            Param(mods1, id, tpt, rhs).withPos(p.pos)
+          case other =>
+            other
+        }
+        apply(xs1, ", ", w)
       }
     }
   }
@@ -155,14 +167,20 @@ class TreeStr(val p: Printer) {
       case EnumeratorGenerator(pat, rhs) =>
         apply(pat, AnyPat3)
         p.str(" <- ")
-        apply(rhs, Expr)
+        rhs match {
+          case _: TermApplyPostfix => p.Parens(apply(rhs, Expr))
+          case _ => apply(rhs, Expr)
+        }
       case EnumeratorGuard(cond) =>
         p.str("if ")
         apply(cond, PostfixExpr)
       case EnumeratorVal(pat, rhs) =>
         apply(pat, AnyPat3)
         p.str(" = ")
-        apply(rhs, Expr)
+        rhs match {
+          case _: TermApplyPostfix => p.Parens(apply(rhs, Expr))
+          case _ => apply(rhs, Expr)
+        }
       case Import(importers) =>
         p.str("import ")
         apply(importers, ", ")
@@ -194,9 +212,10 @@ class TreeStr(val p: Printer) {
         p.Suffix(" ")(trees)(apply(_, " "))
       case ModAbstract() =>
         p.str("abstract")
-      case ModAnnotation(init) =>
+      case ModAnnotation(Init(tpt, argss)) =>
         p.str("@")
-        apply(init)
+        apply(tpt, SimpleTyp)
+        apply(argss, Expr)
       case ModCase() =>
         p.str("case")
       case ModContravariant() =>
@@ -245,7 +264,7 @@ class TreeStr(val p: Printer) {
           }
         }
       case Param(mods, id, tpt, rhs) =>
-        apply(Mods(mods.trees.filter(!_.isInstanceOf[ModImplicit])))
+        apply(mods)
         apply(id)
         if (id.isSymbolic) p.str(" ")
         p.Prefix(": ")(tpt)(apply(_, "", ParamTyp))
@@ -309,6 +328,9 @@ class TreeStr(val p: Printer) {
           case _ => apply(id)
         }
         p.Prefix(": ")(tpt)(apply(_, "", RefineTyp))
+      case PatXml(raw) =>
+        // FIXME: https://github.com/twitter/rsc/issues/81
+        p.str(raw)
       case tree @ PrimaryCtor(mods, paramss) =>
         if (mods.trees.nonEmpty) p.str(" ")
         apply(mods)
@@ -364,7 +386,12 @@ class TreeStr(val p: Printer) {
         p.str(" = ")
         apply(rhs, Expr)
       case TermBlock(stats) =>
-        p.Nest(printStats(stats))
+        stats match {
+          case List(fn @ TermFunction(List(param), _)) if param.hasImplicit =>
+            apply(fn)
+          case _ =>
+            p.Nest(printStats(stats))
+        }
       case TermDo(body, cond) =>
         p.str("do ")
         apply(body, Expr)
@@ -383,9 +410,18 @@ class TreeStr(val p: Printer) {
         p.str(" yield ")
         apply(body, Expr)
       case TermFunction(params, body) =>
-        p.Parens(apply(params, ", "))
-        p.str(" =>")
-        p.Indent(apply(body, Expr))
+        params match {
+          case List(param) if param.hasImplicit =>
+            p.str("{ ")
+            apply(param)
+            p.str(" => ")
+            apply(body)
+            p.str(" }")
+          case _ =>
+            p.Parens(apply(params, ", "))
+            p.str(" =>")
+            p.Indent(apply(body, Expr))
+        }
       case TermIf(cond, thenp, elsep) =>
         p.str("if ")
         p.Parens(apply(cond, Expr))
@@ -491,6 +527,9 @@ class TreeStr(val p: Printer) {
         p.str("_")
       case TermWildcardFunction(_, term) =>
         apply(term, Expr)
+      case TermXml(raw) =>
+        // FIXME: https://github.com/twitter/rsc/issues/81
+        p.str(raw)
       case TptAnnotate(tpt, mods) =>
         apply(tpt, SimpleTyp)
         p.str(" ")
@@ -506,6 +545,7 @@ class TreeStr(val p: Printer) {
         val params :+ ret = targs
         val needsParens = params match {
           case List(_: TptTuple | _: TptFunction) => true
+          case List(_: TptByName | _: TptRepeat) => true
           case List(_) => false
           case _ => true
         }
@@ -576,18 +616,21 @@ class TreeStr(val p: Printer) {
       args.zip(parts.drop(1)).foreach {
         case (arg, part) =>
           p.str("$")
-          val needBraces = {
+          val needsBraces = {
             val simpleValue = arg match {
               case TermId(value) => Some(value)
               case PatVar(TermId(value), _) => Some(value)
               case _ => None
             }
             simpleValue match {
-              case Some(_) => isSpliceIdPart(part.headOption.getOrElse('_'))
-              case None => true
+              case Some(value) =>
+                value.exists(!_.isLetter) ||
+                  isSpliceIdPart(part.headOption.getOrElse('_'))
+              case None =>
+                true
             }
           }
-          if (needBraces) p.Braces(apply(arg))
+          if (needsBraces) p.Braces(apply(arg))
           else apply(arg)
           p.ignoringIndent(p.str(part))
       }
@@ -608,13 +651,22 @@ class TreeStr(val p: Printer) {
         stats(i + 1) match {
           case next: Term =>
             def needsSemicolon(prev: Option[Tree]): Boolean = prev match {
-              case Some(prev: DefnField) => needsSemicolon(prev.rhs)
-              case Some(prev: DefnMacro) => needsSemicolon(Some(prev.rhs))
-              case Some(prev: DefnMethod) => needsSemicolon(prev.rhs)
-              case Some(prev: DefnPat) => needsSemicolon(prev.rhs)
-              case Some(prev: TermApplyPostfix) => true
-              case Some(prev: Term) => next.isInstanceOf[TermBlock]
-              case _ => false
+              case Some(prev: DefnField) =>
+                needsSemicolon(prev.rhs)
+              case Some(prev: DefnMacro) =>
+                needsSemicolon(Some(prev.rhs))
+              case Some(prev: DefnMethod) =>
+                needsSemicolon(prev.rhs)
+              case Some(prev: DefnPat) =>
+                needsSemicolon(prev.rhs)
+              case Some(prev: TermApplyPostfix) =>
+                true
+              case Some(prev: Term) =>
+                next.isInstanceOf[TermBlock] ||
+                  next.isInstanceOf[TermPartialFunction] ||
+                  next.isInstanceOf[TermFunction]
+              case _ =>
+                false
             }
             if (needsSemicolon(Some(stat))) {
               p.str(";")

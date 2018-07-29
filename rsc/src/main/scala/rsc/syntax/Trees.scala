@@ -338,6 +338,9 @@ final case class PatVar(id: Id, tpt: Option[Tpt]) extends Pat with TermOutline {
   def mods = Mods(Nil)
 }
 
+// FIXME: https://github.com/twitter/rsc/issues/81
+final case class PatXml(raw: String) extends Pat
+
 sealed trait Path extends Tree {
   def id: Id
 }
@@ -477,6 +480,9 @@ final case class TermWildcard() extends Term {
 
 final case class TermWildcardFunction(ids: List[AnonId], body: Term)
     extends Term
+
+// FIXME: https://github.com/twitter/rsc/issues/81
+final case class TermXml(raw: String) extends Term
 
 sealed trait Tpt extends Tree
 

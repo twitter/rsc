@@ -165,6 +165,11 @@ trait Pats {
         }
         accept(INTEND)
         atPos(start)(PatInterpolate(id, parts.result, args.result))
+      case XML =>
+        // FIXME: https://github.com/twitter/rsc/issues/81
+        val raw = in.value
+        in.nextToken()
+        atPos(start)(PatXml(raw))
       case _ =>
         val errOffset = in.offset
         reportOffset(errOffset, IllegalStartOfSimplePat)

@@ -25,8 +25,11 @@ object Main extends MainBase[Settings, Path, NscGlobal#Tree, RscTree] {
     path.parseRsc()
   }
 
-  def checker(nscResult: NscGlobal#Tree, rscResult: RscTree) = {
-    new Checker(nscGlobal, nscResult, rscResult)
+  def checker(
+      settings: Settings,
+      nscResult: NscGlobal#Tree,
+      rscResult: RscTree) = {
+    new Checker(settings, nscGlobal, nscResult, rscResult)
   }
 
   private lazy val nscGlobal: NscGlobal = {

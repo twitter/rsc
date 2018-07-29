@@ -14,6 +14,7 @@ final case class Settings(
     ystopAfter: Set[String] = Set[String]()
 )
 
+// FIXME: https://github.com/twitter/rsc/issues/166
 object Settings {
   def parse(args: List[String]): Option[Settings] = {
     def loop(

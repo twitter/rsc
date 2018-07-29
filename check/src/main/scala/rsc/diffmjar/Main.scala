@@ -4,7 +4,7 @@ package rsc.diffmjar
 
 import java.nio.file._
 import rsc.checkbase._
-import rsc.checkmjar.Checker
+import rsc.checkmjar
 
 object Main extends SimpleBase[Settings, Path, Path] {
   def settings(args: List[String]) = {
@@ -19,7 +19,8 @@ object Main extends SimpleBase[Settings, Path, Path] {
     Right(settings.rscMjar)
   }
 
-  def checker(nscResult: Path, rscResult: Path) = {
-    new Checker(nscResult, rscResult)
+  def checker(settings: Settings, nscResult: Path, rscResult: Path) = {
+    val checkerSettings = checkmjar.Settings(quiet = settings.quiet)
+    new checkmjar.Checker(checkerSettings, nscResult, rscResult)
   }
 }

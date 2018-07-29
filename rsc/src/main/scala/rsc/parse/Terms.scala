@@ -31,67 +31,13 @@ trait Terms {
 
   def term(location: Location = Elsewhere): Term = {
     if (in.token == IMPLICIT) {
-      in.nextToken()
-      val id = {
-        if (in.token == ID) {
-          termId()
-        } else if (in.token == USCORE) {
-          in.nextToken()
-          anonId()
-        } else {
-          accept(ID)
-        }
-      }
-      accept(ARROW)
-      val rhs = term(location)
-      crash("https://github.com/twitter/rsc/issues/102")
+      implicitLambda(location)
     } else {
       wrapEscapingTermWildcards {
         val start = in.offset
         val unfinished = term1(location)
         if (in.token == ARROW) {
-          in.nextToken()
-          val unfinishedReinterpretedAsParams = {
-            object ParamLike {
-              def unapply(term: Term): Option[Param] = {
-                val mods = atPos(term.pos.start, term.pos.start)(Mods(Nil))
-                term match {
-                  case id: TermId =>
-                    Some(atPos(term.pos)(Param(mods, id, None, None)))
-                  case TermAscribe(id: TermId, tpt) =>
-                    Some(atPos(term.pos)(Param(mods, id, Some(tpt), None)))
-                  case wildcard @ TermWildcard() =>
-                    val id = reinterpretAsParam(wildcard)
-                    Some(atPos(term.pos)(Param(mods, id, None, None)))
-                  case TermAscribe(wildcard @ TermWildcard(), tpt) =>
-                    val id = reinterpretAsParam(wildcard)
-                    Some(atPos(term.pos)(Param(mods, id, Some(tpt), None)))
-                  case _ =>
-                    None
-                }
-              }
-            }
-            unfinished match {
-              case TermLit(()) =>
-                Nil
-              case ParamLike(param) =>
-                List(param)
-              case TermTuple(args) =>
-                val params = args.flatMap(ParamLike.unapply)
-                if (args.length != params.length) crash(unfinished)
-                params
-              case _ =>
-                crash(unfinished)
-            }
-          }
-          val body =
-            if (location == InBlock) {
-              blockStats() match {
-                case List(stat: TermBlock) => stat
-                case stats => TermBlock(stats)
-              }
-            } else term()
-          atPos(start)(TermFunction(unfinishedReinterpretedAsParams, body))
+          lambdaRest(start, unfinished, location)
         } else {
           unfinished
         }
@@ -348,6 +294,11 @@ trait Terms {
         }
         accept(INTEND)
         atPos(start)(TermInterpolate(id, parts.result(), args.result()))
+      case XML =>
+        // FIXME: https://github.com/twitter/rsc/issues/81
+        val raw = in.value
+        in.nextToken()
+        atPos(start)(TermXml(raw))
       case _ =>
         if (in.token.isLit) {
           canApply = true
@@ -393,6 +344,85 @@ trait Terms {
     }
   }
 
+  private def lambdaRest(
+      start: Offset,
+      unfinished: Term,
+      location: Location): TermFunction = {
+    accept(ARROW)
+    val unfinishedReinterpretedAsParams = {
+      object ParamLike {
+        def unapply(term: Term): Option[Param] = {
+          val mods = atPos(term.pos.start, term.pos.start)(Mods(Nil))
+          term match {
+            case id: TermId =>
+              Some(atPos(term.pos)(Param(mods, id, None, None)))
+            case TermAscribe(id: TermId, tpt) =>
+              Some(atPos(term.pos)(Param(mods, id, Some(tpt), None)))
+            case wildcard @ TermWildcard() =>
+              val id = reinterpretAsParam(wildcard)
+              Some(atPos(term.pos)(Param(mods, id, None, None)))
+            case TermAscribe(wildcard @ TermWildcard(), tpt) =>
+              val id = reinterpretAsParam(wildcard)
+              Some(atPos(term.pos)(Param(mods, id, Some(tpt), None)))
+            case _ =>
+              None
+          }
+        }
+      }
+      unfinished match {
+        case TermLit(()) =>
+          Nil
+        case ParamLike(param) =>
+          List(param)
+        case TermTuple(args) =>
+          val params = args.flatMap(ParamLike.unapply)
+          if (args.length != params.length) crash(unfinished)
+          params
+        case _ =>
+          crash(unfinished)
+      }
+    }
+    val body = lambdaBody(location)
+    atPos(start)(TermFunction(unfinishedReinterpretedAsParams, body))
+  }
+
+  private def implicitLambda(location: Location): TermFunction = {
+    val start = in.offset
+    val mods = {
+      accept(IMPLICIT)
+      val mod = atPos(start)(ModImplicit())
+      atPos(start)(Mods(List(mod)))
+    }
+    val id = termId()
+    val tpt = {
+      if (in.token == COLON) {
+        in.nextToken()
+        if (location == Elsewhere) Some(this.tpt())
+        else Some(this.infixTpt())
+      } else {
+        None
+      }
+    }
+    val params = {
+      val param = atPos(start)(Param(mods, id, tpt, None))
+      List(param)
+    }
+    accept(ARROW)
+    val body = lambdaBody(location)
+    atPos(start)(TermFunction(params, body))
+  }
+
+  private def lambdaBody(location: Location): Term = {
+    if (location == InBlock) {
+      blockStats() match {
+        case List(stat: Term) => stat
+        case stats => TermBlock(stats)
+      }
+    } else {
+      term()
+    }
+  }
+
   def errorTerm(): Term = {
     TermId(gensym.error())
   }
@@ -418,46 +448,61 @@ trait Terms {
       } else if (in.token.isTermIntro) {
         stats += term(InBlock)
       } else if (in.token.isLocalDefnIntro) {
-        val start = in.offset
-        val mods = defnMods(modTokens.localDefn)
-        val stat = in.token match {
-          case CASECLASS =>
-            val modCase = atPos(in.offset)(ModCase())
+        val isImplicitLambda = {
+          if (in.token == IMPLICIT) {
+            val snapshot = in.snapshot()
             in.nextToken()
-            defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modCase)))
-          case CASEOBJECT =>
-            val modCase = atPos(in.offset)(ModCase())
-            in.nextToken()
-            defnObject(atPos(mods.pos.start)(Mods(mods.trees :+ modCase)))
-          case CLASS =>
-            in.nextToken()
-            defnClass(mods)
-          case DEF =>
-            in.nextToken()
-            defnDef(mods)
-          case OBJECT =>
-            in.nextToken()
-            defnObject(mods)
-          case TRAIT =>
-            in.nextToken()
-            defnTrait(mods)
-          case TYPE =>
-            in.nextToken()
-            defnType(mods)
-          case VAL =>
-            val modVal = atPos(in.offset)(ModVal())
-            in.nextToken()
-            defnVal(atPos(mods.pos.start)(Mods(mods.trees :+ modVal)))
-          case VAR =>
-            val modVar = atPos(in.offset)(ModVar())
-            in.nextToken()
-            defnVar(atPos(mods.pos.start)(Mods(mods.trees :+ modVar)))
-          case _ =>
-            val errOffset = in.offset
-            reportOffset(errOffset, ExpectedStartOfDefinition)
-            atPos(errOffset)(errorStat())
+            val result = in.token == ID
+            in.restore(snapshot)
+            result
+          } else {
+            false
+          }
         }
-        stats += stat
+        if (isImplicitLambda) {
+          stats += implicitLambda(InBlock)
+        } else {
+          val start = in.offset
+          val mods = defnMods(modTokens.localDefn)
+          val stat = in.token match {
+            case CASECLASS =>
+              val modCase = atPos(in.offset)(ModCase())
+              in.nextToken()
+              defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modCase)))
+            case CASEOBJECT =>
+              val modCase = atPos(in.offset)(ModCase())
+              in.nextToken()
+              defnObject(atPos(mods.pos.start)(Mods(mods.trees :+ modCase)))
+            case CLASS =>
+              in.nextToken()
+              defnClass(mods)
+            case DEF =>
+              in.nextToken()
+              defnDef(mods)
+            case OBJECT =>
+              in.nextToken()
+              defnObject(mods)
+            case TRAIT =>
+              in.nextToken()
+              defnTrait(mods)
+            case TYPE =>
+              in.nextToken()
+              defnType(mods)
+            case VAL =>
+              val modVal = atPos(in.offset)(ModVal())
+              in.nextToken()
+              defnVal(atPos(mods.pos.start)(Mods(mods.trees :+ modVal)))
+            case VAR =>
+              val modVar = atPos(in.offset)(ModVar())
+              in.nextToken()
+              defnVar(atPos(mods.pos.start)(Mods(mods.trees :+ modVar)))
+            case _ =>
+              val errOffset = in.offset
+              reportOffset(errOffset, ExpectedStartOfDefinition)
+              atPos(errOffset)(errorStat())
+          }
+          stats += stat
+        }
       } else if (!in.token.isStatSep && in.token != CASE) {
         exitOnError = in.token.mustStartStat
         val errOffset = in.offset

@@ -50,6 +50,8 @@ package object checkparse extends NscUtil {
         val rscTree = {
           try rscParser.source()
           catch {
+            case ex: CrashException =>
+              throw ex
             case ex: Throwable =>
               val offset = rscParser.in.lastOffset
               val pos = RscPosition(rscInput, offset, offset)
@@ -72,11 +74,7 @@ package object checkparse extends NscUtil {
         else Right(rscTree)
       } catch {
         case ex: CrashException =>
-          val buf = new StringBuilder
-          buf ++= s"${ex.pos.input.path}:"
-          buf ++= s"${ex.pos.startLine + 1}: "
-          buf ++= ex.str
-          Left(List(buf.toString))
+          Left(List(ex.str))
         case ex: Throwable =>
           Left(List(s"crash when parsing $path:$EOL${ex.str}"))
       }

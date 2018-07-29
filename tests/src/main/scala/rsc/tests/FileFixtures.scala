@@ -3,9 +3,7 @@
 package rsc.tests
 
 import java.io.File.pathSeparator
-import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file._
-import rsc.pretty._
 import scala.collection.JavaConverters._
 
 trait FileFixtures extends ToolUtil {
@@ -37,22 +35,6 @@ trait FileFixtures extends ToolUtil {
 
   lazy val functionClasspath: List[Path] = {
     javaLibrary ++ BuildInfo.functionDeps.map(_.toPath).toList
-  }
-
-  lazy val externalFiles: List[Path] = {
-    sys.env.get("EXTERNAL_FILES") match {
-      case Some(listFile) =>
-        val listPath = Paths.get(listFile)
-        if (Files.exists(listPath)) {
-          val listText = new String(Files.readAllBytes(listPath), UTF_8)
-          val listLines = listText.split(EOL).map(_.trim).filter(_.nonEmpty)
-          listLines.map(s => Paths.get(s)).toList
-        } else {
-          Nil
-        }
-      case _ =>
-        Nil
-    }
   }
 
   lazy val javaLibrary: List[Path] = {

@@ -3,18 +3,23 @@
 package rsc.diffoutline
 
 import java.nio.file._
+import rsc.checkbase._
 
-final case class Settings(nscOutline: Path, rscOutline: Path)
+final case class Settings(nscOutline: Path, rscOutline: Path, quiet: Boolean)
+    extends SettingsBase
 
+// FIXME: https://github.com/twitter/rsc/issues/166
 object Settings {
   def parse(args: List[String]): Either[List[String], Settings] = {
-    args match {
+    val (flags, rest) = args.partition(_.startsWith("--"))
+    rest match {
       case List(s_nscOutline, s_rscOutline) =>
         val nscOutline = Paths.get(s_nscOutline)
         val rscOutline = Paths.get(s_rscOutline)
-        Right(Settings(nscOutline, rscOutline))
+        val quiet = flags.contains("--quiet")
+        Right(Settings(nscOutline, rscOutline, quiet))
       case _ =>
-        Left(List("usage: diffoutline <nsc_outline> <rsc_outline>"))
+        Left(List("usage: diffoutline [--quiet] <nsc_outline> <rsc_outline>"))
     }
   }
 }
