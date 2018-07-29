@@ -294,6 +294,11 @@ trait Terms {
         }
         accept(INTEND)
         atPos(start)(TermInterpolate(id, parts.result(), args.result()))
+      case XML =>
+        // FIXME: https://github.com/twitter/rsc/issues/81
+        val raw = in.value
+        in.nextToken()
+        atPos(start)(TermXml(raw))
       case _ =>
         if (in.token.isLit) {
           canApply = true

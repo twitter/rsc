@@ -207,6 +207,8 @@ trait Dupe {
           val id1 = id.dupe
           val tpt1 = tpt.map(_.dupe)
           PatVar(id1, tpt1)
+        case PatXml(raw) =>
+          PatXml(raw)
         case PrimaryCtor(mods, paramss) =>
           val mods1 = mods.dupe
           val paramss1 = paramss.map(_.map(_.dupe))
@@ -353,6 +355,8 @@ trait Dupe {
           TermWhile(cond1, body1)
         case TermWildcard() =>
           TermWildcard()
+        case TermXml(raw) =>
+          TermXml(raw)
         case TermWildcardFunction(ids, body) =>
           val ids1 = ids.map(_.dupe)
           val body1 = body.dupe

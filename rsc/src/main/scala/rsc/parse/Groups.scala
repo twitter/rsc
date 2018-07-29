@@ -20,10 +20,11 @@ trait Groups {
     val defn = packageDefn | templateDefn | localDefn | refineDefn
     private val term1 = BitSet(DO, FOR, ID, IF, INTID, LBRACE, LPAREN, NEW)
     private val term2 = BitSet(RETURN, SUPER, THIS, THROW, USCORE, TRY, WHILE)
-    val term = litTokens.all | term1 | term2
+    private val term3 = BitSet(XML)
+    val term = litTokens.all | term1 | term2 | term3
     val stat = term | defn | BitSet(IMPORT)
     val tpt = BitSet(AT, ID, LPAREN, SUPER, THIS, USCORE)
-    val pat = litTokens.all | BitSet(ID, INTID, LPAREN, THIS, USCORE)
+    val pat = litTokens.all | BitSet(ID, INTID, LPAREN, THIS, USCORE, XML)
   }
 
   object litTokens {
@@ -51,7 +52,7 @@ trait Groups {
 
   object outroTokens {
     private val term1 = BitSet(ID, INTEND, RBRACE, RBRACKET, RETURN)
-    private val term2 = BitSet(RPAREN, SUPER, THIS, USCORE)
+    private val term2 = BitSet(RPAREN, SUPER, THIS, USCORE, XML)
     val term = litTokens.all | term1 | term2
     val stat = term | BitSet(TYPE)
   }

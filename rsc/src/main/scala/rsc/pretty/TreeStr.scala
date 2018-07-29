@@ -328,6 +328,9 @@ class TreeStr(val p: Printer) {
           case _ => apply(id)
         }
         p.Prefix(": ")(tpt)(apply(_, "", RefineTyp))
+      case PatXml(raw) =>
+        // FIXME: https://github.com/twitter/rsc/issues/81
+        p.str(raw)
       case tree @ PrimaryCtor(mods, paramss) =>
         if (mods.trees.nonEmpty) p.str(" ")
         apply(mods)
@@ -524,6 +527,9 @@ class TreeStr(val p: Printer) {
         p.str("_")
       case TermWildcardFunction(_, term) =>
         apply(term, Expr)
+      case TermXml(raw) =>
+        // FIXME: https://github.com/twitter/rsc/issues/81
+        p.str(raw)
       case TptAnnotate(tpt, mods) =>
         apply(tpt, SimpleTyp)
         p.str(" ")

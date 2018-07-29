@@ -93,6 +93,7 @@ object PrettyToken {
       case WHILE => ("while", "WHILE")
       case WHITESPACE => ("whitespace", "WHITESPACE")
       case WITH => ("with", "WITH")
+      case XML => ("xml literal", "XML")
       case YIELD => ("yield", "YIELD")
       case 256 => ("case class", "CASECLASS")
       case 257 => ("case object", "CASEOBJECT")

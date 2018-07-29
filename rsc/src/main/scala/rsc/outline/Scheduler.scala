@@ -223,6 +223,8 @@ final class Scheduler private (
             case _ =>
               ()
           }
+        case PatXml(_) =>
+          ()
       }
     }
     mods(env, tree.mods)

@@ -15,7 +15,8 @@ final class Scanner private (
     val input: Input)
     extends Characters
     with History
-    with Messages {
+    with Messages
+    with Xml {
   var start: Offset = 0
   var end: Offset = 0
   var token: Token = BOF
@@ -251,7 +252,7 @@ final class Scanner private (
         def xmlPre = token == WHITESPACE || token == LPAREN || token == LBRACE
         def xmlSuf = isXmlNameStart(ch1) || ch1 == '!' || ch1 == '?'
         if (xmlPre && xmlSuf) {
-          crash("unsupported: xml literals")
+          xml()
         } else {
           symbolicIdOrKeyword()
         }
@@ -634,7 +635,7 @@ final class Scanner private (
     emit(WHITESPACE, null)
   }
 
-  private def emit(token: Token, value: String): Unit = {
+  def emit(token: Token, value: String): Unit = {
     this.start = end
     this.end = offset
     this.token = token
