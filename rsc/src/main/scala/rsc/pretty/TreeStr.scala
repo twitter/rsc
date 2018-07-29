@@ -625,7 +625,7 @@ class TreeStr(val p: Printer) {
             simpleValue match {
               case Some(value) =>
                 value.exists(!_.isLetter) ||
-                isSpliceIdPart(part.headOption.getOrElse('_'))
+                  isSpliceIdPart(part.headOption.getOrElse('_'))
               case None =>
                 true
             }
@@ -663,8 +663,8 @@ class TreeStr(val p: Printer) {
                 true
               case Some(prev: Term) =>
                 next.isInstanceOf[TermBlock] ||
-                next.isInstanceOf[TermPartialFunction] ||
-                next.isInstanceOf[TermFunction]
+                  next.isInstanceOf[TermPartialFunction] ||
+                  next.isInstanceOf[TermFunction]
               case _ =>
                 false
             }
