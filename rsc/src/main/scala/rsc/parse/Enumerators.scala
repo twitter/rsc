@@ -9,8 +9,8 @@ trait Enumerators {
   def enumerators(): List[Enumerator] = {
     val enumerators = List.newBuilder[Enumerator]
     enumerators += firstEnumerator()
-    while (in.token.isStatSep) {
-      in.nextToken()
+    while (in.token.isStatSep || in.token == IF) {
+      if (in.token.isStatSep) in.nextToken()
       enumerators += otherEnumerator()
     }
     enumerators.result
