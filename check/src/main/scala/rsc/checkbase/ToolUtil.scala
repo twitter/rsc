@@ -31,9 +31,10 @@ trait ToolUtil extends CacheUtil with NscUtil {
           .withClasspath(metaCp)
           .withScalaLibrarySynthetics(true)
           .withOut(metaOut)
-        Metacp.process(settings, console.reporter) match {
+        val result = Metacp.process(settings, console.reporter)
+        result.classpath match {
           case Some(classpath) => Right(classpath.entries.map(_.toNIO))
-          case None => Left(List(console.output))
+          case None => Left(List(console.err))
         }
       }
     }
@@ -46,7 +47,7 @@ trait ToolUtil extends CacheUtil with NscUtil {
       val settings = Settings().withClasspath(classpath).withOut(out)
       Mjar.process(settings, console.reporter) match {
         case Some(out) => Right(out)
-        case None => Left(List(console.output))
+        case None => Left(List(console.err))
       }
     }
   }
@@ -66,8 +67,9 @@ trait ToolUtil extends CacheUtil with NscUtil {
             import scala.meta.metai._
             val metaiClasspath = Classpath(AbsolutePath(entry))
             val settings = Settings().withClasspath(metaiClasspath)
-            success &= Metai.process(settings, console.reporter)
-            if (console.output.nonEmpty) errors += console.output
+            val result = Metai.process(settings, console.reporter)
+            success &= result.success
+            if (console.err.nonEmpty) errors += console.err
           }
           Files.createDirectories(done.getParent)
           Files.createFile(done)
@@ -141,7 +143,7 @@ trait ToolUtil extends CacheUtil with NscUtil {
   private class Console {
     private val baos = new ByteArrayOutputStream()
     private val ps = new PrintStream(baos)
-    val reporter = Reporter().withOut(ps).withErr(ps)
-    def output = new String(baos.toByteArray, UTF_8)
+    val reporter = Reporter().silenceOut().withErr(ps)
+    def err = new String(baos.toByteArray, UTF_8)
   }
 }

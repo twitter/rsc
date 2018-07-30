@@ -5,7 +5,6 @@ package scala.meta.scalasig.highlevel
 import scala.meta.internal.scalasig._
 import scala.meta.scalasig._
 import scala.meta.scalasig.{lowlevel => l}
-import scala.util.control.NonFatal
 
 case class Scalasig(name: String, symbols: List[EmbeddedSymbol])
     extends Pretty {
@@ -13,7 +12,7 @@ case class Scalasig(name: String, symbols: List[EmbeddedSymbol])
     try {
       ScalasigLowlevel(this)
     } catch {
-      case NonFatal(ex) =>
+      case ex: Throwable =>
         throw ScalasigConvertException(this, ex)
     }
   }
@@ -35,7 +34,7 @@ object Scalasig {
           val hscalasig = ScalasigHighlevel(lscalasig)
           ParsedScalasig(binary, classfile, hscalasig)
         } catch {
-          case NonFatal(ex) =>
+          case ex: Throwable =>
             val cause = ScalasigConvertException(lscalasig, ex)
             FailedScalasig(binary, classfile, cause)
         }
@@ -51,7 +50,7 @@ object Scalasig {
           val hscalasig = ScalasigHighlevel(lscalasig)
           ParsedScalasig(binary, classfile, hscalasig)
         } catch {
-          case NonFatal(ex) =>
+          case ex: Throwable =>
             val cause = ScalasigConvertException(lscalasig, ex)
             FailedScalasig(binary, classfile, cause)
         }
