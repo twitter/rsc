@@ -30,8 +30,9 @@ trait MainBase[S <: SettingsBase, I, N, R]
       allProblems += problem
     }
 
-    val job =
-      Job(inputs(settings), if (settings.quiet) devnull else Console.err)
+    val inputs = this.inputs(settings)
+    val quiet = settings.quiet || inputs.length == 1
+    val job = Job(inputs, if (quiet) devnull else Console.err)
     job.foreach { input =>
       (nscResult(input), rscResult(input)) match {
         case (Left(nscFailures), _) =>
