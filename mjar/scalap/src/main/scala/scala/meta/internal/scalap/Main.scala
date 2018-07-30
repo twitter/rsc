@@ -27,15 +27,15 @@ class Main(settings: Settings, reporter: Reporter) {
                 reporter.out.println(highlevelScalasig.toString)
               } catch {
                 case cause: ScalasigConvertException =>
-                  cause.printStackTrace(reporter.out)
+                  cause.printStackTrace(reporter.err)
               }
           }
         case EmptyScalasig(_, _) =>
           ()
         case FailedScalasig(_, _, cause) =>
-          cause.printStackTrace(reporter.out)
+          cause.printStackTrace(reporter.err)
         case FailedClassfile(_, cause) =>
-          cause.printStackTrace(reporter.out)
+          cause.printStackTrace(reporter.err)
       }
     }
     true

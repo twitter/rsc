@@ -60,6 +60,7 @@ lazy val check = project
     libraryDependencies += "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
     libraryDependencies += "io.github.soc" % "directories" % "10",
     libraryDependencies += "org.scala-lang" % "scala-compiler" % V.scala,
+    libraryDependencies += "org.scalameta" %% "cli" % V.scalameta,
     libraryDependencies += "org.scalameta" %% "metac" % V.scalameta cross CrossVersion.full,
     libraryDependencies += "org.scalameta" %% "metacp" % V.scalameta,
     libraryDependencies += "org.scalameta" %% "metai" % V.scalameta,

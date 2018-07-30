@@ -6,6 +6,7 @@ import java.nio.file._
 import rsc.checkbase._
 import rsc.util._
 import scala.collection.mutable
+import scala.meta.internal.cli._
 import scala.meta.internal.semanticdb._
 import scala.meta.internal.semanticdb.Accessibility.{Tag => a}
 import scala.meta.internal.semanticdb.Scala._
@@ -21,7 +22,7 @@ class Checker(settings: Settings, nscResult: Path, rscResult: Path)
     val nscMap1 = highlevelPatch(nscMap)
     val rscMap1 = highlevelPatch(rscMap)
     val syms = (nscMap1.keys ++ rscMap1.keys).toList.sorted
-    val job = Job(syms, settings)
+    val job = Job(syms, if (settings.quiet) devnull else Console.err)
     job.foreach { sym =>
       val nscInfo = nscMap1.get(sym)
       val rscInfo = rscMap1.get(sym)

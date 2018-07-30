@@ -10,7 +10,6 @@ import scala.meta.cli._
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.mjar._
-import scala.util.control.NonFatal
 
 class Main(settings: Settings, reporter: Reporter) {
   def process(): Option[Path] = {
@@ -47,7 +46,7 @@ class Main(settings: Settings, reporter: Reporter) {
               jos.write(classfile.toBinary)
               jos.closeEntry()
             } catch {
-              case NonFatal(ex) =>
+              case ex: Throwable =>
                 throw ConvertException(in, sym, ex)
             }
           }
@@ -59,8 +58,8 @@ class Main(settings: Settings, reporter: Reporter) {
         os.close()
       }
     } catch {
-      case NonFatal(ex) =>
-        ex.printStackTrace(reporter.out)
+      case ex: Throwable =>
+        ex.printStackTrace(reporter.err)
         None
     }
   }

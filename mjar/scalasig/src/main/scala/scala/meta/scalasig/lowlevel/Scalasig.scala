@@ -5,14 +5,13 @@ package scala.meta.scalasig.lowlevel
 import scala.meta.internal.scalasig._
 import scala.meta.scalasig._
 import scala.meta.scalasig.{highlevel => h}
-import scala.util.control.NonFatal
 
 case class Scalasig(name: String, entries: Array[Entry]) extends Pretty {
   def toHighlevel: h.Scalasig = {
     try {
       ScalasigHighlevel(this)
     } catch {
-      case NonFatal(ex) =>
+      case ex: Throwable =>
         throw ScalasigConvertException(this, ex)
     }
   }
@@ -21,7 +20,7 @@ case class Scalasig(name: String, entries: Array[Entry]) extends Pretty {
     try {
       ScalasigCodec.toClassfile(this)
     } catch {
-      case NonFatal(ex) =>
+      case ex: Throwable =>
         throw ScalasigWriteException(this, ex)
     }
   }
@@ -43,7 +42,7 @@ object Scalasig {
               EmptyScalasig(binary, classfile)
           }
         } catch {
-          case NonFatal(ex) =>
+          case ex: Throwable =>
             val cause = ScalasigReadException(binary, classfile, ex)
             FailedScalasig(binary, classfile, cause)
         }
@@ -61,7 +60,7 @@ object Scalasig {
           EmptyScalasig(NoBinary, classfile)
       }
     } catch {
-      case NonFatal(ex) =>
+      case ex: Throwable =>
         val cause = ScalasigReadException(NoBinary, classfile, ex)
         FailedScalasig(NoBinary, classfile, cause)
     }

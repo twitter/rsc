@@ -3,14 +3,13 @@
 package scala.meta.scalasig
 
 import scala.meta.internal.scalasig._
-import scala.util.control.NonFatal
 
 case class Classfile(name: String, scalasigBytes: Option[Array[Byte]]) {
   def toBinary: Array[Byte] = {
     try {
       ClassfileCodec.toBinary(this)
     } catch {
-      case NonFatal(ex) =>
+      case ex: Throwable =>
         throw ClassfileWriteException(this, ex)
     }
   }
@@ -22,7 +21,7 @@ object Classfile {
       val classfile = ClassfileCodec.fromBinary(binary)
       ParsedClassfile(binary, classfile)
     } catch {
-      case NonFatal(ex) =>
+      case ex: Throwable =>
         FailedClassfile(binary, ClassfileReadException(binary, ex))
     }
   }

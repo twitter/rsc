@@ -2,10 +2,8 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.checkbase
 
-import java.nio.charset.StandardCharsets.UTF_8
-import java.nio.file._
-import rsc.pretty._
 import scala.collection.mutable
+import scala.meta.internal.cli._
 import scala.util._
 
 trait MainBase[S <: SettingsBase, I, N, R]
@@ -13,17 +11,7 @@ trait MainBase[S <: SettingsBase, I, N, R]
     with NscUtil
     with ToolUtil {
   def main(args: Array[String]): Unit = {
-    val expandedArgs = {
-      args.toList.flatMap { arg =>
-        if (arg.startsWith("@")) {
-          val argPath = Paths.get(arg.substring(1))
-          val argText = new String(Files.readAllBytes(argPath), UTF_8)
-          argText.split(EOL).map(_.trim).filter(_.nonEmpty).toList
-        } else {
-          List(arg)
-        }
-      }
-    }
+    val expandedArgs = Args.expand(args)
     settings(expandedArgs) match {
       case Right(settings) =>
         val problems = process(settings)
@@ -42,7 +30,8 @@ trait MainBase[S <: SettingsBase, I, N, R]
       allProblems += problem
     }
 
-    val job = Job(inputs(settings), settings)
+    val job =
+      Job(inputs(settings), if (settings.quiet) devnull else Console.err)
     job.foreach { input =>
       (nscResult(input), rscResult(input)) match {
         case (Left(nscFailures), _) =>
