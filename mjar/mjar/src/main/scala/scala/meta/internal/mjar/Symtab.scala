@@ -2,35 +2,39 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package scala.meta.internal.mjar
 
-import java.nio.file._
+import scala.collection.mutable
 import scala.collection.mutable.LinkedHashMap
 import scala.meta.internal.semanticdb._
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolInformation.Kind._
+import scala.meta.internal.semanticdb.SymbolOccurrence.{Role => r}
+import scala.meta.mjar._
 
-class Symtab private (map: LinkedHashMap[String, SymbolInformation]) {
+class Symtab private (
+    infos: LinkedHashMap[String, SymbolInformation],
+    anchors: LinkedHashMap[String, String]) {
   def apply(sym: String): SymbolInformation = {
-    map(sym)
+    infos(sym)
   }
 
   def contains(sym: String): Boolean = {
-    map.contains(sym)
+    infos.contains(sym)
   }
 
   def get(sym: String): Option[SymbolInformation] = {
-    map.get(sym)
+    infos.get(sym)
   }
 
   def getOrElse(sym: String, default: SymbolInformation): SymbolInformation = {
-    map.getOrElse(sym, default)
+    infos.getOrElse(sym, default)
   }
 
   def update(sym: String, info: SymbolInformation): Unit = {
-    map(sym) = info
+    infos(sym) = info
   }
 
   lazy val toplevels: List[String] = {
-    map.keys.filter { sym =>
+    infos.keys.filter { sym =>
       val info = apply(sym)
       info.kind match {
         case PACKAGE_OBJECT =>
@@ -42,22 +46,43 @@ class Symtab private (map: LinkedHashMap[String, SymbolInformation]) {
       }
     }.toList
   }
+
+  def anchor(sym: String): Option[String] = {
+    anchors.get(sym)
+  }
 }
 
 object Symtab {
-  def apply(path: Path): Symtab = {
-    apply(List(path))
-  }
-
-  def apply(paths: List[Path]): Symtab = {
-    val map = LinkedHashMap[String, SymbolInformation]()
-    Locator(paths) { (_, payload) =>
-      payload.documents.foreach { document =>
-        document.symbols.foreach { info =>
-          map(info.symbol) = info
+  def apply(settings: Settings): Symtab = {
+    val infos = LinkedHashMap[String, SymbolInformation]()
+    val anchors = LinkedHashMap[String, String]()
+    settings.classpath.foreach { path =>
+      Locator(path) { (_, payload) =>
+        payload.documents.foreach { document =>
+          val ranges = mutable.Map[String, Range]()
+          if (settings.debug) {
+            document.occurrences.foreach {
+              case SymbolOccurrence(Some(range), symbol, r.DEFINITION) =>
+                ranges(symbol) = range
+              case _ =>
+                ()
+            }
+          }
+          document.symbols.foreach { info =>
+            if (info.symbol.isGlobal) {
+              infos(info.symbol) = info
+              if (settings.debug) {
+                var anchor = document.uri
+                ranges.get(info.symbol).foreach { range =>
+                  anchor += s":${range.startLine + 1}"
+                }
+                anchors(info.symbol) = anchor
+              }
+            }
+          }
         }
       }
     }
-    new Symtab(map)
+    new Symtab(infos, anchors)
   }
 }

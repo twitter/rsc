@@ -21,7 +21,7 @@ class Main(settings: Settings, reporter: Reporter) {
       val bos = new BufferedOutputStream(os)
       val jos = new JarOutputStream(bos)
       try {
-        val symtab = Symtab(in)
+        val symtab = Symtab(settings)
         val done = mutable.HashSet[String]()
         symtab.toplevels.foreach { sym =>
           if (!done(sym)) {

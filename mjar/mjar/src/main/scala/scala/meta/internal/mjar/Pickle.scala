@@ -341,8 +341,9 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
 
   def toScalasig: Scalasig = {
     val name = sroot1.jname
+    val source = symtab.anchor(sroot1).getOrElse("")
     val entries = this.entries.toArray
-    Scalasig(name, entries)
+    Scalasig(name, source, entries)
   }
 
   private implicit class SymbolOps(ssym: String) {

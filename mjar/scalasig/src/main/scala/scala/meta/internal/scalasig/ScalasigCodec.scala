@@ -159,7 +159,7 @@ object ScalasigCodec {
         entryIndex += 1
       }
 
-      Some(Scalasig(classfile.name, entries))
+      Some(Scalasig(classfile.name, classfile.source, entries))
     }
   }
 
@@ -326,6 +326,6 @@ object ScalasigCodec {
       patchVarint(entryStart + 1, entryLen)
     }
 
-    Classfile(scalasig.name, Some(writer.toByteArray))
+    Classfile(scalasig.name, scalasig.source, Some(writer.toByteArray))
   }
 }

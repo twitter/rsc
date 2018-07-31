@@ -10,8 +10,9 @@ import scala.reflect.{classTag, ClassTag}
 
 class ScalasigHighlevel(lscalasig: l.Scalasig) {
   def apply(): h.Scalasig = {
-    val l.Scalasig(lname, lentries) = lscalasig
+    val l.Scalasig(lname, lsource, lentries) = lscalasig
     val hname = lname
+    val hsource = lsource
     val lsymbols = lentries.toList.collect {
       case lentry: l.TypeSymbol => lentry
       case lentry: l.AliasSymbol => lentry
@@ -22,7 +23,7 @@ class ScalasigHighlevel(lscalasig: l.Scalasig) {
     lsymbols.foreach(preprocess)
     val hsymbols = lsymbols.map(_.resolve[h.EmbeddedSymbol])
     hsymbols.foreach(postprocess)
-    val hscalasig = h.Scalasig(hname, hsymbols)
+    val hscalasig = h.Scalasig(hname, hsource, hsymbols)
     hsymbols.foreach(_.scalasig = hscalasig)
     hscalasig
   }

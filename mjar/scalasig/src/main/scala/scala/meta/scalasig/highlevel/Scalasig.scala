@@ -6,7 +6,7 @@ import scala.meta.internal.scalasig._
 import scala.meta.scalasig._
 import scala.meta.scalasig.{lowlevel => l}
 
-case class Scalasig(name: String, symbols: List[EmbeddedSymbol])
+case class Scalasig(name: String, source: String, symbols: List[EmbeddedSymbol])
     extends Pretty {
   def toLowlevel: l.Scalasig = {
     try {

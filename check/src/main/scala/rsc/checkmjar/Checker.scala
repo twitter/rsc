@@ -72,7 +72,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
       problem: String => Problem): Map[String, Map[String, EmbeddedSymbol]] = {
     val scalasigs = mutable.Map[String, Map[String, EmbeddedSymbol]]()
     Scalasigs(path) {
-      case ParsedScalasig(_, _, Scalasig(name, syms)) =>
+      case ParsedScalasig(_, _, Scalasig(name, _, syms)) =>
         scalasigs(name) = syms.map(sym => sym.id.toString -> sym).toMap
       case EmptyScalasig(_, _) =>
         ()

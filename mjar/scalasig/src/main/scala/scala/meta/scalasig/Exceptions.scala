@@ -52,8 +52,8 @@ case class ScalasigConvertException(scalasig: Any, cause: Throwable)
     extends Exception {
   override def getMessage: String = {
     val name = scalasig match {
-      case h.Scalasig(name, _) => name
-      case l.Scalasig(name, _) => name
+      case h.Scalasig(name, _, _) => name
+      case l.Scalasig(name, _, _) => name
       case _ => "unknown"
     }
     val details = s"${cause.getClass.getName}: ${cause.getMessage}"
