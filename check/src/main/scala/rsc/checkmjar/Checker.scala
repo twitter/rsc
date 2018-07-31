@@ -17,10 +17,10 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     val rscMaps = load(rscResult, FailedRscProblem.apply)
     val names = (nscMaps.keys ++ rscMaps.keys).toList.sorted
     names.foreach { name =>
-      val nscMap = nscMaps.get(name)
-      val rscMap = rscMaps.get(name)
-      (nscMap, rscMap) match {
-        case (Some(nscMap), Some(rscMap)) =>
+      val nscIndex = nscMaps.get(name)
+      val rscIndex = rscMaps.get(name)
+      (nscIndex, rscIndex) match {
+        case (Some(Index(nscSig, nscMap)), Some(Index(rscSig, rscMap))) =>
           val nscMap1 = highlevelPatch(nscMap)
           val rscMap1 = highlevelPatch(rscMap)
           val ids1 = (nscMap1.keys ++ rscMap1.keys).toList.sorted
@@ -36,10 +36,11 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
                 val nscString = nscRepr.toString
                 val rscString = rscRepr.toString
                 if (nscString != rscString) {
-                  problems += DifferentProblem(id, nscString, rscString)
+                  val header = s"${rscSig.source}: $id"
+                  problems += DifferentProblem(header, nscString, rscString)
                 }
               case (Some(nscSym), None) =>
-                problems += MissingRscProblem(id)
+                problems += MissingRscProblem(s"${rscSig.source}: $id")
               case (None, Some(rscSym)) =>
                 if (rscSym.name.value == "equals" ||
                     rscSym.name.value == "hashCode" ||
@@ -51,29 +52,34 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
                   // FIXME: https://github.com/twitter/rsc/issues/120
                   ()
                 } else {
-                  problems += MissingNscProblem(id)
+                  problems += MissingNscProblem(s"${rscSig.source}: $id")
                 }
               case (None, None) =>
                 ()
             }
           }
-        case (Some(nscMap), None) =>
-          problems += MissingRscProblem(name)
-        case (None, Some(rscMap)) =>
-          problems += MissingNscProblem(name)
+        case (Some(Index(nscSig, _)), None) =>
+          problems += MissingRscProblem(s"${nscSig.source}: $name")
+        case (None, Some(Index(rscSig, _))) =>
+          problems += MissingNscProblem(s"${rscSig.source}: $name")
         case (None, None) =>
           ()
       }
     }
   }
 
+  case class Index(
+    sig: Scalasig,
+    map: Map[String, EmbeddedSymbol])
+
   private def load(
       path: Path,
-      problem: String => Problem): Map[String, Map[String, EmbeddedSymbol]] = {
-    val scalasigs = mutable.Map[String, Map[String, EmbeddedSymbol]]()
+      problem: String => Problem): Map[String, Index] = {
+    val scalasigs = mutable.Map[String, Index]()
     Scalasigs(path) {
-      case ParsedScalasig(_, _, Scalasig(name, _, syms)) =>
-        scalasigs(name) = syms.map(sym => sym.id.toString -> sym).toMap
+      case ParsedScalasig(_, _, sig @ Scalasig(name, _, syms)) =>
+        val map = syms.map(sym => sym.id.toString -> sym).toMap
+        scalasigs(name) = Index(sig, map)
       case EmptyScalasig(_, _) =>
         ()
       case FailedScalasig(_, _, cause) =>
