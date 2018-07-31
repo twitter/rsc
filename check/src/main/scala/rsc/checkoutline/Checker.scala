@@ -10,7 +10,6 @@ import scala.meta.internal.semanticdb._
 import scala.meta.internal.semanticdb.Accessibility.{Tag => a}
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
-import scala.meta.internal.semanticdb.SymbolInformation.Property
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 import scala.meta.internal.semanticdb.SymbolOccurrence.{Role => r}
 
@@ -32,7 +31,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
               sym == "com/twitter/util/NilStopwatch.start().") {
             ()
           } else {
-            val (nscInfo1, rscInfo1) = highlevelPatch(nscInfo, rscInfo)
+            val nscInfo1 = highlevelPatch(nscIndex, nscInfo)
+            val rscInfo1 = highlevelPatch(rscIndex, rscInfo)
             val nscRepr = lowlevelPatch(lowlevelRepr(nscInfo1))
             val rscRepr = lowlevelPatch(lowlevelRepr(rscInfo1))
             val nscString = nscRepr.toString
@@ -99,127 +99,76 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   }
 
   private def highlevelPatch(index: Index): Index = {
+    val indexOps = new IndexOps(index)
+    import indexOps._
     var infos1 = index.infos.values.toList
     // WONTFIX: https://github.com/scalameta/scalameta/issues/1340
     infos1 = infos1.filter(_.kind != k.PACKAGE)
     // WONTFIX: https://github.com/twitter/rsc/issues/121
-    infos1 = infos1.filter { info =>
-      info.kind match {
-        case k.LOCAL | k.PARAMETER | k.SELF_PARAMETER | k.TYPE_PARAMETER |
-            k.PACKAGE | k.PACKAGE_OBJECT =>
-          // These definitions can't have any visibility modifiers.
-          true
-        case k.OBJECT | k.CLASS | k.TRAIT | k.INTERFACE =>
-          // These definitions can be private, but for them `private`
-          // sometimes means something very special.
-          // When used at the top level, `private` means private to
-          // the enclosing package, so we can't really skip these definitions
-          // without having a symbol table.
-          true
-        case k.FIELD | k.METHOD | k.CONSTRUCTOR | k.MACRO | k.TYPE =>
-          val acc = info.accessibility.map(_.tag).getOrElse(0)
-          acc != a.PRIVATE && acc != a.PRIVATE_THIS
-        case _ =>
-          sys.error(info.toProtoString)
-      }
-    }
+    infos1 = infos1.filter(_.isEligible)
     Index(infos1.map(info => info.symbol -> info).toMap, index.anchors)
   }
 
   private def highlevelPatch(
-      n: SymbolInformation,
-      r: SymbolInformation): (SymbolInformation, SymbolInformation) = {
+      index: Index,
+      info: SymbolInformation): SymbolInformation = {
+    val indexOps = new IndexOps(index)
+    import indexOps._
     val stdlib = new rsc.semantics.Stdlib {}
     import stdlib._
 
-    var n1 = n
-    var r1 = r
-
-    def nhas(prop: Property) = (n.properties & prop.value) != 0
-    def rhas(prop: Property) = (r.properties & prop.value) != 0
-    if (n.kind == k.PARAMETER && nhas(p.VAL) && !rhas(p.VAL)) {
+    var info1 = info
+    if (info1.kind == k.PARAMETER) {
       // WONTFIX: https://github.com/scalameta/scalameta/issues/1538
-      n1 = n1.copy(properties = n1.properties & ~p.VAL.value)
+      info1 = info1.copy(properties = info1.properties & ~p.VAL.value)
+      info1 = info1.copy(properties = info1.properties & ~p.VAR.value)
     }
     // FIXME: https://github.com/scalameta/scalameta/issues/1492
-    r1 = r1.copy(properties = r1.properties & ~p.SYNTHETIC.value)
+    info1 = info1.copy(properties = info1.properties & ~p.SYNTHETIC.value)
     // FIXME: https://github.com/scalameta/scalameta/issues/1645
-    r1 = r1.copy(properties = r1.properties & ~p.DEFAULT.value)
+    info1 = info1.copy(properties = info1.properties & ~p.DEFAULT.value)
 
-    n.signature match {
-      case ClassSignature(ntparams, nps, nself, Some(ndecls)) =>
-        var nps1 = nps
+    info1.signature match {
+      case ClassSignature(tps, ps, self, Some(ds)) =>
+        var ps1 = ps
         // FIXME: https://github.com/twitter/rsc/issues/98
-        nps1 = nps1.filter {
+        ps1 = ps1.filter {
           case TypeRef(_, SerializableClass, _) => false
           case _ => true
         }
         // FIXME: https://github.com/twitter/rsc/issues/120
-        val nself1 = NoType
-        var nds1 = ndecls.symlinks
+        val self1 = NoType
+        var ds1 = ds.symlinks
         // FIXME: https://github.com/scalameta/scalameta/issues/1548
-        nds1 = nds1.sorted
+        ds1 = ds1.sorted
         // WONTFIX: https://github.com/twitter/rsc/issues/121
-        nds1 = nds1.filter(_.desc.name != "readResolve")
+        ds1 = ds1.filter(_.info.isEligible)
         // FIXME: https://github.com/twitter/rsc/issues/98
-        nds1 = nds1.filter(_.desc.name != "equals")
+        ds1 = ds1.filter(_.desc.name != "equals")
         // FIXME: https://github.com/twitter/rsc/issues/98
-        nds1 = nds1.filter(_.desc.name != "hashCode")
+        ds1 = ds1.filter(_.desc.name != "hashCode")
         // FIXME: https://github.com/twitter/rsc/issues/98
-        nds1 = nds1.filter(_.desc.name != "toString")
+        ds1 = ds1.filter(_.desc.name != "toString")
         // FIXME: https://github.com/scalameta/scalameta/issues/1586
-        nds1 = nds1.filter(!_.contains("#_#"))
-        val ndecls1 = Some(Scope(nds1))
-        val nsig1 = ClassSignature(ntparams, nps1, nself1, ndecls1)
-        n1 = n1.update(_.signature := nsig1)
-      case MethodSignature(ntparams, npss, nret) =>
+        ds1 = ds1.filter(!_.contains("#_#"))
+        val ndecls1 = Some(Scope(ds1))
+        val nsig1 = ClassSignature(tps, ps1, self1, ndecls1)
+        info1 = info1.update(_.signature := nsig1)
+      case MethodSignature(tps, pss, ret) =>
         // FIXME: https://github.com/twitter/rsc/issues/103
-        if (npss.isEmpty) {
-          val npss1 = List(Scope())
-          n1 = n1.update(_.signature := MethodSignature(ntparams, npss1, nret))
+        if (pss.isEmpty) {
+          val pss1 = List(Scope())
+          info1 = info1.update(_.signature := MethodSignature(tps, pss1, ret))
         }
       case _ =>
         ()
     }
 
-    r.signature match {
-      case ClassSignature(rtparams, rps, rself, Some(rdecls)) =>
-        var rps1 = rps
-        // FIXME: https://github.com/twitter/rsc/issues/98
-        rps1 = rps1.filter {
-          case TypeRef(_, SerializableClass, _) => false
-          case _ => true
-        }
-        // FIXME: https://github.com/twitter/rsc/issues/120
-        val rself1 = NoType
-        var rds1 = rdecls.symlinks
-        // FIXME: https://github.com/scalameta/scalameta/issues/1548
-        rds1 = rds1.sorted
-        // WONTFIX: https://github.com/twitter/rsc/issues/121
-        rds1 = rds1.filter(_.desc.name != "readResolve")
-        // FIXME: https://github.com/twitter/rsc/issues/98
-        rds1 = rds1.filter(_.desc.name != "equals")
-        // FIXME: https://github.com/twitter/rsc/issues/98
-        rds1 = rds1.filter(_.desc.name != "hashCode")
-        // FIXME: https://github.com/twitter/rsc/issues/98
-        rds1 = rds1.filter(_.desc.name != "toString")
-        val rdecls1 = Some(Scope(rds1))
-        val rsig1 = ClassSignature(rtparams, rps1, rself1, rdecls1)
-        r1 = r1.update(_.signature := rsig1)
-      case MethodSignature(rtparams, rpss, rret) =>
-        // FIXME: https://github.com/twitter/rsc/issues/103
-        val rpss1 = if (rpss.isEmpty) List(Scope()) else rpss
-        r1 = r1.update(_.signature := MethodSignature(rtparams, rpss1, rret))
-      case _ =>
-        ()
-    }
-
-    // FIXME: https://github.com/scalameta/scalameta/issues/1315
-    n1 = n1.copy(annotations = Nil)
     // FIXME: https://github.com/twitter/rsc/issues/93
-    r1 = r1.copy(annotations = Nil)
+    // FIXME: https://github.com/scalameta/scalameta/issues/1315
+    info1 = info1.copy(annotations = Nil)
 
-    (n1, r1)
+    info1
   }
 
   private def lowlevelRepr(info: SymbolInformation): String = {
@@ -231,5 +180,49 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     s1 = s1.replaceAll("symbol: \"local(\\d+)\"", "symbol: \"localNNN\"")
     s1 = s1.replaceAll("symbol: \".*?#_#\"", "symbol: \"localNNN\"")
     s1
+  }
+
+  private class IndexOps(index: Index) {
+    implicit class SymbolOps(sym: String) {
+      def info: SymbolInformation = {
+        if (sym.contains("#_#")) {
+          // FIXME: https://github.com/scalameta/scalameta/issues/1586
+          SymbolInformation(symbol = sym)
+        } else if (sym.desc.isPackage) {
+          SymbolInformation(symbol = sym, kind = k.PACKAGE)
+        } else {
+          index.infos(sym)
+        }
+      }
+    }
+
+    implicit class InfoOps(info: SymbolInformation) {
+      def isEligible: Boolean = {
+        info.isVisible
+      }
+
+      def isVisible: Boolean = {
+        if (info.symbol.isGlobal) {
+          if (info.kind == k.PACKAGE) {
+            true
+          } else {
+            val owner = info.symbol.owner.info
+            val isOwnerVisible = owner.isVisible
+            if (isOwnerVisible) {
+              val acc = info.accessibility.map(_.tag).getOrElse(a.PUBLIC)
+              acc match {
+                case a.PRIVATE => owner.kind == k.PACKAGE
+                case a.PRIVATE_THIS => false
+                case _ => true
+              }
+            } else {
+              false
+            }
+          }
+        } else {
+          false
+        }
+      }
+    }
   }
 }

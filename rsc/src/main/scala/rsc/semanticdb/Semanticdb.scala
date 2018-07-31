@@ -31,6 +31,7 @@ final class Semanticdb private (
   private val occs = new HashMap[Input, UnrolledBuffer[s.SymbolOccurrence]]
 
   def apply(outline: Outline): Unit = {
+    if (!outline.isEligible) return
     val input = outline.pos.input
     if (input == NoInput) crash(outline)
     var infoBuf = infos.get(input)
@@ -112,6 +113,46 @@ final class Semanticdb private (
     } finally {
       bos.close()
       fos.close()
+    }
+  }
+
+  implicit class EligibleSemanticdbOps(outline: Outline) {
+    def isEligible: Boolean = {
+      outline.isVisible
+    }
+
+    def isVisible: Boolean = {
+      if (outline.id.sym.isGlobal) {
+        if (outline.isInstanceOf[DefnPackage]) {
+          true
+        } else {
+          val owner = {
+            val ownerSym = outline.id.sym.owner
+            val owner = symtab._outlines.get(ownerSym)
+            if (owner != null) {
+              owner
+            } else {
+              if (ownerSym.desc.isPackage) {
+                val id = TermId(ownerSym.desc.value).withSym(ownerSym)
+                DefnPackage(id, Nil)
+              } else {
+                crash(outline.id.sym)
+              }
+            }
+          }
+          if (owner.isVisible) {
+            outline.mods.trees.forall {
+              case ModPrivate() => owner.isInstanceOf[DefnPackage]
+              case ModPrivateThis() => false
+              case _ => true
+            }
+          } else {
+            false
+          }
+        }
+      } else {
+        false
+      }
     }
   }
 
@@ -229,7 +270,13 @@ final class Semanticdb private (
             symtab.scopes(outline.id.sym) match {
               case scope: TemplateScope =>
                 val maybeMultis = scope._storage.values.asScala.toList
-                Some(s.Scope(maybeMultis.flatMap(_.asMulti)))
+                val noMultis = maybeMultis.flatMap(_.asMulti)
+                val eligibles = noMultis.filter { sym =>
+                  val outline = symtab._outlines.get(sym)
+                  if (outline == null) crash(sym)
+                  outline.isEligible
+                }
+                Some(s.Scope(eligibles))
               case other =>
                 crash(other)
             }
