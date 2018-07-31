@@ -15,14 +15,14 @@ import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 
 class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   def check(): Unit = {
-    val nscMap = load(nscResult)
-    val rscMap = load(rscResult)
-    val nscMap1 = highlevelPatch(nscMap)
-    val rscMap1 = highlevelPatch(rscMap)
-    val syms = (nscMap1.keys ++ rscMap1.keys).toList.sorted
+    val nscIndex = load(nscResult)
+    val rscIndex = load(rscResult)
+    val nscIndex1 = highlevelPatch(nscIndex)
+    val rscIndex1 = highlevelPatch(rscIndex)
+    val syms = (nscIndex1.infos.keys ++ rscIndex1.infos.keys).toList.sorted
     syms.foreach { sym =>
-      val nscInfo = nscMap1.get(sym)
-      val rscInfo = rscMap1.get(sym)
+      val nscInfo = nscIndex1.infos.get(sym)
+      val rscInfo = rscIndex1.infos.get(sym)
       (nscInfo, rscInfo) match {
         case (Some(nscInfo), Some(rscInfo)) =>
           // FIXME: https://github.com/twitter/rsc/issues/90
@@ -37,7 +37,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
             val nscString = nscRepr.toString
             val rscString = rscRepr.toString
             if (nscString != rscString) {
-              problems += DifferentProblem(sym, nscString, rscString)
+              val header = s"${rscIndex1.uris(sym)}: $sym"
+              problems += DifferentProblem(header, nscString, rscString)
             }
           }
         case (Some(nscInfo), None) =>
@@ -45,7 +46,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
             // FIXME: https://github.com/scalameta/scalameta/issues/1586
             ()
           } else {
-            problems += MissingRscProblem(sym)
+            val header = s"${nscIndex1.uris(sym)}: $sym"
+            problems += MissingRscProblem(header)
           }
         case (None, Some(rscInfo)) =>
           if (rscInfo.name == "equals" ||
@@ -55,7 +57,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
             // FIXME: https://github.com/twitter/rsc/issues/98
             ()
           } else {
-            problems += MissingNscProblem(sym)
+            val header = s"${rscIndex1.uris(sym)}: $sym"
+            problems += MissingNscProblem(header)
           }
         case (None, None) =>
           ()
@@ -63,23 +66,28 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     }
   }
 
-  private def load(path: Path): Map[String, SymbolInformation] = {
-    val map = mutable.Map[String, SymbolInformation]()
+  case class Index(
+      infos: Map[String, SymbolInformation],
+      uris: Map[String, String])
+
+  private def load(path: Path): Index = {
+    val infos = mutable.Map[String, SymbolInformation]()
+    val uris = mutable.Map[String, String]()
     Locator(path) { (_, payload) =>
       payload.documents.foreach { document =>
         document.symbols.foreach { info =>
           if (info.symbol.isGlobal) {
-            map(info.symbol) = info
+            infos(info.symbol) = info
+            uris(info.symbol) = document.uri
           }
         }
       }
     }
-    map.toMap
+    Index(infos.toMap, uris.toMap)
   }
 
-  private def highlevelPatch(
-      map: Map[String, SymbolInformation]): Map[String, SymbolInformation] = {
-    var infos1 = map.values.toList
+  private def highlevelPatch(index: Index): Index = {
+    var infos1 = index.infos.values.toList
     // WONTFIX: https://github.com/scalameta/scalameta/issues/1340
     infos1 = infos1.filter(_.kind != k.PACKAGE)
     // WONTFIX: https://github.com/twitter/rsc/issues/121
@@ -103,7 +111,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
           sys.error(info.toProtoString)
       }
     }
-    infos1.map(info => info.symbol -> info).toMap
+    Index(infos1.map(info => info.symbol -> info).toMap, index.uris)
   }
 
   private def highlevelPatch(

@@ -27,8 +27,8 @@ final case class DifferentProblem(diag: String) extends Problem {
 }
 
 object DifferentProblem extends DiffUtil {
-  def apply(head: String, nsc: String, rsc: String): DifferentProblem = {
+  def apply(header: String, nsc: String, rsc: String): DifferentProblem = {
     val diff = this.diff("nsc", nsc, "rsc", rsc).get
-    DifferentProblem(s"different nsc (-) vs rsc (+): $head$EOL$diff")
+    DifferentProblem(s"different nsc (-) vs rsc (+): $header$EOL$diff")
   }
 }
