@@ -68,9 +68,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     }
   }
 
-  case class Index(
-    sig: Scalasig,
-    map: Map[String, EmbeddedSymbol])
+  case class Index(sig: Scalasig, map: Map[String, EmbeddedSymbol])
 
   private def load(
       path: Path,
