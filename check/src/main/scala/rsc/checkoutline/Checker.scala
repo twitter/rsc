@@ -12,6 +12,7 @@ import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.Property
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
+import scala.meta.internal.semanticdb.SymbolOccurrence.{Role => r}
 
 class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   def check(): Unit = {
@@ -37,7 +38,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
             val nscString = nscRepr.toString
             val rscString = rscRepr.toString
             if (nscString != rscString) {
-              val header = s"${rscIndex1.uris(sym)}: $sym"
+              val header = s"${rscIndex1.anchors(sym)}: $sym"
               problems += DifferentProblem(header, nscString, rscString)
             }
           }
@@ -46,7 +47,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
             // FIXME: https://github.com/scalameta/scalameta/issues/1586
             ()
           } else {
-            val header = s"${nscIndex1.uris(sym)}: $sym"
+            val header = s"${nscIndex1.anchors(sym)}: $sym"
             problems += MissingRscProblem(header)
           }
         case (None, Some(rscInfo)) =>
@@ -57,7 +58,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
             // FIXME: https://github.com/twitter/rsc/issues/98
             ()
           } else {
-            val header = s"${rscIndex1.uris(sym)}: $sym"
+            val header = s"${rscIndex1.anchors(sym)}: $sym"
             problems += MissingNscProblem(header)
           }
         case (None, None) =>
@@ -68,22 +69,33 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
 
   case class Index(
       infos: Map[String, SymbolInformation],
-      uris: Map[String, String])
+      anchors: Map[String, String])
 
   private def load(path: Path): Index = {
     val infos = mutable.Map[String, SymbolInformation]()
-    val uris = mutable.Map[String, String]()
+    val anchors = mutable.Map[String, String]()
     Locator(path) { (_, payload) =>
       payload.documents.foreach { document =>
+        val ranges = mutable.Map[String, Range]()
+        document.occurrences.foreach {
+          case SymbolOccurrence(Some(range), symbol, r.DEFINITION) =>
+            ranges(symbol) = range
+          case _ =>
+            ()
+        }
         document.symbols.foreach { info =>
           if (info.symbol.isGlobal) {
             infos(info.symbol) = info
-            uris(info.symbol) = document.uri
+            var anchor = document.uri
+            ranges.get(info.symbol).foreach { range =>
+              anchor += s":${range.startLine + 1}"
+            }
+            anchors(info.symbol) = anchor
           }
         }
       }
     }
-    Index(infos.toMap, uris.toMap)
+    Index(infos.toMap, anchors.toMap)
   }
 
   private def highlevelPatch(index: Index): Index = {
@@ -111,7 +123,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
           sys.error(info.toProtoString)
       }
     }
-    Index(infos1.map(info => info.symbol -> info).toMap, index.uris)
+    Index(infos1.map(info => info.symbol -> info).toMap, index.anchors)
   }
 
   private def highlevelPatch(
