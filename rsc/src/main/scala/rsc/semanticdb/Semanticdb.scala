@@ -19,6 +19,7 @@ import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Accessibility.{Tag => a}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
+import scala.meta.internal.semanticdb.SymbolOccurrence.{Role => r}
 import scala.meta.internal.semanticdb.{Language => l}
 
 final class Semanticdb private (
@@ -27,14 +28,15 @@ final class Semanticdb private (
     gensyms: Gensyms,
     symtab: Symtab) {
   private val infos = new HashMap[Input, UnrolledBuffer[s.SymbolInformation]]
+  private val occs = new HashMap[Input, UnrolledBuffer[s.SymbolOccurrence]]
 
   def apply(outline: Outline): Unit = {
     val input = outline.pos.input
     if (input == NoInput) crash(outline)
-    var buf = infos.get(input)
-    if (buf == null) {
-      buf = new UnrolledBuffer[s.SymbolInformation]
-      infos.put(input, buf)
+    var infoBuf = infos.get(input)
+    if (infoBuf == null) {
+      infoBuf = new UnrolledBuffer[s.SymbolInformation]
+      infos.put(input, infoBuf)
     }
     val info = s.SymbolInformation(
       symbol = outline.symbol,
@@ -46,7 +48,30 @@ final class Semanticdb private (
       annotations = outline.annotations,
       accessibility = outline.accessibility
     )
-    buf += info
+    infoBuf += info
+    if (settings.debug) {
+      var occBuf = occs.get(input)
+      if (occBuf == null) {
+        occBuf = new UnrolledBuffer[s.SymbolOccurrence]
+        occs.put(input, occBuf)
+      }
+      val pos = {
+        if (outline.id.pos != NoPosition) outline.id.pos
+        else Position(outline.pos.input, outline.pos.start, outline.pos.start)
+      }
+      val range = s.Range(
+        startLine = pos.startLine,
+        startCharacter = pos.startColumn,
+        endLine = pos.endLine,
+        endCharacter = pos.endColumn
+      )
+      val occ = s.SymbolOccurrence(
+        range = Some(range),
+        symbol = outline.symbol,
+        role = r.DEFINITION
+      )
+      occBuf += occ
+    }
   }
 
   private def builtinPackage(sym: Symbol): s.SymbolInformation = {
@@ -66,9 +91,11 @@ final class Semanticdb private (
     try {
       val cwd = Paths.get("").toAbsolutePath
       val documents = new UnrolledBuffer[s.TextDocument]
-      val it = infos.entrySet.iterator
-      while (it.hasNext) {
-        val entry = it.next()
+      val infoIt = infos.entrySet.iterator
+      while (infoIt.hasNext) {
+        val entry = infoIt.next()
+        var occurrences = occs.get(entry.getKey)
+        if (occurrences == null) occurrences = UnrolledBuffer.empty
         val symbols = entry.getValue
         symbols += builtinPackage(RootPackage)
         symbols += builtinPackage(EmptyPackage)
@@ -76,6 +103,7 @@ final class Semanticdb private (
           schema = s.Schema.SEMANTICDB4,
           uri = cwd.relativize(entry.getKey.path.toAbsolutePath).toString,
           language = l.SCALA,
+          occurrences = occurrences,
           symbols = symbols)
         documents += document
       }
