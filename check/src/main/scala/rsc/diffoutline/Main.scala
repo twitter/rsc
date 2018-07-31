@@ -6,21 +6,24 @@ import java.nio.file._
 import rsc.checkbase._
 import rsc.checkoutline
 
-object Main extends SimpleBase[Settings, Path, Path] {
+object Main extends MainBase[Settings, Int, Path, Path] {
   def settings(args: List[String]) = {
     Settings.parse(args)
   }
 
-  def nscResult(settings: Settings) = {
-    Right(settings.nscOutline)
+  def inputs(settings: Settings) = {
+    0.until(settings.nscClasspath.length).toList
   }
 
-  def rscResult(settings: Settings) = {
-    Right(settings.rscOutline)
+  def nscResult(settings: Settings, i: Int) = {
+    Right(settings.nscClasspath(i))
+  }
+
+  def rscResult(settings: Settings, i: Int) = {
+    Right(settings.rscClasspath(i))
   }
 
   def checker(settings: Settings, nscResult: Path, rscResult: Path) = {
-    val checkerSettings = checkoutline.Settings(quiet = settings.quiet)
-    new checkoutline.Checker(checkerSettings, nscResult, rscResult)
+    new checkoutline.Checker(nscResult, rscResult)
   }
 }

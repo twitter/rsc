@@ -17,11 +17,11 @@ object Main extends MainBase[Settings, Path, NscGlobal#Tree, RscTree] {
     settings.ins
   }
 
-  def nscResult(path: Path) = {
+  def nscResult(settings: Settings, path: Path) = {
     path.parseNsc(nscGlobal)
   }
 
-  def rscResult(path: Path) = {
+  def rscResult(settings: Settings, path: Path) = {
     path.parseRsc()
   }
 
@@ -29,7 +29,7 @@ object Main extends MainBase[Settings, Path, NscGlobal#Tree, RscTree] {
       settings: Settings,
       nscResult: NscGlobal#Tree,
       rscResult: RscTree) = {
-    new Checker(settings, nscGlobal, nscResult, rscResult)
+    new Checker(nscGlobal, nscResult, rscResult)
   }
 
   private lazy val nscGlobal: NscGlobal = {

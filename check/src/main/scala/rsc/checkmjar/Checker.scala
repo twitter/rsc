@@ -6,20 +6,17 @@ import java.nio.file._
 import rsc.checkbase._
 import rsc.util._
 import scala.collection.mutable
-import scala.meta.internal.cli._
 import scala.meta.internal.data._
 import scala.meta.internal.scalasig._
 import scala.meta.scalasig._
 import scala.meta.scalasig.highlevel._
 
-class Checker(settings: Settings, nscResult: Path, rscResult: Path)
-    extends CheckerBase {
+class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   def check(): Unit = {
     val nscMaps = load(nscResult, FailedNscProblem.apply)
     val rscMaps = load(rscResult, FailedRscProblem.apply)
     val names = (nscMaps.keys ++ rscMaps.keys).toList.sorted
-    val job = Job(names, if (settings.quiet) devnull else Console.err)
-    job.foreach { name =>
+    names.foreach { name =>
       val nscMap = nscMaps.get(name)
       val rscMap = rscMaps.get(name)
       (nscMap, rscMap) match {

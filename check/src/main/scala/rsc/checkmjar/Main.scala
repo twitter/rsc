@@ -20,6 +20,6 @@ object Main extends SimpleBase[Settings, Path, Path] {
   }
 
   def checker(settings: Settings, nscResult: Path, rscResult: Path) = {
-    new Checker(settings, nscResult, rscResult)
+    new Checker(nscResult, rscResult)
   }
 }
