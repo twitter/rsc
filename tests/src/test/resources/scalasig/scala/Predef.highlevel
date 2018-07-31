@@ -1,5 +1,6 @@
 scalasig {
   name: "scala/Predef"
+  source: "Predef.scala"
   symbols {
     tag: MODULEsym
     id: scala.#Predef.
