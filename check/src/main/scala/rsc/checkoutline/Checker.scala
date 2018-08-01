@@ -102,8 +102,6 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     val indexOps = new IndexOps(index)
     import indexOps._
     var infos1 = index.infos.values.toList
-    // WONTFIX: https://github.com/scalameta/scalameta/issues/1340
-    infos1 = infos1.filter(_.kind != k.PACKAGE)
     // WONTFIX: https://github.com/twitter/rsc/issues/121
     infos1 = infos1.filter(_.isEligible)
     Index(infos1.map(info => info.symbol -> info).toMap, index.anchors)

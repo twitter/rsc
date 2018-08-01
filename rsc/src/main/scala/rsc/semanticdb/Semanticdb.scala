@@ -75,16 +75,6 @@ final class Semanticdb private (
     }
   }
 
-  private def builtinPackage(sym: Symbol): s.SymbolInformation = {
-    s.SymbolInformation(
-      symbol = sym,
-      language = l.SCALA,
-      kind = k.PACKAGE,
-      name = sym.desc.value,
-      accessibility = Some(s.Accessibility(a.PUBLIC))
-    )
-  }
-
   def save(): Unit = {
     Files.createDirectories(settings.out.toAbsolutePath.getParent)
     val fos = Files.newOutputStream(settings.out)
@@ -98,8 +88,6 @@ final class Semanticdb private (
         var occurrences = occs.get(entry.getKey)
         if (occurrences == null) occurrences = UnrolledBuffer.empty
         val symbols = entry.getValue
-        symbols += builtinPackage(RootPackage)
-        symbols += builtinPackage(EmptyPackage)
         val document = s.TextDocument(
           schema = s.Schema.SEMANTICDB4,
           uri = cwd.relativize(entry.getKey.path.toAbsolutePath).toString,
@@ -118,7 +106,8 @@ final class Semanticdb private (
 
   implicit class EligibleSemanticdbOps(outline: Outline) {
     def isEligible: Boolean = {
-      outline.isVisible
+      if (outline.isInstanceOf[DefnPackage]) false
+      else outline.isVisible
     }
 
     def isVisible: Boolean = {
