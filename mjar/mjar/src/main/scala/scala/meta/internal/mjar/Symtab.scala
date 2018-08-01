@@ -40,7 +40,7 @@ class Symtab private (
         case PACKAGE_OBJECT =>
           true
         case CLASS | INTERFACE | OBJECT | TRAIT =>
-          apply(info.symbol.owner).kind == PACKAGE
+          info.symbol.owner.desc.isPackage
         case _ =>
           false
       }
