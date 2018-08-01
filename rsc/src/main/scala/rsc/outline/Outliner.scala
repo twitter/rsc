@@ -397,6 +397,8 @@ final class Outliner private (
         case DefnType(_, _, _, _, Some(hi), _) => loop(hi)
         case DefnType(_, _, _, _, _, Some(alias)) => loop(alias)
         case TypeParam(_, _, _, _, Some(hi), _, _) => loop(hi)
+        case Param(_, _, Some(tpt), _) => loop(tpt)
+        case Self(_, Some(tpt)) => loop(tpt)
         case null => crash(sym)
         case _ => crash(outline)
       }
