@@ -34,24 +34,29 @@ trait MainBase[S <: SettingsBase, I, N, R]
     val quiet = settings.quiet || inputs.length == 1
     val job = Job(inputs, if (quiet) devnull else Console.err)
     job.foreach { input =>
-      (nscResult(settings, input), rscResult(settings, input)) match {
-        case (Left(nscFailures), _) =>
-          val nscProblems = nscFailures.map(FailedNscProblem)
-          nscProblems.foreach(report)
-        case (_, Left(rscFailures)) =>
-          val rscProblems = rscFailures.map { rscFailure =>
-            if (rscFailure.contains(".CrashException") &&
-                !rscFailure.contains(input.toString)) {
-              FailedRscProblem(s"$input: $rscFailure")
-            } else {
-              FailedRscProblem(rscFailure)
+      try {
+        (nscResult(settings, input), rscResult(settings, input)) match {
+          case (Left(nscFailures), _) =>
+            val nscProblems = nscFailures.map(FailedNscProblem)
+            nscProblems.foreach(report)
+          case (_, Left(rscFailures)) =>
+            val rscProblems = rscFailures.map { rscFailure =>
+              if (rscFailure.contains(".CrashException") &&
+                  !rscFailure.contains(input.toString)) {
+                FailedRscProblem(s"$input: $rscFailure")
+              } else {
+                FailedRscProblem(rscFailure)
+              }
             }
-          }
-          rscProblems.foreach(report)
-        case (Right(nscResult), Right(rscResult)) =>
-          val checker = this.checker(settings, nscResult, rscResult)
-          checker.check()
-          checker.problems.foreach(report)
+            rscProblems.foreach(report)
+          case (Right(nscResult), Right(rscResult)) =>
+            val checker = this.checker(settings, nscResult, rscResult)
+            checker.check()
+            checker.problems.foreach(report)
+        }
+      } catch {
+        case ex: Throwable =>
+          ex.printStackTrace()
       }
     }
 
