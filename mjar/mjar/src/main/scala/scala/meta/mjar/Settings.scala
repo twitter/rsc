@@ -9,9 +9,15 @@ import scala.meta.cli._
 final class Settings private (
     val abi: Abi,
     val classpath: List[Path],
+    val debug: Boolean,
     val out: Path) {
   private def this() = {
-    this(abi = Scalac211, classpath = Nil, out = Paths.get("out.jar"))
+    this(
+      abi = Scalac211,
+      classpath = Nil,
+      debug = false,
+      out = Paths.get("out.jar")
+    )
   }
 
   def withAbi(abi: Abi): Settings = {
@@ -22,6 +28,10 @@ final class Settings private (
     copy(classpath = classpath)
   }
 
+  def withDebug(debug: Boolean): Settings = {
+    copy(debug = debug)
+  }
+
   def withOut(out: Path): Settings = {
     copy(out = out)
   }
@@ -29,9 +39,10 @@ final class Settings private (
   private def copy(
       abi: Abi = abi,
       classpath: List[Path] = classpath,
+      debug: Boolean = debug,
       out: Path = out
   ): Settings = {
-    new Settings(abi = abi, classpath = classpath, out = out)
+    new Settings(abi = abi, classpath = classpath, debug = debug, out = out)
   }
 }
 
@@ -52,6 +63,10 @@ object Settings {
         case "--abi" +: other +: rest if allowOptions =>
           reporter.out.println(s"unsupported abi $other")
           None
+        case "--debug" +: rest if allowOptions =>
+          loop(settings.copy(debug = true), true, rest)
+        case "--release" +: rest if allowOptions =>
+          loop(settings.copy(debug = false), true, rest)
         case "-out" +: s_out +: rest if allowOptions =>
           val out = Paths.get(s_out)
           loop(settings.copy(out = out), true, rest)

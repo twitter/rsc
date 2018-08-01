@@ -15,7 +15,9 @@ object ClassfileCodec {
     try {
       val node = new ClassNode()
       val classReader = new ClassReader(is)
-      classReader.accept(node, SKIP_DEBUG | SKIP_FRAMES | SKIP_CODE)
+      classReader.accept(node, SKIP_FRAMES | SKIP_CODE)
+      val name = node.name
+      val source = if (node.sourceFile != null) node.sourceFile else ""
       val attrs = if (node.attrs != null) node.attrs.asScala else Nil
       if (attrs.exists(_.`type` == "ScalaSig")) {
         node.visibleAnnotations.asScala.foreach { ann =>
@@ -23,7 +25,7 @@ object ClassfileCodec {
             ann.values.asScala.toList match {
               case List("bytes", packedScalasig: String) =>
                 val bs = ClassfileReader.unpackScalasig(Array(packedScalasig))
-                return Classfile(node.name, Some(bs))
+                return Classfile(name, source, Some(bs))
               case _ =>
                 ()
             }
@@ -31,14 +33,14 @@ object ClassfileCodec {
             ann.values.asScala.toList match {
               case List("bytes", packedScalasig: Array[String]) =>
                 val bs = ClassfileReader.unpackScalasig(packedScalasig)
-                return Classfile(node.name, Some(bs))
+                return Classfile(name, source, Some(bs))
               case _ =>
                 ()
             }
           }
         }
       }
-      Classfile(node.name, None)
+      Classfile(name, source, None)
     } finally {
       is.close()
     }
@@ -53,6 +55,9 @@ object ClassfileCodec {
       null,
       "java/lang/Object",
       null)
+    if (classfile.source.nonEmpty) {
+      classWriter.visitSource(classfile.source, null)
+    }
     classfile.scalasigBytes.foreach { unpackedScalasig =>
       val packedScalasig = ClassfileWriter.packScalasig(unpackedScalasig)
       packedScalasig match {

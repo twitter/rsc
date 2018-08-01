@@ -6,10 +6,11 @@ import java.io._
 import java.nio.file._
 
 final case class Settings(
+    abi: Abi = Scalac211,
     cp: List[Path] = Nil,
+    debug: Boolean = false,
     ins: List[Path] = Nil,
     out: Path = Paths.get("out.semanticdb"),
-    abi: Abi = Scalac211,
     xprint: Set[String] = Set[String](),
     ystopAfter: Set[String] = Set[String]()
 )
@@ -27,6 +28,10 @@ object Settings {
         case ("-classpath" | "-cp") +: s_cp +: rest if allowOptions =>
           val cp = s_cp.split(File.pathSeparator).map(s => Paths.get(s)).toList
           loop(settings.copy(cp = settings.cp ++ cp), true, rest)
+        case "-debug" +: rest if allowOptions =>
+          loop(settings.copy(debug = true), true, rest)
+        case "-release" +: rest if allowOptions =>
+          loop(settings.copy(debug = false), true, rest)
         case "-out" +: s_out +: rest if allowOptions =>
           val out = Paths.get(s_out)
           loop(settings.copy(out = out), true, rest)

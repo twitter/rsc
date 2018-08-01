@@ -30,10 +30,11 @@ trait MainBase[S <: SettingsBase, I, N, R]
       allProblems += problem
     }
 
-    val job =
-      Job(inputs(settings), if (settings.quiet) devnull else Console.err)
+    val inputs = this.inputs(settings)
+    val quiet = settings.quiet || inputs.length == 1
+    val job = Job(inputs, if (quiet) devnull else Console.err)
     job.foreach { input =>
-      (nscResult(input), rscResult(input)) match {
+      (nscResult(settings, input), rscResult(settings, input)) match {
         case (Left(nscFailures), _) =>
           val nscProblems = nscFailures.map(FailedNscProblem)
           nscProblems.foreach(report)
@@ -66,7 +67,7 @@ trait MainBase[S <: SettingsBase, I, N, R]
 
   def settings(args: List[String]): Either[List[String], S]
   def inputs(settings: S): List[I]
-  def nscResult(input: I): Either[List[String], N]
-  def rscResult(input: I): Either[List[String], R]
+  def nscResult(settings: S, input: I): Either[List[String], N]
+  def rscResult(settings: S, input: I): Either[List[String], R]
   def checker(settings: S, nscResult: N, rscResult: R): CheckerBase
 }

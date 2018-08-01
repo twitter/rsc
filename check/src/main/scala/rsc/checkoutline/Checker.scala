@@ -6,26 +6,24 @@ import java.nio.file._
 import rsc.checkbase._
 import rsc.util._
 import scala.collection.mutable
-import scala.meta.internal.cli._
 import scala.meta.internal.semanticdb._
 import scala.meta.internal.semanticdb.Accessibility.{Tag => a}
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.Property
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
+import scala.meta.internal.semanticdb.SymbolOccurrence.{Role => r}
 
-class Checker(settings: Settings, nscResult: Path, rscResult: Path)
-    extends CheckerBase {
+class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   def check(): Unit = {
-    val nscMap = load(nscResult)
-    val rscMap = load(rscResult)
-    val nscMap1 = highlevelPatch(nscMap)
-    val rscMap1 = highlevelPatch(rscMap)
-    val syms = (nscMap1.keys ++ rscMap1.keys).toList.sorted
-    val job = Job(syms, if (settings.quiet) devnull else Console.err)
-    job.foreach { sym =>
-      val nscInfo = nscMap1.get(sym)
-      val rscInfo = rscMap1.get(sym)
+    val nscIndex = load(nscResult)
+    val rscIndex = load(rscResult)
+    val nscIndex1 = highlevelPatch(nscIndex)
+    val rscIndex1 = highlevelPatch(rscIndex)
+    val syms = (nscIndex1.infos.keys ++ rscIndex1.infos.keys).toList.sorted
+    syms.foreach { sym =>
+      val nscInfo = nscIndex1.infos.get(sym)
+      val rscInfo = rscIndex1.infos.get(sym)
       (nscInfo, rscInfo) match {
         case (Some(nscInfo), Some(rscInfo)) =>
           // FIXME: https://github.com/twitter/rsc/issues/90
@@ -40,7 +38,8 @@ class Checker(settings: Settings, nscResult: Path, rscResult: Path)
             val nscString = nscRepr.toString
             val rscString = rscRepr.toString
             if (nscString != rscString) {
-              problems += DifferentProblem(sym, nscString, rscString)
+              val header = s"${rscIndex1.anchors(sym)}: $sym"
+              problems += DifferentProblem(header, nscString, rscString)
             }
           }
         case (Some(nscInfo), None) =>
@@ -48,7 +47,8 @@ class Checker(settings: Settings, nscResult: Path, rscResult: Path)
             // FIXME: https://github.com/scalameta/scalameta/issues/1586
             ()
           } else {
-            problems += MissingRscProblem(sym)
+            val header = s"${nscIndex1.anchors(sym)}: $sym"
+            problems += MissingRscProblem(header)
           }
         case (None, Some(rscInfo)) =>
           if (rscInfo.name == "equals" ||
@@ -58,7 +58,8 @@ class Checker(settings: Settings, nscResult: Path, rscResult: Path)
             // FIXME: https://github.com/twitter/rsc/issues/98
             ()
           } else {
-            problems += MissingNscProblem(sym)
+            val header = s"${rscIndex1.anchors(sym)}: $sym"
+            problems += MissingNscProblem(header)
           }
         case (None, None) =>
           ()
@@ -66,23 +67,39 @@ class Checker(settings: Settings, nscResult: Path, rscResult: Path)
     }
   }
 
-  private def load(path: Path): Map[String, SymbolInformation] = {
-    val map = mutable.Map[String, SymbolInformation]()
+  case class Index(
+      infos: Map[String, SymbolInformation],
+      anchors: Map[String, String])
+
+  private def load(path: Path): Index = {
+    val infos = mutable.Map[String, SymbolInformation]()
+    val anchors = mutable.Map[String, String]()
     Locator(path) { (_, payload) =>
       payload.documents.foreach { document =>
+        val ranges = mutable.Map[String, Range]()
+        document.occurrences.foreach {
+          case SymbolOccurrence(Some(range), symbol, r.DEFINITION) =>
+            ranges(symbol) = range
+          case _ =>
+            ()
+        }
         document.symbols.foreach { info =>
           if (info.symbol.isGlobal) {
-            map(info.symbol) = info
+            infos(info.symbol) = info
+            var anchor = document.uri
+            ranges.get(info.symbol).foreach { range =>
+              anchor += s":${range.startLine + 1}"
+            }
+            anchors(info.symbol) = anchor
           }
         }
       }
     }
-    map.toMap
+    Index(infos.toMap, anchors.toMap)
   }
 
-  private def highlevelPatch(
-      map: Map[String, SymbolInformation]): Map[String, SymbolInformation] = {
-    var infos1 = map.values.toList
+  private def highlevelPatch(index: Index): Index = {
+    var infos1 = index.infos.values.toList
     // WONTFIX: https://github.com/scalameta/scalameta/issues/1340
     infos1 = infos1.filter(_.kind != k.PACKAGE)
     // WONTFIX: https://github.com/twitter/rsc/issues/121
@@ -106,7 +123,7 @@ class Checker(settings: Settings, nscResult: Path, rscResult: Path)
           sys.error(info.toProtoString)
       }
     }
-    infos1.map(info => info.symbol -> info).toMap
+    Index(infos1.map(info => info.symbol -> info).toMap, index.anchors)
   }
 
   private def highlevelPatch(
