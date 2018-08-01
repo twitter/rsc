@@ -177,19 +177,19 @@ class AsyncMeter private (
     s"burst duration of $burstDuration, which is <= 0 nanoseconds doesn't make sense"
   )
 
-  private[this] val period: _root_.com.twitter.concurrent.Period = Period.fromBurstiness(burstSize, burstDuration)
+  private[this] val period = Period.fromBurstiness(burstSize, burstDuration)
 
   // if it's less frequent than 1 / millisecond, we release 1 every interval to make it hit that rate.
   // otherwise, we release N every millisecond
-  private[this] val interval: _root_.com.twitter.util.Duration = period.realInterval
+  private[this] val interval = period.realInterval
   private[this] val bucket: TokenBucket = TokenBucket.newBoundedBucket(burstSize)
   bucket.put(burstSize)
 
   // these are synchronized on this
   private[this] var remainder: Double = 0
-  @volatile private[this] var running: _root_.scala.Boolean = false
+  @volatile private[this] var running = false
   private[this] var task: Closable = Closable.nop
-  private[this] var elapsed: _root_.com.twitter.util.Stopwatch.Elapsed = Stopwatch.start()
+  private[this] var elapsed = Stopwatch.start()
 
   // TODO: we may want to check the Deadline and not bother scheduling it if its
   // position in line exceeds its Deadline.  However, if earlier nodes get

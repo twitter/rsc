@@ -200,7 +200,7 @@ object Offer {
     def prepare(): Future[Tx[Nothing]] = Future.never
   }
 
-  private[this] val rng: _root_.scala.Some[_root_.scala.util.Random] = Some(new Random(Time.now.inNanoseconds))
+  private[this] val rng = Some(new Random(Time.now.inNanoseconds))
 
   /**
    * The offer that chooses exactly one of the given offers. If there are any
@@ -292,7 +292,7 @@ object Offer {
    */
   def select[T](ofs: Offer[T]*): Future[T] = choose(ofs: _*).sync()
 
-  private[this] val FutureTxUnit: _root_.com.twitter.util.Future[_root_.com.twitter.concurrent.Tx[_root_.scala.Unit]] = Future.value(Tx.Unit)
+  private[this] val FutureTxUnit = Future.value(Tx.Unit)
 
   /**
    * An offer that is available after the given time out.

@@ -46,7 +46,7 @@ object Future {
   val ??? : Future[Nothing] =
     Future.exception(new NotImplementedError("an implementation is missing"))
 
-  private val SomeReturnUnit: _root_.scala.Some[_root_.com.twitter.util.Return[_root_.scala.Unit]] = Some(Return.Unit)
+  private val SomeReturnUnit = Some(Return.Unit)
   private val NotApplied: Future[Nothing] = new NoFuture
   private val AlwaysNotApplied: Any => Future[Nothing] = scala.Function.const(NotApplied)
   private val toUnit: Try[Any] => Future[Unit] = {
@@ -90,8 +90,8 @@ object Future {
   private def emptyMap[A, B]: Future[Map[A, B]] = emptyMapInstance.asInstanceOf[Future[Map[A, B]]]
 
   // Exception used to raise on Futures.
-  private[this] val RaiseException: _root_.scala.`package`.Exception with _root_.scala.util.control.NoStackTrace = new Exception with NoStackTrace
-  @inline private final def raiseException: _root_.scala.`package`.Exception with _root_.scala.util.control.NoStackTrace = RaiseException
+  private[this] val RaiseException = new Exception with NoStackTrace
+  @inline private final def raiseException = RaiseException
 
   /**
    * Creates a satisfied `Future` from a [[Try]].
@@ -234,7 +234,7 @@ object Future {
       extends Promise[Unit]
       with (Try[A] => Unit) {
 
-    private[this] val count: _root_.java.util.concurrent.atomic.AtomicInteger = new AtomicInteger(size)
+    private[this] val count = new AtomicInteger(size)
 
     // Handler for `Future.respond`, invoked in `Future.join`
     def apply(value: Try[A]): Unit = value match {
@@ -1072,8 +1072,8 @@ def join[%s](%s): Future[(%s)] = join(Seq(%s)).map { _ => (%s) }""".format(
       extends Promise[Seq[A]]
       with Promise.InterruptHandler {
 
-    private[this] val results: _root_.scala.collection.mutable.ArraySeq[A] = new mutable.ArraySeq[A](fs.size)
-    private[this] val count: _root_.java.util.concurrent.atomic.AtomicInteger = new AtomicInteger(results.size)
+    private[this] val results = new mutable.ArraySeq[A](fs.size)
+    private[this] val count = new AtomicInteger(results.size)
 
     // Respond handler. It's safe to write into different array cells concurrently.
     // We guarantee the thread writing a last value will observe all previous writes

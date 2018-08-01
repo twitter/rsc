@@ -37,7 +37,7 @@ object Cancellable {
 }
 
 class CancellableSink(f: => Unit) extends Cancellable {
-  private[this] val wasCancelled: _root_.java.util.concurrent.atomic.AtomicBoolean = new AtomicBoolean(false)
+  private[this] val wasCancelled = new AtomicBoolean(false)
   def isCancelled: _root_.scala.Boolean = wasCancelled.get
   def cancel(): Unit = { if (wasCancelled.compareAndSet(false, true)) f }
   def linkTo(other: Cancellable): Unit = {

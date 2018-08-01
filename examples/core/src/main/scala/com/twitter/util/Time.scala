@@ -397,8 +397,8 @@ object Time extends TimeLikeOps[Time] {
    */
   val epoch: Time = fromNanoseconds(0L)
 
-  private val defaultFormat: _root_.com.twitter.util.TimeFormat = new TimeFormat("yyyy-MM-dd HH:mm:ss Z")
-  private val rssFormat: _root_.com.twitter.util.TimeFormat = new TimeFormat("E, dd MMM yyyy HH:mm:ss Z")
+  private val defaultFormat = new TimeFormat("yyyy-MM-dd HH:mm:ss Z")
+  private val rssFormat = new TimeFormat("E, dd MMM yyyy HH:mm:ss Z")
 
   /**
    * Note, this should only ever be updated by methods used for testing.
@@ -523,7 +523,7 @@ class TimeFormat(
   /** Create a new TimeFormat with the default locale and timezone. **/
   def this(pattern: String) = this(pattern, None, TimeZone.getTimeZone("UTC"))
 
-  private[this] val format: _root_.java.text.SimpleDateFormat = locale
+  private[this] val format = locale
     .map(TwitterDateFormat(pattern, _))
     .getOrElse(TwitterDateFormat(pattern))
 

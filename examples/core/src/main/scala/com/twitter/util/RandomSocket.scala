@@ -9,9 +9,9 @@ import scala.util.control.NonFatal
  * ephemeral ports.
  */
 object RandomSocket {
-  private[this] def localSocketOnPort(port: Int): _root_.java.net.InetSocketAddress =
+  private[this] def localSocketOnPort(port: Int) =
     new InetSocketAddress(port)
-  private[this] val ephemeralSocketAddress: _root_.java.net.InetSocketAddress = localSocketOnPort(0)
+  private[this] val ephemeralSocketAddress = localSocketOnPort(0)
 
   @deprecated("RandomSocket cannot ensure that the address is not in use.", "2014-11-13")
   def apply(): _root_.java.net.InetSocketAddress = nextAddress()

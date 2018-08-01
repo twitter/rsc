@@ -24,7 +24,7 @@ abstract class Buf { outer =>
   // Note: there is an opportunity for a race in computing cachedHashCode
   // but since the computed hash code is deterministic the worst case
   // scenario is duplication of work.
-  private[this] var cachedHashCode: _root_.scala.Int = 0
+  private[this] var cachedHashCode = 0
 
   /**
    * Write the entire contents of this `Buf` into the given array at
@@ -310,7 +310,7 @@ object Buf {
 
     def write(buffer: java.nio.ByteBuffer): Unit = ()
 
-    override val isEmpty: _root_.scala.Boolean = true
+    override val isEmpty = true
     def length: Int = 0
     def slice(from: Int, until: Int): Buf = {
       checkSliceArgs(from, until)
@@ -1319,7 +1319,7 @@ object Buf {
   }
 
   // Length at which eC append/prepend operations are always faster
-  private[this] val TinyIsFaster: _root_.scala.Int = 2
+  private[this] val TinyIsFaster = 2
   // Length ratio at which eC append/prepend operations are slower than making a new collection
-  private[this] val ConcatFasterFactor: _root_.scala.Int = 32
+  private[this] val ConcatFasterFactor = 32
 }

@@ -30,7 +30,7 @@ import com.twitter.io.Files
  * is effectively a thread-local global.
  */
 trait TempFolder {
-  private val _folderName: _root_.java.lang.ThreadLocal[_root_.java.io.File] = new ThreadLocal[File]
+  private val _folderName = new ThreadLocal[File]
 
   /**
    * Runs the given block of code with the presence of a temporary folder whose name can be

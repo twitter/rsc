@@ -69,7 +69,7 @@ object FuturePool {
     override def toString: String = "FuturePool.immediatePool"
   }
 
-  private lazy val defaultExecutor: _root_.java.util.concurrent.ExecutorService = Executors.newCachedThreadPool(
+  private lazy val defaultExecutor = Executors.newCachedThreadPool(
     new NamedPoolThreadFactory("UnboundedFuturePool", makeDaemons = true)
   )
 

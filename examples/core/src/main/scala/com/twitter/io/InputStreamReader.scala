@@ -14,8 +14,8 @@ class InputStreamReader private[io] (inputStream: InputStream, maxBufferSize: In
     extends Reader
     with Closable
     with CloseAwaitably {
-  private[this] val mutex: _root_.com.twitter.concurrent.AsyncMutex = new AsyncMutex()
-  @volatile private[this] var discarded: _root_.scala.Boolean = false
+  private[this] val mutex = new AsyncMutex()
+  @volatile private[this] var discarded = false
 
   def this(inputStream: InputStream, maxBufferSize: Int) =
     this(inputStream, maxBufferSize, FuturePool.interruptibleUnboundedPool)

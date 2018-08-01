@@ -8,11 +8,11 @@ import java.util
  */
 object Charsets {
 
-  private[this] val encoders: _root_.java.lang.ThreadLocal[_root_.java.util.Map[_root_.java.nio.charset.Charset, _root_.java.nio.charset.CharsetEncoder]] = new ThreadLocal[util.Map[Charset, CharsetEncoder]] {
+  private[this] val encoders = new ThreadLocal[util.Map[Charset, CharsetEncoder]] {
     protected override def initialValue: util.HashMap[Charset, CharsetEncoder] = new util.HashMap()
   }
 
-  private[this] val decoders: _root_.java.lang.ThreadLocal[_root_.java.util.Map[_root_.java.nio.charset.Charset, _root_.java.nio.charset.CharsetDecoder]] = new ThreadLocal[util.Map[Charset, CharsetDecoder]] {
+  private[this] val decoders = new ThreadLocal[util.Map[Charset, CharsetDecoder]] {
     protected override def initialValue: util.Map[Charset, CharsetDecoder] = new util.HashMap()
   }
 

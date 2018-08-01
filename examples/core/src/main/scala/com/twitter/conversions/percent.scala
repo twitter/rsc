@@ -19,7 +19,7 @@ import scala.language.implicitConversions
  */
 object percent {
 
-  private val BigDecimal100: _root_.scala.math.BigDecimal = BigDecimal(100.0)
+  private val BigDecimal100 = BigDecimal(100.0)
 
   class RichDoublePercent private[conversions](val wrapped: Double) extends AnyVal {
     // convert wrapped to BigDecimal to preserve precision when dividing Doubles

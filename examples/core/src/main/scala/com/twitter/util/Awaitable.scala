@@ -38,7 +38,7 @@ trait Awaitable[+T] {
 
 object Awaitable {
 
-  private[this] val TrackElapsedBlocking: _root_.java.lang.ThreadLocal[_root_.java.lang.Object] = new ThreadLocal[Object]()
+  private[this] val TrackElapsedBlocking = new ThreadLocal[Object]()
 
   /**
    * Enables tracking time spent in blocking operations for the current thread.
@@ -188,8 +188,8 @@ object Await {
 
 // See http://stackoverflow.com/questions/26643045/java-interoperability-woes-with-scala-generics-and-boxing
 private[util] trait CloseAwaitably0[U <: Unit] extends Awaitable[U] {
-  private[this] val onClose: _root_.com.twitter.util.Promise[U] = new Promise[U]
-  private[this] val closed: _root_.java.util.concurrent.atomic.AtomicBoolean = new AtomicBoolean(false)
+  private[this] val onClose = new Promise[U]
+  private[this] val closed = new AtomicBoolean(false)
 
   /**
    * closeAwaitably is intended to be used as a wrapper for

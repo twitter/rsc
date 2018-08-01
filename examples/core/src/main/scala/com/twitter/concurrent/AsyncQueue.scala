@@ -13,7 +13,7 @@ object AsyncQueue {
   private case class Excepting(exc: Throwable) extends State
 
   /** Indicates there is no max capacity */
-  private val UnboundedCapacity: _root_.scala.Int = Int.MaxValue
+  private val UnboundedCapacity = Int.MaxValue
 }
 
 /**

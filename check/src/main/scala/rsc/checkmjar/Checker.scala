@@ -20,9 +20,9 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
       val nscIndex = nscMaps.get(name)
       val rscIndex = rscMaps.get(name)
       (nscIndex, rscIndex) match {
-        case (Some(Index(nscSig, nscMap)), Some(Index(rscSig, rscMap))) =>
-          val nscMap1 = highlevelPatch(nscMap)
-          val rscMap1 = highlevelPatch(rscMap)
+        case (Some(nscIndex), Some(rscIndex)) =>
+          val Index(nscSig, nscMap1) = highlevelPatch(nscIndex)
+          val Index(rscSig, rscMap1) = highlevelPatch(rscIndex)
           val ids1 = (nscMap1.keys ++ rscMap1.keys).toList.sorted
           ids1.foreach { id =>
             val nscSym = nscMap1.get(id)
@@ -40,7 +40,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
                   problems += DifferentProblem(header, nscString, rscString)
                 }
               case (Some(nscSym), None) =>
-                problems += MissingRscProblem(s"${rscSig.source}: $id")
+                problems += MissingRscProblem(s"${nscSig.source}: $id")
               case (None, Some(rscSym)) =>
                 if (rscSym.name.value == "equals" ||
                     rscSym.name.value == "hashCode" ||
@@ -58,10 +58,10 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
                 ()
             }
           }
-        case (Some(Index(nscSig, _)), None) =>
-          problems += MissingRscProblem(s"${nscSig.source}: $name")
-        case (None, Some(Index(rscSig, _))) =>
-          problems += MissingNscProblem(s"${rscSig.source}: $name")
+        case (Some(nscIndex), None) =>
+          problems += MissingRscProblem(s"${nscIndex.sig.source}: $name")
+        case (None, Some(rscIndex)) =>
+          problems += MissingNscProblem(s"${rscIndex.sig.source}: $name")
         case (None, None) =>
           ()
       }
@@ -88,19 +88,14 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     scalasigs.toMap
   }
 
-  private def highlevelPatch(
-      map: Map[String, EmbeddedSymbol]): Map[String, EmbeddedSymbol] = {
-    var syms1 = map.values.toList
+  private def highlevelPatch(index: Index): Index = {
+    var syms1 = index.map.values.toList
     // WONTFIX: https://github.com/twitter/rsc/issues/121
-    syms1 = syms1.filter {
-      case _: ClassSymbol => true
-      case _: ModuleSymbol => true
-      case sym => (sym.flags & PRIVATE) == 0
-    }
+    syms1 = syms1.filter(_.isEligible)
     syms1 = syms1.filter(sym => (sym.flags & EXISTENTIAL) == 0)
     // FIXME: https://github.com/twitter/rsc/issues/101
     syms1 = syms1.filter(_.name != TypeName("<local child>"))
-    syms1.map(sym => sym.id -> sym).toMap
+    Index(index.sig, syms1.map(sym => sym.id -> sym).toMap)
   }
 
   private def highlevelPatch(sym: EmbeddedSymbol): Unit = {
@@ -250,5 +245,24 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
       }
     }
     prettifier(datum)
+  }
+
+  private implicit class SymbolOps(sym: EmbeddedSymbol) {
+    def isEligible: Boolean = {
+      sym.isVisible
+    }
+
+    def isVisible: Boolean = {
+      val isOwnerVisible = sym.owner match {
+        case owner: EmbeddedSymbol => owner.isVisible
+        case _ => true
+      }
+      if (isOwnerVisible) {
+        if ((sym.flags & PRIVATE) != 0) sym.owner.isInstanceOf[ExternalSymbol]
+        else false
+      } else {
+        false
+      }
+    }
   }
 }

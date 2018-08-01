@@ -70,9 +70,9 @@ object ActivitySource {
  */
 class CachingActivitySource[T](underlying: ActivitySource[T]) extends ActivitySource[T] {
 
-  private[this] val refq: _root_.java.lang.ref.ReferenceQueue[_root_.com.twitter.util.Activity[T]] = new ReferenceQueue[Activity[T]]
-  private[this] val forward: _root_.java.util.HashMap[_root_.scala.Predef.String, _root_.java.lang.ref.WeakReference[_root_.com.twitter.util.Activity[T]]] = new HashMap[String, WeakReference[Activity[T]]]
-  private[this] val reverse: _root_.java.util.HashMap[_root_.java.lang.ref.WeakReference[_root_.com.twitter.util.Activity[T]], _root_.scala.Predef.String] = new HashMap[WeakReference[Activity[T]], String]
+  private[this] val refq = new ReferenceQueue[Activity[T]]
+  private[this] val forward = new HashMap[String, WeakReference[Activity[T]]]
+  private[this] val reverse = new HashMap[WeakReference[Activity[T]], String]
 
   /**
    * A caching proxy to the underlying ActivitySource. Vars are cached by

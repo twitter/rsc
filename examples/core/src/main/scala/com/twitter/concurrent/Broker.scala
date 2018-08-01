@@ -37,7 +37,7 @@ class Broker[T] {
   private[this] case class Sending(q: Queue[(Promise[Tx[Unit]], T)]) extends State
   private[this] case class Receiving(q: Queue[Promise[Tx[T]]]) extends State
 
-  private[this] val state: _root_.java.util.concurrent.atomic.AtomicReference[Broker.this.State] = new AtomicReference[State](Quiet)
+  private[this] val state = new AtomicReference[State](Quiet)
 
   @tailrec
   private[this] def rmElem(elem: AnyRef): Unit = {
