@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-VERSION="0.6.0-M12-patch1-4-a631bf30-SNAPSHOT"
+# NOTE: Scalafix published from https://github.com/xeno-by/scalafix/pull/7.
+VERSION="0.6.0-M12-patch1-5-757901b0-SNAPSHOT"
 CACHE="$HOME/.scalafix"
 COURSIER="$CACHE/coursier"
 SCALAFIX="$CACHE/scalafix-$VERSION"

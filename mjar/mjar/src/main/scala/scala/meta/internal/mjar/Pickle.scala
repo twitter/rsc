@@ -7,7 +7,6 @@ import scala.meta.mjar._
 import scala.meta.scalasig._
 import scala.meta.scalasig.lowlevel._
 import scala.meta.internal.{semanticdb => s}
-import scala.meta.internal.semanticdb.Accessibility.{Tag => a}
 import scala.meta.internal.semanticdb.{Language => l}
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
@@ -483,10 +482,10 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       sinfo.has(p.SYNTHETIC)
     }
     def isPrivateThis: Boolean = {
-      sinfo.accessibility.map(_.tag == a.PRIVATE_THIS).getOrElse(false)
+      sinfo.access.isInstanceOf[s.PrivateThisAccess]
     }
     def isProtectedThis: Boolean = {
-      sinfo.accessibility.map(_.tag == a.PROTECTED_THIS).getOrElse(false)
+      sinfo.access.isInstanceOf[s.ProtectedThisAccess]
     }
     def isDeferred: Boolean = {
       def isAbstractMember: Boolean = {
@@ -498,32 +497,26 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       sinfo.kind == k.FIELD && sinfo.has(p.VAR)
     }
     def isPrivate: Boolean = {
-      sinfo.accessibility
-        .map {
-          case s.Accessibility(a.PRIVATE, _) => true
-          case s.Accessibility(a.PRIVATE_THIS, _) => true
-          case s.Accessibility(a.PRIVATE_WITHIN, _) => false
-          case _ => false
-        }
-        .getOrElse(false)
+      sinfo.access match {
+        case s.PrivateAccess() => true
+        case s.PrivateThisAccess() => true
+        case _ => false
+      }
     }
     def isProtected: Boolean = {
-      sinfo.accessibility
-        .map {
-          case s.Accessibility(a.PROTECTED, _) => true
-          case s.Accessibility(a.PROTECTED_THIS, _) => true
-          case s.Accessibility(a.PROTECTED_WITHIN, _) => true
-          case _ => false
-        }
-        .getOrElse(false)
+      sinfo.access match {
+        case s.ProtectedAccess() => true
+        case s.ProtectedThisAccess() => true
+        case s.ProtectedWithinAccess(_) => true
+        case _ => false
+      }
     }
     def isPublic: Boolean = {
-      sinfo.accessibility
-        .map {
-          case s.Accessibility(a.PUBLIC, _) => true
-          case _ => false
-        }
-        .getOrElse(true)
+      sinfo.access match {
+        case s.NoAccess => true
+        case s.PublicAccess() => true
+        case _ => false
+      }
     }
     def isParamAccessor: Boolean = {
       ssym.name match {
@@ -750,13 +743,9 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       }
     }
     def swithin: Option[String] = {
-      sinfo.accessibility.flatMap {
-        case s.Accessibility(a.PRIVATE, _) => None
-        case s.Accessibility(a.PRIVATE_THIS, _) => None
-        case s.Accessibility(a.PRIVATE_WITHIN, within) => Some(within)
-        case s.Accessibility(a.PROTECTED, _) => None
-        case s.Accessibility(a.PROTECTED_THIS, _) => None
-        case s.Accessibility(a.PROTECTED_WITHIN, within) => Some(within)
+      sinfo.access match {
+        case s.PrivateWithinAccess(within) => Some(within)
+        case s.ProtectedWithinAccess(within) => Some(within)
         case _ => None
       }
     }
@@ -791,8 +780,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
   }
 
   implicit class PropertyOps(val p: Property.type) {
-    val SYNTHETIC = p.Unrecognized(32768)
-    val DEFAULT = p.Unrecognized(65536)
+    val SYNTHETIC = p.Unrecognized(65536)
   }
 
   private val scaseAccessors = mutable.Set[String]()
@@ -817,7 +805,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         name = "<refinement>",
         signature = ssig,
         annotations = Nil,
-        accessibility = Some(s.Accessibility(a.PUBLIC))
+        access = s.PublicAccess()
       )
     }
     def ssyntheticCompanion(sclassSym: String): s.SymbolInformation = {
@@ -833,7 +821,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         name = sclassSym.desc.name,
         signature = ssig,
         annotations = Nil,
-        accessibility = Some(s.Accessibility(a.PUBLIC))
+        access = s.PublicAccess()
       )
     }
     def smoduleCtor(sobjectSym: String): s.SymbolInformation = {
@@ -846,7 +834,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         name = n.Constructor,
         signature = ssig,
         annotations = Nil,
-        accessibility = Some(s.Accessibility(a.PUBLIC))
+        access = s.PublicAccess()
       )
     }
     def straitCtor(straitSym: String): s.SymbolInformation = {
@@ -859,7 +847,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         name = "$init$",
         signature = ssig,
         annotations = Nil,
-        accessibility = Some(s.Accessibility(a.PUBLIC))
+        access = s.PublicAccess()
       )
     }
     def svalField(sgetterSym: String): s.SymbolInformation = {
@@ -887,7 +875,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         name = sfieldName,
         signature = sfieldSig,
         annotations = Nil,
-        accessibility = Some(s.Accessibility(a.PRIVATE_THIS))
+        access = s.PrivateThisAccess()
       )
     }
     def svarField(ssetterSym: String): s.SymbolInformation = {
@@ -919,7 +907,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         name = sfieldName,
         signature = sfieldSig,
         annotations = Nil,
-        accessibility = Some(s.Accessibility(a.PRIVATE_THIS))
+        access = s.PrivateThisAccess()
       )
     }
     def scaseAccessor(sgetterSym: String): s.SymbolInformation = {
@@ -940,7 +928,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         name = saccessorName,
         signature = saccessorSig,
         annotations = Nil,
-        accessibility = Some(s.Accessibility(a.PUBLIC))
+        access = s.PublicAccess()
       )
     }
     def sextensionMethods(sobjectSym: String): List[s.SymbolInformation] = {
@@ -1001,7 +989,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
             name = xthisName,
             signature = xthisSig,
             annotations = Nil,
-            accessibility = Some(s.Accessibility(a.PUBLIC))
+            access = s.NoAccess
           )
           xbuf += xthis
           xparamssBuf += s.Scope(List(xthisSym))
@@ -1031,7 +1019,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
           name = xmethodName,
           signature = xmethodSig,
           annotations = Nil,
-          accessibility = Some(s.Accessibility(a.PUBLIC))
+          access = s.PublicAccess()
         )
       }
       xbuf.result

@@ -68,7 +68,7 @@ trait ToolUtil extends CacheUtil with NscUtil {
             val metaiClasspath = Classpath(AbsolutePath(entry))
             val settings = Settings().withClasspath(metaiClasspath)
             val result = Metai.process(settings, console.reporter)
-            success &= result.success
+            success &= result.isSuccess
             if (console.err.nonEmpty) errors += console.err
           }
           Files.createDirectories(done.getParent)
@@ -143,7 +143,7 @@ trait ToolUtil extends CacheUtil with NscUtil {
   private class Console {
     private val baos = new ByteArrayOutputStream()
     private val ps = new PrintStream(baos)
-    val reporter = Reporter().silenceOut().withErr(ps)
+    val reporter = Reporter().withSilentOut().withErr(ps)
     def err = new String(baos.toByteArray, UTF_8)
   }
 }
