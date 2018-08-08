@@ -7,8 +7,7 @@ import scala.meta.internal.semanticdb.SymbolInformation._
 
 trait SemanticdbUtil {
   implicit class PropertyOps(val p: Property.type) {
-    val SYNTHETIC = p.Unrecognized(32768)
-    val DEFAULT = p.Unrecognized(65536)
+    val SYNTHETIC = p.Unrecognized(65536)
   }
 
   implicit class SymbolInformationOps(info: SymbolInformation) {

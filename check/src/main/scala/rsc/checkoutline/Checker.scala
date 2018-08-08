@@ -7,7 +7,6 @@ import rsc.checkbase._
 import rsc.util._
 import scala.collection.mutable
 import scala.meta.internal.semanticdb._
-import scala.meta.internal.semanticdb.Accessibility.{Tag => a}
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
@@ -207,10 +206,9 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
             val owner = info.symbol.owner.info
             val isOwnerVisible = owner.isVisible
             if (isOwnerVisible) {
-              val acc = info.accessibility.map(_.tag).getOrElse(a.PUBLIC)
-              acc match {
-                case a.PRIVATE => owner.kind == k.PACKAGE
-                case a.PRIVATE_THIS => false
+              info.access match {
+                case PrivateAccess() => owner.kind == k.PACKAGE
+                case PrivateThisAccess() => false
                 case _ => true
               }
             } else {

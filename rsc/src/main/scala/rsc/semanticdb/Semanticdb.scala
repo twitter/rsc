@@ -16,7 +16,6 @@ import rsc.util._
 import scala.collection.JavaConverters._
 import scala.collection.mutable.UnrolledBuffer
 import scala.meta.internal.{semanticdb => s}
-import scala.meta.internal.semanticdb.Accessibility.{Tag => a}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 import scala.meta.internal.semanticdb.SymbolOccurrence.{Role => r}
@@ -47,7 +46,7 @@ final class Semanticdb private (
       name = outline.name,
       signature = outline.signature,
       annotations = outline.annotations,
-      accessibility = outline.accessibility
+      access = outline.access
     )
     infoBuf += info
     if (settings.debug) {
@@ -298,26 +297,28 @@ final class Semanticdb private (
       Nil
     }
 
-    def accessibility: Option[s.Accessibility] = {
-      outline match {
-        case outline: Param =>
-          Some(s.Accessibility(a.PUBLIC, ""))
-        case outline if outline.hasPrivate =>
-          Some(s.Accessibility(a.PRIVATE, ""))
-        case outline if outline.hasPrivateThis =>
-          Some(s.Accessibility(a.PRIVATE_THIS, ""))
-        case outline if outline.hasPrivateWithin =>
-          val id = outline.within.get
-          Some(s.Accessibility(a.PRIVATE_WITHIN, id.sym))
-        case outline if outline.hasProtected =>
-          Some(s.Accessibility(a.PROTECTED, ""))
-        case outline if outline.hasProtectedThis =>
-          Some(s.Accessibility(a.PROTECTED_THIS, ""))
-        case outline if outline.hasProtectedWithin =>
-          val id = outline.within.get
-          Some(s.Accessibility(a.PROTECTED_WITHIN, id.sym))
+    def access: s.Access = {
+      kind match {
+        case k.LOCAL | k.PARAMETER | k.SELF_PARAMETER | k.TYPE_PARAMETER |
+            k.PACKAGE | k.PACKAGE_OBJECT =>
+          s.NoAccess
         case _ =>
-          Some(s.Accessibility(a.PUBLIC, ""))
+          outline match {
+            case outline if outline.hasPrivate =>
+              s.PrivateAccess()
+            case outline if outline.hasPrivateThis =>
+              s.PrivateThisAccess()
+            case outline if outline.hasPrivateWithin =>
+              s.PrivateWithinAccess(outline.within.get.sym)
+            case outline if outline.hasProtected =>
+              s.ProtectedAccess()
+            case outline if outline.hasProtectedThis =>
+              s.ProtectedThisAccess()
+            case outline if outline.hasProtectedWithin =>
+              s.ProtectedWithinAccess(outline.within.get.sym)
+            case _ =>
+              s.PublicAccess()
+          }
       }
     }
   }
@@ -432,7 +433,7 @@ final class Semanticdb private (
                     name = "_",
                     signature = sig,
                     annotations = Nil,
-                    accessibility = Some(s.Accessibility(a.PUBLIC))
+                    access = s.PublicAccess()
                   )
                 }
                 val targs1 = targs.map { targ =>
