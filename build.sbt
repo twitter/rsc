@@ -2,8 +2,7 @@ lazy val V = new {
   val asm = "6.0"
   val scala = computeScalaVersionFromTravisYml("2.11")
   val scalafix = computeScalafixVersionFromBinScalafix()
-  // NOTE: Scalameta published from https://github.com/scalameta/scalameta/pull/1738.
-  val scalameta = "4.0.0-M7-61-92cd89be-SNAPSHOT"
+  val scalameta = "4.0.0-M8"
   val scalatest = "3.0.5"
 }
 
@@ -268,6 +267,6 @@ lazy val semanticdbSettings = Def.settings(
     "org.scalameta" %% "semanticdb-scalac" % V.scalameta cross CrossVersion.full),
   scalacOptions += "-Yrangepos",
   scalacOptions += "-P:semanticdb:text:off",
-  scalacOptions += "-P:semanticdb:symbols:on",
+  scalacOptions += "-P:semanticdb:symbols:all",
   scalacOptions += "-P:semanticdb:synthetics:on"
 )
