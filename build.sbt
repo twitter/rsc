@@ -127,7 +127,7 @@ lazy val scalafixRules = project
     commonSettings,
     publishableSettings,
     moduleName := "rsc-rules",
-    libraryDependencies += "com.github.xenoby" %% "scalafix-core" % V.scalafix
+    libraryDependencies += "ch.epfl.scala" %% "scalafix-core" % V.scalafix
   )
 
 lazy val scalafixTests = project
@@ -135,7 +135,7 @@ lazy val scalafixTests = project
   .dependsOn(scalafixInput, scalafixRules)
   .settings(
     commonSettings,
-    libraryDependencies += "com.github.xenoby" % "scalafix-testkit" % V.scalafix % Test cross CrossVersion.full
+    libraryDependencies += "ch.epfl.scala" % "scalafix-testkit" % V.scalafix % Test cross CrossVersion.full
   )
 
 lazy val scalasig = project
