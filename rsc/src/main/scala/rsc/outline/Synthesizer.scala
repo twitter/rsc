@@ -411,10 +411,13 @@ final class Synthesizer private (
       val tparam = TypeParam(Mods(Nil), id, Nil, lbound, ubound, Nil, Nil)
       tparam.withPos(tp.pos)
     }
+    var hasDefault = false
     val paramss = tree.ctor.paramss.map(_.map { p =>
       val id = TermId(p.id.nameopt.get.value).withPos(p.id.pos)
       val tpt = p.tpt.map(_.dupe)
-      val param = Param(Mods(Nil), id, tpt, None)
+      val rhs = p.rhs.map(_.dupe)
+      hasDefault |= p.rhs.nonEmpty
+      val param = Param(Mods(Nil), id, tpt, rhs)
       param.withPos(p.pos)
     })
     val ret = {
@@ -425,6 +428,7 @@ final class Synthesizer private (
     val rhs = Some(TermSynthetic())
     val meth = DefnMethod(Mods(Nil), id, tparams, paramss, ret, rhs)
     scheduler(env, meth.withPos(tree.pos))
+    if (hasDefault) defaultGetters(env, meth)
   }
 
   private def caseClassCompanionUnapply(env: Env, tree: DefnClass): Unit = {

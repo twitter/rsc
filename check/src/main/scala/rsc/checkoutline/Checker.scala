@@ -7,6 +7,7 @@ import rsc.checkbase._
 import rsc.util._
 import scala.collection.mutable
 import scala.meta.internal.semanticdb._
+import scala.meta.internal.semanticdb.Language._
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
@@ -103,6 +104,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     var infos1 = index.infos.values.toList
     // WONTFIX: https://github.com/twitter/rsc/issues/121
     infos1 = infos1.filter(_.isEligible)
+    // NOTE: https://github.com/twitter/rsc/issues/191
+    infos1 = infos1.filter(_.language == SCALA)
     Index(infos1.map(info => info.symbol -> info).toMap, index.anchors)
   }
 
@@ -122,8 +125,6 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     }
     // FIXME: https://github.com/scalameta/scalameta/issues/1492
     info1 = info1.copy(properties = info1.properties & ~p.SYNTHETIC.value)
-    // FIXME: https://github.com/scalameta/scalameta/issues/1645
-    info1 = info1.copy(properties = info1.properties & ~p.DEFAULT.value)
 
     info1.signature match {
       case ClassSignature(tps, ps, self, Some(ds)) =>
@@ -133,8 +134,11 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
           case TypeRef(_, SerializableClass, _) => false
           case _ => true
         }
+        var self1 = self
         // FIXME: https://github.com/twitter/rsc/issues/120
-        val self1 = NoType
+        if (info1.symbol == "com/twitter/util/TimeLike#") {
+          self1 = NoType
+        }
         var ds1 = ds.symlinks
         // FIXME: https://github.com/scalameta/scalameta/issues/1548
         ds1 = ds1.sorted

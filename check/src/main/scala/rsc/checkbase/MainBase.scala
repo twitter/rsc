@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.checkbase
 
+import rsc.util._
 import scala.collection.mutable
 import scala.meta.internal.cli._
 import scala.util._
@@ -30,28 +31,36 @@ trait MainBase[S <: SettingsBase, I, N, R]
       allProblems += problem
     }
 
+    var successes = 0
     val inputs = this.inputs(settings)
     val quiet = settings.quiet || inputs.length == 1
     val job = Job(inputs, if (quiet) devnull else Console.err)
     job.foreach { input =>
-      (nscResult(settings, input), rscResult(settings, input)) match {
-        case (Left(nscFailures), _) =>
-          val nscProblems = nscFailures.map(FailedNscProblem)
-          nscProblems.foreach(report)
-        case (_, Left(rscFailures)) =>
-          val rscProblems = rscFailures.map { rscFailure =>
-            if (rscFailure.contains(".CrashException") &&
-                !rscFailure.contains(input.toString)) {
-              FailedRscProblem(s"$input: $rscFailure")
-            } else {
-              FailedRscProblem(rscFailure)
+      try {
+        (nscResult(settings, input), rscResult(settings, input)) match {
+          case (Left(nscFailures), _) =>
+            val nscProblems = nscFailures.map(FailedNscProblem)
+            nscProblems.foreach(report)
+          case (_, Left(rscFailures)) =>
+            val rscProblems = rscFailures.map { rscFailure =>
+              if (rscFailure.contains(".CrashException") &&
+                  !rscFailure.contains(input.toString)) {
+                FailedRscProblem(s"$input: $rscFailure")
+              } else {
+                FailedRscProblem(rscFailure)
+              }
             }
-          }
-          rscProblems.foreach(report)
-        case (Right(nscResult), Right(rscResult)) =>
-          val checker = this.checker(settings, nscResult, rscResult)
-          checker.check()
-          checker.problems.foreach(report)
+            rscProblems.foreach(report)
+          case (Right(nscResult), Right(rscResult)) =>
+            val checker = this.checker(settings, nscResult, rscResult)
+            checker.check()
+            val checkerProblems = checker.problems
+            if (checkerProblems.isEmpty) successes += 1
+            checkerProblems.foreach(report)
+        }
+      } catch {
+        case ex: Throwable =>
+          report(FailedInputProblem(ex.str))
       }
     }
 
@@ -62,6 +71,15 @@ trait MainBase[S <: SettingsBase, I, N, R]
     else if (numProblems == 3) println("three problems found")
     else if (numProblems == 4) println("four problems found")
     else println(s"$numProblems problems found")
+
+    if (!settings.quiet) {
+      if (successes == 0) println("All checks failed")
+      else if (successes == inputs.length) println("All checks succeeded")
+      else {
+        println(s"Only ${successes} out of ${inputs.length} checks succeeded")
+      }
+    }
+
     allProblems.toList
   }
 

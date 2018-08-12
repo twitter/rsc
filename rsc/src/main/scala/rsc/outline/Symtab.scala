@@ -17,6 +17,7 @@ final class Symtab private (settings: Settings) extends Closeable with Pretty {
   val _outlines = new LinkedHashMap[Symbol, Outline]
   val _paramss = new HashMap[Parameterized, List[List[Param]]]
   val _parents = new HashMap[DefnTemplate, List[Tpt]]
+  val _inferred = new HashMap[Symbol, Tpt]
 
   object scopes {
     def apply(sym: Symbol): Scope = {

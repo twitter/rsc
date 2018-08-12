@@ -126,10 +126,13 @@ object RscCompat_Test {
     // val repeatedType = ??? : ((Any*) => Any)
   }
 
-  implicit val x: Int = 42
+  implicit val implicit_x: Int = 42
+  implicit val implicit_y: String = "42"
   trait In
-  trait Out
-  implicit val i2o: ImplicitBijection[In, Out] = ???
+  trait Out1
+  trait Out2
+  implicit val implicit_bijection1: ImplicitBijection[In, Out1] = ???
+  implicit val implicit_bijection2: ImplicitBijection[In, Out2] = ???
 
   class Bugs {
     val Either = scala.util.Either
@@ -162,7 +165,9 @@ object RscCompat_Test {
     val more3 = new { implicit def bar = 42 }
 
     implicit val crazy1 = implicitly[Int]
-    implicit val crazy2 = Bijection.connect[In, Out]
+    implicit val crazy2 = Bijection.connect[In, Out1]
+    val sane1 = implicitly[String]
+    val sane2 = Bijection.connect[In, Out2]
 
     val X, List(y) = List(1, 2)
 

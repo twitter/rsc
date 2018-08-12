@@ -387,6 +387,8 @@ final class Outliner private (
               case sym =>
                 FoundResolution(sym)
             }
+          case TptWildcardExistential(_, tpt) =>
+            loop(tpt)
           case _ =>
             crash(tpt)
         }
@@ -394,9 +396,11 @@ final class Outliner private (
       val outline = symtab._outlines.get(sym)
       outline match {
         case DefnMethod(mods, _, _, _, Some(tpt), _) if mods.hasVal => loop(tpt)
-        case DefnType(_, _, _, _, Some(hi), _) => loop(hi)
-        case DefnType(_, _, _, _, _, Some(alias)) => loop(alias)
-        case TypeParam(_, _, _, _, Some(hi), _, _) => loop(hi)
+        case outline: DefnType => loop(outline.hi)
+        case outline: TypeParam => loop(outline.hi)
+        case Param(_, _, Some(tpt), _) => loop(tpt)
+        case Self(_, Some(tpt)) => loop(tpt)
+        case Self(_, None) => loop(symtab._inferred.get(outline.id.sym))
         case null => crash(sym)
         case _ => crash(outline)
       }

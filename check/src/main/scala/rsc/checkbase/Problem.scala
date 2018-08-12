@@ -6,6 +6,10 @@ import rsc.pretty._
 
 sealed trait Problem
 
+final case class FailedInputProblem(failure: String) extends Problem {
+  override def toString: String = s"failed input: $failure"
+}
+
 final case class FailedNscProblem(failure: String) extends Problem {
   override def toString: String = s"failed nsc: $failure"
 }
