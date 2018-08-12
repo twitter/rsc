@@ -399,6 +399,7 @@ final class Outliner private (
         case TypeParam(_, _, _, _, Some(hi), _, _) => loop(hi)
         case Param(_, _, Some(tpt), _) => loop(tpt)
         case Self(_, Some(tpt)) => loop(tpt)
+        case Self(_, None) => loop(symtab._inferred.get(outline.id.sym))
         case null => crash(sym)
         case _ => crash(outline)
       }

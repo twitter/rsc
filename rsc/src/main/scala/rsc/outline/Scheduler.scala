@@ -339,7 +339,26 @@ final class Scheduler private (
         val selfScope = SelfScope(owner.id.sym)
         val selfEnv = selfScope :: env
         assignSym(selfEnv, tree)
-        tree.tpt.foreach(todo.add(selfEnv, _))
+        tree.tpt match {
+          case Some(tpt) =>
+            todo.add(selfEnv, tpt)
+          case None =>
+            val inferredTpt = {
+              val ownerRef = owner.id match {
+                case id: TermId => TptSingleton(id)
+                case id: TptId => id
+                case other => crash(other)
+              }
+              val tparamRefs = owner.tparams.map(_.id).map {
+                case id: TptId => id
+                case other => crash(other)
+              }
+              if (owner.tparams.isEmpty) ownerRef
+              TptParameterize(ownerRef, tparamRefs)
+            }
+            symtab._inferred.put(tree.id.sym, inferredTpt)
+            todo.add(selfEnv, inferredTpt)
+        }
         selfScope.succeed()
         selfEnv
       case None =>
