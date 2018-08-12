@@ -30,6 +30,7 @@ trait MainBase[S <: SettingsBase, I, N, R]
       allProblems += problem
     }
 
+    var successes = 0
     val inputs = this.inputs(settings)
     val quiet = settings.quiet || inputs.length == 1
     val job = Job(inputs, if (quiet) devnull else Console.err)
@@ -52,7 +53,9 @@ trait MainBase[S <: SettingsBase, I, N, R]
           case (Right(nscResult), Right(rscResult)) =>
             val checker = this.checker(settings, nscResult, rscResult)
             checker.check()
-            checker.problems.foreach(report)
+            val checkerProblems = checker.problems
+            if (checkerProblems.isEmpty) successes += 1
+            checkerProblems.foreach(report)
         }
       } catch {
         case ex: Throwable =>
@@ -67,6 +70,13 @@ trait MainBase[S <: SettingsBase, I, N, R]
     else if (numProblems == 3) println("three problems found")
     else if (numProblems == 4) println("four problems found")
     else println(s"$numProblems problems found")
+
+    if (!settings.quiet) {
+      if (successes == 0) println("All checks failed")
+      else if (successes == inputs.length) println("All checks succeeded")
+      else println(s"Only ${successes} out of ${inputs.length} checks succeeded")
+    }
+
     allProblems.toList
   }
 
