@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.checkbase
 
+import rsc.util._
 import scala.collection.mutable
 import scala.meta.internal.cli._
 import scala.util._
@@ -59,7 +60,7 @@ trait MainBase[S <: SettingsBase, I, N, R]
         }
       } catch {
         case ex: Throwable =>
-          ex.printStackTrace()
+          report(FailedInputProblem(ex.str))
       }
     }
 
