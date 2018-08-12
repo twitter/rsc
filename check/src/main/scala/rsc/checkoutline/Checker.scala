@@ -136,8 +136,11 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
           case TypeRef(_, SerializableClass, _) => false
           case _ => true
         }
+        var self1 = self
         // FIXME: https://github.com/twitter/rsc/issues/120
-        val self1 = NoType
+        if (info1.symbol == "com/twitter/util/TimeLike#") {
+          self1 = NoType
+        }
         var ds1 = ds.symlinks
         // FIXME: https://github.com/scalameta/scalameta/issues/1548
         ds1 = ds1.sorted
