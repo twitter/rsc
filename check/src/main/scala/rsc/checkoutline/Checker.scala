@@ -125,8 +125,6 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     }
     // FIXME: https://github.com/scalameta/scalameta/issues/1492
     info1 = info1.copy(properties = info1.properties & ~p.SYNTHETIC.value)
-    // FIXME: https://github.com/scalameta/scalameta/issues/1645
-    info1 = info1.copy(properties = info1.properties & ~p.DEFAULT.value)
 
     info1.signature match {
       case ClassSignature(tps, ps, self, Some(ds)) =>
