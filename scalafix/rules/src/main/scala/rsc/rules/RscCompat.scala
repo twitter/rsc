@@ -11,6 +11,7 @@ import rsc.rules.syntax._
 import scala.meta._
 import scala.meta.contrib._
 import scala.meta.internal.{semanticdb => s}
+import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 import scalafix.internal.util._
 import scalafix.lint.LintMessage
 import scalafix.rule._
@@ -106,22 +107,23 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
 
   private def ascribeReturnType(ctx: RuleCtx, target: RewriteTarget): Patch = {
     try {
-      target.body match {
-        case Term.ApplyType(Term.Name("implicitly"), _) =>
-          Patch.empty
-        case Term.ApplyType(
-            Term.Select(Term.Name("Bijection"), Term.Name("connect")),
-            _) =>
-          Patch.empty
-        case _ =>
-          val returnTypeString = {
-            val symbol = target.name.symbol.get.syntax
-            config.hardcoded.get(symbol) match {
-              case Some(returnTypeString) =>
-                returnTypeString
+      val returnTypeString = {
+        val symbol = target.name.symbol.get.syntax
+        config.hardcoded.get(symbol) match {
+          case Some(returnTypeString) =>
+            returnTypeString
+          case _ =>
+            val info = index.symbols(symbol)
+            target.body match {
+              case Term.ApplyType(Term.Name("implicitly"), _)
+                  if info.has(p.IMPLICIT) =>
+                return Patch.empty
+              case Term.ApplyType(
+                  Term.Select(Term.Name("Bijection"), Term.Name("connect")), _)
+                  if info.has(p.IMPLICIT) =>
+                return Patch.empty
               case _ =>
-                val outline = index.symbols(symbol).signature
-                val returnType = outline match {
+                val returnType = info.signature match {
                   case s.MethodSignature(_, _, _: s.ConstantType) =>
                     return Patch.empty
                   case s.MethodSignature(_, _, returnType) =>
@@ -137,25 +139,25 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
                 printer.pprint(returnType)
                 printer.toString
             }
+        }
+      }
+      if (returnTypeString.nonEmpty) {
+        val before = {
+          val lparenOpt = if (target.parens) "(" else ""
+          ctx.addLeft(target.before, lparenOpt)
+        }
+        val after = {
+          val whitespaceOpt = {
+            if (TokenOps.needsLeadingSpaceBeforeColon(target.after)) " "
+            else ""
           }
-          if (returnTypeString.nonEmpty) {
-            val before = {
-              val lparenOpt = if (target.parens) "(" else ""
-              ctx.addLeft(target.before, lparenOpt)
-            }
-            val after = {
-              val whitespaceOpt = {
-                if (TokenOps.needsLeadingSpaceBeforeColon(target.after)) " "
-                else ""
-              }
-              val ascription = s": $returnTypeString"
-              val rparenOpt = if (target.parens) ")" else ""
-              ctx.addRight(target.after, whitespaceOpt + ascription + rparenOpt)
-            }
-            before + after
-          } else {
-            Patch.empty
-          }
+          val ascription = s": $returnTypeString"
+          val rparenOpt = if (target.parens) ")" else ""
+          ctx.addRight(target.after, whitespaceOpt + ascription + rparenOpt)
+        }
+        before + after
+      } else {
+        Patch.empty
       }
     } catch {
       case ex: Throwable =>
