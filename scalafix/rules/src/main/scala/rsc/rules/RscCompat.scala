@@ -119,8 +119,8 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
                   if info.has(p.IMPLICIT) =>
                 return Patch.empty
               case Term.ApplyType(
-                  Term.Select(Term.Name("Bijection"), Term.Name("connect")), _)
-                  if info.has(p.IMPLICIT) =>
+                  Term.Select(Term.Name("Bijection"), Term.Name("connect")),
+                  _) if info.has(p.IMPLICIT) =>
                 return Patch.empty
               case _ =>
                 val returnType = info.signature match {

@@ -74,7 +74,9 @@ trait MainBase[S <: SettingsBase, I, N, R]
     if (!settings.quiet) {
       if (successes == 0) println("All checks failed")
       else if (successes == inputs.length) println("All checks succeeded")
-      else println(s"Only ${successes} out of ${inputs.length} checks succeeded")
+      else {
+        println(s"Only ${successes} out of ${inputs.length} checks succeeded")
+      }
     }
 
     allProblems.toList
