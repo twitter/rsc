@@ -7,6 +7,7 @@ import rsc.checkbase._
 import rsc.util._
 import scala.collection.mutable
 import scala.meta.internal.semanticdb._
+import scala.meta.internal.semanticdb.Language._
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
@@ -103,6 +104,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     var infos1 = index.infos.values.toList
     // WONTFIX: https://github.com/twitter/rsc/issues/121
     infos1 = infos1.filter(_.isEligible)
+    // NOTE: https://github.com/twitter/rsc/issues/191
+    infos1 = infos1.filter(_.language == SCALA)
     Index(infos1.map(info => info.symbol -> info).toMap, index.anchors)
   }
 
