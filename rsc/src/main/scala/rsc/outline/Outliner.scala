@@ -387,6 +387,8 @@ final class Outliner private (
               case sym =>
                 FoundResolution(sym)
             }
+          case TptWildcardExistential(_, tpt) =>
+            loop(tpt)
           case _ =>
             crash(tpt)
         }
