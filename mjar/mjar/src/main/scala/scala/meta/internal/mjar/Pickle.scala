@@ -387,12 +387,10 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
               sinfo.kind match {
                 case k.LOCAL | k.FIELD | k.METHOD | k.CONSTRUCTOR | k.MACRO |
                     k.PARAMETER | k.SELF_PARAMETER =>
-                  TermName(sinfo.displayName.encode)
-                case k.PACKAGE_OBJECT =>
-                  TypeName("package")
-                case k.TYPE | k.TYPE_PARAMETER | k.OBJECT | k.CLASS | k.TRAIT |
-                    k.INTERFACE =>
-                  TypeName(sinfo.displayName.encode)
+                  TermName(ssym.desc.value.encode)
+                case k.TYPE | k.TYPE_PARAMETER | k.OBJECT | k.PACKAGE_OBJECT |
+                    k.CLASS | k.TRAIT | k.INTERFACE =>
+                  TypeName(ssym.desc.value.encode)
                 case _ =>
                   crash(sinfo.toProtoString)
               }
@@ -473,10 +471,10 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       sinfo.kind == k.METHOD && (sinfo.has(p.VAL) || sinfo.has(p.VAR))
     }
     def isGetter: Boolean = {
-      ssym.isAccessor && !sinfo.displayName.endsWith("_=")
+      ssym.isAccessor && !ssym.desc.value.endsWith("_=")
     }
     def isSetter: Boolean = {
-      ssym.isAccessor && sinfo.displayName.endsWith("_=")
+      ssym.isAccessor && ssym.desc.value.endsWith("_=")
     }
     def isSynthetic: Boolean = {
       sinfo.has(p.SYNTHETIC)
@@ -554,9 +552,9 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
           sinfo.has(p.CASE)
         case k.OBJECT =>
           sinfo.has(p.CASE)
-        case k.METHOD if sinfo.displayName == "apply" =>
+        case k.METHOD if ssym.desc.value == "apply" =>
           sinfo.has(p.SYNTHETIC) && ssym.owner.isCaseCompanion
-        case k.METHOD if sinfo.displayName == "unapply" =>
+        case k.METHOD if ssym.desc.value == "unapply" =>
           sinfo.has(p.SYNTHETIC) && ssym.owner.isCaseCompanion
         case _ =>
           false
@@ -566,7 +564,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       symtab.contains(ssym.companionSym) && ssym.companionSym.isCase
     }
     def isDefaultParam: Boolean = {
-      sinfo.has(p.DEFAULT) || sinfo.displayName.contains("$default$")
+      sinfo.has(p.DEFAULT) || ssym.desc.value.contains("$default$")
     }
     def isCaseAccessor: Boolean = {
       (isCaseGetter || scaseAccessors(ssym)) && isPublic

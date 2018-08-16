@@ -43,7 +43,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
             }
           }
         case (Some(nscInfo), None) =>
-          if (nscInfo.symbol.contains("#_$")) {
+          if (sym.contains("#_$")) {
             // FIXME: https://github.com/scalameta/scalameta/issues/1586
             ()
           } else {
@@ -51,10 +51,10 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
             problems += MissingRscProblem(header)
           }
         case (None, Some(rscInfo)) =>
-          if (rscInfo.displayName == "equals" ||
-              rscInfo.displayName == "hashCode" ||
-              rscInfo.displayName == "toString" ||
-              rscInfo.symbol.contains("#equals().(x$1)")) {
+          if (sym.desc.value == "equals" ||
+              sym.desc.value == "hashCode" ||
+              sym.desc.value == "toString" ||
+              sym.contains("#equals().(x$1)")) {
             // FIXME: https://github.com/twitter/rsc/issues/98
             ()
           } else {
