@@ -43,7 +43,7 @@ final class Semanticdb private (
       language = outline.language,
       kind = outline.kind,
       properties = outline.properties,
-      name = outline.name,
+      displayName = outline.displayName,
       signature = outline.signature,
       annotations = outline.annotations,
       access = outline.access
@@ -216,7 +216,7 @@ final class Semanticdb private (
       result
     }
 
-    def name: String = {
+    def displayName: String = {
       outline.id match {
         case id: AnonId => "_"
         case id: NamedId => id.value
@@ -430,7 +430,7 @@ final class Semanticdb private (
                     language = l.SCALA,
                     kind = k.TYPE,
                     properties = p.ABSTRACT.value,
-                    name = "_",
+                    displayName = "_",
                     signature = sig,
                     annotations = Nil,
                     access = s.PublicAccess()

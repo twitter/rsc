@@ -43,7 +43,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
             }
           }
         case (Some(nscInfo), None) =>
-          if (nscInfo.symbol.contains("#_#")) {
+          if (nscInfo.symbol.contains("#_$")) {
             // FIXME: https://github.com/scalameta/scalameta/issues/1586
             ()
           } else {
@@ -51,9 +51,9 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
             problems += MissingRscProblem(header)
           }
         case (None, Some(rscInfo)) =>
-          if (rscInfo.name == "equals" ||
-              rscInfo.name == "hashCode" ||
-              rscInfo.name == "toString" ||
+          if (rscInfo.displayName == "equals" ||
+              rscInfo.displayName == "hashCode" ||
+              rscInfo.displayName == "toString" ||
               rscInfo.symbol.contains("#equals().(x$1)")) {
             // FIXME: https://github.com/twitter/rsc/issues/98
             ()
@@ -145,13 +145,13 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         // WONTFIX: https://github.com/twitter/rsc/issues/121
         ds1 = ds1.filter(_.info.isEligible)
         // FIXME: https://github.com/twitter/rsc/issues/98
-        ds1 = ds1.filter(_.desc.name != "equals")
+        ds1 = ds1.filter(_.desc.value != "equals")
         // FIXME: https://github.com/twitter/rsc/issues/98
-        ds1 = ds1.filter(_.desc.name != "hashCode")
+        ds1 = ds1.filter(_.desc.value != "hashCode")
         // FIXME: https://github.com/twitter/rsc/issues/98
-        ds1 = ds1.filter(_.desc.name != "toString")
+        ds1 = ds1.filter(_.desc.value != "toString")
         // FIXME: https://github.com/scalameta/scalameta/issues/1586
-        ds1 = ds1.filter(!_.contains("#_#"))
+        ds1 = ds1.filter(!_.contains("#_$"))
         val ndecls1 = Some(Scope(ds1))
         val nsig1 = ClassSignature(tps, ps1, self1, ndecls1)
         info1 = info1.update(_.signature := nsig1)
@@ -179,14 +179,14 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   private def lowlevelPatch(s: String): String = {
     var s1 = s
     s1 = s1.replaceAll("symbol: \"local(\\d+)\"", "symbol: \"localNNN\"")
-    s1 = s1.replaceAll("symbol: \".*?#_#\"", "symbol: \"localNNN\"")
+    s1 = s1.replaceAll("symbol: \".*?#_\\$(\\d+)#\"", "symbol: \"localNNN\"")
     s1
   }
 
   private class IndexOps(index: Index) {
     implicit class SymbolOps(sym: String) {
       def info: SymbolInformation = {
-        if (sym.contains("#_#")) {
+        if (sym.contains("#_$")) {
           // FIXME: https://github.com/scalameta/scalameta/issues/1586
           SymbolInformation(symbol = sym)
         } else if (sym.desc.isPackage) {

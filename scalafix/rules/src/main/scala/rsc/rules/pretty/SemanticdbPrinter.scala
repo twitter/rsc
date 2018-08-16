@@ -188,17 +188,17 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
           if (info.kind == k.PACKAGE_OBJECT) {
             "package"
           } else {
-            val name = info.name
-            if (name == "") {
+            val displayName = info.displayName
+            if (displayName == "") {
               sys.error(s"unsupported symbol: $sym")
-            } else if (name == "_" || name.startsWith("?")) {
+            } else if (displayName == "_" || displayName.startsWith("?")) {
               gensymCache.getOrElseUpdate(sym, gensym("T"))
             } else {
-              name
+              displayName
             }
           }
         case None =>
-          if (sym.isGlobal) sym.desc.name
+          if (sym.isGlobal) sym.desc.value
           else sym
       }
     }
@@ -208,7 +208,7 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
   }
 
   private def pprint(info: s.SymbolInformation): Unit = {
-    if (info.kind == k.METHOD && info.name.endsWith("_=")) return
+    if (info.kind == k.METHOD && info.displayName.endsWith("_=")) return
     index.symbols.append(info)
     rep(info.annotations, " ", " ")(pprint)
     if (info.has(p.COVARIANT)) str("+")

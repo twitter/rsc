@@ -7,12 +7,12 @@ import scala.meta.internal.semanticdb.Scala._
 // FIXME: https://github.com/twitter/rsc/issues/141
 
 sealed trait Scope {
-  def lookupThis(name: String): String
+  def lookupThis(value: String): String
 }
 
 case class TemplateScope(sym: String) extends Scope {
-  def lookupThis(name: String): String = {
-    if (sym.desc.name == name) sym
+  def lookupThis(value: String): String = {
+    if (sym.desc.value == value) sym
     else Symbols.None
   }
 }
