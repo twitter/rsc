@@ -10,6 +10,7 @@ import scala.meta.cli._
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.mjar._
+import scala.meta.scalasig._
 
 class Main(settings: Settings, reporter: Reporter) {
   def process(): Option[Path] = {
@@ -45,6 +46,15 @@ class Main(settings: Settings, reporter: Reporter) {
               jos.putNextEntry(new JarEntry(classfile.name + ".class"))
               jos.write(classfile.toBinary)
               jos.closeEntry()
+
+              if (symtab.contains(companionSym)) {
+                val markerName = classfile.name + "$"
+                val markerSource = classfile.source
+                val markerClassfile = Classfile(markerName, markerSource, None)
+                jos.putNextEntry(new JarEntry(markerClassfile.name + ".class"))
+                jos.write(markerClassfile.toBinary)
+                jos.closeEntry()
+              }
             } catch {
               case ex: Throwable =>
                 throw ConvertException(in, sym, ex)
