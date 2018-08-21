@@ -71,7 +71,7 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
           head.sym.ownerChain.foreach { sym =>
             within match {
               case SomeName(value) if sym.desc.value == value => foundSym = sym
-              case name if sym.desc.name == name => foundSym = sym
+              case name if sym.desc.value == name.value => foundSym = sym
               case _ => ()
             }
           }

@@ -10,7 +10,7 @@ import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.{Language => l}
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
-import scala.meta.internal.semanticdb.Scala.{Names => n}
+import scala.meta.internal.semanticdb.Scala.{DisplayNames => dn}
 import scala.meta.internal.semanticdb.SymbolInformation._
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
@@ -387,12 +387,10 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
               sinfo.kind match {
                 case k.LOCAL | k.FIELD | k.METHOD | k.CONSTRUCTOR | k.MACRO |
                     k.PARAMETER | k.SELF_PARAMETER =>
-                  TermName(sinfo.name.encode)
-                case k.PACKAGE_OBJECT =>
-                  TypeName("package")
-                case k.TYPE | k.TYPE_PARAMETER | k.OBJECT | k.CLASS | k.TRAIT |
-                    k.INTERFACE =>
-                  TypeName(sinfo.name.encode)
+                  TermName(ssym.desc.value.encode)
+                case k.TYPE | k.TYPE_PARAMETER | k.OBJECT | k.PACKAGE_OBJECT |
+                    k.CLASS | k.TRAIT | k.INTERFACE =>
+                  TypeName(ssym.desc.value.encode)
                 case _ =>
                   crash(sinfo.toProtoString)
               }
@@ -401,7 +399,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
             crash(ssym)
         }
       } else {
-        TypeName(ssym.desc.name.encode)
+        TypeName(ssym.desc.value.encode)
       }
     }
     def jname: String = {
@@ -415,7 +413,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         }
         loop(ssym.ownerChain)
       }
-      sparts.map(_.desc.name.encode).mkString("/")
+      sparts.map(_.desc.value.encode).mkString("/")
     }
   }
 
@@ -473,10 +471,10 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       sinfo.kind == k.METHOD && (sinfo.has(p.VAL) || sinfo.has(p.VAR))
     }
     def isGetter: Boolean = {
-      ssym.isAccessor && !sinfo.name.endsWith("_=")
+      ssym.isAccessor && !ssym.desc.value.endsWith("_=")
     }
     def isSetter: Boolean = {
-      ssym.isAccessor && sinfo.name.endsWith("_=")
+      ssym.isAccessor && ssym.desc.value.endsWith("_=")
     }
     def isSynthetic: Boolean = {
       sinfo.has(p.SYNTHETIC)
@@ -554,9 +552,9 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
           sinfo.has(p.CASE)
         case k.OBJECT =>
           sinfo.has(p.CASE)
-        case k.METHOD if sinfo.name == "apply" =>
+        case k.METHOD if ssym.desc.value == "apply" =>
           sinfo.has(p.SYNTHETIC) && ssym.owner.isCaseCompanion
-        case k.METHOD if sinfo.name == "unapply" =>
+        case k.METHOD if ssym.desc.value == "unapply" =>
           sinfo.has(p.SYNTHETIC) && ssym.owner.isCaseCompanion
         case _ =>
           false
@@ -566,7 +564,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       symtab.contains(ssym.companionSym) && ssym.companionSym.isCase
     }
     def isDefaultParam: Boolean = {
-      sinfo.has(p.DEFAULT) || sinfo.name.contains("$default$")
+      sinfo.has(p.DEFAULT) || ssym.desc.value.contains("$default$")
     }
     def isCaseAccessor: Boolean = {
       (isCaseGetter || scaseAccessors(ssym)) && isPublic
@@ -605,7 +603,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       sinfo.has(p.CONTRAVARIANT)
     }
     def isRefinement: Boolean = {
-      symtab.contains(ssym) && symtab(ssym).name == "<refinement>"
+      symtab.contains(ssym) && symtab(ssym).displayName == "<refinement>"
     }
     def isExistential: Boolean = {
       // FIXME: https://github.com/twitter/rsc/issues/94
@@ -802,7 +800,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         language = l.SCALA,
         kind = k.CLASS,
         properties = 0,
-        name = "<refinement>",
+        displayName = "<refinement>",
         signature = ssig,
         annotations = Nil,
         access = s.PublicAccess()
@@ -818,7 +816,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         language = l.SCALA,
         kind = k.OBJECT,
         properties = p.FINAL.value | p.SYNTHETIC.value,
-        name = sclassSym.desc.name,
+        displayName = sclassSym.desc.value,
         signature = ssig,
         annotations = Nil,
         access = s.PublicAccess()
@@ -827,11 +825,11 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
     def smoduleCtor(sobjectSym: String): s.SymbolInformation = {
       val ssig = s.MethodSignature(Some(s.Scope()), List(s.Scope()), s.NoType)
       s.SymbolInformation(
-        symbol = Symbols.Global(sobjectSym, d.Method(n.Constructor, "()")),
+        symbol = Symbols.Global(sobjectSym, d.Method(dn.Constructor, "()")),
         language = l.SCALA,
         kind = k.CONSTRUCTOR,
         properties = p.PRIMARY.value,
-        name = n.Constructor,
+        displayName = dn.Constructor,
         signature = ssig,
         annotations = Nil,
         access = s.PublicAccess()
@@ -844,7 +842,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         symbol = Symbols.Global(straitSym, d.Method("$init$", "()")),
         language = l.SCALA,
         kind = k.METHOD,
-        name = "$init$",
+        displayName = "$init$",
         signature = ssig,
         annotations = Nil,
         access = s.PublicAccess()
@@ -853,8 +851,8 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
     def svalField(sgetterSym: String): s.SymbolInformation = {
       val noGetter = sgetterSym.isPrivateThis && !sgetterSym.isLazy
       val sfieldName = {
-        if (noGetter) sgetterSym.desc.name
-        else sgetterSym.desc.name + " "
+        if (noGetter) sgetterSym.desc.value
+        else sgetterSym.desc.value + " "
       }
       val sfieldSym = Symbols.Global(sgetterSym.owner, d.Term(sfieldName))
       var sfieldProps = p.VAL.value
@@ -872,7 +870,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         language = l.SCALA,
         kind = k.FIELD,
         properties = sfieldProps,
-        name = sfieldName,
+        displayName = sfieldName,
         signature = sfieldSig,
         annotations = Nil,
         access = s.PrivateThisAccess()
@@ -880,8 +878,8 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
     }
     def svarField(ssetterSym: String): s.SymbolInformation = {
       val sfieldName = {
-        if (ssetterSym.isPrivateThis) ssetterSym.desc.name.stripSuffix("_=")
-        else ssetterSym.desc.name.stripSuffix("_=") + " "
+        if (ssetterSym.isPrivateThis) ssetterSym.desc.value.stripSuffix("_=")
+        else ssetterSym.desc.value.stripSuffix("_=") + " "
       }
       val sfieldSym = Symbols.Global(ssetterSym.owner, d.Term(sfieldName))
       var sfieldProps = p.VAR.value
@@ -904,7 +902,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         language = l.SCALA,
         kind = k.FIELD,
         properties = sfieldProps,
-        name = sfieldName,
+        displayName = sfieldName,
         signature = sfieldSig,
         annotations = Nil,
         access = s.PrivateThisAccess()
@@ -913,7 +911,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
     def scaseAccessor(sgetterSym: String): s.SymbolInformation = {
       val saccessorName = {
         // FIXME: https://github.com/twitter/rsc/issues/99
-        if (abi == Scalac211) gensym.caseAccessor(sgetterSym.desc.name)
+        if (abi == Scalac211) gensym.caseAccessor(sgetterSym.desc.value)
         else crash(abi)
       }
       val saccessorDesc = d.Method(saccessorName, "()")
@@ -925,7 +923,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         language = l.SCALA,
         kind = k.METHOD,
         properties = p.SYNTHETIC.value,
-        name = saccessorName,
+        displayName = saccessorName,
         signature = saccessorSig,
         annotations = Nil,
         access = s.PublicAccess()
@@ -937,10 +935,10 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       val s.ClassSignature(sctparamScope, _, _, Some(s.Scope(scdecls, _))) =
         symtab(sclassSym).signature
       val Some(s.Scope(sctparamSyms, _)) = sctparamScope
-      val _ +: scmethodSyms = scdecls.dropWhile(_.desc.name != "<init>")
+      val _ +: scmethodSyms = scdecls.dropWhile(_.desc.value != "<init>")
       scmethodSyms.foreach { smethodSym =>
         val smethod = symtab(smethodSym)
-        val xmethodName = smethodSym.desc.name + "$extension"
+        val xmethodName = smethodSym.desc.value + "$extension"
         val d.Method(_, xmethodDisambig) = smethodSym.desc
         val xmethodDesc = d.Method(xmethodName, xmethodDisambig)
         val xmethodSym = Symbols.Global(sobjectSym, xmethodDesc)
@@ -986,7 +984,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
             language = l.SCALA,
             kind = k.PARAMETER,
             properties = 0,
-            name = xthisName,
+            displayName = xthisName,
             signature = xthisSig,
             annotations = Nil,
             access = s.NoAccess
@@ -1016,7 +1014,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
           language = l.SCALA,
           kind = k.METHOD,
           properties = p.FINAL.value | smethod.properties,
-          name = xmethodName,
+          displayName = xmethodName,
           signature = xmethodSig,
           annotations = Nil,
           access = s.PublicAccess()

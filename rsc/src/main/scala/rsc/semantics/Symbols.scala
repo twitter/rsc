@@ -64,10 +64,4 @@ trait Symbols {
       else NoSymbol
     }
   }
-
-  implicit class DescOps(desc: s.Scala.Descriptor) {
-    def value: String = {
-      desc.name
-    }
-  }
 }

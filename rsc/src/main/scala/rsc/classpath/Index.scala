@@ -48,7 +48,7 @@ final class Index private (entries: HashMap[Symbol, Entry]) extends Closeable {
             symbol = sym,
             language = l.SCALA,
             kind = k.PACKAGE,
-            name = sym.desc.value
+            displayName = sym.desc.value
           )
           infos.put(info.symbol, info)
         case entry: FileEntry =>

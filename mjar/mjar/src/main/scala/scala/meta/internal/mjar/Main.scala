@@ -28,8 +28,8 @@ class Main(settings: Settings, reporter: Reporter) {
             try {
               val companionSym = {
                 val desc = sym.desc
-                if (desc.isTerm) Symbols.Global(sym.owner, d.Type(desc.name))
-                else Symbols.Global(sym.owner, d.Term(desc.name))
+                if (desc.isTerm) Symbols.Global(sym.owner, d.Type(desc.value))
+                else Symbols.Global(sym.owner, d.Term(desc.value))
               }
 
               val pickle = new Pickle(settings.abi, symtab, sym, companionSym)
