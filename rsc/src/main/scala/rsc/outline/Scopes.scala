@@ -7,8 +7,6 @@ import rsc.classpath._
 import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
-import scala.meta.internal.semanticdb.{Language => l}
-import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 
 sealed abstract class Scope(val sym: Symbol) extends Work {
   def enter(name: Name, sym: Symbol): Symbol
@@ -148,7 +146,7 @@ sealed trait IndexScope extends Scope {
       }
     }
 
-    if (info.kind == k.PACKAGE) {
+    if (info.isPackage) {
       val packageObjectSym = TermSymbol(owner, "package")
       if (_index.contains(packageObjectSym)) {
         val packageObjectMemberSym = loadMember(packageObjectSym, name)
@@ -185,7 +183,7 @@ sealed trait IndexScope extends Scope {
 
         val javaDeclSym = TypeSymbol(owner, value)
         if (_index.contains(javaDeclSym) &&
-            _index(javaDeclSym).language == l.JAVA) {
+            _index(javaDeclSym).isJava) {
           return javaDeclSym
         }
       case _ =>

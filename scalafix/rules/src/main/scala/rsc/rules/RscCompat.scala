@@ -11,7 +11,6 @@ import rsc.rules.syntax._
 import scala.meta._
 import scala.meta.contrib._
 import scala.meta.internal.{semanticdb => s}
-import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 import scalafix.internal.util._
 import scalafix.lint.LintMessage
 import scalafix.rule._
@@ -116,11 +115,11 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
             val info = index.symbols(symbol)
             target.body match {
               case Term.ApplyType(Term.Name("implicitly"), _)
-                  if info.has(p.IMPLICIT) =>
+                  if info.isImplicit =>
                 return Patch.empty
               case Term.ApplyType(
                   Term.Select(Term.Name("Bijection"), Term.Name("connect")),
-                  _) if info.has(p.IMPLICIT) =>
+                  _) if info.isImplicit =>
                 return Patch.empty
               case _ =>
                 val returnType = info.signature match {

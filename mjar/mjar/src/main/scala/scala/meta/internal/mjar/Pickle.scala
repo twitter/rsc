@@ -430,45 +430,43 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       else Symbols.None
     }
     def isObject: Boolean = {
-      sinfo.kind == k.OBJECT
+      sinfo.isObject
     }
     def isDef: Boolean = {
-      sinfo.kind == k.METHOD ||
-      sinfo.kind == k.CONSTRUCTOR ||
-      sinfo.kind == k.MACRO
+      sinfo.isMethod || sinfo.isConstructor || sinfo.isMacro
     }
     def isCtor: Boolean = {
-      sinfo.kind == k.CONSTRUCTOR
+      sinfo.isConstructor
     }
     def isTypeParam: Boolean = {
-      sinfo.kind == k.TYPE_PARAMETER
+      sinfo.isTypeParameter
     }
     def isAbstractType: Boolean = {
-      sinfo.kind == k.TYPE && sinfo.has(p.ABSTRACT)
+      sinfo.isType && sinfo.isAbstract
     }
     def isAliasType: Boolean = {
-      sinfo.kind == k.TYPE && !sinfo.has(p.ABSTRACT)
+      sinfo.isType && !sinfo.isAbstract
     }
     def isParam: Boolean = {
-      sinfo.kind == k.PARAMETER
+      sinfo.isParameter
     }
     def isField: Boolean = {
-      sinfo.kind == k.FIELD
+      sinfo.isField
     }
     def isPackageObject: Boolean = {
-      sinfo.kind == k.PACKAGE_OBJECT
+      sinfo.isPackageObject
     }
     def isClass: Boolean = {
-      sinfo.kind == k.CLASS
+      sinfo.isClass
     }
     def isTrait: Boolean = {
-      sinfo.kind == k.TRAIT
+      sinfo.isTrait
     }
     def isStable: Boolean = {
-      sinfo.kind == k.METHOD && (sinfo.has(p.VAL) || scaseAccessors(ssym))
+      sinfo.isMethod && (sinfo.isVal || scaseAccessors(ssym))
     }
     def isAccessor: Boolean = {
-      sinfo.kind == k.METHOD && (sinfo.has(p.VAL) || sinfo.has(p.VAR))
+      sinfo.isMethod && (sinfo.isVal || sinfo.isVar)
     }
     def isGetter: Boolean = {
       ssym.isAccessor && !ssym.desc.value.endsWith("_=")
@@ -477,44 +475,31 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       ssym.isAccessor && ssym.desc.value.endsWith("_=")
     }
     def isSynthetic: Boolean = {
-      sinfo.has(p.SYNTHETIC)
+      sinfo.isSynthetic
     }
     def isPrivateThis: Boolean = {
-      sinfo.access.isInstanceOf[s.PrivateThisAccess]
+      sinfo.isPrivateThis
     }
     def isProtectedThis: Boolean = {
-      sinfo.access.isInstanceOf[s.ProtectedThisAccess]
+      sinfo.isProtectedThis
     }
     def isDeferred: Boolean = {
       def isAbstractMember: Boolean = {
-        sinfo.has(p.ABSTRACT) && !ssym.isClass && !ssym.isTrait
+        sinfo.isAbstract && !ssym.isClass && !ssym.isTrait
       }
       isAbstractMember || ssym.isTypeParam
     }
     def isMutable: Boolean = {
-      sinfo.kind == k.FIELD && sinfo.has(p.VAR)
+      sinfo.isField && sinfo.isVar
     }
     def isPrivate: Boolean = {
-      sinfo.access match {
-        case s.PrivateAccess() => true
-        case s.PrivateThisAccess() => true
-        case _ => false
-      }
+      sinfo.isPrivate || sinfo.isPrivateThis
     }
     def isProtected: Boolean = {
-      sinfo.access match {
-        case s.ProtectedAccess() => true
-        case s.ProtectedThisAccess() => true
-        case s.ProtectedWithinAccess(_) => true
-        case _ => false
-      }
+      sinfo.isProtected || sinfo.isProtectedThis || sinfo.isProtectedWithin
     }
     def isPublic: Boolean = {
-      sinfo.access match {
-        case s.NoAccess => true
-        case s.PublicAccess() => true
-        case _ => false
-      }
+      sinfo.access == s.NoAccess || sinfo.isPublic
     }
     def isParamAccessor: Boolean = {
       ssym.name match {
@@ -535,36 +520,35 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       }
     }
     def isFinal: Boolean = {
-      sinfo.has(p.FINAL) && !ssym.isObject && !ssym.isPackageObject
+      sinfo.isFinal && !ssym.isObject && !ssym.isPackageObject
     }
     def isImplicit: Boolean = {
-      sinfo.has(p.IMPLICIT)
+      sinfo.isImplicit
     }
     def isAbstract: Boolean = {
-      (sinfo.has(p.ABSTRACT) && ssym.isClass) || ssym.isTrait
+      (sinfo.isAbstract && ssym.isClass) || ssym.isTrait
     }
     def isLazy: Boolean = {
-      sinfo.has(p.LAZY)
+      sinfo.isLazy
     }
     def isCase: Boolean = {
-      sinfo.kind match {
-        case k.CLASS =>
-          sinfo.has(p.CASE)
-        case k.OBJECT =>
-          sinfo.has(p.CASE)
-        case k.METHOD if ssym.desc.value == "apply" =>
-          sinfo.has(p.SYNTHETIC) && ssym.owner.isCaseCompanion
-        case k.METHOD if ssym.desc.value == "unapply" =>
-          sinfo.has(p.SYNTHETIC) && ssym.owner.isCaseCompanion
-        case _ =>
-          false
+      if (sinfo.isClass) {
+        sinfo.isCase
+      } else if (sinfo.isObject) {
+        sinfo.isCase
+      } else if (sinfo.isMethod) {
+        sinfo.isSynthetic &&
+        ssym.owner.isCaseCompanion &&
+        (ssym.desc.value == "apply" || ssym.desc.value == "unapply")
+      } else {
+        false
       }
     }
     def isCaseCompanion: Boolean = {
       symtab.contains(ssym.companionSym) && ssym.companionSym.isCase
     }
     def isDefaultParam: Boolean = {
-      sinfo.has(p.DEFAULT) || ssym.desc.value.contains("$default$")
+      sinfo.isDefault || ssym.desc.value.contains("$default$")
     }
     def isCaseAccessor: Boolean = {
       (isCaseGetter || scaseAccessors(ssym)) && isPublic
@@ -579,10 +563,10 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       }
     }
     def isSealed: Boolean = {
-      sinfo.has(p.SEALED)
+      sinfo.isSealed
     }
     def isInterface: Boolean = {
-      if (sinfo.kind == k.INTERFACE) {
+      if (sinfo.isInterface) {
         true
       } else if (ssym.isTrait) {
         sinfo.signature match {
@@ -597,10 +581,10 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       }
     }
     def isCovariant: Boolean = {
-      sinfo.has(p.COVARIANT)
+      sinfo.isCovariant
     }
     def isContravariant: Boolean = {
-      sinfo.has(p.CONTRAVARIANT)
+      sinfo.isContravariant
     }
     def isRefinement: Boolean = {
       symtab.contains(ssym) && symtab(ssym).displayName == "<refinement>"
@@ -625,13 +609,13 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       symtab.contains(ssym.companionSym) && ssym.companionSym.isValueClass
     }
     def isStatic: Boolean = {
-      sinfo.has(p.STATIC)
+      sinfo.isStatic
     }
     def isJava: Boolean = {
-      sinfo.language == l.JAVA
+      sinfo.isJava
     }
     def isScala: Boolean = {
-      sinfo.language == l.SCALA
+      sinfo.isScala
     }
     def flags: Long = {
       var result = 0L
@@ -741,11 +725,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       }
     }
     def swithin: Option[String] = {
-      sinfo.access match {
-        case s.PrivateWithinAccess(within) => Some(within)
-        case s.ProtectedWithinAccess(within) => Some(within)
-        case _ => None
-      }
+      sinfo.within
     }
     def spre: Pre = {
       if (symtab.contains(ssym) &&
@@ -779,6 +759,10 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
 
   implicit class PropertyOps(val p: Property.type) {
     val SYNTHETIC = p.Unrecognized(65536)
+  }
+
+  implicit class SymbolInformationOps(val sinfo: s.SymbolInformation) {
+    def isSynthetic = (sinfo.properties & p.SYNTHETIC.value) != 0
   }
 
   private val scaseAccessors = mutable.Set[String]()

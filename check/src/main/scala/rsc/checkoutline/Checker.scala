@@ -7,7 +7,6 @@ import rsc.checkbase._
 import rsc.util._
 import scala.collection.mutable
 import scala.meta.internal.semanticdb._
-import scala.meta.internal.semanticdb.Language._
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
@@ -105,7 +104,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     // WONTFIX: https://github.com/twitter/rsc/issues/121
     infos1 = infos1.filter(_.isEligible)
     // NOTE: https://github.com/twitter/rsc/issues/191
-    infos1 = infos1.filter(_.language == SCALA)
+    infos1 = infos1.filter(_.isScala)
     Index(infos1.map(info => info.symbol -> info).toMap, index.anchors)
   }
 
@@ -118,7 +117,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     import stdlib._
 
     var info1 = info
-    if (info1.kind == k.PARAMETER) {
+    if (info1.isParameter) {
       // WONTFIX: https://github.com/scalameta/scalameta/issues/1538
       info1 = info1.copy(properties = info1.properties & ~p.VAL.value)
       info1 = info1.copy(properties = info1.properties & ~p.VAR.value)
@@ -204,17 +203,15 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
 
       def isVisible: Boolean = {
         if (info.symbol.isGlobal) {
-          if (info.kind == k.PACKAGE) {
+          if (info.isPackage) {
             true
           } else {
             val owner = info.symbol.owner.info
             val isOwnerVisible = owner.isVisible
             if (isOwnerVisible) {
-              info.access match {
-                case PrivateAccess() => owner.kind == k.PACKAGE
-                case PrivateThisAccess() => false
-                case _ => true
-              }
+              if (info.isPrivate) owner.isPackage
+              else if (info.isPrivateThis) false
+              else true
             } else {
               false
             }
