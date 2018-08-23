@@ -11,8 +11,6 @@ import scala.meta._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
-import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
-import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 import scalafix.v0._
 
 class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
@@ -185,7 +183,7 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
       val info = index.symbols.get(sym)
       info match {
         case Some(info) =>
-          if (info.kind == k.PACKAGE_OBJECT) {
+          if (info.isPackageObject) {
             "package"
           } else {
             val displayName = info.displayName
@@ -208,26 +206,24 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
   }
 
   private def pprint(info: s.SymbolInformation): Unit = {
-    if (info.kind == k.METHOD && info.displayName.endsWith("_=")) return
+    if (info.isMethod && info.displayName.endsWith("_=")) return
     index.symbols.append(info)
     rep(info.annotations, " ", " ")(pprint)
-    if (info.has(p.COVARIANT)) str("+")
-    if (info.has(p.CONTRAVARIANT)) str("-")
-    info.kind match {
-      case k.METHOD if info.has(p.VAL) => str("val ")
-      case k.METHOD if info.has(p.VAR) => str("var ")
-      case k.METHOD => str("def ")
-      case k.TYPE => str("type ")
-      case k.PARAMETER => str("")
-      case k.TYPE_PARAMETER => str("")
-      case other => sys.error(s"unsupported info: ${info.toProtoString}")
-    }
+    if (info.isCovariant) str("+")
+    if (info.isContravariant) str("-")
+    if (info.isMethod && info.isVal) str("val ")
+    else if (info.isMethod && info.isVar) str("var ")
+    else if (info.isMethod) str("def ")
+    else if (info.isType) str("type ")
+    else if (info.isParameter) str("")
+    else if (info.isTypeParameter) str("")
+    else sys.error(s"unsupported info: ${info.toProtoString}")
     pprint(info.symbol)
     info.signature match {
       case s.MethodSignature(tparams, paramss, res) =>
         rep("[", tparams.infos, ", ", "]")(pprint)
         rep("(", paramss, ")(", ")") { params =>
-          if (params.infos.exists(_.has(p.IMPLICIT))) str("implicit ")
+          if (params.infos.exists(_.isImplicit)) str("implicit ")
           rep(params.infos, ", ")(pprint)
         }
         opt(": ", res)(pprint)

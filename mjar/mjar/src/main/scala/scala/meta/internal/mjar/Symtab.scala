@@ -6,7 +6,6 @@ import scala.collection.mutable
 import scala.collection.mutable.LinkedHashMap
 import scala.meta.internal.semanticdb._
 import scala.meta.internal.semanticdb.Scala._
-import scala.meta.internal.semanticdb.SymbolInformation.Kind._
 import scala.meta.internal.semanticdb.SymbolOccurrence.{Role => r}
 import scala.meta.mjar._
 
@@ -36,13 +35,11 @@ class Symtab private (
   lazy val toplevels: List[String] = {
     infos.keys.filter { sym =>
       val info = apply(sym)
-      info.kind match {
-        case PACKAGE_OBJECT =>
-          true
-        case CLASS | INTERFACE | OBJECT | TRAIT =>
-          info.symbol.owner.desc.isPackage
-        case _ =>
-          false
+      if (info.isPackageObject || info.isClass || info.isInterface ||
+          info.isObject || info.isTrait) {
+        info.symbol.owner.desc.isPackage
+      } else {
+        false
       }
     }.toList
   }

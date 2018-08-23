@@ -357,10 +357,9 @@ final class Semanticdb private (
                   }
                 case firstScope: IndexScope =>
                   val firstInfo = symtab._index.apply(firstParentSym)
-                  if (firstInfo.kind == k.TRAIT ||
-                      firstInfo.kind == k.INTERFACE) {
+                  if (firstInfo.isTrait || firstInfo.isInterface) {
                     superClass(firstInfo.parents)
-                  } else if (firstInfo.kind == k.TYPE) {
+                  } else if (firstInfo.isType) {
                     val aliasShallow = firstInfo.signature match {
                       case s.TypeSignature(_, _, s.TypeRef(_, sym, _)) =>
                         sym
