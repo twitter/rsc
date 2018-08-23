@@ -30,6 +30,7 @@ addCommandAlias("benchSemanticdb", ui.benchSemanticdb)
 addCommandAlias("benchMjar", ui.benchMjar)
 addCommandAlias("publish", ui.publish)
 addCommandAlias("publishLocal", ui.publishLocal)
+addCommandAlias("publishSigned", ui.publishSigned)
 addCommandAlias("rewrite", ui.rewrite)
 
 version.in(ThisBuild) := {
