@@ -71,8 +71,7 @@ object Build extends AutoPlugin {
       "mjar",
       "rsc",
       "scalafixRules",
-      "scalasig",
-      "scalap"
+      "scalasig"
     )
   }
 
@@ -113,6 +112,8 @@ object Build extends AutoPlugin {
       )
       lazy val publish = command(projects.public.map(_ + "/publish"))
       lazy val publishLocal = command(projects.public.map(_ + "/publishLocal"))
+      lazy val publishSigned = command(
+        projects.public.map(_ + "/publishSigned"))
       lazy val compile = "tests/test:compile"
       lazy val fastTest = "tests/fast:test"
       lazy val slowTest = command("tests/slow:test")
