@@ -234,6 +234,8 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         p.str("implicit")
       case ModLazy() =>
         p.str("lazy")
+      case ModNative() =>
+        p.str("native")
       case ModOverride() =>
         p.str("override")
       case ModPrivate() =>
@@ -250,12 +252,24 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
       case ModProtectedWithin(within) =>
         p.str("protected")
         p.Brackets(apply(within, SimpleExpr1))
+      case ModPublic() =>
+        p.str("public")
       case ModSealed() =>
         p.str("sealed")
+      case ModStatic() =>
+        p.str("static")
+      case ModStrictfp() =>
+        p.str("strictfp")
+      case ModSynchronized() =>
+        p.str("synchronized")
+      case ModTransient() =>
+        p.str("transient")
       case ModVal() =>
         p.str("val")
       case ModVar() =>
         p.str("var")
+      case ModVolatile() =>
+        p.str("volatile")
       case x @ NamedId(v) =>
         if (x.sym != NoSymbol) p.str("<" + x.sym + ">")
         else {

@@ -137,6 +137,8 @@ trait Dupe {
           ModImplicit()
         case ModLazy() =>
           ModLazy()
+        case ModNative() =>
+          ModNative()
         case ModOverride() =>
           ModOverride()
         case ModPrivate() =>
@@ -153,12 +155,24 @@ trait Dupe {
         case ModProtectedWithin(id) =>
           val id1 = id.dupe
           ModProtectedWithin(id1)
+        case ModPublic() =>
+          ModPublic()
         case ModSealed() =>
           ModSealed()
+        case ModStatic() =>
+          ModStatic()
+        case ModStrictfp() =>
+          ModStrictfp()
+        case ModSynchronized() =>
+          ModSynchronized()
+        case ModTransient() =>
+          ModTransient()
         case ModVal() =>
           ModVal()
         case ModVar() =>
           ModVar()
+        case ModVolatile() =>
+          ModVolatile()
         case Mods(trees) =>
           val trees1 = trees.map(_.dupe)
           Mods(trees1)

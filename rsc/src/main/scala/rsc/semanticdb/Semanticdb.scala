@@ -207,6 +207,7 @@ final class Semanticdb private (
       if (outline.hasContravariant) set(p.CONTRAVARIANT)
       if (outline.hasVal) set(p.VAL)
       if (outline.hasVar) set(p.VAR)
+      if (outline.hasStatic) set(p.STATIC)
       if (outline.isInstanceOf[PrimaryCtor]) set(p.PRIMARY)
       if (outline.isSynthetic) set(p.SYNTHETIC)
       outline match {
@@ -316,6 +317,8 @@ final class Semanticdb private (
               s.ProtectedThisAccess()
             case outline if outline.hasProtectedWithin =>
               s.ProtectedWithinAccess(outline.within.get.sym)
+            case outline if outline.hasPublic =>
+              s.PublicAccess()
             case _ =>
               s.PublicAccess()
           }

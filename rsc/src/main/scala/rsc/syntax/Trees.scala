@@ -226,6 +226,8 @@ final case class ModImplicit() extends Mod
 
 final case class ModLazy() extends Mod
 
+final case class ModNative() extends Mod
+
 final case class ModOverride() extends Mod
 
 final case class ModPrivate() extends ModAccess
@@ -240,11 +242,23 @@ final case class ModProtectedThis() extends ModAccess
 
 final case class ModProtectedWithin(id: SomeId) extends ModAccess
 
+final case class ModPublic() extends ModAccess
+
 final case class ModSealed() extends Mod
+
+final case class ModStatic() extends Mod
+
+final case class ModStrictfp() extends Mod
+
+final case class ModSynchronized() extends Mod
+
+final case class ModTransient() extends Mod
 
 final case class ModVal() extends Mod
 
 final case class ModVar() extends Mod
+
+final case class ModVolatile() extends Mod
 
 sealed trait Modded extends Tree {
   def mods: Mods
@@ -256,6 +270,7 @@ sealed trait Modded extends Tree {
   def hasFinal = mods.trees.exists(_.isInstanceOf[ModFinal])
   def hasImplicit = mods.trees.exists(_.isInstanceOf[ModImplicit])
   def hasLazy = mods.trees.exists(_.isInstanceOf[ModLazy])
+  def hasNative = mods.trees.exists(_.isInstanceOf[ModNative])
   def hasOverride = mods.trees.exists(_.isInstanceOf[ModOverride])
   def hasPrivate = mods.trees.exists(_.isInstanceOf[ModPrivate])
   def hasPrivateThis = mods.trees.exists(_.isInstanceOf[ModPrivateThis])
@@ -263,9 +278,15 @@ sealed trait Modded extends Tree {
   def hasProtected = mods.trees.exists(_.isInstanceOf[ModProtected])
   def hasProtectedThis = mods.trees.exists(_.isInstanceOf[ModProtectedThis])
   def hasProtectedWithin = mods.trees.exists(_.isInstanceOf[ModProtectedWithin])
+  def hasPublic = mods.trees.exists(_.isInstanceOf[ModPublic])
   def hasSealed = mods.trees.exists(_.isInstanceOf[ModSealed])
+  def hasStatic = mods.trees.exists(_.isInstanceOf[ModStatic])
+  def hasStrictfp = mods.trees.exists(_.isInstanceOf[ModStrictfp])
+  def hasSynchronized = mods.trees.exists(_.isInstanceOf[ModSynchronized])
+  def hasTransient = mods.trees.exists(_.isInstanceOf[ModTransient])
   def hasVal = mods.trees.exists(_.isInstanceOf[ModVal])
   def hasVar = mods.trees.exists(_.isInstanceOf[ModVar])
+  def hasVolatile = mods.trees.exists(_.isInstanceOf[ModVolatile])
   def within = {
     mods.trees.collectFirst {
       case ModPrivateWithin(id) => id
