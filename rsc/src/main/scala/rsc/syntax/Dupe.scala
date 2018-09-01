@@ -338,12 +338,12 @@ trait Dupe {
           val qual1 = qual.dupe
           val id1 = id.dupe
           TermSelect(qual1, id1)
+        case TermStub() =>
+          TermStub()
         case TermSuper(qual, mix) =>
           val qual1 = qual.dupe
           val mix1 = mix.dupe
           TermSuper(qual1, mix1)
-        case TermSynthetic() =>
-          TermSynthetic()
         case TermThis(qual) =>
           val qual1 = qual.dupe
           TermThis(qual1)

@@ -516,12 +516,12 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         apply(qual, SimpleExpr)
         p.str(".")
         apply(id, SimpleExpr1)
+      case TermStub() =>
+        p.str("???")
       case TermSuper(qual, mix) =>
         p.Suffix(".")(qual.opt)(apply(_, "", SimpleExpr1))
         p.str("super")
         p.Brackets(mix.opt)(apply(_, "", SimpleExpr1))
-      case TermSynthetic() =>
-        p.str("???")
       case TermThis(qual) =>
         p.Suffix(".")(qual.opt)(apply(_, "", SimpleExpr1))
         p.str("this")

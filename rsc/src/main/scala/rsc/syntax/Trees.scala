@@ -450,11 +450,11 @@ final case class TermReturn(term: Option[Term]) extends Term
 
 final case class TermSelect(qual: Term, id: TermId) extends TermPath
 
+final case class TermStub() extends Term
+
 final case class TermSuper(qual: Id, mix: Id) extends TermPath {
   def id = mix
 }
-
-final case class TermSynthetic() extends Term
 
 final case class TermThis(qual: Id) extends TermPath {
   def id = qual

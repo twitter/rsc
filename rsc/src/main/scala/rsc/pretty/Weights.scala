@@ -74,8 +74,8 @@ trait Weights {
         case _: TermRepeat => PostfixExpr
         case _: TermReturn => Expr1
         case _: TermSelect => SimpleExpr1
+        case _: TermStub => SimpleExpr1
         case _: TermSuper => SimpleExpr1
-        case _: TermSynthetic => SimpleExpr1
         case _: TermThis => SimpleExpr1
         case _: TermThrow => Expr1
         case _: TermTry => Expr1

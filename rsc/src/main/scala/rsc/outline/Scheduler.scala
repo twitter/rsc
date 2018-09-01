@@ -217,7 +217,7 @@ final class Scheduler private (
           id match {
             case id: TermId =>
               val fieldTpt = tpt.orElse(tree.tpt)
-              val fieldRhs = Some(TermSynthetic())
+              val fieldRhs = Some(TermStub())
               val field = DefnField(tree.mods, id, fieldTpt, fieldRhs)
               apply(env, field.withPos(tree.pos))
             case _ =>
