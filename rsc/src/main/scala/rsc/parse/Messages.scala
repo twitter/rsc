@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.parse
 
+import rsc.inputs._
 import rsc.lexis._
 import rsc.pretty._
 import rsc.report._

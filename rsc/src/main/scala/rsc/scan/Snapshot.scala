@@ -3,6 +3,7 @@
 package rsc.scan
 
 import java.util.LinkedList
+import rsc.inputs._
 import rsc.lexis._
 
 final case class Snapshot(

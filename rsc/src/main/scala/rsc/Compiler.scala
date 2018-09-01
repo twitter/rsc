@@ -6,6 +6,7 @@ import java.io._
 import java.nio.file._
 import java.util.LinkedList
 import rsc.gensym._
+import rsc.inputs._
 import rsc.lexis._
 import rsc.outline._
 import rsc.parse._

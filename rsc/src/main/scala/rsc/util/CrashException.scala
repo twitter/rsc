@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.util
 
-import rsc.lexis._
+import rsc.inputs._
 
 final case class CrashException(pos: Position, message: String, cause: Throwable)
     extends Exception(message, cause)

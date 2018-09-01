@@ -3,7 +3,7 @@
 package rsc.parse
 
 import rsc.gensym._
-import rsc.lexis._
+import rsc.inputs._
 import rsc.report._
 import rsc.settings._
 

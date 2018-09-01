@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.syntax
 
-import rsc.lexis._
+import rsc.inputs._
 import rsc.pretty._
 import rsc.semantics._
 

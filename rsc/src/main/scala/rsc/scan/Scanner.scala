@@ -4,6 +4,7 @@ package rsc.scan
 
 import java.util.LinkedList
 import rsc.lexis._
+import rsc.inputs._
 import rsc.report._
 import rsc.settings._
 import rsc.util._

@@ -5,8 +5,8 @@ package rsc
 import java.nio.file._
 import rsc.checkbase._
 import rsc.gensym._
+import rsc.inputs.{Input => RscInput, Position => RscPosition}
 import rsc.lexis.{BOF => RSC_BOF, EOF => RSC_EOF}
-import rsc.lexis.{Input => RscInput, Position => RscPosition}
 import rsc.parse.{Parser => RscParser}
 import rsc.pretty._
 import rsc.report.{StoreReporter => RscReporter}
