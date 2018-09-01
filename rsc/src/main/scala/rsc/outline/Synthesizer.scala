@@ -49,7 +49,7 @@ final class Synthesizer private (
   }
 
   def defaultGetters(env: Env, tree: DefnClass): Unit = {
-    defaultGetters(env, tree.tparams, tree.primaryCtor)
+    tree.primaryCtor.foreach(defaultGetters(env, tree.tparams, _))
     tree.stats.foreach {
       case ctor: DefnCtor => defaultGetters(env, tree.tparams, ctor)
       case _ => ()
@@ -139,7 +139,7 @@ final class Synthesizer private (
       tparam.withPos(tp.pos)
     }
     val paramss = {
-      val paramss = symtab._paramss.get(tree.primaryCtor)
+      val paramss = symtab._paramss.get(tree.primaryCtor.get)
       if (paramss != null) {
         paramss match {
           case List(List(param)) =>
@@ -166,37 +166,39 @@ final class Synthesizer private (
   }
 
   def paramAccessors(env: Env, tree: DefnClass): Unit = {
-    val paramss = symtab._paramss.get(tree.primaryCtor)
-    paramss.zipWithIndex.foreach {
-      case (params, i) =>
-        params.foreach { param =>
-          val fieldMods = {
-            val valMods = {
-              if (param.hasVal || param.hasVar) Nil
-              else List(ModVal())
-            }
-            val accessMods = {
-              if (param.hasPrivate) Nil
-              else if (param.hasPrivateThis) Nil
-              else if (param.hasPrivateWithin) Nil
-              else if (param.hasProtected) Nil
-              else if (param.hasProtectedThis) Nil
-              else if (param.hasProtectedWithin) Nil
-              else if (param.hasVal) Nil
-              else if (param.hasVar) Nil
-              else {
-                if (tree.hasCase && i == 0) Nil
-                else List(ModPrivateThis())
+    tree.primaryCtor.foreach { primaryCtor =>
+      val paramss = symtab._paramss.get(primaryCtor)
+      paramss.zipWithIndex.foreach {
+        case (params, i) =>
+          params.foreach { param =>
+            val fieldMods = {
+              val valMods = {
+                if (param.hasVal || param.hasVar) Nil
+                else List(ModVal())
               }
+              val accessMods = {
+                if (param.hasPrivate) Nil
+                else if (param.hasPrivateThis) Nil
+                else if (param.hasPrivateWithin) Nil
+                else if (param.hasProtected) Nil
+                else if (param.hasProtectedThis) Nil
+                else if (param.hasProtectedWithin) Nil
+                else if (param.hasVal) Nil
+                else if (param.hasVar) Nil
+                else {
+                  if (tree.hasCase && i == 0) Nil
+                  else List(ModPrivateThis())
+                }
+              }
+              Mods(accessMods ++ param.mods.trees ++ valMods)
             }
-            Mods(accessMods ++ param.mods.trees ++ valMods)
+            val fieldId = TermId(param.id.nameopt.get.value).withPos(param.pos)
+            val fieldTpt = param.tpt.map(_.dupe)
+            val fieldRhs = Some(TermStub())
+            val field = DefnField(fieldMods, fieldId, fieldTpt, fieldRhs)
+            scheduler(env, field.withPos(param.pos))
           }
-          val fieldId = TermId(param.id.nameopt.get.value).withPos(param.pos)
-          val fieldTpt = param.tpt.map(_.dupe)
-          val fieldRhs = Some(TermStub())
-          val field = DefnField(fieldMods, fieldId, fieldTpt, fieldRhs)
-          scheduler(env, field.withPos(param.pos))
-        }
+      }
     }
   }
 
@@ -299,7 +301,7 @@ final class Synthesizer private (
       val tparam = TypeParam(Mods(Nil), id, Nil, lbound, ubound, Nil, Nil)
       tparam.withPos(tp.pos)
     }
-    val paramss = tree.primaryCtor.paramss.zipWithIndex.map {
+    val paramss = tree.primaryCtor.get.paramss.zipWithIndex.map {
       case (params, i) =>
         params.map { p =>
           val id = TermId(p.id.nameopt.get.value).withPos(p.id.pos)
@@ -318,7 +320,7 @@ final class Synthesizer private (
     val meth = DefnMethod(Mods(Nil), id, tparams, paramss, ret, rhs)
     scheduler(env, meth.withPos(tree.pos))
 
-    tree.primaryCtor.paramss.head.zipWithIndex.foreach {
+    tree.primaryCtor.get.paramss.head.zipWithIndex.foreach {
       case (param, i) =>
         val mods = Mods(Nil)
         val id = TermId("copy$default$" + (i + 1))
@@ -409,7 +411,7 @@ final class Synthesizer private (
       tparam.withPos(tp.pos)
     }
     var hasDefault = false
-    val paramss = tree.primaryCtor.paramss.map(_.map { p =>
+    val paramss = tree.primaryCtor.get.paramss.map(_.map { p =>
       val id = TermId(p.id.nameopt.get.value).withPos(p.id.pos)
       val tpt = p.tpt.map(_.dupe)
       val rhs = p.rhs.map(_.dupe)
@@ -447,7 +449,7 @@ final class Synthesizer private (
       List(List(param.withPos(tree.pos)))
     }
     val ret = {
-      val params = tree.primaryCtor.paramss.headOption.getOrElse(Nil)
+      val params = tree.primaryCtor.get.paramss.headOption.getOrElse(Nil)
       params match {
         case Nil =>
           Some(TptId("Boolean").withSym(BooleanClass))

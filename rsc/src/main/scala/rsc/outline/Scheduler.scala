@@ -248,9 +248,9 @@ final class Scheduler private (
     stats(TemplateLevel, templateEnv, tree.earlies)
     tree match {
       case tree: DefnClass =>
-        synthesizer.paramss(templateEnv, tree.primaryCtor)
+        tree.primaryCtor.foreach(synthesizer.paramss(templateEnv, _))
         synthesizer.paramAccessors(templateEnv, tree)
-        apply(templateEnv, tree.primaryCtor)
+        tree.primaryCtor.foreach(apply(templateEnv, _))
       case tree: DefnObject =>
         val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
         companionClass match {
@@ -467,7 +467,7 @@ final class Scheduler private (
 
   private implicit class ClassDefaultOps(tree: DefnClass) {
     def hasDefault: Boolean = {
-      def primaryHasDefault = tree.primaryCtor.hasDefault
+      def primaryHasDefault = tree.primaryCtor.map(_.hasDefault).getOrElse(false)
       def secondaryHasDefault = tree.stats.exists {
         case stat: DefnCtor => stat.hasDefault
         case _ => false

@@ -19,7 +19,7 @@ trait Dupe {
           val mods1 = mods.dupe
           val id1 = id.dupe
           val tparams1 = tparams.map(_.dupe)
-          val primaryCtor1 = primaryCtor.dupe
+          val primaryCtor1 = primaryCtor.map(_.dupe)
           val earlies1 = earlies.map(_.dupe)
           val inits1 = inits.map(_.dupe)
           val self1 = self.map(_.dupe)

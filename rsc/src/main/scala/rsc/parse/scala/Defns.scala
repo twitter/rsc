@@ -14,7 +14,7 @@ trait Defns {
     val start = mods.pos.start
     val id = tptId()
     val tparams = typeParams(DefnClassContext)
-    val primaryCtor = this.primaryCtor()
+    val primaryCtor = Some(this.primaryCtor())
     val Template(early, inits, self, statsOpt) = defnTemplate()
     val stats = statsOpt.getOrElse(Nil)
     atPos(start)(DefnClass(mods, id, tparams, primaryCtor, early, inits, self, stats))
