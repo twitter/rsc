@@ -84,13 +84,13 @@ object Index {
     def visit(path: Path): Unit = {
       def fail(): Nothing = {
         val explanation = s"""
-          |$path is not a supported classpath entry.
-          |Rsc only supports indexed SemanticDB classpaths.
-          |Indexed SemanticDB classpaths consist of directories or jars that have:
-          |  1) META-INF/semanticdb subdirectory with SemanticDB payloads.
-          |  2) META-INF/semanticdb.semanticidx file with an index of the payloads.
-          |Regular classpaths can be converted to SemanticDB classpaths via Metacp.
-          |SemanticDB classpaths can be indexed via Metai.
+        |$path is not a supported classpath entry.
+        |Rsc only supports indexed SemanticDB classpaths.
+        |Indexed SemanticDB classpaths consist of directories or jars that have:
+        |  1) META-INF/semanticdb subdirectory with SemanticDB payloads.
+        |  2) META-INF/semanticdb.semanticidx file with an index of the payloads.
+        |Regular classpaths can be converted to SemanticDB classpaths via Metacp.
+        |SemanticDB classpaths can be indexed via Metai.
         """.trim.stripMargin
         crash(explanation)
       }
@@ -144,7 +144,8 @@ object Index {
           }
           val manifest = jar.getManifest
           if (manifest != null) {
-            val classpathAttr = manifest.getMainAttributes.getValue("Class-Path")
+            val classpathAttr =
+              manifest.getMainAttributes.getValue("Class-Path")
             if (classpathAttr != null) {
               classpathAttr.split(" ").foreach { relativePath =>
                 val parentPath = path.toAbsolutePath.getParent
