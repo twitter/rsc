@@ -14,10 +14,10 @@ trait Defns {
     val start = mods.pos.start
     val id = tptId()
     val tparams = typeParams(DefnClassContext)
-    val ctor = primaryCtor()
+    val primaryCtor = this.primaryCtor()
     val Template(early, inits, self, statsOpt) = defnTemplate()
     val stats = statsOpt.getOrElse(Nil)
-    atPos(start)(DefnClass(mods, id, tparams, ctor, early, inits, self, stats))
+    atPos(start)(DefnClass(mods, id, tparams, primaryCtor, early, inits, self, stats))
   }
 
   def defnDef(mods: Mods): Stat = {
@@ -186,8 +186,8 @@ trait Defns {
     val mods = primaryCtorMods()
     val start = mods.pos.start
     val paramss = this.paramss(CtorContext)
-    val ctor = atPos(start)(PrimaryCtor(mods, paramss))
-    ctor.id.pos = Position(input, start, start)
-    ctor
+    val primaryCtor = atPos(start)(PrimaryCtor(mods, paramss))
+    primaryCtor.id.pos = Position(input, start, start)
+    primaryCtor
   }
 }

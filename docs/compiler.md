@@ -57,7 +57,7 @@ final case class DefnClass(
     mods: Mods,
     id: TptId,
     tparams: List[TypeParam],
-    ctor: PrimaryCtor,
+    primaryCtor: PrimaryCtor,
     earlies: List[Stat],
     inits: List[Init],
     self: Option[Self],

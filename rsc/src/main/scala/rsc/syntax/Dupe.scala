@@ -15,16 +15,16 @@ trait Dupe {
           Case(pat1, cond1, stats1)
         case CtorId() =>
           CtorId()
-        case DefnClass(mods, id, tparams, ctor, earlies, inits, self, stats) =>
+        case DefnClass(mods, id, tparams, primaryCtor, earlies, inits, self, stats) =>
           val mods1 = mods.dupe
           val id1 = id.dupe
           val tparams1 = tparams.map(_.dupe)
-          val ctor1 = ctor.dupe
+          val primaryCtor1 = primaryCtor.dupe
           val earlies1 = earlies.map(_.dupe)
           val inits1 = inits.map(_.dupe)
           val self1 = self.map(_.dupe)
           val ss1 = stats.map(_.dupe)
-          DefnClass(mods1, id1, tparams1, ctor1, earlies1, inits1, self1, ss1)
+          DefnClass(mods1, id1, tparams1, primaryCtor1, earlies1, inits1, self1, ss1)
         case DefnField(mods, id, tpt, rhs) =>
           val mods1 = mods.dupe
           val id1 = id.dupe

@@ -49,7 +49,7 @@ final class Synthesizer private (
   }
 
   def defaultGetters(env: Env, tree: DefnClass): Unit = {
-    defaultGetters(env, tree.tparams, tree.ctor)
+    defaultGetters(env, tree.tparams, tree.primaryCtor)
     tree.stats.foreach {
       case ctor: DefnCtor => defaultGetters(env, tree.tparams, ctor)
       case _ => ()
@@ -139,15 +139,15 @@ final class Synthesizer private (
       tparam.withPos(tp.pos)
     }
     val paramss = {
-      val ctorParamss = symtab._paramss.get(tree.ctor)
-      if (ctorParamss != null) {
-        ctorParamss match {
-          case List(List(ctorParam)) =>
-            val pos = ctorParam.id.pos
-            val id = TermId(ctorParam.id.nameopt.get.value).withPos(pos)
-            val tpt = ctorParam.tpt.map(_.dupe)
+      val paramss = symtab._paramss.get(tree.primaryCtor)
+      if (paramss != null) {
+        paramss match {
+          case List(List(param)) =>
+            val pos = param.id.pos
+            val id = TermId(param.id.nameopt.get.value).withPos(pos)
+            val tpt = param.tpt.map(_.dupe)
             val methParam = Param(Mods(Nil), id, tpt, None)
-            List(List(methParam.withPos(ctorParam.pos)))
+            List(List(methParam.withPos(param.pos)))
           case _ =>
             Nil
         }
@@ -166,7 +166,7 @@ final class Synthesizer private (
   }
 
   def paramAccessors(env: Env, tree: DefnClass): Unit = {
-    val paramss = symtab._paramss.get(tree.ctor)
+    val paramss = symtab._paramss.get(tree.primaryCtor)
     paramss.zipWithIndex.foreach {
       case (params, i) =>
         params.foreach { param =>
@@ -299,7 +299,7 @@ final class Synthesizer private (
       val tparam = TypeParam(Mods(Nil), id, Nil, lbound, ubound, Nil, Nil)
       tparam.withPos(tp.pos)
     }
-    val paramss = tree.ctor.paramss.zipWithIndex.map {
+    val paramss = tree.primaryCtor.paramss.zipWithIndex.map {
       case (params, i) =>
         params.map { p =>
           val id = TermId(p.id.nameopt.get.value).withPos(p.id.pos)
@@ -318,7 +318,7 @@ final class Synthesizer private (
     val meth = DefnMethod(Mods(Nil), id, tparams, paramss, ret, rhs)
     scheduler(env, meth.withPos(tree.pos))
 
-    tree.ctor.paramss.head.zipWithIndex.foreach {
+    tree.primaryCtor.paramss.head.zipWithIndex.foreach {
       case (param, i) =>
         val mods = Mods(Nil)
         val id = TermId("copy$default$" + (i + 1))
@@ -409,7 +409,7 @@ final class Synthesizer private (
       tparam.withPos(tp.pos)
     }
     var hasDefault = false
-    val paramss = tree.ctor.paramss.map(_.map { p =>
+    val paramss = tree.primaryCtor.paramss.map(_.map { p =>
       val id = TermId(p.id.nameopt.get.value).withPos(p.id.pos)
       val tpt = p.tpt.map(_.dupe)
       val rhs = p.rhs.map(_.dupe)
@@ -447,7 +447,7 @@ final class Synthesizer private (
       List(List(param.withPos(tree.pos)))
     }
     val ret = {
-      val params = tree.ctor.paramss.headOption.getOrElse(Nil)
+      val params = tree.primaryCtor.paramss.headOption.getOrElse(Nil)
       params match {
         case Nil =>
           Some(TptId("Boolean").withSym(BooleanClass))

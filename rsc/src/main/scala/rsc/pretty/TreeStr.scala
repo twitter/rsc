@@ -148,7 +148,7 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         apply(x.id)
         p.Brackets(x.tparams)(apply(_, ", "))
         x match {
-          case x: DefnClass => apply(x.ctor)
+          case x: DefnClass => apply(x.primaryCtor)
           case other => ()
         }
         if (x.earlies.isEmpty) {
