@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.pretty
 
-import rsc.lexis._
+import rsc.inputs._
 import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
-import scala.{Symbol => StdlibSymbol}
+import _root_.scala.{Symbol => StdlibSymbol}
 
-class TreeStr(val p: Printer) {
+class TreeStr(p: Printer, l: SupportedLanguage) {
   def apply(x: Tree): Unit = {
     apply(x, Undefined)
   }
@@ -23,14 +23,20 @@ class TreeStr(val p: Printer) {
 
   def apply(x: Tree, w: Weight): Unit = {
     def infixParens(xop: NamedId, wop: NamedId, left: Boolean): Boolean = {
-      val (xl, wl) = (xop.value.isLeftAssoc, wop.value.isLeftAssoc)
-      if (xl ^ wl) true
-      else {
-        val (l, r) = (wl, !wl)
-        val (xp, wp) = (xop.value.precedence, wop.value.precedence)
-        if (xp < wp) l
-        else if (xp > wp) r
-        else l ^ left
+      l match {
+        case ScalaLanguage =>
+          import rsc.lexis.scala._
+          val (xl, wl) = (xop.value.isLeftAssoc, wop.value.isLeftAssoc)
+          if (xl ^ wl) true
+          else {
+            val (l, r) = (wl, !wl)
+            val (xp, wp) = (xop.value.precedence, wop.value.precedence)
+            if (xp < wp) l
+            else if (xp > wp) r
+            else l ^ left
+          }
+        case JavaLanguage =>
+          ???
       }
     }
     val needsParens = (x.weight, w) match {
@@ -253,14 +259,20 @@ class TreeStr(val p: Printer) {
       case x @ NamedId(v) =>
         if (x.sym != NoSymbol) p.str("<" + x.sym + ">")
         else {
-          x match {
-            case PatId(v) if v.isPatVar =>
-              p.str("`" + v + "`")
-            case _ =>
-              def hasBackquotes = x.pos.string.startsWith("`")
-              def guessBackquotes = keywords.containsKey(v) || v == "then"
-              if (hasBackquotes || guessBackquotes) p.str("`" + v + "`")
-              else p.str(v)
+          l match {
+            case ScalaLanguage =>
+              import rsc.lexis.scala._
+              x match {
+                case PatId(v) if v.isPatVar =>
+                  p.str("`" + v + "`")
+                case _ =>
+                  def hasBackquotes = x.pos.string.startsWith("`")
+                  def guessBackquotes = keywords.containsKey(v) || v == "then"
+                  if (hasBackquotes || guessBackquotes) p.str("`" + v + "`")
+                  else p.str(v)
+              }
+            case JavaLanguage =>
+              p.str(v)
           }
         }
       case Param(mods, id, tpt, rhs) =>

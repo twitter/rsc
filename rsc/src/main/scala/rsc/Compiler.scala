@@ -86,17 +86,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
         } else {
           val gensym = gensyms(input)
           val parser = Parser(settings, reporter, gensym, input)
-          parser.accept(BOF)
-          val tree = {
-            try parser.source()
-            catch {
-              case ex: Throwable =>
-                val offset = parser.in.lastOffset
-                val pos = Position(input, offset, offset)
-                throw CrashException(pos, "compiler crash", ex)
-            }
-          }
-          parser.accept(EOF)
+          val tree = parser.parse()
           Some(tree)
         }
       } else {

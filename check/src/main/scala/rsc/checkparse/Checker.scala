@@ -12,10 +12,16 @@ class Checker(g: NscGlobal, nscTree1: NscGlobal#Tree, rscTree1: r.Tree)
     extends CheckerBase
     with DiffUtil {
   def check(): Unit = {
-    val path1 = rscTree1.pos.input
+    val path1 = rscTree1.pos.input.path
+    val extension = {
+      val name = path1.getFileName.toString
+      val i = name.lastIndexOf(".")
+      if (i != -1) name.substring(i)
+      else ""
+    }
 
     val rscPretty1 = rscTree1.str
-    val rscTree2 = rscPretty1.parseRsc() match {
+    val rscTree2 = rscPretty1.dump(extension).parseRsc() match {
       case Left(rscFailures) =>
         rscFailures.foreach { rscFailure =>
           problems += FailedRscProblem(s"[rsc1 vs rsc2]: $path1: $rscFailure")
@@ -33,7 +39,7 @@ class Checker(g: NscGlobal, nscTree1: NscGlobal#Tree, rscTree1: r.Tree)
       return
     }
 
-    val nscTree2 = rscPretty1.parseNsc(g) match {
+    val nscTree2 = rscPretty1.dump(extension).parseNsc(g) match {
       case Left(rscFailures) =>
         rscFailures.foreach { rscFailure =>
           problems += FailedRscProblem(s"[nsc1 vs nsc2]: $path1: $rscFailure")

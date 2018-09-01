@@ -16,6 +16,16 @@ sealed trait Tree extends Pretty with Product {
   override def equals(that: Any) = this eq that.asInstanceOf[AnyRef]
   def printStr(p: Printer): Unit = PrettyTree.str(p, this)
   def printRepl(p: Printer): Unit = PrettyTree.repl(p, this)
+  def scalaStr: String = {
+    val p = new Printer
+    PrettyTree.scalaStr(p, this)
+    p.toString
+  }
+  def javaStr: String = {
+    val p = new Printer
+    PrettyTree.javaStr(p, this)
+    p.toString
+  }
 }
 
 final case class AnonId() extends Id
