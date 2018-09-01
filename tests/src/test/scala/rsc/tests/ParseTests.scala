@@ -10,4 +10,10 @@ class ParseTests extends RscTests {
     val problems = Main.process(settings)
     if (problems.nonEmpty) fail()
   }
+
+  test("parse for function") {
+    val settings = Settings(functionFiles, quiet = true)
+    val problems = Main.process(settings)
+    if (problems.nonEmpty) fail()
+  }
 }
