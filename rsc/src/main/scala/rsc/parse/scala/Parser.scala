@@ -27,10 +27,10 @@ final class Parser private (
     with Lits
     with Messages
     with Modifiers
-    with Newlines
     with Params
     with Paths
     with Pats
+    with Scanners
     with Sources
     with Templates
     with Terms

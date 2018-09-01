@@ -8,7 +8,7 @@ import rsc.parse.scala.{Snapshot => ParseSnapshot}
 import rsc.scan.scala._
 import scala.annotation.switch
 
-trait Newlines {
+trait Scanners {
   self: Parser =>
 
   private val scanner = Scanner(settings, reporter, input)
