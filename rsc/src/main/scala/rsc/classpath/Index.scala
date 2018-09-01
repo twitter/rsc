@@ -82,6 +82,18 @@ object Index {
   def apply(classpath: List[Path]): Index = {
     val entries = new HashMap[Symbol, Entry]
     def visit(path: Path): Unit = {
+      def fail(): Nothing = {
+        val explanation = s"""
+          |$path is not a supported classpath entry.
+          |Rsc only supports indexed SemanticDB classpaths.
+          |Indexed SemanticDB classpaths consist of directories or jars that have:
+          |  1) META-INF/semanticdb subdirectory with SemanticDB payloads.
+          |  2) META-INF/semanticdb.semanticidx file with an index of the payloads.
+          |Regular classpaths can be converted to SemanticDB classpaths via Metacp.
+          |SemanticDB classpaths can be indexed via Metai.
+        """.trim.stripMargin
+        crash(explanation)
+      }
       if (Files.isDirectory(path)) {
         val indexPath = path.resolve("META-INF/semanticdb.semanticidx")
         val semanticdbRoot = path.resolve("META-INF/semanticdb")
@@ -104,7 +116,7 @@ object Index {
             }
           }
         } else {
-          crash(path.toString)
+          fail()
         }
       } else if (path.toString.endsWith(".jar")) {
         val jar = new JarFile(path.toFile)
@@ -127,7 +139,7 @@ object Index {
             }
           }
         } else {
-          crash(path.toString)
+          fail()
         }
         val manifest = jar.getManifest
         if (manifest != null) {
