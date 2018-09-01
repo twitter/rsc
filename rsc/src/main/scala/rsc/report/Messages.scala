@@ -38,6 +38,20 @@ final case class CrashMessage(pos: Position, message: String, ex: Throwable)
   }
 }
 
+final case class ErrorSummary(errors: List[Message]) extends Message {
+  def pos = NoPosition
+  def sev = VerboseSeverity
+  def text = {
+    val numErrors = errors.length
+    if (numErrors == 0) crash("ErrorSummary.errors cannot be empty")
+    else if (numErrors == 1) "one error found"
+    else if (numErrors == 2) "two errors found"
+    else if (numErrors == 3) "three errors found"
+    else if (numErrors == 4) "four errors found"
+    else s"$numErrors errors found"
+  }
+}
+
 final case class VerboseMessage(pos: Position, text: String) extends Message {
   def sev = VerboseSeverity
 }
