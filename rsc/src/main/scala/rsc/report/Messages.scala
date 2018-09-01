@@ -156,6 +156,11 @@ final case class FilesNotFound() extends Message {
   def text = s"nothing to compile"
 }
 
+final case class IllegalEllipsis(pos: Position) extends Message {
+  def sev = FatalSeverity
+  def text = "illegal ellipsis"
+}
+
 final case class IllegalIdentifier(pos: Position) extends Message {
   def sev = FatalSeverity
   def text = "illegal identifier"

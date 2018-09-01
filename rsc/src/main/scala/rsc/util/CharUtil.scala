@@ -21,6 +21,14 @@ trait CharUtil {
     ch == '$' || (ch != SU && Character.isUnicodeIdentifierPart(ch))
   }
 
+  def isJavaIdStart(ch: Char): Boolean = {
+    Character.isJavaIdentifierStart(ch)
+  }
+
+  def isJavaIdPart(ch: Char): Boolean = {
+    Character.isJavaIdentifierPart(ch)
+  }
+
   def isSpliceIdStart(ch: Char): Boolean = {
     Character.isUnicodeIdentifierStart(ch)
   }
