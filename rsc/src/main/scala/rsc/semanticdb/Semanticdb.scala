@@ -468,16 +468,30 @@ final class Semanticdb private (
               // FIXME: https://github.com/scalameta/scalameta/issues/1565
               crash(other)
           }
+        case TptBoolean() =>
+          s.TypeRef(s.NoType, "scala/Boolean#", Nil)
         case TptByName(tpt) =>
           s.ByNameType(tpt.tpe)
+        case TptByte() =>
+          s.TypeRef(s.NoType, "scala/Byte#", Nil)
+        case TptChar() =>
+          s.TypeRef(s.NoType, "scala/Char#", Nil)
+        case TptDouble() =>
+          s.TypeRef(s.NoType, "scala/Double#", Nil)
         case TptExistential(tpt, stats) =>
           // FIXME: https://github.com/twitter/rsc/issues/94
           s.NoType
+        case TptFloat() =>
+          s.TypeRef(s.NoType, "scala/Float#", Nil)
         case tpt: TptId =>
           // FIXME: https://github.com/twitter/rsc/issues/90
           s.TypeRef(s.NoType, tpt.sym, Nil)
+        case TptInt() =>
+          s.TypeRef(s.NoType, "scala/Int#", Nil)
         case TptIntersect(tpts) =>
           s.IntersectionType(tpts.map(_.tpe))
+        case TptLong() =>
+          s.TypeRef(s.NoType, "scala/Long#", Nil)
         case tpt: TptProject =>
           // FIXME: https://github.com/twitter/rsc/issues/91
           s.NoType
@@ -489,6 +503,8 @@ final class Semanticdb private (
         case tpt: TptSelect =>
           // FIXME: https://github.com/twitter/rsc/issues/90
           s.TypeRef(s.NoType, tpt.id.sym, Nil)
+        case TptShort() =>
+          s.TypeRef(s.NoType, "scala/Short#", Nil)
         case TptSingleton(id: TermId) =>
           // FIXME: https://github.com/twitter/rsc/issues/90
           s.SingleType(s.NoType, id.sym)
@@ -500,6 +516,8 @@ final class Semanticdb private (
           s.NoType
         case TptSingleton(TermThis(id)) =>
           s.ThisType(id.sym)
+        case TptVoid() =>
+          s.TypeRef(s.NoType, "scala/Void#", Nil)
         case _: TptWildcard =>
           crash(tpt)
         case TptWildcardExistential(_, tpt) =>

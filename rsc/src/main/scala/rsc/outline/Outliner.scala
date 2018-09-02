@@ -253,6 +253,8 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
         tpts.foreach(apply(env, sketch, _))
       case tpt: TptPath =>
         apply(env, sketch, tpt: Path)
+      case tpt: TptPrimitive =>
+        ()
       case TptRefine(tpt, stats) =>
         // FIXME: https://github.com/twitter/rsc/issues/95
         ()

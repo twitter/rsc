@@ -389,21 +389,35 @@ trait Dupe {
         case TptArray(tpt) =>
           val tpt1 = tpt.dupe
           TptArray(tpt1)
+        case TptBoolean() =>
+          TptBoolean()
         case TptByName(tpt) =>
           val tpt1 = tpt.dupe
           TptByName(tpt1)
+        case TptByte() =>
+          TptByte()
+        case TptChar() =>
+          TptChar()
+        case TptDouble() =>
+          TptDouble()
         case TptExistential(tpt, stats) =>
           val tpt1 = tpt.dupe
           val stats1 = stats.map(_.dupe)
           TptExistential(tpt1, stats1)
+        case TptFloat() =>
+          TptFloat()
         case TptFunction(targs) =>
           val targs1 = targs.map(_.dupe)
           TptFunction(targs1)
         case TptId(value) =>
           TptId(value)
+        case TptInt() =>
+          TptInt()
         case TptIntersect(tpts) =>
           val tpt1 = tpts.map(_.dupe)
           TptIntersect(tpt1)
+        case TptLong() =>
+          TptLong()
         case TptParameterize(fun, targs) =>
           val fun1 = fun.dupe
           val targs1 = targs.map(_.dupe)
@@ -428,12 +442,16 @@ trait Dupe {
           val qual1 = qual.dupe
           val id1 = id.dupe
           TptSelect(qual1, id1)
+        case TptShort() =>
+          TptShort()
         case TptSingleton(path) =>
           val path1 = path.dupe
           TptSingleton(path1)
         case TptTuple(targs) =>
           val targs1 = targs.map(_.dupe)
           TptTuple(targs1)
+        case TptVoid() =>
+          TptVoid()
         case TptWildcard(lbound, ubound) =>
           val lbound1 = lbound.map(_.dupe)
           val ubound1 = ubound.map(_.dupe)

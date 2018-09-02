@@ -506,9 +506,19 @@ object TptApply {
   }
 }
 
+final case class TptBoolean() extends TptPrimitive
+
 final case class TptByName(tpt: Tpt) extends Tpt
 
+final case class TptByte() extends TptPrimitive
+
+final case class TptChar() extends TptPrimitive
+
+final case class TptDouble() extends TptPrimitive
+
 final case class TptExistential(tpt: Tpt, stats: List[Stat]) extends Tpt
+
+final case class TptFloat() extends TptPrimitive
 
 final case class TptFunction(targs: List[Tpt]) extends TptApply {
   def fun = {
@@ -521,7 +531,11 @@ final case class TptId(value: String) extends TptPath with NamedId {
   def name = TypeName(value)
 }
 
+final case class TptInt() extends TptPrimitive
+
 final case class TptIntersect(tpts: List[Tpt]) extends Tpt
+
+final case class TptLong() extends TptPrimitive
 
 sealed trait TptPath extends Tpt with Path
 
@@ -532,6 +546,8 @@ final case class TptParameterizeInfix(lhs: Tpt, op: TptId, rhs: Tpt) extends Tpt
   def targs = List(lhs, rhs)
 }
 
+sealed trait TptPrimitive extends Tpt
+
 final case class TptProject(qual: Tpt, id: TptId) extends TptPath
 
 final case class TptRefine(tpt: Option[Tpt], stats: List[Stat]) extends Tpt
@@ -539,6 +555,8 @@ final case class TptRefine(tpt: Option[Tpt], stats: List[Stat]) extends Tpt
 final case class TptRepeat(tpt: Tpt) extends Tpt
 
 final case class TptSelect(qual: TermPath, id: TptId) extends TptPath
+
+final case class TptShort() extends TptPrimitive
 
 final case class TptSingleton(qual: TermPath) extends TptPath {
   def id = qual.id
@@ -550,6 +568,8 @@ final case class TptTuple(targs: List[Tpt]) extends TptApply {
     TptId(value).withSym(TupleClass(targs.length))
   }
 }
+
+final case class TptVoid() extends TptPrimitive
 
 final case class TptWildcard(lbound: Option[Tpt], ubound: Option[Tpt]) extends Tpt {
   val id = AnonId()

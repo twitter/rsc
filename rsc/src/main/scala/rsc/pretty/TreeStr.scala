@@ -578,13 +578,23 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         apply(tpt, SimpleTyp)
         p.str(" ")
         apply(mods)
+      case TptBoolean() =>
+        p.str("boolean")
       case TptByName(tpt) =>
         p.str("=>")
         apply(tpt, Typ)
+      case TptByte() =>
+        p.str("byte")
+      case TptChar() =>
+        p.str("char")
+      case TptDouble() =>
+        p.str("double")
       case TptExistential(tpt, stats) =>
         apply(tpt, AnyInfixTyp)
         p.str(" forSome ")
         p.Braces(apply(stats, "; "))
+      case TptFloat() =>
+        p.str("float")
       case TptFunction(targs) =>
         val params :+ ret = targs
         val needsParens = params match {
@@ -596,8 +606,12 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         p.Parens.when(needsParens)(apply(params, ", ", ParamTyp))
         p.str(" => ")
         apply(ret, Typ)
+      case TptInt() =>
+        p.str("int")
       case TptIntersect(tpts) =>
         apply(tpts, " & ", InfixTyp(TptId("&")))
+      case TptLong() =>
+        p.str("long")
       case TptParameterize(fun, targs) =>
         apply(fun, SimpleTyp)
         p.Brackets(apply(targs, ", ", Typ))
@@ -621,11 +635,15 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         apply(qual, SimpleExpr)
         p.str(".")
         apply(id, SimpleTyp)
+      case TptShort() =>
+        p.str("short")
       case TptSingleton(path) =>
         apply(path, SimpleExpr)
         p.str(".type")
       case TptTuple(targs) =>
         p.Parens(apply(targs, ", ", Typ))
+      case TptVoid() =>
+        p.str("void")
       case TptWildcard(lbound, ubound) =>
         p.str("_")
         p.Prefix(" >: ")(lbound)(apply(_, ""))
