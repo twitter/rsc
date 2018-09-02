@@ -155,7 +155,12 @@ final class Semanticdb private (
 
     def kind: s.SymbolInformation.Kind = {
       outline match {
-        case _: DefnClass => k.CLASS
+        case _: DefnClass if outline.hasClass => k.CLASS
+        case _: DefnClass if outline.hasTrait => k.TRAIT
+        case _: DefnClass if outline.hasInterface => k.INTERFACE
+        case _: DefnClass if outline.hasAnnotationInterface => k.INTERFACE
+        case _: DefnClass if outline.hasEnum => k.CLASS
+        case _: DefnClass => crash(outline)
         case _: DefnField => crash(outline)
         case _: DefnMacro => k.MACRO
         case _: DefnMethod => k.METHOD
@@ -163,7 +168,6 @@ final class Semanticdb private (
         case _: DefnPackage => k.PACKAGE
         case _: DefnPackageObject => k.PACKAGE_OBJECT
         case _: DefnProcedure => k.METHOD
-        case _: DefnTrait => k.TRAIT
         case _: DefnType => k.TYPE
         case _: Param => k.PARAMETER
         case _: PatVar => crash(outline)
@@ -209,6 +213,7 @@ final class Semanticdb private (
       if (outline.hasVar) set(p.VAR)
       if (outline.hasStatic) set(p.STATIC)
       if (outline.isInstanceOf[PrimaryCtor]) set(p.PRIMARY)
+      if (outline.hasEnum) set(p.ENUM)
       if (outline.isSynthetic) set(p.SYNTHETIC)
       outline match {
         case Param(_, _, _, Some(_)) => set(p.DEFAULT)
@@ -351,10 +356,9 @@ final class Semanticdb private (
               firstScope match {
                 case firstScope: TemplateScope =>
                   firstScope.tree match {
-                    case tree: DefnTrait =>
-                      superClass(tree.parents.map(parentSym))
                     case tree: DefnClass =>
-                      firstParentSym
+                      if (tree.hasClass) firstParentSym
+                      else superClass(tree.parents.map(parentSym))
                     case tree =>
                       crash(tree)
                   }

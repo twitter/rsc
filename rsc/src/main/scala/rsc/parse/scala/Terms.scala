@@ -462,15 +462,17 @@ trait Terms {
           val stat = in.token match {
             case CASECLASS =>
               val modCase = atPos(in.offset)(ModCase())
+              val modClass = atPos(in.offset)(ModClass())
               in.nextToken()
-              defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modCase)))
+              defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modCase :+ modClass)))
             case CASEOBJECT =>
               val modCase = atPos(in.offset)(ModCase())
               in.nextToken()
               defnObject(atPos(mods.pos.start)(Mods(mods.trees :+ modCase)))
             case CLASS =>
+              val modClass = atPos(in.offset)(ModClass())
               in.nextToken()
-              defnClass(mods)
+              defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modClass)))
             case DEF =>
               in.nextToken()
               defnDef(mods)
@@ -478,8 +480,9 @@ trait Terms {
               in.nextToken()
               defnObject(mods)
             case TRAIT =>
+              val modTrait = atPos(in.offset)(ModTrait())
               in.nextToken()
-              defnTrait(mods)
+              defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modTrait)))
             case TYPE =>
               in.nextToken()
               defnType(mods)

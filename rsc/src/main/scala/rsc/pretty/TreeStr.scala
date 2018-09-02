@@ -140,10 +140,9 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
       case x: DefnTemplate =>
         apply(x.mods)
         x match {
-          case _: DefnClass => p.str("class ")
+          case _: DefnClass => p.str(" ")
           case _: DefnObject => p.str("object ")
           case _: DefnPackageObject => p.str("package object ")
-          case _: DefnTrait => p.str("trait ")
         }
         apply(x.id)
         p.Brackets(x.tparams)(apply(_, ", "))
@@ -222,16 +221,24 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         p.str("@")
         apply(tpt, SimpleTyp)
         apply(argss, Expr)
+      case ModAnnotationInterface() =>
+        p.str("@interface")
       case ModCase() =>
         p.str("case")
+      case ModClass() =>
+        p.str("class")
       case ModContravariant() =>
         p.str("-")
       case ModCovariant() =>
         p.str("+")
+      case ModEnum() =>
+        p.str("enum")
       case ModFinal() =>
         p.str("final")
       case ModImplicit() =>
         p.str("implicit")
+      case ModInterface() =>
+        p.str("interface")
       case ModLazy() =>
         p.str("lazy")
       case ModNative() =>
@@ -262,6 +269,8 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         p.str("strictfp")
       case ModSynchronized() =>
         p.str("synchronized")
+      case ModTrait() =>
+        p.str("trait")
       case ModTransient() =>
         p.str("transient")
       case ModVal() =>

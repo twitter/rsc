@@ -14,7 +14,7 @@ trait Defns {
     val start = mods.pos.start
     val id = tptId()
     val tparams = typeParams(DefnClassContext)
-    val primaryCtor = Some(this.primaryCtor())
+    val primaryCtor = if (mods.hasClass) Some(this.primaryCtor()) else None
     val Template(early, inits, self, statsOpt) = defnTemplate()
     val stats = statsOpt.getOrElse(Nil)
     atPos(start)(DefnClass(mods, id, tparams, primaryCtor, early, inits, self, stats))
@@ -92,15 +92,6 @@ trait Defns {
     val Template(earlies, inits, self, statsOpt) = defnTemplate()
     val stats = statsOpt.getOrElse(Nil)
     atPos(start)(DefnPackageObject(mods, id, earlies, inits, self, stats))
-  }
-
-  def defnTrait(mods: Mods): DefnTrait = {
-    val start = mods.pos.start
-    val id = tptId()
-    val tparams = typeParams(DefnTraitContext)
-    val Template(earlies, inits, self, statsOpt) = defnTemplate()
-    val stats = statsOpt.getOrElse(Nil)
-    atPos(start)(DefnTrait(mods, id, tparams, earlies, inits, self, stats))
   }
 
   def defnType(mods: Mods): DefnType = {

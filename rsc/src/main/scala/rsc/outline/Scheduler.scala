@@ -117,8 +117,6 @@ final class Scheduler private (
               PackageSymbol(scope.sym, outline.id.value)
             case outline: DefnPackageObject =>
               TermSymbol(scope.sym, "package")
-            case outline: DefnTrait =>
-              TypeSymbol(scope.sym, outline.id.value)
             case outline: DefnType =>
               TypeSymbol(scope.sym, outline.id.value)
             case outline: Param =>

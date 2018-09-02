@@ -80,15 +80,6 @@ trait Dupe {
           val paramss1 = paramss.map(_.map(_.dupe))
           val rhs1 = rhs.map(_.dupe)
           DefnProcedure(mods1, id1, tparams1, paramss1, rhs1)
-        case DefnTrait(mods, id, tparams, earlies, inits, self, stats) =>
-          val mods1 = mods.dupe
-          val id1 = id.dupe
-          val tparams1 = tparams.map(_.dupe)
-          val earlies1 = earlies.map(_.dupe)
-          val inits1 = inits.map(_.dupe)
-          val self1 = self.map(_.dupe)
-          val stats1 = stats.map(_.dupe)
-          DefnTrait(mods1, id1, tparams1, earlies1, inits1, self1, stats1)
         case DefnType(mods, id, tparams, lbound, ubound, rhs) =>
           val mods1 = mods.dupe
           val id1 = id.dupe
@@ -125,16 +116,24 @@ trait Dupe {
         case ModAnnotation(init) =>
           val init1 = init.dupe
           ModAnnotation(init1)
+        case ModAnnotationInterface() =>
+          ModCase()
         case ModCase() =>
           ModCase()
+        case ModClass() =>
+          ModClass()
         case ModContravariant() =>
           ModContravariant()
         case ModCovariant() =>
           ModCovariant()
+        case ModEnum() =>
+          ModEnum()
         case ModFinal() =>
           ModFinal()
         case ModImplicit() =>
           ModImplicit()
+        case ModInterface() =>
+          ModInterface()
         case ModLazy() =>
           ModLazy()
         case ModNative() =>
@@ -165,6 +164,8 @@ trait Dupe {
           ModStrictfp()
         case ModSynchronized() =>
           ModSynchronized()
+        case ModTrait() =>
+          ModTrait()
         case ModTransient() =>
           ModTransient()
         case ModVal() =>

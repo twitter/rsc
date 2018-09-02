@@ -144,19 +144,6 @@ sealed trait DefnTemplate extends Stat with Parameterized with Outline {
   def stats: List[Stat]
 }
 
-final case class DefnTrait(
-    mods: Mods,
-    id: TptId,
-    tparams: List[TypeParam],
-    earlies: List[Stat],
-    inits: List[Init],
-    self: Option[Self],
-    stats: List[Stat])
-    extends DefnTemplate
-    with TypeOutline {
-  def paramss = Nil
-}
-
 final case class DefnType(
     mods: Mods,
     id: TptId,
@@ -214,15 +201,23 @@ final case class ModAbstract() extends Mod
 
 final case class ModAnnotation(init: Init) extends Mod
 
+final case class ModAnnotationInterface() extends Mod
+
 final case class ModCase() extends Mod
+
+final case class ModClass() extends Mod
 
 final case class ModContravariant() extends Mod
 
 final case class ModCovariant() extends Mod
 
+final case class ModEnum() extends Mod
+
 final case class ModFinal() extends Mod
 
 final case class ModImplicit() extends Mod
+
+final case class ModInterface() extends Mod
 
 final case class ModLazy() extends Mod
 
@@ -252,6 +247,8 @@ final case class ModStrictfp() extends Mod
 
 final case class ModSynchronized() extends Mod
 
+final case class ModTrait() extends Mod
+
 final case class ModTransient() extends Mod
 
 final case class ModVal() extends Mod
@@ -264,11 +261,15 @@ sealed trait Modded extends Tree {
   def mods: Mods
   def annots = mods.trees.collect { case x: ModAnnotation => x }
   def hasAbstract = mods.trees.exists(_.isInstanceOf[ModAbstract])
+  def hasAnnotationInterface = mods.trees.exists(_.isInstanceOf[ModAnnotationInterface])
   def hasCase = mods.trees.exists(_.isInstanceOf[ModCase])
+  def hasClass = mods.trees.exists(_.isInstanceOf[ModClass])
   def hasContravariant = mods.trees.exists(_.isInstanceOf[ModContravariant])
   def hasCovariant = mods.trees.exists(_.isInstanceOf[ModCovariant])
+  def hasEnum = mods.trees.exists(_.isInstanceOf[ModEnum])
   def hasFinal = mods.trees.exists(_.isInstanceOf[ModFinal])
   def hasImplicit = mods.trees.exists(_.isInstanceOf[ModImplicit])
+  def hasInterface = mods.trees.exists(_.isInstanceOf[ModInterface])
   def hasLazy = mods.trees.exists(_.isInstanceOf[ModLazy])
   def hasNative = mods.trees.exists(_.isInstanceOf[ModNative])
   def hasOverride = mods.trees.exists(_.isInstanceOf[ModOverride])
@@ -283,6 +284,7 @@ sealed trait Modded extends Tree {
   def hasStatic = mods.trees.exists(_.isInstanceOf[ModStatic])
   def hasStrictfp = mods.trees.exists(_.isInstanceOf[ModStrictfp])
   def hasSynchronized = mods.trees.exists(_.isInstanceOf[ModSynchronized])
+  def hasTrait = mods.trees.exists(_.isInstanceOf[ModTrait])
   def hasTransient = mods.trees.exists(_.isInstanceOf[ModTransient])
   def hasVal = mods.trees.exists(_.isInstanceOf[ModVal])
   def hasVar = mods.trees.exists(_.isInstanceOf[ModVar])
