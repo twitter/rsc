@@ -90,6 +90,7 @@ trait Weights {
         case _: TptExistential => Typ
         case _: TptFunction => Typ
         case _: TptId => SimpleTyp
+        case _: TptIntersect => InfixTyp(TptId("&"))
         case _: TptParameterize => SimpleTyp
         case tree: TptParameterizeInfix => InfixTyp(tree.op)
         case _: TptProject => SimpleTyp

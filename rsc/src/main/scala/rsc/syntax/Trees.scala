@@ -516,6 +516,8 @@ final case class TptId(value: String) extends TptPath with NamedId {
   def name = TypeName(value)
 }
 
+final case class TptIntersect(tpts: List[Tpt]) extends Tpt
+
 sealed trait TptPath extends Tpt with Path
 
 final case class TptParameterize(fun: Tpt, targs: List[Tpt]) extends TptApply

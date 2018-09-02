@@ -476,6 +476,8 @@ final class Semanticdb private (
         case tpt: TptId =>
           // FIXME: https://github.com/twitter/rsc/issues/90
           s.TypeRef(s.NoType, tpt.sym, Nil)
+        case TptIntersect(tpts) =>
+          s.IntersectionType(tpts.map(_.tpe))
         case tpt: TptProject =>
           // FIXME: https://github.com/twitter/rsc/issues/91
           s.NoType

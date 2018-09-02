@@ -249,6 +249,8 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
       case TptExistential(tpt, stats) =>
         // FIXME: https://github.com/twitter/rsc/issues/94
         ()
+      case TptIntersect(tpts) =>
+        tpts.foreach(apply(env, sketch, _))
       case tpt: TptPath =>
         apply(env, sketch, tpt: Path)
       case TptRefine(tpt, stats) =>

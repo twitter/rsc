@@ -593,6 +593,8 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         p.Parens.when(needsParens)(apply(params, ", ", ParamTyp))
         p.str(" => ")
         apply(ret, Typ)
+      case TptIntersect(tpts) =>
+        apply(tpts, " & ", InfixTyp(TptId("&")))
       case TptParameterize(fun, targs) =>
         apply(fun, SimpleTyp)
         p.Brackets(apply(targs, ", ", Typ))
