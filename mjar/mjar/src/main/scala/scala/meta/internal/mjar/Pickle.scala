@@ -757,7 +757,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
   }
 
   implicit class PropertyOps(val p: Property.type) {
-    val SYNTHETIC = p.Unrecognized(65536)
+    val SYNTHETIC = p.Unrecognized(0x80000000)
   }
 
   implicit class SymbolInformationOps(val sinfo: s.SymbolInformation) {
