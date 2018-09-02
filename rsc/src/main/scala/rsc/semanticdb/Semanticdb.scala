@@ -329,7 +329,16 @@ final class Semanticdb private (
             case outline if outline.hasPublic =>
               s.PublicAccess()
             case _ =>
-              s.PublicAccess()
+              language match {
+                case l.SCALA =>
+                  s.PublicAccess()
+                case l.JAVA =>
+                  val within = symbol.ownerChain.reverse.tail.find(_.desc.isPackage).get
+                  s.PrivateWithinAccess(within)
+                case l.UNKNOWN_LANGUAGE | l.Unrecognized(_) =>
+                  s.NoAccess
+              }
+
           }
       }
     }
