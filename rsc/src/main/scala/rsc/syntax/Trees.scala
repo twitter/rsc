@@ -219,6 +219,8 @@ final case class ModCovariant() extends Mod
 
 final case class ModDefault() extends Mod
 
+final case class ModDims(mods: Mods) extends Mod with Modded
+
 final case class ModEnum() extends Mod
 
 final case class ModFinal() extends Mod
@@ -269,39 +271,40 @@ final case class ModVolatile() extends Mod
 
 sealed trait Modded extends Tree {
   def mods: Mods
-  def annots = mods.trees.collect { case x: ModAnnotation => x }
-  def hasAbstract = mods.trees.exists(_.isInstanceOf[ModAbstract])
-  def hasAnnotationInterface = mods.trees.exists(_.isInstanceOf[ModAnnotationInterface])
-  def hasCase = mods.trees.exists(_.isInstanceOf[ModCase])
-  def hasClass = mods.trees.exists(_.isInstanceOf[ModClass])
-  def hasContravariant = mods.trees.exists(_.isInstanceOf[ModContravariant])
-  def hasCovariant = mods.trees.exists(_.isInstanceOf[ModCovariant])
-  def hasDefault = mods.trees.exists(_.isInstanceOf[ModDefault])
-  def hasEnum = mods.trees.exists(_.isInstanceOf[ModEnum])
-  def hasFinal = mods.trees.exists(_.isInstanceOf[ModFinal])
-  def hasImplicit = mods.trees.exists(_.isInstanceOf[ModImplicit])
-  def hasInterface = mods.trees.exists(_.isInstanceOf[ModInterface])
-  def hasLazy = mods.trees.exists(_.isInstanceOf[ModLazy])
-  def hasNative = mods.trees.exists(_.isInstanceOf[ModNative])
-  def hasOverride = mods.trees.exists(_.isInstanceOf[ModOverride])
-  def hasPrivate = mods.trees.exists(_.isInstanceOf[ModPrivate])
-  def hasPrivateThis = mods.trees.exists(_.isInstanceOf[ModPrivateThis])
-  def hasPrivateWithin = mods.trees.exists(_.isInstanceOf[ModPrivateWithin])
-  def hasProtected = mods.trees.exists(_.isInstanceOf[ModProtected])
-  def hasProtectedThis = mods.trees.exists(_.isInstanceOf[ModProtectedThis])
-  def hasProtectedWithin = mods.trees.exists(_.isInstanceOf[ModProtectedWithin])
-  def hasPublic = mods.trees.exists(_.isInstanceOf[ModPublic])
-  def hasSealed = mods.trees.exists(_.isInstanceOf[ModSealed])
-  def hasStatic = mods.trees.exists(_.isInstanceOf[ModStatic])
-  def hasStrictfp = mods.trees.exists(_.isInstanceOf[ModStrictfp])
-  def hasSynchronized = mods.trees.exists(_.isInstanceOf[ModSynchronized])
-  def hasTrait = mods.trees.exists(_.isInstanceOf[ModTrait])
-  def hasTransient = mods.trees.exists(_.isInstanceOf[ModTransient])
-  def hasVal = mods.trees.exists(_.isInstanceOf[ModVal])
-  def hasVar = mods.trees.exists(_.isInstanceOf[ModVar])
-  def hasVolatile = mods.trees.exists(_.isInstanceOf[ModVolatile])
-  def throws = mods.trees.collect { case x: ModThrows => x.tpts }.flatten
-  def within = {
+  def annots: List[ModAnnotation] = mods.trees.collect { case x: ModAnnotation => x }
+  def dims: List[ModDims] = mods.trees.collect { case x: ModDims => x +: x.dims }.flatten
+  def hasAbstract: Boolean = mods.trees.exists(_.isInstanceOf[ModAbstract])
+  def hasAnnotationInterface: Boolean = mods.trees.exists(_.isInstanceOf[ModAnnotationInterface])
+  def hasCase: Boolean = mods.trees.exists(_.isInstanceOf[ModCase])
+  def hasClass: Boolean = mods.trees.exists(_.isInstanceOf[ModClass])
+  def hasContravariant: Boolean = mods.trees.exists(_.isInstanceOf[ModContravariant])
+  def hasCovariant: Boolean = mods.trees.exists(_.isInstanceOf[ModCovariant])
+  def hasDefault: Boolean = mods.trees.exists(_.isInstanceOf[ModDefault])
+  def hasEnum: Boolean = mods.trees.exists(_.isInstanceOf[ModEnum])
+  def hasFinal: Boolean = mods.trees.exists(_.isInstanceOf[ModFinal])
+  def hasImplicit: Boolean = mods.trees.exists(_.isInstanceOf[ModImplicit])
+  def hasInterface: Boolean = mods.trees.exists(_.isInstanceOf[ModInterface])
+  def hasLazy: Boolean = mods.trees.exists(_.isInstanceOf[ModLazy])
+  def hasNative: Boolean = mods.trees.exists(_.isInstanceOf[ModNative])
+  def hasOverride: Boolean = mods.trees.exists(_.isInstanceOf[ModOverride])
+  def hasPrivate: Boolean = mods.trees.exists(_.isInstanceOf[ModPrivate])
+  def hasPrivateThis: Boolean = mods.trees.exists(_.isInstanceOf[ModPrivateThis])
+  def hasPrivateWithin: Boolean = mods.trees.exists(_.isInstanceOf[ModPrivateWithin])
+  def hasProtected: Boolean = mods.trees.exists(_.isInstanceOf[ModProtected])
+  def hasProtectedThis: Boolean = mods.trees.exists(_.isInstanceOf[ModProtectedThis])
+  def hasProtectedWithin: Boolean = mods.trees.exists(_.isInstanceOf[ModProtectedWithin])
+  def hasPublic: Boolean = mods.trees.exists(_.isInstanceOf[ModPublic])
+  def hasSealed: Boolean = mods.trees.exists(_.isInstanceOf[ModSealed])
+  def hasStatic: Boolean = mods.trees.exists(_.isInstanceOf[ModStatic])
+  def hasStrictfp: Boolean = mods.trees.exists(_.isInstanceOf[ModStrictfp])
+  def hasSynchronized: Boolean = mods.trees.exists(_.isInstanceOf[ModSynchronized])
+  def hasTrait: Boolean = mods.trees.exists(_.isInstanceOf[ModTrait])
+  def hasTransient: Boolean = mods.trees.exists(_.isInstanceOf[ModTransient])
+  def hasVal: Boolean = mods.trees.exists(_.isInstanceOf[ModVal])
+  def hasVar: Boolean = mods.trees.exists(_.isInstanceOf[ModVar])
+  def hasVolatile: Boolean = mods.trees.exists(_.isInstanceOf[ModVolatile])
+  def throws: List[ModThrows] = mods.trees.collect { case x: ModThrows => x }
+  def within: Option[SomeId] = {
     mods.trees.collectFirst {
       case ModPrivateWithin(id) => id
       case ModProtectedWithin(id) => id
