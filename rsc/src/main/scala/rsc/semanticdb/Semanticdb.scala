@@ -150,7 +150,11 @@ final class Semanticdb private (
     }
 
     def language: s.Language = {
-      l.SCALA
+      outline.pos.input.language match {
+        case ScalaLanguage => l.SCALA
+        case JavaLanguage => l.JAVA
+        case UnsupportedLanguage => l.UNKNOWN_LANGUAGE
+      }
     }
 
     def kind: s.SymbolInformation.Kind = {
