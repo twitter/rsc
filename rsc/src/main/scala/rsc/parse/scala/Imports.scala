@@ -20,32 +20,35 @@ trait Imports {
   }
 
   private def importer(): Importer = {
-    def loop(qual: TermPath): Importer = {
+    def loop(mods: Mods, qual: TermPath): Importer = {
       val start = qual.pos.start
       if (in.token == ID) {
         val tree = someId()
         if (in.token == DOT) {
           in.nextToken()
           val id = atPos(tree.pos)(TermId(tree.value))
-          loop(atPos(start)(TermSelect(qual, id)))
+          val qual1 = atPos(start)(TermSelect(qual, id))
+          loop(mods, qual1)
         } else {
           val importees = List(atPos(tree.pos)(ImporteeName(tree)))
-          atPos(start)(Importer(qual, importees))
+          atPos(start)(Importer(mods, qual, importees))
         }
       } else if (in.token == USCORE) {
         val importees = List(importee())
-        atPos(start)(Importer(qual, importees))
+        atPos(start)(Importer(mods, qual, importees))
       } else if (in.token == LBRACE) {
         val importees = this.importees()
-        atPos(start)(Importer(qual, importees))
+        atPos(start)(Importer(mods, qual, importees))
       } else {
         val errImportee = List(importee())
-        atPos(start)(Importer(qual, errImportee))
+        atPos(start)(Importer(mods, qual, errImportee))
       }
     }
+    val start = in.offset
+    val mods = atPos(start)(Mods(Nil))
     val qual = termId()
     accept(DOT)
-    loop(qual)
+    loop(mods, qual)
   }
 
   private def importees(): List[Importee] = {

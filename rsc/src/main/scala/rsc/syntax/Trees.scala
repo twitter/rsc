@@ -193,7 +193,7 @@ final case class ImporteeUnimport(id: SomeId) extends Importee
 
 final case class ImporteeWildcard() extends Importee
 
-final case class Importer(qual: TermPath, importees: List[Importee]) extends Tree
+final case class Importer(mods: Mods, qual: TermPath, importees: List[Importee]) extends Tree
 
 final case class Init(tpt: Tpt, argss: List[List[Term]]) extends Term {
   val id = CtorId()

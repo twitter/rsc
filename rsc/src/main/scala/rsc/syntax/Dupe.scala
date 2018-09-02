@@ -110,10 +110,11 @@ trait Dupe {
           ImporteeUnimport(id1)
         case ImporteeWildcard() =>
           ImporteeWildcard()
-        case Importer(qual, importees) =>
+        case Importer(mods, qual, importees) =>
+          val mods1 = mods.dupe
           val qual1 = qual.dupe
           val importees1 = importees.map(_.dupe)
-          Importer(qual1, importees1)
+          Importer(mods1, qual1, importees1)
         case Init(tpt, argss) =>
           val tpt1 = tpt.dupe
           val argss1 = argss.map(_.map(_.dupe))

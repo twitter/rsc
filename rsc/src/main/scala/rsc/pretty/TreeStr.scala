@@ -207,7 +207,9 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         p.str(" => _")
       case ImporteeWildcard() =>
         p.str("_")
-      case Importer(qual, importees) =>
+      case Importer(mods, qual, importees) =>
+        apply(mods)
+        if (mods.trees.nonEmpty) p.str(" ")
         apply(qual, SimpleExpr1)
         p.str(".")
         val needsBraces = importees match {

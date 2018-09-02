@@ -129,18 +129,18 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
     val rootEnv = Env(symtab.scopes(RootPackage))
 
     val javaLangQual = TermSelect(TermId("java"), TermId("lang"))
-    val javaLangImporter = Importer(javaLangQual, List(ImporteeWildcard()))
+    val javaLangImporter = Importer(Mods(Nil), javaLangQual, List(ImporteeWildcard()))
     val javaLangScope = ImporterScope(javaLangImporter)
     todo.add(rootEnv, javaLangScope)
     val javaLangEnv = javaLangScope :: rootEnv
 
-    val scalaImporter = Importer(TermId("scala"), List(ImporteeWildcard()))
+    val scalaImporter = Importer(Mods(Nil), TermId("scala"), List(ImporteeWildcard()))
     val scalaScope = ImporterScope(scalaImporter)
     todo.add(javaLangEnv, scalaScope)
     val scalaEnv = scalaScope :: javaLangEnv
 
     val predefQual = TermSelect(TermId("scala"), TermId("Predef"))
-    val predefImporter = Importer(predefQual, List(ImporteeWildcard()))
+    val predefImporter = Importer(Mods(Nil), predefQual, List(ImporteeWildcard()))
     val predefScope = ImporterScope(predefImporter)
     todo.add(scalaEnv, predefScope)
     val predefEnv = predefScope :: scalaEnv
