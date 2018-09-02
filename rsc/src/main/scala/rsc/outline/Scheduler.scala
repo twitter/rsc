@@ -252,7 +252,7 @@ final class Scheduler private (
       case tree: DefnObject =>
         val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
         companionClass match {
-          case caseClass: DefnClass if caseClass.hasDefault =>
+          case caseClass: DefnClass if caseClass.hasDefaultParams =>
             synthesizer.defaultGetters(templateEnv, caseClass)
           case _ =>
             ()
@@ -377,14 +377,14 @@ final class Scheduler private (
   private def stats(level: Level, env: Env, trees: List[Stat]): Env = {
     var essentialObjects: LinkedHashSet[Symbol] = null
     trees.foreach {
-      case caseClass: DefnClass if caseClass.hasCase || caseClass.hasDefault =>
+      case outline: DefnClass if outline.hasCase || outline.hasDefaultParams =>
         if (essentialObjects == null) {
           essentialObjects = new LinkedHashSet[Symbol]
         }
         val ownerSym = if (level == SourceLevel) EmptyPackage else env.owner.sym
-        val classSym = TypeSymbol(ownerSym, caseClass.id.value)
-        caseClass.id.sym = classSym
-        symtab._outlines.put(classSym, caseClass)
+        val classSym = TypeSymbol(ownerSym, outline.id.value)
+        outline.id.sym = classSym
+        symtab._outlines.put(classSym, outline)
         essentialObjects.add(classSym.companionObject)
       case _ =>
         ()
@@ -413,7 +413,7 @@ final class Scheduler private (
             synthesizer.implicitClassConversion(currEnv, tree)
           case tree: DefnCtor =>
             ()
-          case tree: DefnDef if tree.hasDefault =>
+          case tree: DefnDef if tree.hasDefaultParams =>
             synthesizer.defaultGetters(treeEnv, tree)
           case _ =>
             ()
@@ -464,18 +464,20 @@ final class Scheduler private (
   }
 
   private implicit class ClassDefaultOps(tree: DefnClass) {
-    def hasDefault: Boolean = {
-      def primaryHasDefault = tree.primaryCtor.map(_.hasDefault).getOrElse(false)
-      def secondaryHasDefault = tree.stats.exists {
-        case stat: DefnCtor => stat.hasDefault
+    def hasDefaultParams: Boolean = {
+      def primaryHasDefaultParams = {
+        tree.primaryCtor.map(_.hasDefaultParams).getOrElse(false)
+      }
+      def secondaryHasDefaultParams = tree.stats.exists {
+        case stat: DefnCtor => stat.hasDefaultParams
         case _ => false
       }
-      primaryHasDefault || secondaryHasDefault
+      primaryHasDefaultParams || secondaryHasDefaultParams
     }
   }
 
   private implicit class DefDefaultOps(tree: DefnDef) {
-    def hasDefault: Boolean = {
+    def hasDefaultParams: Boolean = {
       tree.paramss.flatten.exists(_.rhs.nonEmpty)
     }
   }

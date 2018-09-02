@@ -218,11 +218,12 @@ final class Semanticdb private (
       if (outline.hasStatic) set(p.STATIC)
       if (outline.isInstanceOf[PrimaryCtor]) set(p.PRIMARY)
       if (outline.hasEnum) set(p.ENUM)
-      if (outline.isSynthetic) set(p.SYNTHETIC)
+      if (outline.hasDefault) set(p.DEFAULT)
       outline match {
         case Param(_, _, _, Some(_)) => set(p.DEFAULT)
         case _ => ()
       }
+      if (outline.isSynthetic) set(p.SYNTHETIC)
       result
     }
 

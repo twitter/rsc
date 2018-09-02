@@ -126,6 +126,8 @@ trait Dupe {
           ModContravariant()
         case ModCovariant() =>
           ModCovariant()
+        case ModDefault() =>
+          ModDefault()
         case ModEnum() =>
           ModEnum()
         case ModFinal() =>

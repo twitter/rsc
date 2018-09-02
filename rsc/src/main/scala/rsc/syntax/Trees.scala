@@ -211,6 +211,8 @@ final case class ModContravariant() extends Mod
 
 final case class ModCovariant() extends Mod
 
+final case class ModDefault() extends Mod
+
 final case class ModEnum() extends Mod
 
 final case class ModFinal() extends Mod
@@ -266,6 +268,7 @@ sealed trait Modded extends Tree {
   def hasClass = mods.trees.exists(_.isInstanceOf[ModClass])
   def hasContravariant = mods.trees.exists(_.isInstanceOf[ModContravariant])
   def hasCovariant = mods.trees.exists(_.isInstanceOf[ModCovariant])
+  def hasDefault = mods.trees.exists(_.isInstanceOf[ModDefault])
   def hasEnum = mods.trees.exists(_.isInstanceOf[ModEnum])
   def hasFinal = mods.trees.exists(_.isInstanceOf[ModFinal])
   def hasImplicit = mods.trees.exists(_.isInstanceOf[ModImplicit])

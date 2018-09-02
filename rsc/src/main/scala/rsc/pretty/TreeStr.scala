@@ -231,6 +231,8 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         p.str("-")
       case ModCovariant() =>
         p.str("+")
+      case ModDefault() =>
+        p.str("default")
       case ModEnum() =>
         p.str("enum")
       case ModFinal() =>
