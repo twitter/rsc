@@ -102,6 +102,10 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         apply(id)
         apply(paramss)
         p.Prefix(" = ")(apply(rhs, Expr))
+      case DefnEnumConstant(mods, id, stats) =>
+        apply(mods)
+        apply(id)
+        p.Nest.when(stats.nonEmpty)(printStats(stats))
       case DefnField(mods, id, tpt, rhs) =>
         apply(mods)
         apply(id)
@@ -148,6 +152,7 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         apply(x.mods)
         x match {
           case _: DefnClass => p.str(" ")
+          case _: DefnEnum => p.str("enum ")
           case _: DefnObject => p.str("object ")
           case _: DefnPackageObject => p.str("package object ")
         }
@@ -166,6 +171,10 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         }
         p.Nest.when(x.self.nonEmpty || x.stats.nonEmpty) {
           p.Suffix(EOL)(x.self)(apply(_, ""))
+          x match {
+            case DefnEnum(_, _, _, consts, _) => apply(consts, ", ")
+            case other => ()
+          }
           printStats(x.stats)
         }
       case DefnType(mods, id, tparams, lbound, ubound, rhs) =>
@@ -245,8 +254,6 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
       case ModDims(mods) =>
         apply(mods)
         p.str("[]")
-      case ModEnum() =>
-        p.str("enum")
       case ModFinal() =>
         p.str("final")
       case ModImplicit() =>
