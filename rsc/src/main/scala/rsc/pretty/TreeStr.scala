@@ -571,6 +571,9 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
       case TermXml(raw) =>
         // FIXME: https://github.com/twitter/rsc/issues/81
         p.str(raw)
+      case TptArray(tpt) =>
+        apply(tpt, Typ)
+        p.str("[]")
       case TptAnnotate(tpt, mods) =>
         apply(tpt, SimpleTyp)
         p.str(" ")

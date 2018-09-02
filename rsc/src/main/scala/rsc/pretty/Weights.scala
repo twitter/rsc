@@ -86,6 +86,7 @@ trait Weights {
         case _: TermWildcardFunction => Expr1
         case _: TermXml => SimpleExpr1
         case _: TptAnnotate => AnnotTyp
+        case _: TptArray => SimpleTyp
         case _: TptByName => ParamTyp
         case _: TptExistential => Typ
         case _: TptFunction => Typ

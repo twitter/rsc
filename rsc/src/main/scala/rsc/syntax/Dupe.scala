@@ -386,6 +386,9 @@ trait Dupe {
           val tpt1 = tpt.dupe
           val mods1 = mods.dupe
           TptAnnotate(tpt1, mods1)
+        case TptArray(tpt) =>
+          val tpt1 = tpt.dupe
+          TptArray(tpt1)
         case TptByName(tpt) =>
           val tpt1 = tpt.dupe
           TptByName(tpt1)

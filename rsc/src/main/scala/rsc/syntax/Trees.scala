@@ -490,6 +490,11 @@ sealed trait Tpt extends Tree
 
 final case class TptAnnotate(tpt: Tpt, mods: Mods) extends Tpt
 
+final case class TptArray(tpt: Tpt) extends TptApply {
+  def fun = TptId("Array").withSym(ArrayClass)
+  def targs = List(tpt)
+}
+
 sealed trait TptApply extends Tpt {
   def fun: Tpt
   def targs: List[Tpt]

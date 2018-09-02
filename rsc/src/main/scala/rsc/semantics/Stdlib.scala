@@ -8,6 +8,7 @@ trait Stdlib {
   val AnyClass: Symbol = "scala/Any#"
   val AnyRefClass: Symbol = "scala/AnyRef#"
   val AnyValClass: Symbol = "scala/AnyVal#"
+  val ArrayClass: Symbol = "scala/Array#"
   val BooleanClass: Symbol = "scala/Boolean#"
   def FunctionClass(params: Int): Symbol = "scala/Function" + params + "#"
   val IntClass: Symbol = "scala/Int#"
