@@ -277,6 +277,9 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         p.str("strictfp")
       case ModSynchronized() =>
         p.str("synchronized")
+      case ModThrows(tpts) =>
+        p.str("throws ")
+        apply(tpts, ", ", Typ)
       case ModTrait() =>
         p.str("trait")
       case ModTransient() =>

@@ -172,6 +172,9 @@ trait Dupe {
           ModStrictfp()
         case ModSynchronized() =>
           ModSynchronized()
+        case ModThrows(tpts) =>
+          val tpts1 = tpts.map(_.dupe)
+          ModThrows(tpts1)
         case ModTrait() =>
           ModTrait()
         case ModTransient() =>

@@ -254,6 +254,8 @@ final case class ModStrictfp() extends Mod
 
 final case class ModSynchronized() extends Mod
 
+final case class ModThrows(tpts: List[Tpt]) extends Mod
+
 final case class ModTrait() extends Mod
 
 final case class ModTransient() extends Mod
@@ -297,6 +299,7 @@ sealed trait Modded extends Tree {
   def hasVal = mods.trees.exists(_.isInstanceOf[ModVal])
   def hasVar = mods.trees.exists(_.isInstanceOf[ModVar])
   def hasVolatile = mods.trees.exists(_.isInstanceOf[ModVolatile])
+  def throws = mods.trees.collect { case x: ModThrows => x.tpts }.flatten
   def within = {
     mods.trees.collectFirst {
       case ModPrivateWithin(id) => id
