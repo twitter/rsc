@@ -61,10 +61,11 @@ trait Dupe {
           val self1 = self.map(_.dupe)
           val stats1 = stats.map(_.dupe)
           DefnObject(mods1, id1, earlies1, inits1, self1, stats1)
-        case DefnPackage(pid, stats) =>
+        case DefnPackage(mods, pid, stats) =>
+          val mods1 = mods.dupe
           val pid1 = pid.dupe
           val stats1 = stats.map(_.dupe)
-          DefnPackage(pid1, stats1)
+          DefnPackage(mods1, pid1, stats1)
         case DefnPackageObject(mods, id, earlies, inits, self, stats) =>
           val mods1 = mods.dupe
           val id1 = id.dupe

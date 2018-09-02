@@ -39,8 +39,8 @@ final class Scheduler private (
   private def assignSym(env: Env, outline: Outline): Unit = {
     val scope = {
       outline match {
-        case DefnPackage(TermSelect(qual: TermPath, _), _) =>
-          val parentPackage = DefnPackage(qual, Nil).withPos(outline.pos)
+        case DefnPackage(_, TermSelect(qual: TermPath, _), _) =>
+          val parentPackage = DefnPackage(Mods(Nil), qual, Nil).withPos(outline.pos)
           apply(env, parentPackage)
           symtab.scopes(qual.id.sym)
         case DefnPackageObject(_, id, _, _, _, _) =>

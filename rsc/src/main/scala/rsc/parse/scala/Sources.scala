@@ -33,14 +33,14 @@ trait Sources {
         val id = termPath()
         newLineOptWhenFollowedBy(LBRACE)
         if (in.token == EOF) {
-          stats += atPos(start)(DefnPackage(id, Nil))
+          stats += atPos(start)(DefnPackage(mods, id, Nil))
         } else if (in.token == LBRACE) {
-          stats += inBraces(atPos(start)(DefnPackage(id, packageStats())))
+          stats += inBraces(atPos(start)(DefnPackage(mods, id, packageStats())))
           acceptStatSepUnlessAtEnd()
           stats ++= packageStats()
         } else {
           acceptStatSep()
-          stats += atPos(start)(DefnPackage(id, sourceStats()))
+          stats += atPos(start)(DefnPackage(mods, id, sourceStats()))
         }
       }
     } else {
@@ -82,7 +82,7 @@ trait Sources {
             } else {
               val id = termPath()
               newLineOptWhenFollowedBy(LBRACE)
-              inBraces(atPos(start)(DefnPackage(id, packageStats)))
+              inBraces(atPos(start)(DefnPackage(mods, id, packageStats)))
             }
           case TRAIT =>
             val modTrait = atPos(in.offset)(ModTrait())

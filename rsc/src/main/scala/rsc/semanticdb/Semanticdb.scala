@@ -122,7 +122,7 @@ final class Semanticdb private (
             } else {
               if (ownerSym.desc.isPackage) {
                 val id = TermId(ownerSym.desc.value).withSym(ownerSym)
-                DefnPackage(id, Nil)
+                DefnPackage(Mods(Nil), id, Nil)
               } else {
                 crash(outline.id.sym)
               }

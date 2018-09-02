@@ -108,8 +108,9 @@ final case class DefnObject(
   def paramss = Nil
 }
 
-final case class DefnPackage(pid: TermPath, stats: List[Stat]) extends Stat with TermOutline {
-  def mods = Mods(Nil)
+final case class DefnPackage(mods: Mods, pid: TermPath, stats: List[Stat])
+    extends Stat
+    with TermOutline {
   def id = pid.id.asInstanceOf[NamedId]
 }
 

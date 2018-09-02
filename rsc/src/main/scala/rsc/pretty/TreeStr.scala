@@ -127,7 +127,8 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         if (tparams.isEmpty && paramss.isEmpty && id.isSymbolic) p.str(" ")
         p.Prefix(": ")(ret)(apply(_, "", Typ))
         p.Prefix(" = ")(rhs)(apply(_, "", Expr))
-      case DefnPackage(pid, stats) =>
+      case DefnPackage(mods, pid, stats) =>
+        apply(mods)
         p.str("package ")
         p.str(pid)
         p.Nest.when(stats.nonEmpty)(printStats(stats))
