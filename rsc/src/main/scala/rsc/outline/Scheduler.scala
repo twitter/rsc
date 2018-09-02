@@ -411,7 +411,7 @@ final class Scheduler private (
         tree match {
           case tree: DefnClass if tree.hasImplicit =>
             synthesizer.implicitClassConversion(currEnv, tree)
-          case _: PrimaryCtor | _: SecondaryCtor =>
+          case _: DefnCtor | _: PrimaryCtor =>
             ()
           case tree: DefnDef if tree.hasDefaultParams =>
             synthesizer.defaultGetters(treeEnv, tree)
@@ -469,7 +469,7 @@ final class Scheduler private (
         tree.primaryCtor.map(_.hasDefaultParams).getOrElse(false)
       }
       def secondaryHasDefaultParams = tree.stats.exists {
-        case stat: SecondaryCtor => stat.hasDefaultParams
+        case stat: DefnCtor => stat.hasDefaultParams
         case _ => false
       }
       primaryHasDefaultParams || secondaryHasDefaultParams

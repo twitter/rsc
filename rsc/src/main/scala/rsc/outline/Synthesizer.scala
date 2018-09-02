@@ -51,7 +51,7 @@ final class Synthesizer private (
   def defaultGetters(env: Env, tree: DefnClass): Unit = {
     tree.primaryCtor.foreach(defaultGetters(env, tree.tparams, _))
     tree.stats.foreach {
-      case ctor: SecondaryCtor => defaultGetters(env, tree.tparams, ctor)
+      case ctor: DefnCtor => defaultGetters(env, tree.tparams, ctor)
       case _ => ()
     }
   }
@@ -209,7 +209,7 @@ final class Synthesizer private (
     } else {
       val tparams = {
         tree match {
-          case _: PrimaryCtor | _: SecondaryCtor =>
+          case _: DefnCtor | _: PrimaryCtor =>
             val enclosingClass = env._scopes.collectFirst {
               case x: TemplateScope if x.tree.isInstanceOf[DefnClass] => x.tree
             }

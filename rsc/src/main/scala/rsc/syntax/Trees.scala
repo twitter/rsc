@@ -56,6 +56,13 @@ final case class DefnClass(
   def paramss = Nil
 }
 
+final case class DefnCtor(mods: Mods, id: CtorId, paramss: List[List[Param]], rhs: Term)
+    extends DefnDef
+    with TermOutline {
+  def tparams = Nil
+  def ret = Some(TptId("Unit").withSym(UnitClass))
+}
+
 sealed trait DefnDef extends Stat with Parameterized with TermOutline {
   def mods: Mods
   def id: NamedId
@@ -366,13 +373,6 @@ final case class PrimaryCtor(mods: Mods, paramss: List[List[Param]])
     extends DefnDef
     with TermOutline {
   val id = CtorId()
-  def tparams = Nil
-  def ret = Some(TptId("Unit").withSym(UnitClass))
-}
-
-final case class SecondaryCtor(mods: Mods, id: CtorId, paramss: List[List[Param]], rhs: Term)
-    extends DefnDef
-    with TermOutline {
   def tparams = Nil
   def ret = Some(TptId("Unit").withSym(UnitClass))
 }

@@ -15,6 +15,8 @@ object PrettyOutline {
         else if (outline.hasAnnotationInterface) s"@interface ${outline.id.value}"
         else if (outline.hasEnum) s"enum ${outline.id.value}"
         else crash(outline)
+      case outline: DefnCtor =>
+        s"constructor"
       case outline: DefnField =>
         if (outline.hasVal) s"val ${outline.id.value}"
         else s"var ${outline.id.value}"
@@ -44,8 +46,6 @@ object PrettyOutline {
         }
       case outline: PrimaryCtor =>
         s"primary constructor"
-      case outline: SecondaryCtor =>
-        s"secondary constructor"
       case outline: Self =>
         s"self"
       case outline: TypeParam =>

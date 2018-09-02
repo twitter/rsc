@@ -31,7 +31,7 @@ trait Defns {
         in.nextToken()
       }
       val rhs = term()
-      atPos(start)(SecondaryCtor(mods, id, paramss, rhs))
+      atPos(start)(DefnCtor(mods, id, paramss, rhs))
     } else {
       val id = termId()
       val tparams = typeParams(DefnDefContext)

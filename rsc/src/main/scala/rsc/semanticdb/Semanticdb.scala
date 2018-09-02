@@ -165,6 +165,7 @@ final class Semanticdb private (
         case _: DefnClass if outline.hasAnnotationInterface => k.INTERFACE
         case _: DefnClass if outline.hasEnum => k.CLASS
         case _: DefnClass => crash(outline)
+        case _: DefnCtor => k.CONSTRUCTOR
         case _: DefnField => crash(outline)
         case _: DefnMacro => k.MACRO
         case _: DefnMethod => k.METHOD
@@ -176,7 +177,6 @@ final class Semanticdb private (
         case _: Param => k.PARAMETER
         case _: PatVar => crash(outline)
         case _: PrimaryCtor => k.CONSTRUCTOR
-        case _: SecondaryCtor => k.CONSTRUCTOR
         case _: Self => k.SELF_PARAMETER
         case _: TypeParam => k.TYPE_PARAMETER
       }
@@ -235,7 +235,7 @@ final class Semanticdb private (
     }
 
     def signature: s.Signature = {
-      val isCtor = outline.isInstanceOf[PrimaryCtor] || outline.isInstanceOf[SecondaryCtor]
+      val isCtor = outline.isInstanceOf[DefnCtor] || outline.isInstanceOf[PrimaryCtor]
       outline match {
         case outline: DefnDef =>
           val tparams = Some(s.Scope(outline.tparams.map(_.id.sym)))

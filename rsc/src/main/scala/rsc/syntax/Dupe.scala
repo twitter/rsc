@@ -25,6 +25,12 @@ trait Dupe {
           val self1 = self.map(_.dupe)
           val ss1 = stats.map(_.dupe)
           DefnClass(mods1, id1, tparams1, primaryCtor1, earlies1, inits1, self1, ss1)
+        case DefnCtor(mods, id, paramss, rhs) =>
+          val mods1 = mods.dupe
+          val id1 = id.dupe
+          val paramss1 = paramss.map(_.map(_.dupe))
+          val rhs1 = rhs.dupe
+          DefnCtor(mods1, id1, paramss1, rhs1)
         case DefnField(mods, id, tpt, rhs) =>
           val mods1 = mods.dupe
           val id1 = id.dupe
@@ -230,12 +236,6 @@ trait Dupe {
           val mods1 = mods.dupe
           val paramss1 = paramss.map(_.map(_.dupe))
           PrimaryCtor(mods1, paramss1)
-        case SecondaryCtor(mods, id, paramss, rhs) =>
-          val mods1 = mods.dupe
-          val id1 = id.dupe
-          val paramss1 = paramss.map(_.map(_.dupe))
-          val rhs1 = rhs.dupe
-          SecondaryCtor(mods1, id1, paramss1, rhs1)
         case Self(id, tpt) =>
           val id1 = id.dupe
           val tpt1 = tpt.map(_.dupe)

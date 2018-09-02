@@ -96,6 +96,12 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         p.Indent(printStats(stats))
       case CtorId() =>
         p.str("this")
+      case DefnCtor(mods, id, paramss, rhs) =>
+        apply(mods)
+        p.str("def ")
+        apply(id)
+        apply(paramss)
+        p.Prefix(" = ")(apply(rhs, Expr))
       case DefnField(mods, id, tpt, rhs) =>
         apply(mods)
         apply(id)
@@ -374,12 +380,6 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         if (tree.id.sym != NoSymbol) p.str("<" + tree.id.sym + ">")
         else ()
         apply(paramss)
-      case SecondaryCtor(mods, id, paramss, rhs) =>
-        apply(mods)
-        p.str("def ")
-        apply(id)
-        apply(paramss)
-        p.Prefix(" = ")(apply(rhs, Expr))
       case Self(id, tpt) =>
         apply(id)
         p.Prefix(": ")(tpt)(apply(_, " ", Typ))
