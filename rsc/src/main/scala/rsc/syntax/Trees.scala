@@ -64,8 +64,6 @@ sealed trait DefnDef extends Stat with Parameterized with TermOutline {
   def ret: Option[Tpt]
 }
 
-sealed trait DefnCtor extends DefnDef
-
 final case class DefnField(mods: Mods, id: TermId, tpt: Option[Tpt], rhs: Option[Term])
     extends Stat
     with TermOutline
@@ -365,7 +363,7 @@ sealed trait Path extends Tree {
 }
 
 final case class PrimaryCtor(mods: Mods, paramss: List[List[Param]])
-    extends DefnCtor
+    extends DefnDef
     with TermOutline {
   val id = CtorId()
   def tparams = Nil
@@ -373,7 +371,7 @@ final case class PrimaryCtor(mods: Mods, paramss: List[List[Param]])
 }
 
 final case class SecondaryCtor(mods: Mods, id: CtorId, paramss: List[List[Param]], rhs: Term)
-    extends DefnCtor
+    extends DefnDef
     with TermOutline {
   def tparams = Nil
   def ret = Some(TptId("Unit").withSym(UnitClass))

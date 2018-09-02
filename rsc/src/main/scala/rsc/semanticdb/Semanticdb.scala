@@ -235,7 +235,7 @@ final class Semanticdb private (
     }
 
     def signature: s.Signature = {
-      val isCtor = outline.isInstanceOf[DefnCtor]
+      val isCtor = outline.isInstanceOf[PrimaryCtor] || outline.isInstanceOf[SecondaryCtor]
       outline match {
         case outline: DefnDef =>
           val tparams = Some(s.Scope(outline.tparams.map(_.id.sym)))
