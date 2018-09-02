@@ -234,10 +234,11 @@ trait Dupe {
         case PatTuple(args) =>
           val args1 = args.map(_.dupe)
           PatTuple(args1)
-        case PatVar(id, tpt) =>
+        case PatVar(mods, id, tpt) =>
+          val mods1 = mods.dupe
           val id1 = id.dupe
           val tpt1 = tpt.map(_.dupe)
-          PatVar(id1, tpt1)
+          PatVar(mods1, id1, tpt1)
         case PatXml(raw) =>
           PatXml(raw)
         case PrimaryCtor(mods, paramss) =>

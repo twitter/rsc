@@ -374,7 +374,8 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         apply(id, SimpleExpr1)
       case PatTuple(args) =>
         p.Parens(apply(args, ", ", Pat))
-      case PatVar(id, tpt) =>
+      case PatVar(mods, id, tpt) =>
+        apply(mods)
         id match {
           case AnonId() => p.str("_")
           case _ => apply(id)
@@ -688,7 +689,7 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
           val needsBraces = {
             val simpleValue = arg match {
               case TermId(value) => Some(value)
-              case PatVar(TermId(value), _) => Some(value)
+              case PatVar(_, TermId(value), _) => Some(value)
               case _ => None
             }
             simpleValue match {

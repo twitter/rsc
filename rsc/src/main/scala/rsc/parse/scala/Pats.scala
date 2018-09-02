@@ -125,7 +125,8 @@ trait Pats {
         val unfinished = atPos(start)(anonId())
         if (in.token == ID && in.idValue == "*") {
           in.nextToken()
-          val pat = atPos(start)(PatVar(unfinished, None))
+          val mods = atPos(in.offset)(Mods(Nil))
+          val pat = atPos(start)(PatVar(mods, unfinished, None))
           atPos(start)(PatRepeat(pat))
         } else {
           simplePatRest(unfinished, permitColon)
@@ -180,12 +181,13 @@ trait Pats {
   private def simplePatRest(unfinished: Id, permitColon: Boolean): Pat = {
     val start = unfinished.pos.start
     val lhs = {
+      val mods = atPos(in.offset)(Mods(Nil))
       if (in.token == COLON && permitColon) {
         in.nextToken()
         val tpt = Some(refinedTpt())
-        atPos(start)(PatVar(unfinished, tpt))
+        atPos(start)(PatVar(mods, unfinished, tpt))
       } else {
-        atPos(start)(PatVar(unfinished, None))
+        atPos(start)(PatVar(mods, unfinished, None))
       }
     }
     if (in.token == AT) {

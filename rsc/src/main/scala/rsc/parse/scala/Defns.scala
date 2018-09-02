@@ -125,8 +125,8 @@ trait Defns {
     defnValOrVar(mods)
   }
 
-  private def defnValOrVar(mods: Mods): Stat = {
-    val start = mods.pos.start
+  private def defnValOrVar(defnMods: Mods): Stat = {
+    val start = defnMods.pos.start
     val pats0 = commaSeparated(infixPat(permitColon = false))
     var tpt = {
       if (in.token == COLON) {
@@ -139,11 +139,12 @@ trait Defns {
     val pats = {
       pats0.zipWithIndex.map {
         case (pat0 @ PatId(value), _) =>
+          val varMods = atPos(in.offset)(Mods(Nil))
           val id = atPos(pat0.pos)(TermId(value))
-          atPos(pat0.pos)(PatVar(id, None))
-        case (pat0 @ PatVar(id, pat0Tpt), i) if i == pats0.length - 1 && tpt.isEmpty =>
+          atPos(pat0.pos)(PatVar(varMods, id, None))
+        case (pat0 @ PatVar(varMods, id, pat0Tpt), i) if i == pats0.length - 1 && tpt.isEmpty =>
           tpt = pat0Tpt
-          atPos(pat0.pos)(PatVar(id, None))
+          atPos(pat0.pos)(PatVar(varMods, id, None))
         case (pat0, _) =>
           pat0
       }
@@ -152,7 +153,7 @@ trait Defns {
       if (in.token == EQUALS) {
         in.nextToken()
         if (in.token == USCORE) {
-          if (mods.hasVar && tpt.nonEmpty) {
+          if (defnMods.hasVar && tpt.nonEmpty) {
             in.nextToken()
             Some(atPos(in.offset)(TermWildcard()))
           } else {
@@ -166,10 +167,11 @@ trait Defns {
       }
     }
     pats match {
-      case List(PatVar(id: TermId, None)) =>
+      case List(PatVar(varMods, id: TermId, None)) =>
+        val mods = atPos(defnMods.pos)(Mods(defnMods.trees ++ varMods.trees))
         atPos(start)(DefnField(mods, id, tpt, rhs))
       case pats =>
-        atPos(start)(DefnPat(mods, pats, tpt, rhs))
+        atPos(start)(DefnPat(defnMods, pats, tpt, rhs))
     }
   }
 

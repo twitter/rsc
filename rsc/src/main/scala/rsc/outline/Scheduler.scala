@@ -211,12 +211,13 @@ final class Scheduler private (
           ()
         case PatTuple(args) =>
           args.foreach(loop(env, _))
-        case pat @ PatVar(id, tpt) =>
+        case pat @ PatVar(mods, id, tpt) =>
           id match {
             case id: TermId =>
+              val fieldMods = Mods(tree.mods.trees ++ mods.trees)
               val fieldTpt = tpt.orElse(tree.tpt)
               val fieldRhs = Some(TermStub())
-              val field = DefnField(tree.mods, id, fieldTpt, fieldRhs)
+              val field = DefnField(fieldMods, id, fieldTpt, fieldRhs)
               apply(env, field.withPos(tree.pos))
             case _ =>
               ()

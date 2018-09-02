@@ -365,9 +365,7 @@ final case class PatSelect(qual: TermPath, id: TermId) extends Pat
 
 final case class PatTuple(args: List[Pat]) extends Pat
 
-final case class PatVar(id: Id, tpt: Option[Tpt]) extends Pat with TermOutline {
-  def mods = Mods(Nil)
-}
+final case class PatVar(mods: Mods, id: Id, tpt: Option[Tpt]) extends Pat with TermOutline
 
 // FIXME: https://github.com/twitter/rsc/issues/81
 final case class PatXml(raw: String) extends Pat
