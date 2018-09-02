@@ -33,38 +33,7 @@ trait Helpers {
     t
   }
 
-  def commaSeparated[T](part: => T): List[T] = {
-    tokenSeparated(COMMA, part)
-  }
-
-  def inBraces[T](body: => T): T = {
-    accept(LBRACE)
-    val result = body
-    accept(RBRACE)
-    result
-  }
-
-  def inBrackets[T](body: => T): T = {
-    accept(LBRACKET)
-    val result = body
-    accept(RBRACKET)
-    result
-  }
-
-  def inParens[T](body: => T): T = {
-    accept(LPAREN)
-    val result = body
-    accept(RPAREN)
-    result
-  }
-
-  def tokenSeparated[T](separator: Int, part: => T): List[T] = {
-    val ts = List.newBuilder[T]
-    ts += part
-    while (in.token == separator) {
-      in.nextToken()
-      ts += part
-    }
-    ts.result
+  def skipParens(): Unit = {
+    ???
   }
 }

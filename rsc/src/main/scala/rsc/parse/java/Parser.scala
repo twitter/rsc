@@ -16,10 +16,15 @@ final class Parser private (
     val gensym: Gensym,
     val input: Input)
     extends rsc.parse.Parser
+    with Defns
     with Helpers
+    with Ids
+    with Imports
     with Messages
+    with Modifiers
     with Scanners
-    with Sources {
+    with Sources
+    with Tpts {
   def parse(): Source = {
     accept(BOF)
     val result = {
