@@ -34,7 +34,18 @@ package object checkparse extends NscUtil {
           if (nscMessages.nonEmpty) Left(nscMessages)
           else Right(nscTree: NscGlobal#Tree)
         } else if (path.toString.endsWith(".java")) {
-          ???
+          import nscGlobal.syntaxAnalyzer.{JavaUnitParser => NscParser}
+          import nscGlobal.{CompilationUnit => NscUnit}
+          val nscReporter = nscGlobal.reporter.asInstanceOf[NscReporter]
+          nscReporter.reset()
+          val nscFile = NscAbstractFile.getFile(path.toFile)
+          val nscSource = new NscSourceFile(nscFile)
+          val nscUnit = new NscUnit(nscSource)
+          val nscParser = new NscParser(nscUnit)
+          val nscTree = nscParser.parse()
+          val nscMessages = nscReporter.infos.toList.map(_.str)
+          if (nscMessages.nonEmpty) Left(nscMessages)
+          else Right(nscTree: NscGlobal#Tree)
         } else {
           crash(s"illegal language: $path")
         }
