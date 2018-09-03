@@ -31,24 +31,17 @@ trait Dupe {
           val self1 = self.map(_.dupe)
           val ss1 = stats.map(_.dupe)
           DefnClass(mods1, id1, tparams1, primaryCtor1, earlies1, inits1, self1, ss1)
+        case DefnConstant(mods, id, stats) =>
+          val mods1 = mods.dupe
+          val id1 = id.dupe
+          val stats1 = stats.map(_.dupe)
+          DefnConstant(mods1, id1, stats1)
         case DefnCtor(mods, id, paramss, rhs) =>
           val mods1 = mods.dupe
           val id1 = id.dupe
           val paramss1 = paramss.map(_.map(_.dupe))
           val rhs1 = rhs.dupe
           DefnCtor(mods1, id1, paramss1, rhs1)
-        case DefnEnum(mods, id, inits, consts, stats) =>
-          val mods1 = mods.dupe
-          val id1 = id.dupe
-          val inits1 = inits.map(_.dupe)
-          val consts1 = consts.map(_.dupe)
-          val stats1 = stats.map(_.dupe)
-          DefnEnum(mods1, id1, inits1, consts1, stats1)
-        case DefnEnumConstant(mods, id, stats) =>
-          val mods1 = mods.dupe
-          val id1 = id.dupe
-          val stats1 = stats.map(_.dupe)
-          DefnEnumConstant(mods1, id1, stats1)
         case DefnField(mods, id, tpt, rhs) =>
           val mods1 = mods.dupe
           val id1 = id.dupe
@@ -157,6 +150,8 @@ trait Dupe {
         case ModDims(mods) =>
           val mods1 = mods.dupe
           ModDims(mods1)
+        case ModEnum() =>
+          ModEnum()
         case ModFinal() =>
           ModFinal()
         case ModImplicit() =>

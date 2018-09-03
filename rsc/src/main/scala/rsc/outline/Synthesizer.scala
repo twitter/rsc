@@ -126,10 +126,6 @@ final class Synthesizer private (
     }
   }
 
-  def enumMembers(env: Env, tree: DefnEnum): Unit = {
-    ???
-  }
-
   def implicitClassConversion(env: Env, tree: DefnClass): Unit = {
     val mods = Mods {
       tree.mods.trees.filter(_.isInstanceOf[ModAccess]) ++ List(ModImplicit())

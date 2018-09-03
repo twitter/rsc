@@ -64,6 +64,8 @@ final case class DefnClass(
   def paramss = Nil
 }
 
+final case class DefnConstant(mods: Mods, id: TermId, stats: List[Stat]) extends TermOutline
+
 final case class DefnCtor(mods: Mods, id: CtorId, paramss: List[List[Param]], rhs: Term)
     extends DefnDef
     with TermOutline {
@@ -78,22 +80,6 @@ sealed trait DefnDef extends Stat with Parameterized with TermOutline {
   def paramss: List[List[Param]]
   def ret: Option[Tpt]
 }
-
-final case class DefnEnum(
-    mods: Mods,
-    id: TptId,
-    inits: List[Init],
-    consts: List[DefnEnumConstant],
-    stats: List[Stat])
-    extends DefnTemplate
-    with TypeOutline {
-  def tparams = Nil
-  def paramss = Nil
-  def earlies = Nil
-  def self = None
-}
-
-final case class DefnEnumConstant(mods: Mods, id: TermId, stats: List[Stat]) extends TermOutline
 
 final case class DefnField(mods: Mods, id: TermId, tpt: Option[Tpt], rhs: Option[Term])
     extends Stat
@@ -245,6 +231,8 @@ final case class ModDefault() extends Mod
 
 final case class ModDims(mods: Mods) extends Mod with Modded
 
+final case class ModEnum() extends Mod
+
 final case class ModFinal() extends Mod
 
 final case class ModImplicit() extends Mod
@@ -302,6 +290,7 @@ sealed trait Modded extends Tree {
   def hasContravariant: Boolean = mods.trees.exists(_.isInstanceOf[ModContravariant])
   def hasCovariant: Boolean = mods.trees.exists(_.isInstanceOf[ModCovariant])
   def hasDefault: Boolean = mods.trees.exists(_.isInstanceOf[ModDefault])
+  def hasEnum: Boolean = mods.trees.exists(_.isInstanceOf[ModEnum])
   def hasFinal: Boolean = mods.trees.exists(_.isInstanceOf[ModFinal])
   def hasImplicit: Boolean = mods.trees.exists(_.isInstanceOf[ModImplicit])
   def hasInterface: Boolean = mods.trees.exists(_.isInstanceOf[ModInterface])

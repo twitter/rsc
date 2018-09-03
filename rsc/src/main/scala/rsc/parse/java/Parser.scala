@@ -22,6 +22,7 @@ final class Parser private (
     with Imports
     with Messages
     with Modifiers
+    with Params
     with Scanners
     with Sources
     with Tpts {

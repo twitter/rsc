@@ -159,13 +159,13 @@ final class Semanticdb private (
 
     def kind: s.SymbolInformation.Kind = {
       outline match {
-        case _: DefnClass if outline.hasClass => k.CLASS
-        case _: DefnClass if outline.hasTrait => k.TRAIT
-        case _: DefnClass if outline.hasInterface => k.INTERFACE
         case _: DefnClass if outline.hasAnnotationInterface => k.INTERFACE
+        case _: DefnClass if outline.hasClass => k.CLASS
+        case _: DefnClass if outline.hasEnum => k.CLASS
+        case _: DefnClass if outline.hasInterface => k.INTERFACE
+        case _: DefnClass if outline.hasTrait => k.TRAIT
         case _: DefnClass => crash(outline)
         case _: DefnCtor => k.CONSTRUCTOR
-        case _: DefnEnum => k.CLASS
         case _: DefnField => crash(outline)
         case _: DefnMacro => k.MACRO
         case _: DefnMethod => k.METHOD
@@ -217,7 +217,7 @@ final class Semanticdb private (
       if (outline.hasVar) set(p.VAR)
       if (outline.hasStatic) set(p.STATIC)
       if (outline.isInstanceOf[PrimaryCtor]) set(p.PRIMARY)
-      if (outline.isInstanceOf[DefnEnum]) set(p.ENUM)
+      if (outline.hasEnum) set(p.ENUM)
       if (outline.hasDefault) set(p.DEFAULT)
       outline match {
         case Param(_, _, _, Some(_)) => set(p.DEFAULT)
@@ -237,6 +237,9 @@ final class Semanticdb private (
     def signature: s.Signature = {
       val isCtor = outline.isInstanceOf[DefnCtor] || outline.isInstanceOf[PrimaryCtor]
       outline match {
+        case outline: DefnConstant =>
+          val tpe = s.TypeRef(s.NoType, outline.id.sym.owner, Nil)
+          s.ValueSignature(tpe)
         case outline: DefnDef =>
           val tparams = Some(s.Scope(outline.tparams.map(_.id.sym)))
           val paramss = {
@@ -256,9 +259,6 @@ final class Semanticdb private (
             else outline.ret.map(_.tpe).getOrElse(s.NoType)
           }
           s.MethodSignature(tparams, paramss, ret)
-        case outline: DefnEnumConstant =>
-          val tpe = s.TypeRef(s.NoType, outline.id.sym.owner, Nil)
-          s.ValueSignature(tpe)
         case outline: DefnField =>
           val tpe = outline.tpt.map(_.tpe)
           tpe.map(tpe => s.ValueSignature(tpe)).getOrElse(s.NoSignature)

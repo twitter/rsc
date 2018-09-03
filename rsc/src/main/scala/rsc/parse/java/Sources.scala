@@ -53,7 +53,9 @@ trait Sources {
           in.nextToken()
           defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modClass)))
         case ENUM =>
-          defnEnum(mods)
+          val modEnum = atPos(in.offset)(ModEnum())
+          in.nextToken()
+          defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modEnum)))
         case INTERFACE =>
           val modInterface = atPos(in.offset)(ModInterface())
           in.nextToken()

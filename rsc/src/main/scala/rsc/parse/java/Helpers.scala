@@ -33,7 +33,38 @@ trait Helpers {
     t
   }
 
+  def inAngles[T](body: => T): T = {
+    accept(LT)
+    val result = body
+    accept(GT)
+    result
+  }
+
+  def inBraces[T](body: => T): T = {
+    accept(LBRACE)
+    val result = body
+    accept(RBRACE)
+    result
+  }
+
+  def inParens[T](body: => T): T = {
+    accept(LPAREN)
+    val result = body
+    accept(RPAREN)
+    result
+  }
+
   def skipParens(): Unit = {
     ???
+  }
+
+  def tokenSeparated[T](separator: Int, part: => T): List[T] = {
+    val ts = List.newBuilder[T]
+    ts += part
+    while (in.token == separator) {
+      in.nextToken()
+      ts += part
+    }
+    ts.result
   }
 }

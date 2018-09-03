@@ -97,6 +97,8 @@ final class Scheduler private (
           outline match {
             case outline: DefnClass =>
               TypeSymbol(scope.sym, outline.id.value)
+            case outline: DefnConstant =>
+              TermSymbol(scope.sym, outline.id.value)
             case outline: DefnDef =>
               if (outline.hasVal) {
                 TermSymbol(scope.sym, outline.id.value)
@@ -109,10 +111,6 @@ final class Scheduler private (
                 }
                 loop(0)
               }
-            case outline: DefnEnum =>
-              TypeSymbol(scope.sym, outline.id.value)
-            case outline: DefnEnumConstant =>
-              TermSymbol(scope.sym, outline.id.value)
             case outline: DefnField =>
               crash(outline)
             case outline: DefnObject =>
@@ -254,9 +252,6 @@ final class Scheduler private (
         tree.primaryCtor.foreach(synthesizer.paramss(templateEnv, _))
         synthesizer.paramAccessors(templateEnv, tree)
         tree.primaryCtor.foreach(apply(templateEnv, _))
-      case tree: DefnEnum =>
-        tree.consts.foreach(apply(templateEnv, _))
-        synthesizer.enumMembers(templateEnv, tree)
       case tree: DefnObject =>
         val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
         companionClass match {
