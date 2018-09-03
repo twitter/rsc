@@ -3,11 +3,13 @@
 package rsc.tests
 
 import rsc.checkoutline._
+import scala.meta.cli._
 
 class OutlineTests extends RscTests {
   test("outline for core") {
+    val reporter = Reporter()
     val settings = Settings(coreClasspath, coreFiles, quiet = true)
-    val problems = Main.process(settings)
+    val problems = Main.process(reporter, settings)
     if (problems.nonEmpty) fail()
   }
 }
