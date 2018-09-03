@@ -4,8 +4,8 @@ package rsc
 
 package object util
     extends CharUtil
+    with CrashUtil
     with CursorUtil
-    with ErrorUtil
     with SemanticdbUtil
     with StringUtil
     with ThrowableUtil

@@ -5,7 +5,7 @@ package rsc.util
 import rsc.inputs._
 import rsc.pretty._
 
-trait ErrorUtil {
+trait CrashUtil {
   def crash[T: Str: Repl](pos: Position, x: T): Nothing = {
     throw CrashException(pos, message(x))
   }
