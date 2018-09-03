@@ -11,7 +11,7 @@ object Main extends SimpleBase[Settings, Path, Path] {
   }
 
   def nscResult(settings: Settings) = {
-    scalac(settings.cp, settings.ins)
+    nsc(settings.cp, settings.ins)
   }
 
   def rscResult(settings: Settings) = {

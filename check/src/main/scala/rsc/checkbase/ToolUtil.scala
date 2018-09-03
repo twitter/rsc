@@ -16,57 +16,6 @@ import scala.meta.io._
 import scala.util._
 
 trait ToolUtil extends CacheUtil with NscUtil {
-  def javac(classpath: List[Path], sources: List[Path]): ToolResult[Path] = {
-    withConsole { console =>
-      val fingerprint = Fingerprint(classpath ++ sources)
-      val out = cacheDir("javac", fingerprint).resolve("javac.jar")
-      if (Files.exists(out)) {
-        Right(out)
-      } else {
-        val tmp = Files.createTempDirectory("javac_")
-        val javac = ToolProvider.getSystemJavaCompiler()
-        val misc = new StringWriter()
-        val diagnosticCollector = new DiagnosticCollector[JavaFileObject]()
-        val fileManager = javac.getStandardFileManager(diagnosticCollector, null, null)
-        val units = fileManager.getJavaFileObjectsFromFiles(sources.map(_.toFile).asJava)
-        val options = {
-          val buf = List.newBuilder[String]
-          buf += "-d"
-          buf += tmp.toString
-          buf += "-classpath"
-          buf += classpath.mkString(pathSeparator)
-          buf += "-parameters"
-          buf.result.asJava
-        }
-        val task = javac.getTask(misc, fileManager, diagnosticCollector, options, null, units)
-        val success = task.call()
-        if (success) {
-          val command = List("jar","-cf", out.toString, ".")
-          shell(command, tmp).right.map(_ => out)
-        } else {
-          val diagnostics = diagnosticCollector.getDiagnostics.asScala.toList
-          val messages = diagnostics.map { diagnostic =>
-            val buf = new StringBuilder
-            val fileName = diagnostic.getSource.getName
-            val lineNumber = diagnostic.getLineNumber
-            val columnNumber = diagnostic.getColumnNumber
-            buf.append(s"${fileName}:")
-            if (lineNumber != -1) buf.append(s"${lineNumber}: ")
-            else buf.append(" ")
-            diagnostic.getKind match {
-              case ERROR => buf.append("error: ")
-              case WARNING | MANDATORY_WARNING => buf.append("warning: ")
-              case _ => buf.append("info: ")
-            }
-            buf.append(diagnostic.getMessage(Locale.getDefault()))
-            buf.toString
-          }
-          Left(messages)
-        }
-      }
-    }
-  }
-
   def metacp(dependencyClasspath: List[Path], classpath: List[Path]): ToolResult[List[Path]] = {
     withConsole { console =>
       import scala.meta.metacp._
@@ -102,6 +51,31 @@ trait ToolUtil extends CacheUtil with NscUtil {
         case Some(out) => Right(out)
         case None => Left(List(console.err))
       }
+    }
+  }
+
+  def nsc(classpath: List[Path], sources: List[Path]): ToolResult[Path] = {
+    val hasScala = sources.exists(_.toString.endsWith(".scala"))
+    val hasJava = sources.exists(_.toString.endsWith(".java"))
+    (hasScala, hasJava) match {
+      case (_, false) =>
+        scalac(classpath, sources)
+      case (false, true) =>
+        javac(classpath, sources)
+      case (true, true) =>
+        scalac(classpath, sources).right.flatMap { scalacJar =>
+          javac(classpath :+ scalacJar, sources).right.flatMap { javacJar =>
+            val tmp = Files.createTempDirectory("merge_")
+            val out = Files.createTempFile("merged_", ".jar")
+            shell(List("unzip", "-uo", scalacJar.toString), tmp).right.flatMap { _ =>
+              shell(List("unzip", "-uo", javacJar.toString), tmp).right.flatMap { _ =>
+                shell(List("jar", "-cf", out.toString, "."), tmp).right.map { _ =>
+                  out
+                }
+              }
+            }
+          }
+        }
     }
   }
 
@@ -156,7 +130,72 @@ trait ToolUtil extends CacheUtil with NscUtil {
     }
   }
 
-  def scalac(classpath: List[Path], sources: List[Path]): ToolResult[Path] = {
+  def shell(command: List[String], cwd: Path): ToolResult[Unit] = {
+    val builder = new java.lang.ProcessBuilder()
+    builder.command(command.asJava)
+    builder.directory(cwd.toFile)
+    builder.redirectOutput(Redirect.INHERIT)
+    builder.redirectError(Redirect.INHERIT)
+    val exitcode = builder.start().waitFor()
+    if (exitcode == 0) {
+      Right(())
+    } else {
+      Left(List(s"${command.mkString(" ")} in $cwd has failed"))
+    }
+  }
+
+  private def javac(classpath: List[Path], sources: List[Path]): ToolResult[Path] = {
+    withConsole { console =>
+      val fingerprint = Fingerprint(classpath ++ sources)
+      val out = cacheDir("javac", fingerprint).resolve("javac.jar")
+      if (Files.exists(out)) {
+        Right(out)
+      } else {
+        val tmp = Files.createTempDirectory("javac_")
+        val javac = ToolProvider.getSystemJavaCompiler()
+        val misc = new StringWriter()
+        val diagnosticCollector = new DiagnosticCollector[JavaFileObject]()
+        val fileManager = javac.getStandardFileManager(diagnosticCollector, null, null)
+        val units = fileManager.getJavaFileObjectsFromFiles(sources.map(_.toFile).asJava)
+        val options = {
+          val buf = List.newBuilder[String]
+          buf += "-d"
+          buf += tmp.toString
+          buf += "-classpath"
+          buf += classpath.mkString(pathSeparator)
+          buf += "-parameters"
+          buf.result.asJava
+        }
+        val task = javac.getTask(misc, fileManager, diagnosticCollector, options, null, units)
+        val success = task.call()
+        if (success) {
+          val command = List("jar","-cf", out.toString, ".")
+          shell(command, tmp).right.map(_ => out)
+        } else {
+          val diagnostics = diagnosticCollector.getDiagnostics.asScala.toList
+          val messages = diagnostics.map { diagnostic =>
+            val buf = new StringBuilder
+            val fileName = diagnostic.getSource.getName
+            val lineNumber = diagnostic.getLineNumber
+            val columnNumber = diagnostic.getColumnNumber
+            buf.append(s"${fileName}:")
+            if (lineNumber != -1) buf.append(s"${lineNumber}: ")
+            else buf.append(" ")
+            diagnostic.getKind match {
+              case ERROR => buf.append("error: ")
+              case WARNING | MANDATORY_WARNING => buf.append("warning: ")
+              case _ => buf.append("info: ")
+            }
+            buf.append(diagnostic.getMessage(Locale.getDefault()))
+            buf.toString
+          }
+          Left(messages)
+        }
+      }
+    }
+  }
+
+  private def scalac(classpath: List[Path], sources: List[Path]): ToolResult[Path] = {
     withConsole { console =>
       val fingerprint = Fingerprint(classpath ++ sources)
       val out = cacheDir("scalac", fingerprint).resolve("nsc.jar")
@@ -178,20 +217,6 @@ trait ToolUtil extends CacheUtil with NscUtil {
           Right(out)
         }
       }
-    }
-  }
-
-  def shell(command: List[String], cwd: Path): ToolResult[Unit] = {
-    val builder = new java.lang.ProcessBuilder()
-    builder.command(command.asJava)
-    builder.directory(cwd.toFile)
-    builder.redirectOutput(Redirect.INHERIT)
-    builder.redirectError(Redirect.INHERIT)
-    val exitcode = builder.start().waitFor()
-    if (exitcode == 0) {
-      Right(())
-    } else {
-      Left(List(s"${command.mkString(" ")} in $cwd has failed"))
     }
   }
 
