@@ -190,12 +190,18 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
       val atom :: rest = atoms
       val resolution = {
         atom match {
-          case IdAtom(id) =>
+          case AmbigAtom(id) =>
+            assignSym(env, id, env.resolve(id.value))
+          case NamedAtom(id) =>
             assignSym(env, id, env.resolve(id.name))
-          case ThisAtom(id) =>
-            assignSym(env, id, env.resolveThis(id.nameopt))
-          case SuperAtom(id) =>
-            assignSym(env, id, env.resolveSuper(id.nameopt))
+          case ThisAtom(id: AmbigId) =>
+            assignSym(env, id, env.resolveThis(id.value))
+          case ThisAtom(id: AnonId) =>
+            assignSym(env, id, env.resolveThis())
+          case SuperAtom(id: AmbigId) =>
+            assignSym(env, id, env.resolveSuper(id.value))
+          case SuperAtom(id: AnonId) =>
+            assignSym(env, id, env.resolveSuper())
           case atom: UnsupportedAtom =>
             ErrorResolution
         }
@@ -228,7 +234,7 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
   private def apply(env: Env, sketch: Sketch): Unit = {
     sketch.tree match {
       case tpt: Tpt => apply(env, sketch, tpt)
-      case within: SomeId => apply(env, sketch, within)
+      case within: AmbigId => apply(env, sketch, within)
       case other => crash(other)
     }
     if (sketch.status.isPending) {
@@ -276,13 +282,38 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
       path.id.sym match {
         case NoSymbol =>
           path match {
-            case id: NamedId =>
-              val resolution = {
-                id.name match {
-                  case name: SomeName => env.resolveWithin(name)
-                  case name => env.resolve(name)
-                }
+            case id: AmbigId =>
+              val resolution = env.resolve(id.value)
+              resolution match {
+                case _: BlockedResolution =>
+                  resolution
+                case _: FailedResolution =>
+                  if (env == startingEnv) reporter.append(UnboundId(id))
+                  else reporter.append(UnboundMember(env, id))
+                  resolution
+                case FoundResolution(sym) =>
+                  id.sym = sym
+                  resolution
               }
+            case AmbigSelect(qual, id) =>
+              val resolution = loop(env, qual)
+              resolution match {
+                case _: BlockedResolution =>
+                  resolution
+                case _: FailedResolution =>
+                  resolution
+                case FoundResolution(qualSym) =>
+                  resolveScope(qualSym) match {
+                    case resolution: BlockedResolution =>
+                      resolution
+                    case resolution: FailedResolution =>
+                      resolution
+                    case FoundResolution(scopeSym) =>
+                      loop(Env(symtab.scopes(scopeSym)), id)
+                  }
+              }
+            case id: NamedId =>
+              val resolution = env.resolve(id.name)
               resolution match {
                 case _: BlockedResolution =>
                   resolution
@@ -315,9 +346,15 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
               reporter.append(IllegalOutline(qual))
               ErrorResolution
             case TermSuper(qual, mix) =>
+              // FIXME: https://github.com/twitter/rsc/issues/96
               ???
             case TermThis(qual) =>
-              val resolution = env.resolveThis(qual.nameopt)
+              val resolution = {
+                qual match {
+                  case AmbigId(value) => env.resolveThis(value)
+                  case AnonId() => env.resolveThis()
+                }
+              }
               resolution match {
                 case _: BlockedResolution =>
                   resolution

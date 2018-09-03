@@ -11,7 +11,7 @@ final class Todo private () extends Pretty {
   def isEmpty: Boolean = _works.isEmpty
   def add(env: Env, work: Work): Unit = _works.add(env -> work)
   def add(env: Env, tpt: Tpt): Unit = add(env, Sketch(tpt))
-  def add(env: Env, within: SomeId): Unit = add(env, Sketch(within))
+  def add(env: Env, within: AmbigId): Unit = add(env, Sketch(within))
   def remove(): (Env, Work) = _works.remove()
   def printStr(p: Printer): Unit = PrettyTodo.str(p, this)
   def printRepl(p: Printer): Unit = PrettyTodo.repl(p, this)

@@ -51,11 +51,11 @@ final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
   val _mappings: Map[String, String] = new LinkedHashMap[String, String]
   var _wildcard: Boolean = false
   tree.importees.foreach {
-    case ImporteeName(SomeId(value)) =>
+    case ImporteeName(AmbigId(value)) =>
       _mappings.put(value, value)
-    case ImporteeRename(SomeId(from), SomeId(to)) =>
+    case ImporteeRename(AmbigId(from), AmbigId(to)) =>
       _mappings.put(to, from)
-    case ImporteeUnimport(SomeId(value)) =>
+    case ImporteeUnimport(AmbigId(value)) =>
       _mappings.put(value, null)
     case ImporteeWildcard() =>
       _wildcard = true
@@ -72,8 +72,6 @@ final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
     }
     if (value1 != null) {
       name match {
-        case _: SomeName =>
-          SomeName(value1)
         case _: TermName =>
           TermName(value1)
         case _: TypeName =>
@@ -166,8 +164,6 @@ sealed trait IndexScope extends Scope {
           TermSymbol(owner, value)
         case TypeName(value) =>
           TypeSymbol(owner, value)
-        case SomeName(value) =>
-          crash(name)
       }
     }
     if (_index.contains(declSym)) {
@@ -222,23 +218,18 @@ sealed abstract class StorageScope(sym: Symbol) extends Scope(sym) {
 
   override def enter(name: Name, sym: Symbol): Symbol = {
     if (status.isPending) {
-      val existing = _storage.get(name)
-      name match {
-        case SomeName(_) =>
+      sym match {
+        case NoSymbol =>
           crash(name)
         case _ =>
-          sym match {
-            case NoSymbol =>
-              crash(name)
-            case _ =>
-              if (existing != null) {
-                val actual = MultiSymbol(existing, sym)
-                _storage.put(name, actual)
-                existing
-              } else {
-                _storage.put(name, sym)
-                NoSymbol
-              }
+          val existing = _storage.get(name)
+          if (existing != null) {
+            val actual = MultiSymbol(existing, sym)
+            _storage.put(name, actual)
+            existing
+          } else {
+            _storage.put(name, sym)
+            NoSymbol
           }
       }
     } else {
@@ -252,12 +243,7 @@ sealed abstract class StorageScope(sym: Symbol) extends Scope(sym) {
       if (result != null) {
         FoundResolution(result)
       } else {
-        name match {
-          case SomeName(value) =>
-            crash(name)
-          case _ =>
-            MissingResolution
-        }
+        MissingResolution
       }
     } else {
       super.resolve(name)

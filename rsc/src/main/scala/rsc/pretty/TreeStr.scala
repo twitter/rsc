@@ -83,8 +83,10 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
 
   private def impl(x: Tree): Unit = {
     x match {
-      case AnonId() =>
-        p.str("_")
+      case AmbigSelect(qual, id) =>
+        apply(qual)
+        p.str(".")
+        apply(id)
       case Case(pat, cond, stats) =>
         p.str("case ")
         apply(pat, Pat)
@@ -94,8 +96,6 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         }
         p.str(" => ")
         p.Indent(printStats(stats))
-      case CtorId() =>
-        p.str("this")
       case DefnCtor(mods, id, paramss, rhs) =>
         apply(mods)
         p.str("def ")
@@ -202,6 +202,33 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
           case _: TermApplyPostfix => p.Parens(apply(rhs, Expr))
           case _ => apply(rhs, Expr)
         }
+      case x: Id =>
+        if (x.sym != NoSymbol) p.str("<" + x.sym + ">")
+        else {
+          def printValue(value: String): Unit = {
+            l match {
+              case ScalaLanguage =>
+                import rsc.lexis.scala._
+                x match {
+                  case PatId(value) if value.isPatVar =>
+                    p.str("`" + value + "`")
+                  case _ =>
+                    def hasBackquotes = x.pos.string.startsWith("`")
+                    def guessBackquotes = keywords.containsKey(value) || value == "then"
+                    if (hasBackquotes || guessBackquotes) p.str("`" + value + "`")
+                    else p.str(value)
+                }
+              case JavaLanguage =>
+                p.str(value)
+            }
+          }
+          x match {
+            case AmbigId(value) => printValue(value)
+            case AnonId() => p.str("_")
+            case CtorId() => p.str("this")
+            case NamedId(value) => printValue(value)
+          }
+        }
       case Import(importers) =>
         p.str("import ")
         apply(importers, ", ")
@@ -303,25 +330,6 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         p.str("var")
       case ModVolatile() =>
         p.str("volatile")
-      case x @ NamedId(v) =>
-        if (x.sym != NoSymbol) p.str("<" + x.sym + ">")
-        else {
-          l match {
-            case ScalaLanguage =>
-              import rsc.lexis.scala._
-              x match {
-                case PatId(v) if v.isPatVar =>
-                  p.str("`" + v + "`")
-                case _ =>
-                  def hasBackquotes = x.pos.string.startsWith("`")
-                  def guessBackquotes = keywords.containsKey(v) || v == "then"
-                  if (hasBackquotes || guessBackquotes) p.str("`" + v + "`")
-                  else p.str(v)
-              }
-            case JavaLanguage =>
-              p.str(v)
-          }
-        }
       case Param(mods, id, tpt, rhs) =>
         apply(mods)
         apply(id)

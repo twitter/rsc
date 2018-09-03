@@ -28,7 +28,15 @@ sealed trait Tree extends Pretty with Product {
   }
 }
 
-final case class AnonId() extends Id
+final case class AmbigId(value: String) extends AmbigPath with ThisId {
+  def id = this
+}
+
+sealed trait AmbigPath extends Path
+
+final case class AmbigSelect(qual: Path, id: AmbigId) extends AmbigPath
+
+final case class AnonId() extends Id with ThisId with UnambigId
 
 final case class Case(pat: Pat, cond: Option[Term], stats: List[Stat]) extends Tree
 
@@ -201,15 +209,15 @@ final case class Import(importers: List[Importer]) extends Stat
 
 sealed trait Importee extends Tree
 
-final case class ImporteeName(id: SomeId) extends Importee
+final case class ImporteeName(id: AmbigId) extends Importee
 
-final case class ImporteeRename(from: SomeId, to: SomeId) extends Importee
+final case class ImporteeRename(from: AmbigId, to: AmbigId) extends Importee
 
-final case class ImporteeUnimport(id: SomeId) extends Importee
+final case class ImporteeUnimport(id: AmbigId) extends Importee
 
 final case class ImporteeWildcard() extends Importee
 
-final case class Importer(mods: Mods, qual: TermPath, importees: List[Importee]) extends Tree
+final case class Importer(mods: Mods, qual: Path, importees: List[Importee]) extends Tree
 
 final case class Init(tpt: Tpt, argss: List[List[Term]]) extends Term {
   val id = CtorId()
@@ -253,13 +261,13 @@ final case class ModPrivate() extends ModAccess
 
 final case class ModPrivateThis() extends ModAccess
 
-final case class ModPrivateWithin(id: SomeId) extends ModAccess
+final case class ModPrivateWithin(id: AmbigId) extends ModAccess
 
 final case class ModProtected() extends ModAccess
 
 final case class ModProtectedThis() extends ModAccess
 
-final case class ModProtectedWithin(id: SomeId) extends ModAccess
+final case class ModProtectedWithin(id: AmbigId) extends ModAccess
 
 final case class ModPublic() extends ModAccess
 
@@ -317,7 +325,7 @@ sealed trait Modded extends Tree {
   def hasVar: Boolean = mods.trees.exists(_.isInstanceOf[ModVar])
   def hasVolatile: Boolean = mods.trees.exists(_.isInstanceOf[ModVolatile])
   def throws: List[ModThrows] = mods.trees.collect { case x: ModThrows => x }
-  def within: Option[SomeId] = {
+  def within: Option[AmbigId] = {
     mods.trees.collectFirst {
       case ModPrivateWithin(id) => id
       case ModProtectedWithin(id) => id
@@ -329,7 +337,7 @@ final case class Mods(trees: List[Mod]) extends Modded {
   def mods = this
 }
 
-sealed trait NamedId extends Id with Path {
+sealed trait NamedId extends UnambigId with UnambigPath {
   def id = this
   def value: String
   def name: Name
@@ -342,7 +350,7 @@ object NamedId {
 }
 
 sealed trait Outline extends Modded {
-  def id: Id
+  def id: UnambigId
 }
 
 sealed trait Parameterized extends Outline {
@@ -350,7 +358,7 @@ sealed trait Parameterized extends Outline {
   def tparams: List[TypeParam]
 }
 
-final case class Param(mods: Mods, id: Id, tpt: Option[Tpt], rhs: Option[Term])
+final case class Param(mods: Mods, id: UnambigId, tpt: Option[Tpt], rhs: Option[Term])
     extends Tree
     with TermOutline
 
@@ -378,7 +386,7 @@ final case class PatSelect(qual: TermPath, id: TermId) extends Pat
 
 final case class PatTuple(args: List[Pat]) extends Pat
 
-final case class PatVar(mods: Mods, id: Id, tpt: Option[Tpt]) extends Pat with TermOutline
+final case class PatVar(mods: Mods, id: UnambigId, tpt: Option[Tpt]) extends Pat with TermOutline
 
 // FIXME: https://github.com/twitter/rsc/issues/81
 final case class PatXml(raw: String) extends Pat
@@ -395,12 +403,8 @@ final case class PrimaryCtor(mods: Mods, paramss: List[List[Param]])
   def ret = Some(TptId("Unit").withSym(UnitClass))
 }
 
-final case class Self(id: Id, tpt: Option[Tpt]) extends Stat with TermOutline {
+final case class Self(id: UnambigId, tpt: Option[Tpt]) extends Stat with TermOutline {
   def mods = Mods(Nil)
-}
-
-final case class SomeId(value: String) extends NamedId {
-  def name = SomeName(value)
 }
 
 final case class Source(stats: List[Stat]) extends Tree
@@ -463,7 +467,7 @@ sealed trait TermOutline extends Outline
 
 final case class TermPartialFunction(cases: List[Case]) extends Term
 
-sealed trait TermPath extends Term with Path
+sealed trait TermPath extends Term with UnambigPath
 
 final case class TermRepeat(term: Term) extends Term
 
@@ -473,11 +477,11 @@ final case class TermSelect(qual: Term, id: TermId) extends TermPath
 
 final case class TermStub() extends Term
 
-final case class TermSuper(qual: Id, mix: Id) extends TermPath {
+final case class TermSuper(qual: ThisId, mix: ThisId) extends TermPath {
   def id = mix
 }
 
-final case class TermThis(qual: Id) extends TermPath {
+final case class TermThis(qual: ThisId) extends TermPath {
   def id = qual
 }
 
@@ -499,6 +503,8 @@ final case class TermWildcardFunction(ids: List[AnonId], body: Term) extends Ter
 
 // FIXME: https://github.com/twitter/rsc/issues/81
 final case class TermXml(raw: String) extends Term
+
+sealed trait ThisId extends Id
 
 sealed trait Tpt extends Tree
 
@@ -551,7 +557,7 @@ final case class TptIntersect(tpts: List[Tpt]) extends Tpt
 
 final case class TptLong() extends TptPrimitive
 
-sealed trait TptPath extends Tpt with Path
+sealed trait TptPath extends Tpt with UnambigPath
 
 final case class TptParameterize(fun: Tpt, targs: List[Tpt]) extends TptApply
 
@@ -568,7 +574,7 @@ final case class TptRefine(tpt: Option[Tpt], stats: List[Stat]) extends Tpt
 
 final case class TptRepeat(tpt: Tpt) extends Tpt
 
-final case class TptSelect(qual: TermPath, id: TptId) extends TptPath
+final case class TptSelect(qual: Path, id: TptId) extends TptPath
 
 final case class TptShort() extends TptPrimitive
 
@@ -599,7 +605,7 @@ sealed trait TypeOutline extends Outline
 
 final case class TypeParam(
     mods: Mods,
-    id: Id,
+    id: UnambigId,
     tparams: List[TypeParam],
     lbound: Option[Tpt],
     ubound: Option[Tpt],
@@ -612,3 +618,7 @@ final case class TypeParam(
   def hi = ubound.getOrElse(TptId("Any").withSym(AnyClass))
   def paramss = Nil
 }
+
+sealed trait UnambigId extends Id
+
+sealed trait UnambigPath extends Path

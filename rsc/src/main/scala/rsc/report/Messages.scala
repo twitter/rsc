@@ -299,10 +299,10 @@ final case class UnboundMember(env: Env, id: Id) extends Message {
   def text = {
     val qual = env._scopes.head.sym.init
     id match {
+      case AmbigId(value) => s"unbound: $qual.$value"
       case AnonId() => crash(id)
       case CtorId() => crash(id)
       case PatId(value) => s"unbound: value $qual.$value"
-      case SomeId(value) => s"unbound: $qual.$value"
       case TermId(value) => s"unbound: value $qual.$value"
       case TptId(value) => s"unbound: type $qual.$value"
     }
@@ -314,10 +314,10 @@ final case class UnboundId(id: Id) extends Message {
   def pos = id.point
   def text = {
     id match {
+      case AmbigId(value) => s"unbound: $value"
       case AnonId() => crash(id)
       case CtorId() => crash(id)
       case PatId(value) => s"unbound: value $value"
-      case SomeId(value) => s"unbound: $value"
       case TermId(value) => s"unbound: value $value"
       case TptId(value) => s"unbound: type $value"
     }

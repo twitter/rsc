@@ -6,6 +6,12 @@ trait Dupe {
   implicit class DupeTreeOps[T <: Tree](tree: T) {
     def dupe: T = {
       val result = tree match {
+        case AmbigId(value) =>
+          AmbigId(value)
+        case AmbigSelect(qual, id) =>
+          val qual1 = qual.dupe
+          val id1 = id.dupe
+          AmbigSelect(qual1, id1)
         case AnonId() =>
           AnonId()
         case Case(pat, cond, stats) =>
@@ -259,8 +265,6 @@ trait Dupe {
           val id1 = id.dupe
           val tpt1 = tpt.map(_.dupe)
           Self(id1, tpt1)
-        case SomeId(value) =>
-          SomeId(value)
         case Source(stats) =>
           val stats1 = stats.map(_.dupe)
           Source(stats1)

@@ -63,27 +63,17 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
     }
   }
 
-  def resolveWithin(within: Name): Resolution = {
+  def resolve(value: String): Resolution = {
     @tailrec def loop(_scopes: List[Scope]): Resolution = {
       _scopes match {
         case (head: PackageScope) :: _ =>
-          var foundSym = NoSymbol
-          head.sym.ownerChain.foreach { sym =>
-            within match {
-              case SomeName(value) if sym.desc.value == value => foundSym = sym
-              case name if sym.desc.value == name.value => foundSym = sym
-              case _ => ()
-            }
+          val sym = head.sym.ownerChain.find(_.desc.value == value)
+          sym match {
+            case Some(foundSym) => FoundResolution(foundSym)
+            case None => MissingResolution
           }
-          if (foundSym != NoSymbol) FoundResolution(foundSym)
-          else MissingResolution
         case (head: TemplateScope) :: tail =>
-          val found = {
-            within match {
-              case SomeName(value) => head.tree.id.value == value
-              case name => head.tree.id.name == name
-            }
-          }
+          val found = head.tree.id.value == value
           if (found) FoundResolution(head.sym)
           else loop(tail)
         case _ :: tail =>
@@ -95,17 +85,25 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
     loop(_scopes)
   }
 
-  def resolveThis(qual: Option[Name]): Resolution = {
+  def resolveThis(): Resolution = {
     @tailrec def loop(_scopes: List[Scope]): Resolution = {
       _scopes match {
         case (head: TemplateScope) :: tail =>
-          val found = {
-            qual match {
-              case Some(SomeName(value)) => head.tree.id.value == value
-              case Some(name) => head.tree.id.name == name
-              case None => true
-            }
-          }
+          FoundResolution(head.sym)
+        case _ :: tail =>
+          loop(tail)
+        case Nil =>
+          MissingResolution
+      }
+    }
+    loop(_scopes)
+  }
+
+  def resolveThis(value: String): Resolution = {
+    @tailrec def loop(_scopes: List[Scope]): Resolution = {
+      _scopes match {
+        case (head: TemplateScope) :: tail =>
+          val found = head.tree.id.value == value
           if (found) FoundResolution(head.sym)
           else loop(tail)
         case _ :: tail =>
@@ -117,7 +115,12 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
     loop(_scopes)
   }
 
-  def resolveSuper(mix: Option[Name]): Resolution = {
+  def resolveSuper(): Resolution = {
+    // FIXME: https://github.com/twitter/rsc/issues/96
+    ???
+  }
+
+  def resolveSuper(value: String): Resolution = {
     // FIXME: https://github.com/twitter/rsc/issues/96
     ???
   }

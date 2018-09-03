@@ -29,8 +29,8 @@ trait Paths {
     atPos(in.offset)(AnonId())
   }
 
-  def someId(): SomeId = {
-    atPos(in.offset)(SomeId(value()))
+  def someId(): AmbigId = {
+    atPos(in.offset)(AmbigId(value()))
   }
 
   def termId(): TermId = {
@@ -131,11 +131,11 @@ trait Paths {
           loop(atPos(start)(TermSelect(firstId, nextId)))
         } else if (in.token == THIS) {
           in.nextToken()
-          val qual = atPos(firstId.pos)(SomeId(firstId.value))
+          val qual = atPos(firstId.pos)(AmbigId(firstId.value))
           loop(atPos(start)(TermThis(qual)))
         } else if (in.token == SUPER) {
           in.nextToken()
-          val qual = atPos(firstId.pos)(SomeId(firstId.value))
+          val qual = atPos(firstId.pos)(AmbigId(firstId.value))
           val mix = {
             if (in.token == LBRACKET) {
               inBrackets(atPos(in.offset)(someId()))
@@ -170,7 +170,7 @@ trait Paths {
     }
   }
 
-  def errorSomeId(): SomeId = {
+  def errorSomeId(): AmbigId = {
     someId()
   }
 

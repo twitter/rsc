@@ -2,19 +2,22 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.util
 
-import rsc.semantics._
 import rsc.syntax._
 
 trait TreeUtil {
   implicit class TreeUtilIdOps(id: Id) {
-    def opt: Option[NamedId] = {
+    def opt: Option[Id] = {
       id match {
-        case id: NamedId => Some(id)
-        case _ => None
+        case AnonId() => None
+        case id => Some(id)
       }
     }
-    def nameopt: Option[Name] = {
-      id.opt.map(_.name)
+    def valueopt: Option[String] = {
+      id match {
+        case AmbigId(value) => Some(value)
+        case AnonId() => None
+        case NamedId(value) => Some(value)
+      }
     }
     def isSymbolic: Boolean = {
       id match {

@@ -12,11 +12,13 @@ sealed trait Atom extends Pretty with Product {
   def printRepl(p: Printer): Unit = PrettyAtom.repl(p, this)
 }
 
-final case class IdAtom(id: NamedId) extends Atom
+final case class AmbigAtom(id: AmbigId) extends Atom
 
-final case class SuperAtom(id: Id) extends Atom
+final case class NamedAtom(id: NamedId) extends Atom
 
-final case class ThisAtom(id: Id) extends Atom
+final case class SuperAtom(id: ThisId) extends Atom
+
+final case class ThisAtom(id: ThisId) extends Atom
 
 final case class UnsupportedAtom(unsupported: Tree) extends Atom
 
@@ -24,7 +26,9 @@ trait Atoms {
   implicit class PathAtomsOps(path: Path) {
     def atoms: List[Atom] = {
       path match {
-        case id: NamedId => List(IdAtom(id))
+        case id: AmbigId => List(AmbigAtom(id))
+        case AmbigSelect(qual, id) => qual.atoms ++ id.atoms
+        case id: NamedId => List(NamedAtom(id))
         case TermSelect(qual: Path, id) => qual.atoms ++ id.atoms
         case TermSelect(qual, id) => List(UnsupportedAtom(qual)) ++ id.atoms
         case TermSuper(qual, mix) => List(ThisAtom(qual), SuperAtom(mix))

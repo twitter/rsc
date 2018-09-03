@@ -178,7 +178,7 @@ trait Pats {
     }
   }
 
-  private def simplePatRest(unfinished: Id, permitColon: Boolean): Pat = {
+  private def simplePatRest(unfinished: UnambigId, permitColon: Boolean): Pat = {
     val start = unfinished.pos.start
     val lhs = {
       val mods = atPos(in.offset)(Mods(Nil))
