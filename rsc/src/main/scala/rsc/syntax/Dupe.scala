@@ -147,9 +147,8 @@ trait Dupe {
           ModCovariant()
         case ModDefault() =>
           ModDefault()
-        case ModDims(mods) =>
-          val mods1 = mods.dupe
-          ModDims(mods1)
+        case ModDims() =>
+          ModDims()
         case ModEnum() =>
           ModEnum()
         case ModFinal() =>

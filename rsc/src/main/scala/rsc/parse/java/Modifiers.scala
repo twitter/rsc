@@ -77,8 +77,8 @@ trait Modifiers {
       val start = in.offset
       accept(LBRACKET)
       accept(RBRACKET)
-      val nestedDims = modDims(atPos(in.offset)(Mods(Nil)))
-      mods :+ atPos(start)(ModDims(nestedDims))
+      val dims = atPos(start)(ModDims())
+      modDims(mods :+ dims)
     } else {
       mods
     }

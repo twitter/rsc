@@ -273,8 +273,7 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         p.str("+")
       case ModDefault() =>
         p.str("default")
-      case ModDims(mods) =>
-        apply(mods)
+      case ModDims() =>
         p.str("[]")
       case ModEnum() =>
         p.str("enum")

@@ -231,7 +231,7 @@ final case class ModCovariant() extends Mod
 
 final case class ModDefault() extends Mod
 
-final case class ModDims(mods: Mods) extends Mod with Modded
+final case class ModDims() extends Mod
 
 final case class ModEnum() extends Mod
 
@@ -284,7 +284,7 @@ final case class ModVolatile() extends Mod
 sealed trait Modded extends Tree {
   def mods: Mods
   def annots: List[ModAnnotation] = mods.trees.collect { case x: ModAnnotation => x }
-  def dims: List[ModDims] = mods.trees.collect { case x: ModDims => x +: x.dims }.flatten
+  def dims: List[ModDims] = mods.trees.collect { case x: ModDims => x }
   def hasAbstract: Boolean = mods.trees.exists(_.isInstanceOf[ModAbstract])
   def hasAnnotationInterface: Boolean = mods.trees.exists(_.isInstanceOf[ModAnnotationInterface])
   def hasCase: Boolean = mods.trees.exists(_.isInstanceOf[ModCase])
