@@ -31,7 +31,7 @@ trait TreeUtil {
   }
 
   implicit class TreeUtilModsOps(mods: Mods) {
-    def :+ (mod: Mod): Mods = {
+    def :+(mod: Mod): Mods = {
       val pos1 = Position(mods.pos.input, mods.pos.start, mod.pos.end)
       val mods1 = Mods(mods.trees :+ mod)
       mods1.withPos(pos1)
