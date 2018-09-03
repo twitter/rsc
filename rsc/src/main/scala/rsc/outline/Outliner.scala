@@ -254,7 +254,7 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
         apply(env, sketch, fun)
         targs.foreach(apply(env, sketch, _))
       case TptArray(tpt) =>
-        apply(env, sketch ,tpt)
+        apply(env, sketch, tpt)
       case TptAnnotate(tpt, mods) =>
         apply(env, sketch, tpt)
         mods.annots.foreach(annot => apply(env, sketch, annot.init.tpt))

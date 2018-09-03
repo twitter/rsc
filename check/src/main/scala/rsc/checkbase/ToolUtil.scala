@@ -169,7 +169,7 @@ trait ToolUtil extends CacheUtil with NscUtil {
         val task = javac.getTask(misc, fileManager, diagnosticCollector, options, null, units)
         val success = task.call()
         if (success) {
-          val command = List("jar","-cf", out.toString, ".")
+          val command = List("jar", "-cf", out.toString, ".")
           shell(command, tmp).right.map(_ => out)
         } else {
           val diagnostics = diagnosticCollector.getDiagnostics.asScala.toList
