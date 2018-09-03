@@ -98,14 +98,14 @@ trait Dupe {
           val paramss1 = paramss.map(_.map(_.dupe))
           val rhs1 = rhs.map(_.dupe)
           DefnProcedure(mods1, id1, tparams1, paramss1, rhs1)
-        case DefnType(mods, id, tparams, lbound, ubound, rhs) =>
+        case DefnType(mods, id, tparams, lo, hi, rhs) =>
           val mods1 = mods.dupe
           val id1 = id.dupe
           val tparams1 = tparams.map(_.dupe)
-          val lbound1 = lbound.map(_.dupe)
-          val ubound1 = ubound.map(_.dupe)
+          val lo1 = lo.map(_.dupe)
+          val hi1 = hi.map(_.dupe)
           val rhs1 = rhs.map(_.dupe)
-          DefnType(mods1, id1, tparams1, lbound1, ubound1, rhs1)
+          DefnType(mods1, id1, tparams1, lo1, hi1, rhs1)
         case Import(importers) =>
           val importers1 = importers.map(_.dupe)
           Import(importers1)

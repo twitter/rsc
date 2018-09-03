@@ -16,6 +16,7 @@ trait Stdlib {
   val JavaComparableClass: Symbol = "java/io/Comparable#"
   val JavaSerializableClass: Symbol = "java/io/Serializable#"
   val NothingClass: Symbol = "scala/Nothing#"
+  val ObjectClass: Symbol = "java/lang/Object#"
   val OptionClass: Symbol = "scala/Option#"
   val ProductClass: Symbol = "scala/Product#"
   val SerializableClass: Symbol = "scala/Serializable#"

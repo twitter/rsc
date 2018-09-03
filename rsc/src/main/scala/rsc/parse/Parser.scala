@@ -14,7 +14,7 @@ trait Parser {
 
 object Parser {
   def apply(settings: Settings, reporter: Reporter, gensym: Gensym, input: Input): Parser = {
-    input.language match {
+    input.lang match {
       case ScalaLanguage =>
         rsc.parse.scala.Parser(settings, reporter, gensym, input)
       case JavaLanguage =>

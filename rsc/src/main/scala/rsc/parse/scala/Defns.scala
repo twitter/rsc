@@ -106,9 +106,9 @@ trait Defns {
       case token if token.isStatSep || token == COMMA || token == RBRACE =>
         atPos(start)(DefnType(mods, id, tparams, None, None, None))
       case SUPERTYPE | SUBTYPE =>
-        val lbound = lowerBound()
-        val ubound = upperBound()
-        atPos(start)(DefnType(mods, id, tparams, lbound, ubound, None))
+        val lo = lowerBound()
+        val hi = upperBound()
+        atPos(start)(DefnType(mods, id, tparams, lo, hi, None))
       case _ =>
         val errOffset = in.offset
         reportOffset(in.offset, ExpectedTypeRhs)

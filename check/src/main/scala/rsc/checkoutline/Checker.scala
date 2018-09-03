@@ -115,6 +115,10 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
       // WONTFIX: https://github.com/scalameta/scalameta/issues/1538
       info1 = info1.copy(properties = info1.properties & ~p.VAL.value)
       info1 = info1.copy(properties = info1.properties & ~p.VAR.value)
+      // FIXME: https://github.com/scalameta/scalameta/issues/1762
+      if (info1.isJava) {
+        info1 = info1.copy(properties = info1.properties & ~p.DEFAULT.value)
+      }
     }
     // FIXME: https://github.com/scalameta/scalameta/issues/1492
     info1 = info1.copy(properties = info1.properties & ~p.SYNTHETIC.value)

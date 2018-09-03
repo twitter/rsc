@@ -224,13 +224,13 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
             p.Prefix(" implements ").when(implementsTpts.nonEmpty)(apply(implementsTpts, "", Typ))
             p.Nest(printStats(x.stats))
         }
-      case DefnType(mods, id, tparams, lbound, ubound, rhs) =>
+      case DefnType(mods, id, tparams, lo, hi, rhs) =>
         apply(mods)
         p.str("type ")
         apply(id)
         p.Brackets(tparams)(apply(_, ", "))
-        p.Prefix(" >: ")(lbound)(apply(_, "", Typ))
-        p.Prefix(" <: ")(ubound)(apply(_, "", Typ))
+        p.Prefix(" >: ")(lo)(apply(_, "", Typ))
+        p.Prefix(" <: ")(hi)(apply(_, "", Typ))
         p.Prefix(" = ")(rhs)(apply(_, "", Typ))
       case EnumeratorGenerator(pat, rhs) =>
         apply(pat, AnyPat3)

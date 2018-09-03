@@ -18,7 +18,7 @@ trait Scanner {
 
 object Scanner {
   def apply(settings: Settings, reporter: Reporter, input: Input): Scanner = {
-    input.language match {
+    input.lang match {
       case ScalaLanguage =>
         rsc.scan.scala.Scanner(settings, reporter, input)
       case JavaLanguage =>

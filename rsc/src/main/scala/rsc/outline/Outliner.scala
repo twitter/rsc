@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.outline
 
+import rsc.inputs._
 import rsc.report._
 import rsc.semantics._
 import rsc.settings._
@@ -130,7 +131,12 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
           ()
       }
       if (buf.result.isEmpty) {
-        appendParent(env, TptId("AnyRef").withSym(AnyRefClass))
+        scope.tree.lang match {
+          case ScalaLanguage | UnsupportedLanguage =>
+            appendParent(env, TptId("AnyRef").withSym(AnyRefClass))
+          case JavaLanguage =>
+            appendParent(env, TptId("Object").withSym(ObjectClass))
+        }
       }
     }
     scope.tree.parents.foreach(parent => appendParent(env, parent.tpt))
@@ -247,6 +253,8 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
       case TptApply(fun, targs) =>
         apply(env, sketch, fun)
         targs.foreach(apply(env, sketch, _))
+      case TptArray(tpt) =>
+        apply(env, sketch ,tpt)
       case TptAnnotate(tpt, mods) =>
         apply(env, sketch, tpt)
         mods.annots.foreach(annot => apply(env, sketch, annot.init.tpt))
@@ -414,6 +422,8 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
     } else {
       def loop(tpt: Tpt): Resolution = {
         tpt match {
+          case TptArray(_) =>
+            loop(TptId("Array").withSym(ArrayClass))
           case TptApply(fun, _) =>
             loop(fun)
           case tpt: TptPath =>
@@ -433,13 +443,24 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
       val outline = symtab._outlines.get(sym)
       outline match {
         case DefnMethod(mods, _, _, _, Some(tpt), _) if mods.hasVal => loop(tpt)
-        case outline: DefnType => loop(outline.hi)
-        case outline: TypeParam => loop(outline.hi)
+        case outline: DefnType => loop(outline.desugaredUbound)
+        case outline: TypeParam => loop(outline.desugaredUbound)
         case Param(_, _, Some(tpt), _) => loop(tpt)
         case Self(_, Some(tpt)) => loop(tpt)
         case Self(_, None) => loop(symtab._inferred.get(outline.id.sym))
         case null => crash(sym)
         case _ => crash(outline)
+      }
+    }
+  }
+
+  implicit class BoundedOutlinerOps(bounded: Bounded) {
+    def desugaredUbound: Tpt = {
+      bounded.lang match {
+        case ScalaLanguage | UnsupportedLanguage =>
+          bounded.ubound.getOrElse(TptId("Any").withSym(AnyClass))
+        case JavaLanguage =>
+          bounded.ubound.getOrElse(TptId("Object").withSym(ObjectClass))
       }
     }
   }

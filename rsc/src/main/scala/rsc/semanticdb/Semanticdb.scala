@@ -150,7 +150,7 @@ final class Semanticdb private (
     }
 
     def language: s.Language = {
-      outline.pos.input.language match {
+      outline.lang match {
         case ScalaLanguage => l.SCALA
         case JavaLanguage => l.JAVA
         case UnsupportedLanguage => l.UNKNOWN_LANGUAGE
@@ -185,7 +185,7 @@ final class Semanticdb private (
     def properties: Int = {
       var result = 0
       def set(prop: s.SymbolInformation.Property) = result |= prop.value
-      if (outline.hasAbstract) set(p.ABSTRACT)
+      if (outline.hasAbstract || outline.hasInterface) set(p.ABSTRACT)
       outline match {
         case outline: DefnField if outline.rhs.isEmpty => set(p.ABSTRACT)
         case outline: DefnMethod if outline.rhs.isEmpty => set(p.ABSTRACT)
@@ -285,8 +285,8 @@ final class Semanticdb private (
           s.ClassSignature(tparams, parents, self, decls)
         case outline: DefnType =>
           val tparams = Some(s.Scope(outline.tparams.map(_.id.sym)))
-          val lbound = outline.lo.tpe
-          val ubound = outline.hi.tpe
+          val lbound = outline.desugaredLbound
+          val ubound = outline.desugaredUbound
           s.TypeSignature(tparams, lbound, ubound)
         case outline: Param =>
           val tpe = outline.tpt.map(_.tpe)
@@ -299,8 +299,8 @@ final class Semanticdb private (
           tpe.map(tpe => s.ValueSignature(tpe)).getOrElse(s.NoSignature)
         case outline: TypeParam =>
           val tparams = Some(s.Scope(outline.tparams.map(_.id.sym)))
-          val lbound = outline.lo.tpe
-          val ubound = outline.hi.tpe
+          val lbound = outline.desugaredLbound
+          val ubound = outline.desugaredUbound
           s.TypeSignature(tparams, lbound, ubound)
       }
     }
@@ -343,6 +343,26 @@ final class Semanticdb private (
               }
 
           }
+      }
+    }
+  }
+
+  implicit class BoundedSemanticdbOps(bounded: Bounded) {
+    def desugaredLbound: s.Type = {
+      bounded.lang match {
+        case ScalaLanguage | UnsupportedLanguage =>
+          bounded.lbound.getOrElse(TptId("Nothing").withSym(NothingClass)).tpe
+        case JavaLanguage =>
+          s.NoType
+      }
+    }
+
+    def desugaredUbound: s.Type = {
+      bounded.lang match {
+        case ScalaLanguage | UnsupportedLanguage =>
+          bounded.ubound.getOrElse(TptId("Any").withSym(AnyClass)).tpe
+        case JavaLanguage =>
+          bounded.ubound.getOrElse(TptId("Object").withSym(ObjectClass)).tpe
       }
     }
   }
@@ -449,9 +469,9 @@ final class Semanticdb private (
                   val gensym = gensyms(wildcard)
                   val sig = {
                     val tparams = Some(s.Scope())
-                    val lo = wildcard.lo.tpe
-                    val hi = wildcard.hi.tpe
-                    s.TypeSignature(tparams, lo, hi)
+                    val lbound = wildcard.desugaredLbound
+                    val ubound = wildcard.desugaredUbound
+                    s.TypeSignature(tparams, lbound, ubound)
                   }
                   s.SymbolInformation(
                     symbol = gensym.local(),
@@ -476,6 +496,8 @@ final class Semanticdb private (
               // FIXME: https://github.com/scalameta/scalameta/issues/1565
               crash(other)
           }
+        case TptArray(tpt) =>
+          s.TypeRef(s.NoType, "scala/Array#", List(tpt.tpe))
         case TptBoolean() =>
           s.TypeRef(s.NoType, "scala/Boolean#", Nil)
         case TptByName(tpt) =>

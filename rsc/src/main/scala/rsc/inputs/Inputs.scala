@@ -6,7 +6,7 @@ import java.nio.file._
 import rsc.pretty._
 import scala.collection.mutable
 
-sealed class Input protected (val path: Path, val language: Language) extends Pretty {
+sealed class Input protected (val path: Path, val lang: Language) extends Pretty {
   lazy val string: String = {
     val codec = scala.io.Codec.UTF8
     val source = scala.io.Source.fromFile(path.toFile)(codec)
@@ -69,16 +69,16 @@ sealed class Input protected (val path: Path, val language: Language) extends Pr
 
 object Input {
   def apply(path: Path): Input = {
-    val language = {
+    val lang = {
       if (path.toString.endsWith(".scala")) ScalaLanguage
       else if (path.toString.endsWith(".java")) JavaLanguage
       else UnsupportedLanguage
     }
-    new Input(path, language)
+    new Input(path, lang)
   }
 
-  def apply(path: Path, language: Language): Input = {
-    new Input(path, language)
+  def apply(path: Path, lang: Language): Input = {
+    new Input(path, lang)
   }
 }
 

@@ -7,6 +7,7 @@ import rsc.pretty._
 import rsc.semantics._
 
 sealed trait Tree extends Pretty with Product {
+  def lang: Language = pos.input.lang
   var pos: Position = NoPosition
   def withPos(pos: Position): this.type = {
     this.pos = pos
@@ -37,6 +38,13 @@ sealed trait AmbigPath extends Path
 final case class AmbigSelect(qual: Path, id: AmbigId) extends AmbigPath
 
 final case class AnonId() extends Id with ThisId with UnambigId
+
+sealed trait Bounded extends Tree {
+  def lbound: Option[Tpt]
+  def ubound: Option[Tpt]
+  def vbounds: List[Tpt]
+  def cbounds: List[Tpt]
+}
 
 final case class Case(pat: Pat, cond: Option[Term], stats: List[Stat]) extends Tree
 
@@ -166,15 +174,18 @@ final case class DefnType(
     mods: Mods,
     id: TptId,
     tparams: List[TypeParam],
-    lbound: Option[Tpt],
-    ubound: Option[Tpt],
+    lo: Option[Tpt],
+    hi: Option[Tpt],
     rhs: Option[Tpt])
     extends Stat
+    with Bounded
     with Parameterized
     with TypeOutline {
-  def lo = rhs.orElse(lbound).getOrElse(TptId("Nothing").withSym(NothingClass))
-  def hi = rhs.orElse(ubound).getOrElse(TptId("Any").withSym(AnyClass))
   def paramss = Nil
+  def lbound = lo.orElse(rhs)
+  def ubound = hi.orElse(rhs)
+  def vbounds = Nil
+  def cbounds = Nil
 }
 
 sealed trait Enumerator extends Tree
@@ -509,11 +520,6 @@ sealed trait Tpt extends Tree
 
 final case class TptAnnotate(tpt: Tpt, mods: Mods) extends Tpt
 
-final case class TptArray(tpt: Tpt) extends TptApply {
-  def fun = TptId("Array").withSym(ArrayClass)
-  def targs = List(tpt)
-}
-
 sealed trait TptApply extends Tpt {
   def fun: Tpt
   def targs: List[Tpt]
@@ -524,6 +530,8 @@ object TptApply {
     Some((tree.fun, tree.targs))
   }
 }
+
+final case class TptArray(tpt: Tpt) extends Tpt
 
 final case class TptBoolean() extends TptPrimitive
 
@@ -590,10 +598,10 @@ final case class TptTuple(targs: List[Tpt]) extends TptApply {
 
 final case class TptVoid() extends TptPrimitive
 
-final case class TptWildcard(lbound: Option[Tpt], ubound: Option[Tpt]) extends Tpt {
+final case class TptWildcard(lbound: Option[Tpt], ubound: Option[Tpt]) extends Tpt with Bounded {
   val id = AnonId()
-  def lo = lbound.getOrElse(TptId("Nothing").withSym(NothingClass))
-  def hi = ubound.getOrElse(TptId("Any").withSym(AnyClass))
+  def vbounds = Nil
+  def cbounds = Nil
 }
 
 final case class TptWildcardExistential(ids: List[AnonId], tpt: Tpt) extends Tpt
@@ -611,10 +619,9 @@ final case class TypeParam(
     vbounds: List[Tpt],
     cbounds: List[Tpt])
     extends Tree
+    with Bounded
     with Parameterized
     with TypeOutline {
-  def lo = lbound.getOrElse(TptId("Nothing").withSym(NothingClass))
-  def hi = ubound.getOrElse(TptId("Any").withSym(AnyClass))
   def paramss = Nil
 }
 
