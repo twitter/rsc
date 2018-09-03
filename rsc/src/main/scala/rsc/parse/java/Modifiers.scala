@@ -72,6 +72,30 @@ trait Modifiers {
     atPos(start)(Mods(loop()))
   }
 
+  def modDims(mods: Mods): Mods = {
+    if (in.token == LBRACKET) {
+      val start = in.offset
+      accept(LBRACKET)
+      accept(RBRACKET)
+      val nestedDims = modDims(atPos(in.offset)(Mods(Nil)))
+      mods :+ atPos(start)(ModDims(nestedDims))
+    } else {
+      mods
+    }
+  }
+
+  def modThrows(mods: Mods): Mods = {
+    if (in.token == THROWS) {
+      val start = in.offset
+      in.nextToken()
+      val tpts = commaSeparated(this.tpt())
+      val throws = atPos(start)(ModThrows(tpts))
+      mods :+ throws
+    } else {
+      mods
+    }
+  }
+
   private def annotationTpt(): TptPath = {
     val start = in.offset
     def loop(path: TptPath): TptPath = {

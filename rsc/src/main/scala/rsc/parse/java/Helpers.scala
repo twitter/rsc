@@ -20,6 +20,10 @@ trait Helpers {
     }
   }
 
+  def ampSeparated[T](part: => T): List[T] = {
+    tokenSeparated(AMP, part)
+  }
+
   def atPos[T <: Tree](start: Offset)(t: T): T = {
     atPos(start, in.lastOffset)(t)
   }
@@ -31,6 +35,10 @@ trait Helpers {
   def atPos[T <: Tree](pos: Position)(t: T): T = {
     t.pos = pos
     t
+  }
+
+  def commaSeparated[T](part: => T): List[T] = {
+    tokenSeparated(COMMA, part)
   }
 
   def inAngles[T](body: => T): T = {
@@ -54,11 +62,21 @@ trait Helpers {
     result
   }
 
+  def skipBraces(): Unit = {
+    ???
+  }
+
   def skipParens(): Unit = {
     ???
   }
 
-  def tokenSeparated[T](separator: Int, part: => T): List[T] = {
+  def stubBraces(): TermStub = {
+    val start = in.offset
+    skipBraces()
+    atPos(start)(TermStub())
+  }
+
+  private def tokenSeparated[T](separator: Int, part: => T): List[T] = {
     val ts = List.newBuilder[T]
     ts += part
     while (in.token == separator) {

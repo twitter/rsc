@@ -25,7 +25,7 @@ final case class CrashMessage(ex: Throwable) extends Message {
   def pos = crash.pos
   def sev = FatalSeverity
   def text = crash.message
-  override def explanation = if (crash.cause != null) crash.cause.str else ""
+  override def explanation = if (crash.cause != null) crash.cause.str else crash.str
 }
 
 final case class ErrorSummary(errors: List[Message]) extends Message {

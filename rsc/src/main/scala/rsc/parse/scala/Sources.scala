@@ -5,6 +5,7 @@ package rsc.parse.scala
 import rsc.lexis.scala._
 import rsc.report._
 import rsc.syntax._
+import rsc.util._
 
 trait Sources {
   self: Parser =>
@@ -62,15 +63,15 @@ trait Sources {
             val modCase = atPos(in.offset)(ModCase())
             val modClass = atPos(in.offset)(ModClass())
             in.nextToken()
-            defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modCase :+ modClass)))
+            defnClass(mods :+ modCase :+ modClass)
           case CASEOBJECT =>
             val modCase = atPos(in.offset)(ModCase())
             in.nextToken()
-            defnObject(atPos(mods.pos.start)(Mods(mods.trees :+ modCase)))
+            defnObject(mods :+ modCase)
           case CLASS =>
             val modClass = atPos(in.offset)(ModClass())
             in.nextToken()
-            defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modClass)))
+            defnClass(mods :+ modClass)
           case OBJECT =>
             in.nextToken()
             defnObject(mods)
@@ -87,7 +88,7 @@ trait Sources {
           case TRAIT =>
             val modTrait = atPos(in.offset)(ModTrait())
             in.nextToken()
-            defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modTrait)))
+            defnClass(mods :+ modTrait)
           case _ =>
             val errOffset = in.offset
             reportOffset(errOffset, ExpectedStartOfDefinition)

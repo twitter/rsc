@@ -7,7 +7,13 @@ import rsc.syntax._
 trait Tpts {
   self: Parser =>
 
+  def paramTpt(): Tpt = {
+    // TODO: Implement me.
+    tpt()
+  }
+
   def tpt(): Tpt = {
-    ???
+    // TODO: Implement me.
+    tptId()
   }
 }

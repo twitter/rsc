@@ -6,6 +6,7 @@ import rsc.inputs._
 import rsc.lexis.scala._
 import rsc.report._
 import rsc.syntax._
+import rsc.util._
 
 trait Tpts {
   self: Parser =>
@@ -139,11 +140,11 @@ trait Tpts {
             case VAL =>
               val modVal = atPos(in.offset)(ModVal())
               in.nextToken()
-              defnVal(atPos(mods.pos.start)(Mods(mods.trees :+ modVal)))
+              defnVal(mods :+ modVal)
             case VAR =>
               val modVar = atPos(in.offset)(ModVar())
               in.nextToken()
-              defnVar(atPos(mods.pos.start)(Mods(mods.trees :+ modVar)))
+              defnVar(mods :+ modVar)
             case DEF =>
               in.nextToken()
               defnDef(mods)

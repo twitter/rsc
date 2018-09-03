@@ -53,10 +53,14 @@ trait CrashUtil {
   def translateCrash(pos: Position, ex: Throwable): CrashException = {
     ex match {
       case ex: CrashException =>
-        val pos1 = if (pos != NoPosition) pos else ex.pos
-        val ex1 = CrashException(pos1, ex.message, ex.cause)
-        ex1.setStackTrace(ex.getStackTrace)
-        ex1
+        if (pos != NoPosition && ex.pos == NoPosition) {
+          val pos1 = if (pos != NoPosition) pos else ex.pos
+          val ex1 = CrashException(pos1, ex.message, ex.cause)
+          ex1.setStackTrace(ex.getStackTrace)
+          ex1
+        } else {
+          ex
+        }
       case ex: Throwable =>
         val message = {
           if (ex.getMessage == null) s"compiler crash"

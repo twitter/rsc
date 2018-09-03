@@ -15,10 +15,10 @@ trait Messages {
   // only accepts fatal messages, because only those are emitted unconditionally.
   def reportPos(pos: Position, msgFn: Position => Message): Message = {
     val msg = msgFn(pos)
-    reporter.append(msg)
     if (msg.sev != FatalSeverity) {
-      crash(msg.str)
+      crash(msg.pos, msg.text)
     }
+    reporter.append(msg)
     msg
   }
 
@@ -35,10 +35,10 @@ trait Messages {
     val length = if (in.token == ID) in.idValue.length else 0
     val pos = Position(input, offset, offset + length)
     val msg = msgFn(pos)
-    reporter.append(msg)
     if (msg.sev == FatalSeverity) {
-      crash(msg.str)
+      crash(msg.pos, msg.text)
     }
+    reporter.append(msg)
     msg
   }
 

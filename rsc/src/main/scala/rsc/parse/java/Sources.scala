@@ -5,6 +5,7 @@ package rsc.parse.java
 import rsc.lexis.java._
 import rsc.report._
 import rsc.syntax._
+import rsc.util._
 
 trait Sources {
   self: Parser =>
@@ -51,15 +52,15 @@ trait Sources {
         case CLASS =>
           val modClass = atPos(in.offset)(ModClass())
           in.nextToken()
-          defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modClass)))
+          stats += defnClass(mods :+ modClass)
         case ENUM =>
           val modEnum = atPos(in.offset)(ModEnum())
           in.nextToken()
-          defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modEnum)))
+          stats += defnClass(mods :+ modEnum)
         case INTERFACE =>
           val modInterface = atPos(in.offset)(ModInterface())
           in.nextToken()
-          defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modInterface)))
+          stats += defnClass(mods :+ modInterface)
         case _ =>
           val errOffset = in.offset
           reportOffset(errOffset, ExpectedStartOfDefinition)

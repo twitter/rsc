@@ -465,15 +465,15 @@ trait Terms {
               val modCase = atPos(in.offset)(ModCase())
               val modClass = atPos(in.offset)(ModClass())
               in.nextToken()
-              defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modCase :+ modClass)))
+              defnClass(mods :+ modCase :+ modClass)
             case CASEOBJECT =>
               val modCase = atPos(in.offset)(ModCase())
               in.nextToken()
-              defnObject(atPos(mods.pos.start)(Mods(mods.trees :+ modCase)))
+              defnObject(mods :+ modCase)
             case CLASS =>
               val modClass = atPos(in.offset)(ModClass())
               in.nextToken()
-              defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modClass)))
+              defnClass(mods :+ modClass)
             case DEF =>
               in.nextToken()
               defnDef(mods)
@@ -483,18 +483,18 @@ trait Terms {
             case TRAIT =>
               val modTrait = atPos(in.offset)(ModTrait())
               in.nextToken()
-              defnClass(atPos(mods.pos.start)(Mods(mods.trees :+ modTrait)))
+              defnClass(mods :+ modTrait)
             case TYPE =>
               in.nextToken()
               defnType(mods)
             case VAL =>
               val modVal = atPos(in.offset)(ModVal())
               in.nextToken()
-              defnVal(atPos(mods.pos.start)(Mods(mods.trees :+ modVal)))
+              defnVal(mods :+ modVal)
             case VAR =>
               val modVar = atPos(in.offset)(ModVar())
               in.nextToken()
-              defnVar(atPos(mods.pos.start)(Mods(mods.trees :+ modVar)))
+              defnVar(mods :+ modVar)
             case _ =>
               val errOffset = in.offset
               reportOffset(errOffset, ExpectedStartOfDefinition)

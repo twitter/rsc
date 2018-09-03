@@ -12,10 +12,10 @@ trait Messages {
   def reportOffset(offset: Offset, msgFn: Position => Message): Message = {
     val pos = Position(input, offset, offset)
     val msg = msgFn(pos)
-    reporter.append(msg)
     if (msg.sev == FatalSeverity) {
-      crash(msg.str)
+      crash(msg.pos, msg.text)
     }
+    reporter.append(msg)
     msg
   }
 

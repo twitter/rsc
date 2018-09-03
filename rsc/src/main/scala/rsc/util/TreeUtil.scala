@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.util
 
+import rsc.inputs._
 import rsc.syntax._
 
 trait TreeUtil {
@@ -26,6 +27,14 @@ trait TreeUtil {
         case _ =>
           false
       }
+    }
+  }
+
+  implicit class TreeUtilModsOps(mods: Mods) {
+    def :+ (mod: Mod): Mods = {
+      val pos1 = Position(mods.pos.input, mods.pos.start, mod.pos.end)
+      val mods1 = Mods(mods.trees :+ mod)
+      mods1.withPos(pos1)
     }
   }
 }
