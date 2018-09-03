@@ -162,11 +162,11 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
           case other => ()
         }
         if (x.earlies.isEmpty) {
-          p.Prefix(" extends ")(x.inits)(apply(_, " with "))
+          p.Prefix(" extends ")(x.parents)(apply(_, " with "))
         } else {
           p.str(" extends")
           p.Nest(apply(x.earlies, EOL))
-          p.Prefix(" with ")(x.inits)(apply(_, " with "))
+          p.Prefix(" with ")(x.parents)(apply(_, " with "))
         }
         p.Nest.when(x.self.nonEmpty || x.stats.nonEmpty) {
           p.Suffix(EOL)(x.self)(apply(_, ""))
@@ -333,6 +333,10 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         if (id.isSymbolic) p.str(" ")
         p.Prefix(": ")(tpt)(apply(_, "", ParamTyp))
         p.Prefix(" = ")(rhs)(apply(_, "", Expr))
+      case ParentExtends(tpt) =>
+        apply(tpt, Typ)
+      case ParentImplements(tpt) =>
+        apply(tpt, Typ)
       case PatAlternative(pats) =>
         apply(pats, " | ", Pat)
       case PatBind(pats) =>

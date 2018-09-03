@@ -198,7 +198,7 @@ final class Semanticdb private (
       if (outline.isInstanceOf[DefnPackageObject]) set(p.FINAL)
       outline match {
         case outline: DefnClass =>
-          outline.inits.foreach {
+          outline.parents.foreach {
             case Init(path: TptPath, Nil) if path.id.sym == AnyValClass =>
               set(p.FINAL)
             case _ =>
@@ -243,15 +243,14 @@ final class Semanticdb private (
         case outline: DefnDef =>
           val tparams = Some(s.Scope(outline.tparams.map(_.id.sym)))
           val paramss = {
-            val paramss = symtab._paramss.get(outline)
             def isImplicit(xs: List[Param]) = xs match {
               case Nil => false
               case xs => xs.forall(_.hasImplicit)
             }
-            if (isCtor && paramss.forall(isImplicit)) {
-              s.Scope() +: paramss.map(ps => s.Scope(ps.map(_.id.sym)))
+            if (isCtor && outline.desugaredParamss.forall(isImplicit)) {
+              s.Scope() +: outline.desugaredParamss.map(ps => s.Scope(ps.map(_.id.sym)))
             } else {
-              paramss.map(ps => s.Scope(ps.map(_.id.sym)))
+              outline.desugaredParamss.map(ps => s.Scope(ps.map(_.id.sym)))
             }
           }
           val ret = {
@@ -266,7 +265,7 @@ final class Semanticdb private (
           s.NoSignature
         case outline: DefnTemplate =>
           val tparams = Some(s.Scope(outline.tparams.map(_.id.sym)))
-          val parents = outline.parents.map(_.tpe)
+          val parents = outline.desugaredParents.map(_.tpe)
           val self = outline.self.flatMap(_.tpt).map(_.tpe).getOrElse(s.NoType)
           val decls = {
             symtab.scopes(outline.id.sym) match {
@@ -348,8 +347,14 @@ final class Semanticdb private (
     }
   }
 
+  implicit class ParameterizedSemanticdbOps(parameterized: Parameterized) {
+    def desugaredParamss: List[List[Param]] = {
+      symtab._paramss.get(parameterized)
+    }
+  }
+
   implicit class TemplateSemanticdbOps(template: DefnTemplate) {
-    def parents: List[Tpt] = {
+    def desugaredParents: List[Tpt] = {
       val rscParents = symtab._parents.get(template)
       val scalacFixup = {
         def parentSym(tpt: Tpt): Symbol = {
@@ -375,7 +380,7 @@ final class Semanticdb private (
                   firstScope.tree match {
                     case tree: DefnClass =>
                       if (tree.hasClass) firstParentSym
-                      else superClass(tree.parents.map(parentSym))
+                      else superClass(tree.desugaredParents.map(parentSym))
                     case tree =>
                       crash(tree)
                   }

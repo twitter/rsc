@@ -57,9 +57,9 @@ final case class DefnClass(
     mods: Mods,
     id: TptId,
     tparams: List[TypeParam],
-    primaryCtor: PrimaryCtor,
+    primaryCtor: Option[PrimaryCtor],
     earlies: List[Stat],
-    inits: List[Init],
+    parents: List[Parent],
     self: Option[Self],
     stats: List[Stat])
     extends DefnTemplate

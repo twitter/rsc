@@ -269,7 +269,7 @@ final class Scheduler private (
         if (tree.hasCase) {
           synthesizer.caseClassMembers(templateEnv, tree)
         }
-        tree.inits.foreach {
+        tree.parents.foreach {
           case Init(TptId("AnyVal"), Nil) =>
             synthesizer.valueClassMembers(templateEnv, tree)
           case _ =>

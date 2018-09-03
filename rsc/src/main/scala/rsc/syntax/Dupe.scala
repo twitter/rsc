@@ -210,6 +210,12 @@ trait Dupe {
           val tpt1 = tpt.map(_.dupe)
           val rhs1 = rhs.map(_.dupe)
           Param(mods1, id1, tpt1, rhs1)
+        case ParentExtends(tpt) =>
+          val tpt1 = tpt.dupe
+          ParentExtends(tpt1)
+        case ParentImplements(tpt) =>
+          val tpt1 = tpt.dupe
+          ParentImplements(tpt1)
         case PatAlternative(pats) =>
           val pats1 = pats.map(_.dupe)
           PatAlternative(pats1)

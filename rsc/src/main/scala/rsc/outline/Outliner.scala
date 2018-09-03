@@ -133,7 +133,7 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
         appendParent(env, TptId("AnyRef").withSym(AnyRefClass))
       }
     }
-    scope.tree.inits.foreach { case Init(tpt, _) => appendParent(env, tpt) }
+    scope.tree.parents.foreach(parent => appendParent(env, parent.tpt))
     synthesizeParents(env, scope.tree)
     if (scope.status.isPending) {
       val parents = buf.result

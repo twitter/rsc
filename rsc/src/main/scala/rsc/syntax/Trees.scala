@@ -56,7 +56,7 @@ final case class DefnClass(
     tparams: List[TypeParam],
     primaryCtor: Option[PrimaryCtor],
     earlies: List[Stat],
-    inits: List[Init],
+    parents: List[Parent],
     self: Option[Self],
     stats: List[Stat])
     extends DefnTemplate
@@ -116,6 +116,7 @@ final case class DefnObject(
     with TermOutline {
   def tparams = Nil
   def paramss = Nil
+  def parents = inits
 }
 
 final case class DefnPackage(mods: Mods, pid: TermPath, stats: List[Stat])
@@ -135,6 +136,7 @@ final case class DefnPackageObject(
     with TermOutline {
   def tparams = Nil
   def paramss = Nil
+  def parents = inits
 }
 
 final case class DefnPat(mods: Mods, pats: List[Pat], tpt: Option[Tpt], rhs: Option[Term])
@@ -155,7 +157,7 @@ sealed trait DefnTemplate extends Stat with Parameterized with Outline {
   def mods: Mods
   def id: NamedId
   def earlies: List[Stat]
-  def inits: List[Init]
+  def parents: List[Parent]
   def self: Option[Self]
   def stats: List[Stat]
 }
@@ -205,7 +207,7 @@ final case class ImporteeWildcard() extends Importee
 
 final case class Importer(mods: Mods, qual: Path, importees: List[Importee]) extends Tree
 
-final case class Init(tpt: Tpt, argss: List[List[Term]]) extends Term {
+final case class Init(tpt: Tpt, argss: List[List[Term]]) extends Parent with Term {
   val id = CtorId()
 }
 
@@ -350,6 +352,14 @@ sealed trait Parameterized extends Outline {
 final case class Param(mods: Mods, id: UnambigId, tpt: Option[Tpt], rhs: Option[Term])
     extends Tree
     with TermOutline
+
+sealed trait Parent extends Tree {
+  def tpt: Tpt
+}
+
+final case class ParentExtends(tpt: Tpt) extends Parent
+
+final case class ParentImplements(tpt: Tpt) extends Parent
 
 sealed trait Pat extends Tree
 

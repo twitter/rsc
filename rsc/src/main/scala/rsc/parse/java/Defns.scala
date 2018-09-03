@@ -12,25 +12,25 @@ trait Defns {
     val start = mods.pos.start
     val id = tptId()
     val tparams = typeParams()
-    val inits = templateInits(mods)
+    val parents = templateParents(mods)
     val stats = inBraces(templateStats())
-    atPos(start)(DefnClass(mods, id, tparams, None, Nil, inits, None, stats))
+    atPos(start)(DefnClass(mods, id, tparams, None, Nil, parents, None, stats))
   }
 
-  private def templateInits(mods: Mods): List[Init] = {
-    val buf = List.newBuilder[Init]
+  private def templateParents(mods: Mods): List[Parent] = {
+    val buf = List.newBuilder[Parent]
     if ((mods.hasClass || mods.hasInterface) && in.token == EXTENDS) {
       in.nextToken()
       val start = in.offset
       val tpt = this.tpt()
-      buf += atPos(start)(Init(tpt, Nil))
+      buf += atPos(start)(ParentExtends(tpt))
     }
     if ((mods.hasClass || mods.hasEnum) && in.token == IMPLEMENTS) {
       in.nextToken()
       tokenSeparated(COMMA, {
         val start = in.offset
         val tpt = this.tpt()
-        buf += atPos(start)(Init(tpt, Nil))
+        buf += atPos(start)(ParentImplements(tpt))
       })
     }
     buf.result
