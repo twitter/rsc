@@ -44,8 +44,7 @@ final class Parser private (
         case ex: CrashException =>
           throw ex
         case ex: Throwable =>
-          val offset = in.lastOffset
-          val pos = Position(input, offset, offset)
+          val pos = Position(input, in.offset, in.offset)
           val message = {
             val header = ex.getClass.getName
             val diagnostic = {
