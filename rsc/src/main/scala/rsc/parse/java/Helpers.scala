@@ -70,10 +70,11 @@ trait Helpers {
     ???
   }
 
-  def stubBraces(): TermStub = {
+  def stubBraces(): Term = {
     val start = in.offset
     skipBraces()
-    atPos(start)(TermStub())
+    val stub = atPos(start)(TermStub())
+    atPos(start)(TermBlock(List(stub)))
   }
 
   private def tokenSeparated[T](separator: Int, part: => T): List[T] = {
