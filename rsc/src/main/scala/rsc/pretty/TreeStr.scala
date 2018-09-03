@@ -116,10 +116,12 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
             apply(paramss)
             p.Prefix(" = ")(apply(rhs, Expr))
           case JavaLanguage =>
-            apply(mods)
+            val (prefixMods, postfixMods) = mods.partition()
+            apply(prefixMods)
             val _ :: (defnClass: DefnClass) :: _ = stack
             p.str(defnClass.id)
             apply(paramss)
+            p.Prefix(" ").when(postfixMods.trees.nonEmpty)(apply(postfixMods))
             p.Prefix(" ")(apply(rhs, Expr))
         }
       case DefnField(mods, id, tpt, rhs) =>
@@ -150,11 +152,13 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
             p.Prefix(": ")(ret)(apply(_, "", Typ))
             p.Prefix(" = ")(rhs)(apply(_, "", Expr))
           case JavaLanguage =>
-            apply(mods)
+            val (prefixMods, postfixMods) = mods.partition()
+            apply(prefixMods)
             p.Suffix(" ")(tparams)(p.Angles(_)(apply(_, ", ")))
             p.Suffix(" ")(ret)(apply(_, "", Typ))
             apply(id)
             apply(paramss)
+            p.Prefix(" ").when(postfixMods.trees.nonEmpty)(apply(postfixMods))
             rhs match {
               case Some(rhs) => p.Prefix(" ")(apply(rhs, Expr))
               case None => p.str(";")
@@ -387,9 +391,11 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
             p.Prefix(": ")(tpt)(apply(_, "", ParamTyp))
             p.Prefix(" = ")(rhs)(apply(_, "", Expr))
           case JavaLanguage =>
-            apply(mods)
+            val (prefixMods, postfixMods) = mods.partition()
+            apply(prefixMods)
             p.Suffix(" ")(tpt)(apply(_, "", ParamTyp))
             apply(id)
+            p.Prefix(" ").when(postfixMods.trees.nonEmpty)(apply(postfixMods))
         }
       case ParentExtends(tpt) =>
         apply(tpt, Typ)

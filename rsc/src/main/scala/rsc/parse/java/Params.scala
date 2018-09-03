@@ -9,7 +9,10 @@ trait Params {
   self: Parser =>
 
   def params(): List[Param] = {
-    inParens(commaSeparated(param()))
+    inParens {
+      if (in.token == RPAREN) Nil
+      else commaSeparated(param())
+    }
   }
 
   def typeParams(): List[TypeParam] = {

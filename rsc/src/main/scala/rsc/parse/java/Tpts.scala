@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.parse.java
 
+import rsc.lexis.java._
 import rsc.syntax._
 
 trait Tpts {
@@ -14,6 +15,12 @@ trait Tpts {
 
   def tpt(): Tpt = {
     // TODO: Implement me.
-    tptId()
+    val start = in.offset
+    if (in.token == VOID) {
+      in.nextToken()
+      atPos(start)(TptVoid())
+    } else {
+      tptId()
+    }
   }
 }
