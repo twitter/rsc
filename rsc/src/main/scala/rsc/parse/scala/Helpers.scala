@@ -6,6 +6,7 @@ import rsc.inputs._
 import rsc.lexis.scala._
 import rsc.report._
 import rsc.syntax._
+import rsc.util._
 
 trait Helpers {
   self: Parser =>

@@ -5,6 +5,7 @@ package rsc.parse.scala
 import rsc.lexis.scala._
 import rsc.report._
 import rsc.syntax._
+import rsc.util._
 
 trait Pats {
   self: Parser =>

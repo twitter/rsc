@@ -26,29 +26,16 @@ final class Parser private (
     with Sources
     with Tpts {
   def parse(): Source = {
-    accept(BOF)
-    val result = {
-      try source()
-      catch {
-        case ex: CrashException =>
-          throw ex
-        case ex: Throwable =>
-          val pos = Position(input, in.offset, in.offset)
-          val message = {
-            val header = ex.getClass.getName
-            val diagnostic = {
-              if (ex.getMessage != null) ex.getMessage
-              else "compiler crash"
-            }
-            s"$header: $diagnostic"
-          }
-          val ex1 = CrashException(pos, message)
-          ex1.setStackTrace(ex.getStackTrace)
-          throw ex1
-      }
+    try {
+      accept(BOF)
+      val result = source()
+      accept(EOF)
+      result
+    } catch {
+      case ex: Throwable =>
+        val pos = Position(input, in.offset, in.offset)
+        crash(pos, ex)
     }
-    accept(EOF)
-    result
   }
 }
 

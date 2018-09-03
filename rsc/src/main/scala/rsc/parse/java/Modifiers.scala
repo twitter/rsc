@@ -4,6 +4,7 @@ package rsc.parse.java
 
 import rsc.lexis.java._
 import rsc.syntax._
+import rsc.util._
 
 trait Modifiers {
   self: Parser =>

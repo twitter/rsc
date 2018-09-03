@@ -5,6 +5,7 @@ package rsc.parse.java
 import rsc.inputs._
 import rsc.lexis.java._
 import rsc.scan.java._
+import rsc.util._
 
 trait Scanners {
   self: Parser =>

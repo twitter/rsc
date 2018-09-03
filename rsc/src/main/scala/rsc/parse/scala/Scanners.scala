@@ -6,6 +6,7 @@ import rsc.inputs._
 import rsc.lexis.scala._
 import rsc.parse.scala.{Snapshot => ParseSnapshot}
 import rsc.scan.scala._
+import rsc.util._
 import scala.annotation.switch
 
 trait Scanners {

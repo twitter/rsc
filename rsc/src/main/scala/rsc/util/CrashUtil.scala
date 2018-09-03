@@ -7,15 +7,27 @@ import rsc.pretty._
 
 trait CrashUtil {
   def crash[T: Str: Repl](pos: Position, x: T): Nothing = {
-    throw CrashException(pos, message(x))
+    throw CrashException(pos, message(x), null)
   }
 
   def crash[T: Str: Repl](input: Input, x: T): Nothing = {
-    throw CrashException(input, message(x))
+    crash(Position(input, NoOffset, NoOffset), x)
   }
 
   def crash[T: Str: Repl](x: T): Nothing = {
-    throw CrashException(message(x))
+    crash(NoPosition, x)
+  }
+
+  def crash(pos: Position, ex: Throwable): Nothing = {
+    throw translateCrash(pos, ex)
+  }
+
+  def crash(input: Input, ex: Throwable): Nothing = {
+    crash(Position(input, NoOffset, NoOffset), ex)
+  }
+
+  def crash(ex: Throwable): Nothing = {
+    crash(NoPosition, ex)
   }
 
   private def message[T: Str: Repl](culprit: T): String = {
@@ -36,5 +48,23 @@ trait CrashUtil {
     }
     if (onlyStr) s"$str"
     else s"$str$EOL$repl"
+  }
+
+  def translateCrash(pos: Position, ex: Throwable): CrashException = {
+    ex match {
+      case ex: CrashException =>
+        val pos1 = if (pos != NoPosition) pos else ex.pos
+        val ex1 = CrashException(pos1, ex.message, ex.cause)
+        ex1.setStackTrace(ex.getStackTrace)
+        ex1
+      case ex: Throwable =>
+        val message = {
+          if (ex.getMessage == null) s"compiler crash"
+          else s"compiler crash: ${ex.getMessage}"
+        }
+        val ex1 = CrashException(pos, message, ex)
+        ex1.setStackTrace(ex.getStackTrace)
+        ex1
+    }
   }
 }

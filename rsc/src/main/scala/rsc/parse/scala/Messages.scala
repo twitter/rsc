@@ -4,16 +4,11 @@ package rsc.parse.scala
 
 import rsc.inputs._
 import rsc.lexis.scala._
-import rsc.pretty._
 import rsc.report._
+import rsc.util._
 
 trait Messages {
   self: Parser =>
-
-  def crash[T: Str: Repl](x: T): Nothing = {
-    val pos = Position(input, in.offset, in.offset)
-    rsc.util.crash(pos, x)
-  }
 
   // Cf. `def syntaxError(msg: => Message, pos: Position): Unit`.
   // The Dotty counterpart emits messages unconditionally, so our method

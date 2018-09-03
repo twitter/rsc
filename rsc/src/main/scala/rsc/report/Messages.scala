@@ -20,22 +20,12 @@ sealed trait Message extends Pretty with Product {
 
 // ============ FUNDAMENTAL ============
 
-final case class CrashMessage(pos: Position, message: String, ex: Throwable) extends Message {
+final case class CrashMessage(ex: Throwable) extends Message {
+  private lazy val crash = translateCrash(NoPosition, ex)
+  def pos = crash.pos
   def sev = FatalSeverity
-  def text = {
-    ex match {
-      case _: CrashException =>
-        "compiler crash"
-      case ex =>
-        if (ex != null) ex.getMessage else null
-        if (message != null) s"compiler crash: $message"
-        else "compiler crash"
-    }
-  }
-  override def explanation = {
-    if (ex != null) ex.str
-    else ""
-  }
+  def text = crash.message
+  override def explanation = if (crash.cause != null) crash.cause.str else ""
 }
 
 final case class ErrorSummary(errors: List[Message]) extends Message {

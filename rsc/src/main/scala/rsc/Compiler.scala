@@ -24,7 +24,6 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
   var gensyms: Gensyms = Gensyms()
   var symtab: Symtab = Symtab(settings)
   var todo: Todo = Todo()
-  var cursor: Any = null
 
   def run(): Unit = {
     for ((taskName, taskFn) <- tasks) {
@@ -32,12 +31,8 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
       try {
         taskFn()
       } catch {
-        case crash @ CrashException(pos, message, ex) =>
-          val ex1 = if (ex != null) ex else crash
-          val pos1 = if (pos != NoPosition) pos else cursor.pos
-          reporter.append(CrashMessage(pos1, message, ex1))
         case ex: Throwable =>
-          reporter.append(CrashMessage(cursor.pos, ex.getMessage, ex))
+          reporter.append(CrashMessage(ex))
       }
       val end = System.nanoTime()
       val ms = (end - start) / 1000000
@@ -153,16 +148,27 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
     val outliner = Outliner(settings, reporter, symtab, todo)
     while (!todo.isEmpty) {
       val (env, work) = todo.remove()
-      cursor = work
-      work.unblock()
-      if (work.status.isPending) {
-        outliner.apply(env, work)
-      }
-      if (work.status.isBlocked) {
-        todo.add(env, work)
-      }
-      if (work.status.isCyclic) {
-        reporter.append(IllegalCyclicReference(work))
+      try {
+        work.unblock()
+        if (work.status.isPending) {
+          outliner.apply(env, work)
+        }
+        if (work.status.isBlocked) {
+          todo.add(env, work)
+        }
+        if (work.status.isCyclic) {
+          reporter.append(IllegalCyclicReference(work))
+        }
+      } catch {
+        case ex: Throwable =>
+          val pos = work match {
+            case x: ImporterScope => x.tree.pos
+            case x: PackageObjectScope => x.tree.pos
+            case x: TemplateScope => x.tree.pos
+            case x: Sketch => x.tree.pos
+            case _ => NoPosition
+          }
+          crash(pos, ex)
       }
     }
   }
@@ -172,8 +178,12 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
     val outlines = new LinkedList(symtab._outlines.values)
     while (!outlines.isEmpty) {
       val outline = outlines.remove()
-      cursor = outline
-      semanticdb.apply(outline)
+      try {
+        semanticdb.apply(outline)
+      } catch {
+        case ex: Throwable =>
+          crash(outline.pos, ex)
+      }
     }
     semanticdb.save()
   }
