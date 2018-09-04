@@ -63,7 +63,13 @@ trait Helpers {
   }
 
   def skipBraces(): Unit = {
-    ???
+    var blevel = 1
+    accept(LBRACE)
+    while (blevel > 0 && in.token != EOF) {
+      if (in.token == LBRACE) blevel += 1
+      if (in.token == RBRACE) blevel -= 1
+      in.nextToken()
+    }
   }
 
   def skipParens(): Unit = {
