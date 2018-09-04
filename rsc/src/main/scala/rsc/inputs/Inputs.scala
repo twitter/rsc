@@ -69,12 +69,7 @@ sealed class Input protected (val path: Path, val lang: Language) extends Pretty
 
 object Input {
   def apply(path: Path): Input = {
-    val lang = {
-      if (path.toString.endsWith(".scala")) ScalaLanguage
-      else if (path.toString.endsWith(".java")) JavaLanguage
-      else UnsupportedLanguage
-    }
-    new Input(path, lang)
+    new Input(path, path.lang)
   }
 
   def apply(path: Path, lang: Language): Input = {

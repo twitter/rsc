@@ -4,6 +4,7 @@ package rsc.outline
 
 import java.util.LinkedHashSet
 import rsc.gensym._
+import rsc.inputs._
 import rsc.report._
 import rsc.semantics._
 import rsc.settings._
@@ -368,7 +369,23 @@ final class Scheduler private (
   }
 
   private def source(env: Env, tree: Source): Env = {
-    stats(SourceLevel, env, tree.stats)
+    def wildcardImport(qual: Path, env: Env): Env = {
+      val importer = Importer(Mods(Nil), qual, List(ImporteeWildcard()))
+      val scope = ImporterScope(importer)
+      todo.add(env, scope)
+      scope :: env
+    }
+    val sourceEnv = tree.lang match {
+      case ScalaLanguage | UnsupportedLanguage =>
+        val rootEnv = symtab.scopes(RootPackage) :: env
+        val javaLangEnv = wildcardImport(TermSelect(TermId("java"), TermId("lang")), rootEnv)
+        val scalaEnv = wildcardImport(TermId("scala"), javaLangEnv)
+        wildcardImport(TermSelect(TermId("scala"), TermId("Predef")), scalaEnv)
+      case JavaLanguage =>
+        val rootEnv = symtab.scopes(RootPackage) :: env
+        wildcardImport(TermSelect(TermId("java"), TermId("lang")), rootEnv)
+    }
+    stats(SourceLevel, sourceEnv, tree.stats)
     env
   }
 

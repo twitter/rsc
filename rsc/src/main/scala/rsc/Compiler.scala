@@ -14,7 +14,6 @@ import rsc.pretty._
 import rsc.report._
 import rsc.scan._
 import rsc.semanticdb._
-import rsc.semantics._
 import rsc.settings._
 import rsc.syntax._
 import rsc.util._
@@ -95,53 +94,13 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
   }
 
   private def index(): Unit = {
-    val rootScope = PackageScope(RootPackage, symtab._index)
-    symtab.scopes(rootScope.sym) = rootScope
-    todo.add(Env(), rootScope)
-    val emptyScope = PackageScope(EmptyPackage, symtab._index)
-    symtab.scopes(emptyScope.sym) = emptyScope
-    todo.add(Env(), emptyScope)
-
-    def checkExists(sym: String): Unit = {
-      val scope = symtab.scopes.get(sym)
-      if (scope == null) {
-        crash(s"""
-        |missing core definition: $sym
-        |Unlike Scalac, Rsc requires that the following libraries are passed explicitly:
-        |  1) JDK libraries that are used in your code (at least, rt.jar).
-        |  2) Scala library.
-        |  3) Scala library synthetics (a SemanticDB-only artifact produced by Metacp).
-        """.trim.stripMargin)
-      }
-    }
-    checkExists("java/lang/")
-    checkExists("scala/")
-    checkExists("scala/Predef.")
-    checkExists("scala/AnyRef#")
+    val indexer = Indexer(settings, reporter, symtab, todo)
+    indexer.apply()
   }
 
   private def schedule(): Unit = {
-    val rootEnv = Env(symtab.scopes(RootPackage))
-
-    val javaLangQual = TermSelect(TermId("java"), TermId("lang"))
-    val javaLangImporter = Importer(Mods(Nil), javaLangQual, List(ImporteeWildcard()))
-    val javaLangScope = ImporterScope(javaLangImporter)
-    todo.add(rootEnv, javaLangScope)
-    val javaLangEnv = javaLangScope :: rootEnv
-
-    val scalaImporter = Importer(Mods(Nil), TermId("scala"), List(ImporteeWildcard()))
-    val scalaScope = ImporterScope(scalaImporter)
-    todo.add(javaLangEnv, scalaScope)
-    val scalaEnv = scalaScope :: javaLangEnv
-
-    val predefQual = TermSelect(TermId("scala"), TermId("Predef"))
-    val predefImporter = Importer(Mods(Nil), predefQual, List(ImporteeWildcard()))
-    val predefScope = ImporterScope(predefImporter)
-    todo.add(scalaEnv, predefScope)
-    val predefEnv = predefScope :: scalaEnv
-
     val scheduler = Scheduler(settings, reporter, gensyms, symtab, todo)
-    trees.foreach(scheduler.apply(predefEnv, _))
+    trees.foreach(scheduler.apply(Env(), _))
   }
 
   private def outline(): Unit = {
