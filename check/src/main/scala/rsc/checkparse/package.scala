@@ -67,10 +67,9 @@ package object checkparse extends NscUtil {
         if (rscMessages.nonEmpty) Left(rscMessages)
         else Right(rscTree)
       } catch {
-        case ex: CrashException =>
-          Left(List(ex.str))
         case ex: Throwable =>
-          Left(List(s"crash when parsing $path:$EOL${ex.str}"))
+          val message = rsc.report.CrashMessage(ex)
+          Left(List(message.str))
       }
     }
   }
