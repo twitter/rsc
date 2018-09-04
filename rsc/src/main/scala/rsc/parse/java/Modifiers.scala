@@ -98,24 +98,22 @@ trait Modifiers {
 
   private def annotationTpt(): TptPath = {
     val start = in.offset
-    def loop(path: TptPath): TptPath = {
+    def loop(path: AmbigPath): AmbigPath = {
       if (in.token == DOT) {
-        accept(DOT)
-        val qual = path match {
-          case TptId(value) =>
-            atPos(path.pos)(AmbigId(value))
-          case TptSelect(qual, tptId @ TptId(value)) =>
-            val ambigId = atPos(tptId.pos)(AmbigId(value))
-            atPos(path.pos)(AmbigSelect(qual, ambigId))
-          case other =>
-            crash(other)
-        }
-        val id = tptId()
-        loop(atPos(start)(TptSelect(qual, id)))
+        in.nextToken()
+        val id = ambigId()
+        loop(atPos(start)(AmbigSelect(path, id)))
       } else {
         path
       }
     }
-    loop(tptId())
+    val path = loop(ambigId())
+    path match {
+      case AmbigId(value) =>
+        atPos(path.pos)(TptId(value))
+      case AmbigSelect(qual, ambigId @ AmbigId(value)) =>
+        val tptId = atPos(ambigId.pos)(TptId(value))
+        atPos(path.pos)(TptSelect(qual, tptId))
+    }
   }
 }

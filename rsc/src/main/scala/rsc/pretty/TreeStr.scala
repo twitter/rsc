@@ -281,8 +281,15 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
           }
         }
       case Import(importers) =>
-        p.str("import ")
-        apply(importers, ", ")
+        l match {
+          case ScalaLanguage =>
+            p.str("import ")
+            apply(importers, ", ")
+          case JavaLanguage =>
+            p.str("import ")
+            apply(importers, ", ")
+            p.str(";")
+        }
       case ImporteeName(id) =>
         apply(id)
       case ImporteeRename(from, to) =>
@@ -293,7 +300,10 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         apply(id)
         p.str(" => _")
       case ImporteeWildcard() =>
-        p.str("_")
+        l match {
+          case ScalaLanguage => p.str("_")
+          case JavaLanguage => p.str("*")
+        }
       case Importer(mods, qual, importees) =>
         apply(mods)
         if (mods.trees.nonEmpty) p.str(" ")

@@ -25,6 +25,10 @@ trait Ids {
     }
   }
 
+  def ambigId(): AmbigId = {
+    atPos(in.offset)(AmbigId(value()))
+  }
+
   def termId(): TermId = {
     atPos(in.offset)(TermId(value()))
   }

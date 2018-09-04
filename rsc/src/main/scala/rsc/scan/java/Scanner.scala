@@ -13,6 +13,7 @@ import scala.annotation.switch
 final class Scanner private (val settings: Settings, val reporter: Reporter, val input: Input)
     extends rsc.scan.Scanner
     with Characters
+    with History
     with Messages {
   def next(): Unit = {
     (ch: @switch) match {
