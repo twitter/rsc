@@ -547,7 +547,7 @@ final class Semanticdb private (
         case TptSingleton(TermThis(id)) =>
           s.ThisType(id.sym)
         case TptVoid() =>
-          s.TypeRef(s.NoType, "scala/Void#", Nil)
+          s.TypeRef(s.NoType, "scala/Unit#", Nil)
         case _: TptWildcard =>
           crash(tpt)
         case TptWildcardExistential(_, tpt) =>
