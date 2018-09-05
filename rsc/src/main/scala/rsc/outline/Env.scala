@@ -2,12 +2,13 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.outline
 
+import rsc.inputs._
 import rsc.pretty._
 import rsc.semantics._
 import rsc.util._
 import scala.annotation.tailrec
 
-sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
+sealed class Env protected (val _scopes: List[Scope], val lang: Language) extends Pretty {
   def owner: SourceScope = {
     def loop(_scopes: List[Scope]): SourceScope = {
       _scopes match {
@@ -21,13 +22,13 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
 
   def outer: Env = {
     _scopes match {
-      case head :: tail => Env(tail)
+      case head :: tail => Env(tail, lang)
       case Nil => crash(this)
     }
   }
 
   def ::(scope: Scope): Env = {
-    Env(scope :: _scopes)
+    Env(scope :: _scopes, lang)
   }
 
   def resolve(name: Name): Resolution = {
@@ -80,16 +81,20 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
         }
       case failed: FailedResolution =>
         failed
-      case found: FoundResolution =>
+      case found1 @ FoundResolution(sym1) =>
         resolve(TypeName(value)) match {
           case blocked: BlockedResolution =>
             blocked
           case MissingResolution =>
-            found
+            found1
           case failed: FailedResolution =>
             failed
-          case found: FoundResolution =>
-            AmbiguousResolution
+          case found2 @ FoundResolution(sym2) =>
+            if (sym1 == sym2 || !sym1.isPackage) {
+              FoundResolution(sym2)
+            } else {
+              AmbiguousResolution(List(sym1, sym2))
+            }
         }
     }
   }
@@ -166,15 +171,7 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
 }
 
 object Env {
-  def apply(): Env = {
-    new Env(Nil)
-  }
-
-  def apply(scopes: List[Scope]): Env = {
-    new Env(scopes)
-  }
-
-  def apply(scopes: Scope*): Env = {
-    new Env(scopes.toList)
+  def apply(scopes: List[Scope], lang: Language): Env = {
+    new Env(scopes, lang)
   }
 }

@@ -8,7 +8,7 @@ import rsc.syntax._
 import rsc.util._
 import _root_.scala.{Symbol => StdlibSymbol}
 
-class TreeStr(p: Printer, l: SupportedLanguage) {
+class TreeStr(p: Printer, l: KnownLanguage) {
   var stack = List.empty[Tree]
 
   def apply(x: Tree): Unit = {

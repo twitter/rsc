@@ -176,9 +176,9 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
         case NoSymbol =>
           val resolution = resolver
           resolution match {
-            case AmbiguousResolution =>
-              if (env == startingEnv) reporter.append(AmbiguousId(id))
-              else reporter.append(AmbiguousMember(env, id))
+            case resolution: AmbiguousResolution =>
+              if (env == startingEnv) reporter.append(AmbiguousId(id, resolution))
+              else reporter.append(AmbiguousMember(env, id, resolution))
               ErrorResolution
             case BlockedResolution(_) =>
               resolution
@@ -231,7 +231,8 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
               case resolution: FailedResolution =>
                 resolution
               case FoundResolution(scopeSym) =>
-                loop(Env(symtab.scopes(scopeSym)), rest)
+                val env1 = Env(List(symtab.scopes(scopeSym)), env.lang)
+                loop(env1, rest)
             }
           }
       }
@@ -297,9 +298,9 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
             case id: AmbigId =>
               val resolution = env.resolve(id.value)
               resolution match {
-                case AmbiguousResolution =>
-                  if (env == startingEnv) reporter.append(AmbiguousId(id))
-                  else reporter.append(AmbiguousMember(env, id))
+                case resolution: AmbiguousResolution =>
+                  if (env == startingEnv) reporter.append(AmbiguousId(id, resolution))
+                  else reporter.append(AmbiguousMember(env, id, resolution))
                   resolution
                 case _: BlockedResolution =>
                   resolution
@@ -325,15 +326,16 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
                     case resolution: FailedResolution =>
                       resolution
                     case FoundResolution(scopeSym) =>
-                      loop(Env(symtab.scopes(scopeSym)), id)
+                      val env1 = Env(List(symtab.scopes(scopeSym)), env.lang)
+                      loop(env1, id)
                   }
               }
             case id: NamedId =>
               val resolution = env.resolve(id.name)
               resolution match {
-                case AmbiguousResolution =>
-                  if (env == startingEnv) reporter.append(AmbiguousId(id))
-                  else reporter.append(AmbiguousMember(env, id))
+                case resolution: AmbiguousResolution =>
+                  if (env == startingEnv) reporter.append(AmbiguousId(id, resolution))
+                  else reporter.append(AmbiguousMember(env, id, resolution))
                   resolution
                 case _: BlockedResolution =>
                   resolution
@@ -359,7 +361,8 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
                     case resolution: FailedResolution =>
                       resolution
                     case FoundResolution(scopeSym) =>
-                      loop(Env(symtab.scopes(scopeSym)), id)
+                      val env1 = Env(List(symtab.scopes(scopeSym)), env.lang)
+                      loop(env1, id)
                   }
               }
             case TermSelect(qual, id) =>
@@ -376,8 +379,8 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
                 }
               }
               resolution match {
-                case AmbiguousResolution =>
-                  reporter.append(AmbiguousId(qual))
+                case resolution: AmbiguousResolution =>
+                  reporter.append(AmbiguousId(qual, resolution))
                   resolution
                 case _: BlockedResolution =>
                   resolution
@@ -406,7 +409,8 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
                     case resolution: FailedResolution =>
                       resolution
                     case FoundResolution(scopeSym) =>
-                      loop(Env(symtab.scopes(scopeSym)), id)
+                      val env1 = Env(List(symtab.scopes(scopeSym)), env.lang)
+                      loop(env1, id)
                   }
               }
             case TptSingleton(qual) =>

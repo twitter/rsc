@@ -404,7 +404,7 @@ final class Semanticdb private (
                     case tree =>
                       crash(tree)
                   }
-                case firstScope: IndexScope =>
+                case firstScope: BinaryScope =>
                   val firstInfo = symtab._index.apply(firstParentSym)
                   if (firstInfo.isTrait || firstInfo.isInterface) {
                     superClass(firstInfo.parents)

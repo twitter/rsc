@@ -3,9 +3,9 @@
 package rsc.inputs
 
 sealed trait Language
-sealed trait SupportedLanguage extends Language
-case object ScalaLanguage extends SupportedLanguage
-case object JavaLanguage extends SupportedLanguage
+sealed trait KnownLanguage extends Language
+case object ScalaLanguage extends KnownLanguage
+case object JavaLanguage extends KnownLanguage
 case object UnknownLanguage extends Language
 
 trait Languages {

@@ -229,33 +229,33 @@ final case class UnboundWildcard(pos: Position) extends Message {
 
 // ============ TYPECHECKER ============
 
-final case class AmbiguousMember(env: Env, id: Id) extends Message {
+final case class AmbiguousMember(env: Env, id: Id, resolution: AmbiguousResolution) extends Message {
   def sev = ErrorSeverity
   def pos = id.point
   def text = {
-    val qual = env._scopes.head.sym.init
+    val qual = env._scopes.head.sym
     id match {
-      case AmbigId(value) => s"ambiguous: $qual.$value"
+      case AmbigId(value) => s"ambiguous: $qual$value (${resolution.syms.mkString(", ")})"
       case AnonId() => crash(id)
       case CtorId() => crash(id)
-      case PatId(value) => s"ambiguous: value $qual.$value"
-      case TermId(value) => s"ambiguous: value $qual.$value"
-      case TptId(value) => s"ambiguous: type $qual.$value"
+      case PatId(value) => s"ambiguous: value $qual$value (${resolution.syms.mkString(", ")})"
+      case TermId(value) => s"ambiguous: value $qual$value (${resolution.syms.mkString(", ")})"
+      case TptId(value) => s"ambiguous: type $qual$value (${resolution.syms.mkString(", ")})"
     }
   }
 }
 
-final case class AmbiguousId(id: Id) extends Message {
+final case class AmbiguousId(id: Id, resolution: AmbiguousResolution) extends Message {
   def sev = ErrorSeverity
   def pos = id.point
   def text = {
     id match {
-      case AmbigId(value) => s"ambiguous: $value"
+      case AmbigId(value) => s"ambiguous: $value (${resolution.syms.mkString(", ")})"
       case AnonId() => crash(id)
       case CtorId() => crash(id)
-      case PatId(value) => s"ambiguous: value $value"
-      case TermId(value) => s"ambiguous: value $value"
-      case TptId(value) => s"ambiguous: type $value"
+      case PatId(value) => s"ambiguous: value $value (${resolution.syms.mkString(", ")})"
+      case TermId(value) => s"ambiguous: value $value (${resolution.syms.mkString(", ")})"
+      case TptId(value) => s"ambiguous: type $value (${resolution.syms.mkString(", ")})"
     }
   }
 }
@@ -318,14 +318,14 @@ final case class UnboundMember(env: Env, id: Id) extends Message {
   def sev = ErrorSeverity
   def pos = id.point
   def text = {
-    val qual = env._scopes.head.sym.init
+    val qual = env._scopes.head.sym
     id match {
-      case AmbigId(value) => s"unbound: $qual.$value"
+      case AmbigId(value) => s"unbound: $qual$value"
       case AnonId() => crash(id)
       case CtorId() => crash(id)
-      case PatId(value) => s"unbound: value $qual.$value"
-      case TermId(value) => s"unbound: value $qual.$value"
-      case TptId(value) => s"unbound: type $qual.$value"
+      case PatId(value) => s"unbound: value $qual$value"
+      case TermId(value) => s"unbound: value $qual$value"
+      case TptId(value) => s"unbound: type $qual$value"
     }
   }
 }

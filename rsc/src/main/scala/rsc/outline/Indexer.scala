@@ -12,10 +12,10 @@ final class Indexer private (settings: Settings, reporter: Reporter, symtab: Sym
   def apply(): Unit = {
     val rootScope = PackageScope(RootPackage, symtab._index)
     symtab.scopes(rootScope.sym) = rootScope
-    todo.add(Env(), rootScope)
+    todo.add(Env(Nil, ScalaLanguage), rootScope)
     val emptyScope = PackageScope(EmptyPackage, symtab._index)
     symtab.scopes(emptyScope.sym) = emptyScope
-    todo.add(Env(), emptyScope)
+    todo.add(Env(Nil, ScalaLanguage), emptyScope)
 
     sanityCheck("java/lang/", JavaLanguage, ScalaLanguage)
     sanityCheck("scala/", ScalaLanguage)

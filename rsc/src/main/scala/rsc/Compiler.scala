@@ -100,7 +100,10 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
 
   private def schedule(): Unit = {
     val scheduler = Scheduler(settings, reporter, gensyms, symtab, todo)
-    trees.foreach(scheduler.apply(Env(), _))
+    trees.foreach { tree =>
+      val env = Env(Nil, tree.lang)
+      scheduler.apply(env, tree)
+    }
   }
 
   private def outline(): Unit = {

@@ -27,7 +27,7 @@ sealed abstract class Scope(val sym: Symbol) extends Work {
 
 // ============ TWO FOUNDATIONAL SCOPES ============
 
-sealed trait IndexScope extends Scope {
+sealed trait BinaryScope extends Scope {
   def _index: Index
 
   val _loaded: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
@@ -50,6 +50,8 @@ sealed trait IndexScope extends Scope {
 
     val info = _index(owner)
 
+    // TODO: Utilizing selfs is probably incorrect when doing lookups from Java,
+    // but hopefully we'll rewrite the name resolution logic before this becomes a problem.
     (info.parents ++ info.self).foreach { parent =>
       val memberSym = loadDecl(parent, name)
       if (memberSym != NoSymbol) {
@@ -57,6 +59,8 @@ sealed trait IndexScope extends Scope {
       }
     }
 
+    // TODO: Utilizing package objects is incorrect when doing lookups from Java,
+    // but hopefully we'll rewrite the name resolution logic before this becomes a problem.
     if (info.isPackage) {
       val packageObjectSym = TermSymbol(owner, "package")
       if (_index.contains(packageObjectSym)) {
@@ -90,6 +94,8 @@ sealed trait IndexScope extends Scope {
           return packageSym
         }
 
+        // TODO: This is accidentally correct when doing lookups from Java,
+        // because Java programs don't have TermIds in reference roles.
         val javaDeclSym = TypeSymbol(owner, value)
         if (_index.contains(javaDeclSym) &&
             _index(javaDeclSym).isJava) {
@@ -145,7 +151,7 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
 
 final class ClasspathScope private (sym: Symbol, val _index: Index)
     extends Scope(sym)
-    with IndexScope {
+    with BinaryScope {
   override def enter(name: Name, sym: Symbol): Symbol = {
     crash(this)
   }
@@ -161,14 +167,14 @@ final class ClasspathScope private (sym: Symbol, val _index: Index)
 }
 
 object ClasspathScope {
-  def apply(sym: Symbol, index: Index): IndexScope = {
+  def apply(sym: Symbol, index: Index): BinaryScope = {
     new ClasspathScope(sym, index)
   }
 }
 
 final class PackageScope private (sym: Symbol, val _index: Index)
     extends SourceScope(sym)
-    with IndexScope {
+    with BinaryScope {
   override def resolve(name: Name): Resolution = {
     super.resolve(name) match {
       case MissingResolution =>
@@ -355,13 +361,13 @@ class TemplateScope protected (sym: Symbol, val tree: DefnTemplate) extends Sour
 
   private def recomputeEnv(): Unit = {
     if (_parents != null && _self != null) {
-      _env = Env(_self ++ _parents)
+      _env = Env(_self ++ _parents, tree.lang)
     } else if (_parents != null && _self == null) {
-      _env = Env(_parents)
+      _env = Env(_parents, tree.lang)
     } else if (_parents == null && _self != null) {
-      _env = Env(_self)
+      _env = Env(_self, tree.lang)
     } else {
-      _env = Env()
+      _env = Env(Nil, tree.lang)
     }
   }
 

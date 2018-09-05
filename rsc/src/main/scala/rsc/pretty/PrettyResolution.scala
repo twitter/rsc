@@ -8,16 +8,16 @@ object PrettyResolution {
   def str(p: Printer, x: Resolution): Unit = {
     x match {
       case BlockedResolution(work) =>
-        p.str("b:")
+        p.str(s"b:")
         // FIXME: https://github.com/twitter/rsc/issues/104
         if (work != null) PrettyWork.abbr(p, work)
         else p.str("null")
-      case AmbiguousResolution =>
-        p.str("a")
+      case AmbiguousResolution(syms) =>
+        p.str(s"a:${syms.mkString(", ")}")
       case MissingResolution =>
-        p.str("m")
+        p.str(s"m")
       case ErrorResolution =>
-        p.str("e")
+        p.str(s"e")
       case FoundResolution(sym) =>
         p.str(sym)
     }
