@@ -22,7 +22,7 @@ trait Modifiers {
             atPos(start)(ModAnnotationInterface())
           } else {
             val initStart = in.offset
-            val tpt = annotationTpt()
+            val tpt = this.tpt()
             val argss = {
               if (in.token == LPAREN) skipParens()
               else Nil
@@ -93,27 +93,6 @@ trait Modifiers {
       mods :+ throws
     } else {
       mods
-    }
-  }
-
-  private def annotationTpt(): TptPath = {
-    val start = in.offset
-    def loop(path: AmbigPath): AmbigPath = {
-      if (in.token == DOT) {
-        in.nextToken()
-        val id = ambigId()
-        loop(atPos(start)(AmbigSelect(path, id)))
-      } else {
-        path
-      }
-    }
-    val path = loop(ambigId())
-    path match {
-      case AmbigId(value) =>
-        atPos(path.pos)(TptId(value))
-      case AmbigSelect(qual, ambigId @ AmbigId(value)) =>
-        val tptId = atPos(ambigId.pos)(TptId(value))
-        atPos(path.pos)(TptSelect(qual, tptId))
     }
   }
 }

@@ -718,15 +718,28 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         p.str(" ")
         apply(rhs, RhsInfixTyp(op))
       case TptProject(qual, id) =>
-        apply(qual, SimpleTyp)
-        p.str("#")
-        apply(id, SimpleTyp)
+        l match {
+          case ScalaLanguage =>
+            apply(qual, SimpleTyp)
+            p.str("#")
+            apply(id, SimpleTyp)
+          case JavaLanguage =>
+            apply(qual, SimpleTyp)
+            p.str(".")
+            apply(id, SimpleTyp)
+        }
       case TptRefine(tpt, stats) =>
         apply(tpt, " ", WithTyp)
         p.Braces(apply(stats, "; "))
       case TptRepeat(tpt) =>
-        apply(tpt, Typ)
-        p.str("*")
+        l match {
+          case ScalaLanguage =>
+            apply(tpt, Typ)
+            p.str("*")
+          case JavaLanguage =>
+            apply(tpt, Typ)
+            p.str("...")
+        }
       case TptSelect(qual, id) =>
         apply(qual, SimpleExpr)
         p.str(".")
