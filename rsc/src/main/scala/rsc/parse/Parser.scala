@@ -19,7 +19,7 @@ object Parser {
         rsc.parse.scala.Parser(settings, reporter, gensym, input)
       case JavaLanguage =>
         rsc.parse.java.Parser(settings, reporter, gensym, input)
-      case UnsupportedLanguage =>
+      case UnknownLanguage =>
         new Parser {
           def parse(): Source = {
             val msg = IllegalLanguage(Position(input, 0, 0))

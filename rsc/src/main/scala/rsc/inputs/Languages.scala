@@ -6,14 +6,14 @@ sealed trait Language
 sealed trait SupportedLanguage extends Language
 case object ScalaLanguage extends SupportedLanguage
 case object JavaLanguage extends SupportedLanguage
-case object UnsupportedLanguage extends Language
+case object UnknownLanguage extends Language
 
 trait Languages {
   implicit class LanguagePathOps(path: java.nio.file.Path) {
     def lang: Language = {
       if (path.toString.endsWith(".scala")) ScalaLanguage
       else if (path.toString.endsWith(".java")) JavaLanguage
-      else UnsupportedLanguage
+      else UnknownLanguage
     }
   }
 }

@@ -23,7 +23,7 @@ object Scanner {
         rsc.scan.scala.Scanner(settings, reporter, input)
       case JavaLanguage =>
         rsc.scan.java.Scanner(settings, reporter, input)
-      case UnsupportedLanguage =>
+      case UnknownLanguage =>
         new Scanner {
           def next(): Unit = {
             val msg = IllegalLanguage(Position(input, 0, 0))

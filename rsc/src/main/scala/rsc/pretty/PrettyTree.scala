@@ -8,7 +8,7 @@ import rsc.syntax._
 object PrettyTree {
   def str(p: Printer, tree: Tree): Unit = {
     tree.lang match {
-      case ScalaLanguage | UnsupportedLanguage => scalaStr(p, tree)
+      case ScalaLanguage | UnknownLanguage => scalaStr(p, tree)
       case JavaLanguage => javaStr(p, tree)
     }
   }

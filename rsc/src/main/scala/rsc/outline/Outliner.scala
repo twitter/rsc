@@ -132,7 +132,7 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
       }
       if (buf.result.isEmpty) {
         scope.tree.lang match {
-          case ScalaLanguage | UnsupportedLanguage =>
+          case ScalaLanguage | UnknownLanguage =>
             appendParent(env, TptId("AnyRef").withSym(AnyRefClass))
           case JavaLanguage =>
             appendParent(env, TptId("Object").withSym(ObjectClass))
@@ -487,7 +487,7 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
   implicit class BoundedOutlinerOps(bounded: Bounded) {
     def desugaredUbound: Tpt = {
       bounded.lang match {
-        case ScalaLanguage | UnsupportedLanguage =>
+        case ScalaLanguage | UnknownLanguage =>
           bounded.ubound.getOrElse(TptId("Any").withSym(AnyClass))
         case JavaLanguage =>
           bounded.ubound.getOrElse(TptId("Object").withSym(ObjectClass))

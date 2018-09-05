@@ -77,4 +77,4 @@ object Input {
   }
 }
 
-object NoInput extends Input(Paths.get(""), UnsupportedLanguage)
+object NoInput extends Input(Paths.get(""), UnknownLanguage)

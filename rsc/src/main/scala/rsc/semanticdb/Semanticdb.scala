@@ -153,7 +153,7 @@ final class Semanticdb private (
       outline.lang match {
         case ScalaLanguage => l.SCALA
         case JavaLanguage => l.JAVA
-        case UnsupportedLanguage => l.UNKNOWN_LANGUAGE
+        case UnknownLanguage => l.UNKNOWN_LANGUAGE
       }
     }
 
@@ -350,7 +350,7 @@ final class Semanticdb private (
   implicit class BoundedSemanticdbOps(bounded: Bounded) {
     def desugaredLbound: s.Type = {
       bounded.lang match {
-        case ScalaLanguage | UnsupportedLanguage =>
+        case ScalaLanguage | UnknownLanguage =>
           bounded.lbound.getOrElse(TptId("Nothing").withSym(NothingClass)).tpe
         case JavaLanguage =>
           s.NoType
@@ -359,7 +359,7 @@ final class Semanticdb private (
 
     def desugaredUbound: s.Type = {
       bounded.lang match {
-        case ScalaLanguage | UnsupportedLanguage =>
+        case ScalaLanguage | UnknownLanguage =>
           bounded.ubound.getOrElse(TptId("Any").withSym(AnyClass)).tpe
         case JavaLanguage =>
           bounded.ubound.getOrElse(TptId("Object").withSym(ObjectClass)).tpe

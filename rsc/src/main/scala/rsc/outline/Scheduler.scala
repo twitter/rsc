@@ -376,7 +376,7 @@ final class Scheduler private (
       scope :: env
     }
     val sourceEnv = tree.lang match {
-      case ScalaLanguage | UnsupportedLanguage =>
+      case ScalaLanguage | UnknownLanguage =>
         val rootEnv = symtab.scopes(RootPackage) :: env
         val javaLangEnv = wildcardImport(TermSelect(TermId("java"), TermId("lang")), rootEnv)
         val scalaEnv = wildcardImport(TermId("scala"), javaLangEnv)
