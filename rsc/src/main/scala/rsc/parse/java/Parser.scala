@@ -25,6 +25,7 @@ final class Parser private (
     with Params
     with Scanners
     with Sources
+    with Terms
     with Tpts {
   def parse(): Source = {
     try {

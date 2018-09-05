@@ -23,10 +23,10 @@ trait Params {
   private def param(): Param = {
     val start = in.offset
     val mods = this.mods()
-    val tpt = Some(this.tpt())
+    val tpt = Some(paramTpt())
     val id = termId()
     val mods1 = modDims(mods)
-    atPos(start)(Param(mods, id, tpt, None))
+    atPos(start)(Param(mods1, id, tpt, None))
   }
 
   private def typeParam(): TypeParam = {

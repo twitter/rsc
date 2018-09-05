@@ -65,6 +65,8 @@ trait Tpts {
 
   private def arrayTpt(start: Offset, unfinished: Tpt): Tpt = {
     if (in.token == LBRACKET) {
+      accept(LBRACKET)
+      accept(RBRACKET)
       val unfinished1 = atPos(start)(TptArray(unfinished))
       arrayTpt(start, unfinished1)
     } else {
@@ -90,7 +92,7 @@ trait Tpts {
             case unfinished @ TptId(value) =>
               atPos(unfinished.pos)(AmbigId(value))
             case unfinished @ TptSelect(unfinishedQual, unfinishedId @ TptId(value)) =>
-              val ambigId = atPos(tptId.pos)(AmbigId(value))
+              val ambigId = atPos(unfinishedId.pos)(AmbigId(value))
               atPos(unfinished.pos)(AmbigSelect(unfinishedQual, ambigId))
             case other =>
               crash(other)

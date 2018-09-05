@@ -220,7 +220,7 @@ final class Scanner private (val settings: Settings, val reporter: Reporter, val
     while (isHexadecimalDigit(ch)) {
       nextChar()
     }
-    val parsee = lexeme.substring(2)
+    val parsee = lexeme
     val token = {
       ch match {
         case 'l' | 'L' =>
@@ -288,6 +288,7 @@ final class Scanner private (val settings: Settings, val reporter: Reporter, val
           nextChar()
           emit(GTGTEQ, null)
         } else if (ch == '>') {
+          nextChar()
           if (ch == '=') {
             nextChar()
             emit(GTGTGTEQ, null)

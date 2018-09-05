@@ -18,30 +18,31 @@ trait Lits {
   }
 
   private def literal(isNegated: Boolean): Any = {
-    var parsee = in.value
     val value = in.token match {
       case LITCHAR =>
-        parsee.head
+        in.value.head
       case LITINT =>
-        if (isNegated) parsee = "-" + parsee
+        val parsee = if (isNegated) "-" + in.value else in.value
         java.lang.Integer.parseInt(parsee, 10)
       case LITHEXINT =>
-        if (isNegated) parsee = "-" + parsee
-        java.lang.Integer.parseUnsignedInt(parsee, 16)
+        val parsee = in.value.stripPrefix("0x")
+        val result = java.lang.Integer.parseUnsignedInt(parsee, 16)
+        if (isNegated) -result else result
       case LITLONG =>
-        if (isNegated) parsee = "-" + parsee
+        val parsee = if (isNegated) "-" + in.value else in.value
         java.lang.Long.parseLong(parsee, 10)
       case LITHEXLONG =>
-        if (isNegated) parsee = "-" + parsee
-        java.lang.Long.parseUnsignedLong(parsee, 16)
+        val parsee = in.value.stripPrefix("0x")
+        val result = java.lang.Long.parseUnsignedLong(parsee, 16)
+        if (isNegated) -result else result
       case LITFLOAT =>
-        if (isNegated) parsee = "-" + parsee
+        val parsee = if (isNegated) "-" + in.value else in.value
         java.lang.Float.parseFloat(parsee)
       case LITDOUBLE =>
-        if (isNegated) parsee = "-" + parsee
+        val parsee = if (isNegated) "-" + in.value else in.value
         java.lang.Double.parseDouble(parsee)
       case LITSTRING =>
-        parsee
+        in.value
       case TRUE =>
         true
       case FALSE =>
@@ -49,7 +50,7 @@ trait Lits {
       case NULL =>
         null
       case LITSYMBOL =>
-        StdlibSymbol(parsee.stripPrefix("'"))
+        StdlibSymbol(in.value.stripPrefix("'"))
       case _ =>
         reportOffset(in.offset, IllegalLiteral)
         null

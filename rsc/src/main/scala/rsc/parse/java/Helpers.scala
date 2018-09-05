@@ -44,7 +44,14 @@ trait Helpers {
   def inAngles[T](body: => T): T = {
     accept(LT)
     val result = body
-    accept(GT)
+    in.token match {
+      case GTGTGTEQ => in.token = GTGTEQ
+      case GTGTGT => in.token = GTGT
+      case GTGTEQ => in.token = GTEQ
+      case GTGT => in.token = GT
+      case GTEQ => in.token = EQUALS
+      case _ => accept(GT)
+    }
     result
   }
 
@@ -73,23 +80,13 @@ trait Helpers {
   }
 
   def skipParens(): Unit = {
-    ???
-  }
-
-  def stubBraces(): Term = {
-    val start = in.offset
-    skipBraces()
-    val stub = atPos(start)(TermStub())
-    atPos(start)(TermBlock(List(stub)))
-  }
-
-  def stubRhs(): Term = {
-    val start = in.offset
-    while (in.token != SEMI && in.token != EOF) {
+    var plevel = 1
+    accept(LPAREN)
+    while (plevel > 0 && in.token != EOF) {
+      if (in.token == LPAREN) plevel += 1
+      if (in.token == RPAREN) plevel -= 1
       in.nextToken()
     }
-    val stub = atPos(start)(TermStub())
-    atPos(start)(stub)
   }
 
   private def tokenSeparated[T](separator: Int, part: => T): List[T] = {

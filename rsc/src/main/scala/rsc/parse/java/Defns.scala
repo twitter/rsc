@@ -22,17 +22,23 @@ trait Defns {
     val start = mods.pos.start
     val paramss = List(params())
     val mods1 = modThrows(mods)
-    val rhs = stubBraces()
+    val rhs = this.rhs()
     atPos(start)(DefnCtor(mods1, id, paramss, rhs))
   }
 
   private def defnField(mods: Mods, tpt: Tpt, id: TermId): Stat = {
     val start = mods.pos.start
     val mods1 = modDims(mods)
-    accept(EQUALS)
-    val rhs = stubRhs()
+    val rhs = {
+      if (in.token == SEMI) {
+        None
+      } else {
+        accept(EQUALS)
+        Some(this.rhs())
+      }
+    }
     accept(SEMI)
-    atPos(start)(DefnField(mods, id, Some(tpt), Some(rhs)))
+    atPos(start)(DefnField(mods, id, Some(tpt), rhs))
   }
 
   private def defnMethod(mods: Mods, tparams: List[TypeParam], tpt: Tpt, id: TermId): DefnMethod = {
@@ -42,8 +48,8 @@ trait Defns {
     val mods1 = modDims(mods)
     val mods2 = modThrows(mods1)
     val rhs = {
-      if (in.token == RBRACE) {
-        Some(stubBraces())
+      if (in.token == LBRACE) {
+        Some(this.rhs())
       } else {
         accept(SEMI)
         None

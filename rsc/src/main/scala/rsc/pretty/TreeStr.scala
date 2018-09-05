@@ -122,14 +122,26 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
             p.str(defnClass.id)
             apply(paramss)
             p.Prefix(" ").when(postfixMods.trees.nonEmpty)(apply(postfixMods))
-            p.Prefix(" ")(apply(rhs, Expr))
+            rhs match {
+              case TermStub() => p.str(" { ??? }")
+              case rhs => apply(rhs, Expr)
+            }
         }
       case DefnField(mods, id, tpt, rhs) =>
-        apply(mods)
-        apply(id)
-        if (id.isSymbolic) p.str(" ")
-        p.Prefix(": ")(tpt)(apply(_, "", Typ))
-        p.Prefix(" = ")(rhs)(apply(_, "", Expr))
+        l match {
+          case ScalaLanguage =>
+            apply(mods)
+            apply(id)
+            if (id.isSymbolic) p.str(" ")
+            p.Prefix(": ")(tpt)(apply(_, "", Typ))
+            p.Prefix(" = ")(rhs)(apply(_, "", Expr))
+          case JavaLanguage =>
+            apply(mods)
+            p.Suffix(" ")(tpt)(apply(_, "", Typ))
+            apply(id)
+            p.Prefix(" = ")(rhs)(apply(_, "", Expr))
+            p.str(";")
+        }
       case DefnMacro(mods, id, tparams, paramss, ret, rhs) =>
         apply(mods)
         p.str("def ")
@@ -160,7 +172,8 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
             apply(paramss)
             p.Prefix(" ").when(postfixMods.trees.nonEmpty)(apply(postfixMods))
             rhs match {
-              case Some(rhs) => p.Prefix(" ")(apply(rhs, Expr))
+              case Some(TermStub()) => p.str(" { ??? }")
+              case Some(rhs) => apply(rhs, Expr)
               case None => p.str(";")
             }
         }
@@ -176,7 +189,6 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
             p.str("package ")
             p.str(pid)
             p.str(";")
-            p.str(EOL)
             p.str(EOL)
             printStats(stats)
         }
@@ -510,7 +522,15 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
         apply(op, SimpleExpr1)
       case TermApplyPrefix(op, arg) =>
         apply(op, SimpleExpr1)
-        apply(arg, PrefixExpr)
+        def needsParens(term: Term): Boolean = term match {
+          case TermApply(fn, _) => needsParens(fn)
+          case _: TermApplyPrefix => true
+          case TermApplyType(fn, _) => needsParens(fn)
+          case _: TermLit => true
+          case TermSelect(qual, _) => needsParens(qual)
+          case _ => false
+        }
+        p.Parens.when(needsParens(arg))(apply(arg, PrefixExpr))
       case TermApplyType(fun, targs) =>
         apply(fun, SimpleExpr)
         p.Brackets(apply(targs, ", ", Typ))
@@ -709,8 +729,14 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
       case TptLong() =>
         p.str("long")
       case TptParameterize(fun, targs) =>
-        apply(fun, SimpleTyp)
-        p.Brackets(apply(targs, ", ", Typ))
+        l match {
+          case ScalaLanguage =>
+            apply(fun, SimpleTyp)
+            p.Brackets(apply(targs, ", ", Typ))
+          case JavaLanguage =>
+            apply(fun, SimpleTyp)
+            p.Angles(apply(targs, ", ", Typ))
+        }
       case TptParameterizeInfix(lhs, op, rhs) =>
         apply(lhs, InfixTyp(op))
         p.str(" ")
@@ -754,9 +780,16 @@ class TreeStr(p: Printer, l: SupportedLanguage) {
       case TptVoid() =>
         p.str("void")
       case TptWildcard(lbound, ubound) =>
-        p.str("_")
-        p.Prefix(" >: ")(lbound)(apply(_, ""))
-        p.Prefix(" <: ")(ubound)(apply(_, ""))
+        l match {
+          case ScalaLanguage =>
+            p.str("_")
+            p.Prefix(" >: ")(lbound)(apply(_, ""))
+            p.Prefix(" <: ")(ubound)(apply(_, ""))
+          case JavaLanguage =>
+            p.str("?")
+            p.Prefix(" extends ")(lbound)(apply(_, ""))
+            p.Prefix(" supet ")(ubound)(apply(_, ""))
+        }
       case TptWildcardExistential(_, tpt) =>
         apply(tpt, Typ)
       case TptWith(tpts) =>
