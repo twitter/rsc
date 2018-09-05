@@ -27,7 +27,12 @@ trait Defns {
   }
 
   private def defnField(mods: Mods, tpt: Tpt, id: TermId): Stat = {
-    ???
+    val start = mods.pos.start
+    val mods1 = modDims(mods)
+    accept(EQUALS)
+    val rhs = stubRhs()
+    accept(SEMI)
+    atPos(start)(DefnField(mods, id, Some(tpt), Some(rhs)))
   }
 
   private def defnMethod(mods: Mods, tparams: List[TypeParam], tpt: Tpt, id: TermId): DefnMethod = {

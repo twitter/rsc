@@ -83,6 +83,15 @@ trait Helpers {
     atPos(start)(TermBlock(List(stub)))
   }
 
+  def stubRhs(): Term = {
+    val start = in.offset
+    while (in.token != SEMI && in.token != EOF) {
+      in.nextToken()
+    }
+    val stub = atPos(start)(TermStub())
+    atPos(start)(stub)
+  }
+
   private def tokenSeparated[T](separator: Int, part: => T): List[T] = {
     val ts = List.newBuilder[T]
     ts += part
