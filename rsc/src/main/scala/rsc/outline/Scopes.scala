@@ -25,6 +25,178 @@ sealed abstract class Scope(val sym: Symbol) extends Work {
   }
 }
 
+// ============ TWO FOUNDATIONAL SCOPES ============
+
+sealed trait IndexScope extends Scope {
+  def _index: Index
+
+  val _loaded: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
+  def _load(name: Name): Symbol = {
+    val loadedSym = _loaded.get(name)
+    if (loadedSym != null) {
+      loadedSym
+    } else {
+      val loadedSym = loadMember(sym, name)
+      _loaded.put(name, loadedSym)
+      loadedSym
+    }
+  }
+
+  private def loadMember(owner: Symbol, name: Name): Symbol = {
+    val declSym = loadDecl(owner, name)
+    if (declSym != NoSymbol) {
+      return declSym
+    }
+
+    val info = _index(owner)
+
+    (info.parents ++ info.self).foreach { parent =>
+      val memberSym = loadDecl(parent, name)
+      if (memberSym != NoSymbol) {
+        return memberSym
+      }
+    }
+
+    if (info.isPackage) {
+      val packageObjectSym = TermSymbol(owner, "package")
+      if (_index.contains(packageObjectSym)) {
+        val packageObjectMemberSym = loadMember(packageObjectSym, name)
+        if (_index.contains(packageObjectMemberSym)) {
+          return packageObjectMemberSym
+        }
+      }
+    }
+
+    NoSymbol
+  }
+
+  private def loadDecl(owner: Symbol, name: Name): Symbol = {
+    val declSym = {
+      name match {
+        case TermName(value) =>
+          TermSymbol(owner, value)
+        case TypeName(value) =>
+          TypeSymbol(owner, value)
+      }
+    }
+    if (_index.contains(declSym)) {
+      return declSym
+    }
+
+    name match {
+      case TermName(value) =>
+        val packageSym = PackageSymbol(owner, value)
+        if (_index.contains(packageSym)) {
+          return packageSym
+        }
+
+        val javaDeclSym = TypeSymbol(owner, value)
+        if (_index.contains(javaDeclSym) &&
+            _index(javaDeclSym).isJava) {
+          return javaDeclSym
+        }
+      case _ =>
+        ()
+    }
+
+    NoSymbol
+  }
+}
+
+sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
+  val _storage: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
+
+  override def enter(name: Name, sym: Symbol): Symbol = {
+    if (status.isPending) {
+      sym match {
+        case NoSymbol =>
+          crash(name)
+        case _ =>
+          val existing = _storage.get(name)
+          if (existing != null) {
+            val actual = MultiSymbol(existing, sym)
+            _storage.put(name, actual)
+            existing
+          } else {
+            _storage.put(name, sym)
+            NoSymbol
+          }
+      }
+    } else {
+      crash(this)
+    }
+  }
+
+  override def resolve(name: Name): Resolution = {
+    if (status.isSucceeded) {
+      val result = _storage.get(name)
+      if (result != null) {
+        FoundResolution(result)
+      } else {
+        MissingResolution
+      }
+    } else {
+      super.resolve(name)
+    }
+  }
+}
+
+// ============ INDEX SCOPES ============
+
+final class ClasspathScope private (sym: Symbol, val _index: Index)
+    extends Scope(sym)
+    with IndexScope {
+  override def enter(name: Name, sym: Symbol): Symbol = {
+    crash(this)
+  }
+
+  override def resolve(name: Name): Resolution = {
+    _load(name) match {
+      case NoSymbol =>
+        MissingResolution
+      case sym =>
+        FoundResolution(sym)
+    }
+  }
+}
+
+object ClasspathScope {
+  def apply(sym: Symbol, index: Index): IndexScope = {
+    new ClasspathScope(sym, index)
+  }
+}
+
+final class PackageScope private (sym: Symbol, val _index: Index)
+    extends SourceScope(sym)
+    with IndexScope {
+  override def resolve(name: Name): Resolution = {
+    super.resolve(name) match {
+      case MissingResolution =>
+        if (_index.contains(sym)) {
+          val loadedSym = _load(name)
+          loadedSym match {
+            case NoSymbol =>
+              MissingResolution
+            case loadedSym =>
+              FoundResolution(loadedSym)
+          }
+        } else {
+          MissingResolution
+        }
+      case resolution =>
+        resolution
+    }
+  }
+}
+
+object PackageScope {
+  def apply(sym: Symbol, index: Index): PackageScope = {
+    new PackageScope(sym, index)
+  }
+}
+
+// ============ SOURCE SCOPES ============
+
 final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
   var _parent: Scope = null
 
@@ -114,172 +286,6 @@ object ImporterScope {
   }
 }
 
-sealed trait IndexScope extends Scope {
-  def _index: Index
-
-  val _loaded: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
-  def _load(name: Name): Symbol = {
-    val loadedSym = _loaded.get(name)
-    if (loadedSym != null) {
-      loadedSym
-    } else {
-      val loadedSym = loadMember(sym, name)
-      _loaded.put(name, loadedSym)
-      loadedSym
-    }
-  }
-
-  private def loadMember(owner: Symbol, name: Name): Symbol = {
-    val declSym = loadDecl(owner, name)
-    if (declSym != NoSymbol) {
-      return declSym
-    }
-
-    val info = _index(owner)
-
-    (info.parents ++ info.self).foreach { parent =>
-      val memberSym = loadDecl(parent, name)
-      if (memberSym != NoSymbol) {
-        return memberSym
-      }
-    }
-
-    if (info.isPackage) {
-      val packageObjectSym = TermSymbol(owner, "package")
-      if (_index.contains(packageObjectSym)) {
-        val packageObjectMemberSym = loadMember(packageObjectSym, name)
-        if (_index.contains(packageObjectMemberSym)) {
-          return packageObjectMemberSym
-        }
-      }
-    }
-
-    NoSymbol
-  }
-
-  private def loadDecl(owner: Symbol, name: Name): Symbol = {
-    val declSym = {
-      name match {
-        case TermName(value) =>
-          TermSymbol(owner, value)
-        case TypeName(value) =>
-          TypeSymbol(owner, value)
-      }
-    }
-    if (_index.contains(declSym)) {
-      return declSym
-    }
-
-    name match {
-      case TermName(value) =>
-        val packageSym = PackageSymbol(owner, value)
-        if (_index.contains(packageSym)) {
-          return packageSym
-        }
-
-        val javaDeclSym = TypeSymbol(owner, value)
-        if (_index.contains(javaDeclSym) &&
-            _index(javaDeclSym).isJava) {
-          return javaDeclSym
-        }
-      case _ =>
-        ()
-    }
-
-    NoSymbol
-  }
-}
-
-final class ClasspathScope private (sym: Symbol, val _index: Index)
-    extends Scope(sym)
-    with IndexScope {
-  override def enter(name: Name, sym: Symbol): Symbol = {
-    crash(this)
-  }
-
-  override def resolve(name: Name): Resolution = {
-    _load(name) match {
-      case NoSymbol =>
-        MissingResolution
-      case sym =>
-        FoundResolution(sym)
-    }
-  }
-}
-
-object ClasspathScope {
-  def apply(sym: Symbol, index: Index): IndexScope = {
-    new ClasspathScope(sym, index)
-  }
-}
-
-sealed abstract class StorageScope(sym: Symbol) extends Scope(sym) {
-  val _storage: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
-
-  override def enter(name: Name, sym: Symbol): Symbol = {
-    if (status.isPending) {
-      sym match {
-        case NoSymbol =>
-          crash(name)
-        case _ =>
-          val existing = _storage.get(name)
-          if (existing != null) {
-            val actual = MultiSymbol(existing, sym)
-            _storage.put(name, actual)
-            existing
-          } else {
-            _storage.put(name, sym)
-            NoSymbol
-          }
-      }
-    } else {
-      crash(this)
-    }
-  }
-
-  override def resolve(name: Name): Resolution = {
-    if (status.isSucceeded) {
-      val result = _storage.get(name)
-      if (result != null) {
-        FoundResolution(result)
-      } else {
-        MissingResolution
-      }
-    } else {
-      super.resolve(name)
-    }
-  }
-}
-
-final class PackageScope private (sym: Symbol, val _index: Index)
-    extends StorageScope(sym)
-    with IndexScope {
-  override def resolve(name: Name): Resolution = {
-    super.resolve(name) match {
-      case MissingResolution =>
-        if (_index.contains(sym)) {
-          val loadedSym = _load(name)
-          loadedSym match {
-            case NoSymbol =>
-              MissingResolution
-            case loadedSym =>
-              FoundResolution(loadedSym)
-          }
-        } else {
-          MissingResolution
-        }
-      case resolution =>
-        resolution
-    }
-  }
-}
-
-object PackageScope {
-  def apply(sym: Symbol, index: Index): PackageScope = {
-    new PackageScope(sym, index)
-  }
-}
-
 final class PackageObjectScope private (
     sym: Symbol,
     tree: DefnPackageObject,
@@ -292,7 +298,23 @@ final class PackageObjectScope private (
   }
 }
 
-class TemplateScope protected (sym: Symbol, val tree: DefnTemplate) extends StorageScope(sym) {
+final class ParamScope private (owner: Symbol) extends SourceScope(owner)
+
+object ParamScope {
+  def apply(owner: Symbol): ParamScope = {
+    new ParamScope(owner)
+  }
+}
+
+final class SelfScope private (owner: Symbol) extends SourceScope(owner)
+
+object SelfScope {
+  def apply(owner: Symbol): SelfScope = {
+    new SelfScope(owner)
+  }
+}
+
+class TemplateScope protected (sym: Symbol, val tree: DefnTemplate) extends SourceScope(sym) {
   var _parents: List[Scope] = null
   var _self: List[Scope] = null
   var _env: Env = null
@@ -366,23 +388,7 @@ object TemplateScope {
   }
 }
 
-final class ParamScope private (owner: Symbol) extends StorageScope(owner)
-
-object ParamScope {
-  def apply(owner: Symbol): ParamScope = {
-    new ParamScope(owner)
-  }
-}
-
-final class SelfScope private (owner: Symbol) extends StorageScope(owner)
-
-object SelfScope {
-  def apply(owner: Symbol): SelfScope = {
-    new SelfScope(owner)
-  }
-}
-
-final class TypeParamScope private (owner: Symbol) extends StorageScope(owner)
+final class TypeParamScope private (owner: Symbol) extends SourceScope(owner)
 
 object TypeParamScope {
   def apply(owner: Symbol): TypeParamScope = {
