@@ -12,6 +12,7 @@ sealed trait Resolution extends Pretty with Product {
 
 final case class BlockedResolution(work: Work) extends Resolution
 sealed trait FailedResolution extends Resolution
+case object AmbiguousResolution extends FailedResolution
 case object MissingResolution extends FailedResolution
 case object ErrorResolution extends FailedResolution
 final case class FoundResolution(sym: Symbol) extends Resolution

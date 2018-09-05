@@ -229,6 +229,37 @@ final case class UnboundWildcard(pos: Position) extends Message {
 
 // ============ TYPECHECKER ============
 
+final case class AmbiguousMember(env: Env, id: Id) extends Message {
+  def sev = ErrorSeverity
+  def pos = id.point
+  def text = {
+    val qual = env._scopes.head.sym.init
+    id match {
+      case AmbigId(value) => s"ambiguous: $qual.$value"
+      case AnonId() => crash(id)
+      case CtorId() => crash(id)
+      case PatId(value) => s"ambiguous: value $qual.$value"
+      case TermId(value) => s"ambiguous: value $qual.$value"
+      case TptId(value) => s"ambiguous: type $qual.$value"
+    }
+  }
+}
+
+final case class AmbiguousId(id: Id) extends Message {
+  def sev = ErrorSeverity
+  def pos = id.point
+  def text = {
+    id match {
+      case AmbigId(value) => s"ambiguous: $value"
+      case AnonId() => crash(id)
+      case CtorId() => crash(id)
+      case PatId(value) => s"ambiguous: value $value"
+      case TermId(value) => s"ambiguous: value $value"
+      case TptId(value) => s"ambiguous: type $value"
+    }
+  }
+}
+
 final case class IllegalCyclicReference(work: Work) extends Message {
   def sev = ErrorSeverity
   def pos = {

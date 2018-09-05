@@ -322,13 +322,13 @@ final class Semanticdb private (
             case outline if outline.hasPrivateThis =>
               s.PrivateThisAccess()
             case outline if outline.hasPrivateWithin =>
-              s.PrivateWithinAccess(outline.within.get.sym)
+              s.PrivateWithinAccess(outline.within.get.id.sym)
             case outline if outline.hasProtected =>
               s.ProtectedAccess()
             case outline if outline.hasProtectedThis =>
               s.ProtectedThisAccess()
             case outline if outline.hasProtectedWithin =>
-              s.ProtectedWithinAccess(outline.within.get.sym)
+              s.ProtectedWithinAccess(outline.within.get.id.sym)
             case outline if outline.hasPublic =>
               s.PublicAccess()
             case _ =>

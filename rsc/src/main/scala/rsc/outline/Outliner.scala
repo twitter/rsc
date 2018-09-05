@@ -176,6 +176,10 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
         case NoSymbol =>
           val resolution = resolver
           resolution match {
+            case AmbiguousResolution =>
+              if (env == startingEnv) reporter.append(AmbiguousId(id))
+              else reporter.append(AmbiguousMember(env, id))
+              ErrorResolution
             case BlockedResolution(_) =>
               resolution
             case MissingResolution =>
@@ -240,7 +244,7 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
   private def apply(env: Env, sketch: Sketch): Unit = {
     sketch.tree match {
       case tpt: Tpt => apply(env, sketch, tpt)
-      case within: AmbigId => apply(env, sketch, within)
+      case within: ModWithin => apply(env, sketch, within)
       case other => crash(other)
     }
     if (sketch.status.isPending) {
@@ -293,6 +297,10 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
             case id: AmbigId =>
               val resolution = env.resolve(id.value)
               resolution match {
+                case AmbiguousResolution =>
+                  if (env == startingEnv) reporter.append(AmbiguousId(id))
+                  else reporter.append(AmbiguousMember(env, id))
+                  resolution
                 case _: BlockedResolution =>
                   resolution
                 case _: FailedResolution =>
@@ -323,6 +331,10 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
             case id: NamedId =>
               val resolution = env.resolve(id.name)
               resolution match {
+                case AmbiguousResolution =>
+                  if (env == startingEnv) reporter.append(AmbiguousId(id))
+                  else reporter.append(AmbiguousMember(env, id))
+                  resolution
                 case _: BlockedResolution =>
                   resolution
                 case _: FailedResolution =>
@@ -364,6 +376,9 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
                 }
               }
               resolution match {
+                case AmbiguousResolution =>
+                  reporter.append(AmbiguousId(qual))
+                  resolution
                 case _: BlockedResolution =>
                   resolution
                 case _: FailedResolution =>
@@ -410,6 +425,21 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
         else ()
       case _: FoundResolution =>
         ()
+    }
+  }
+
+  private def apply(env: Env, sketch: Sketch, within: ModWithin): Unit = {
+    val resolution = env.resolveWithin(within.id.value)
+    resolution match {
+      case BlockedResolution(dep) =>
+        if (sketch.status.isPending) sketch.block(dep)
+        else ()
+      case _: FailedResolution =>
+        reporter.append(UnboundId(within.id))
+        if (sketch.status.isPending) sketch.fail()
+        else ()
+      case FoundResolution(sym) =>
+        within.id.sym = sym
     }
   }
 

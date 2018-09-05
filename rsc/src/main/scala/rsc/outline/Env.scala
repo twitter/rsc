@@ -64,25 +64,44 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
   }
 
   def resolve(value: String): Resolution = {
-    @tailrec def loop(_scopes: List[Scope]): Resolution = {
-      _scopes match {
-        case (head: PackageScope) :: _ =>
-          val sym = head.sym.ownerChain.find(_.desc.value == value)
-          sym match {
-            case Some(foundSym) => FoundResolution(foundSym)
-            case None => MissingResolution
-          }
-        case (head: TemplateScope) :: tail =>
-          val found = head.tree.id.value == value
-          if (found) FoundResolution(head.sym)
-          else loop(tail)
-        case _ :: tail =>
-          loop(tail)
-        case Nil =>
-          MissingResolution
-      }
+    resolve(TermName(value)) match {
+      case blocked: BlockedResolution =>
+        blocked
+      case MissingResolution =>
+        resolve(TypeName(value)) match {
+          case blocked: BlockedResolution =>
+            blocked
+          case MissingResolution =>
+            MissingResolution
+          case failed: FailedResolution =>
+            failed
+          case found: FoundResolution =>
+            found
+        }
+      case failed: FailedResolution =>
+        failed
+      case found: FoundResolution =>
+        resolve(TypeName(value)) match {
+          case blocked: BlockedResolution =>
+            blocked
+          case MissingResolution =>
+            found
+          case failed: FailedResolution =>
+            failed
+          case found: FoundResolution =>
+            AmbiguousResolution
+        }
     }
-    loop(_scopes)
+  }
+
+  def resolveSuper(): Resolution = {
+    // FIXME: https://github.com/twitter/rsc/issues/96
+    ???
+  }
+
+  def resolveSuper(value: String): Resolution = {
+    // FIXME: https://github.com/twitter/rsc/issues/96
+    ???
   }
 
   def resolveThis(): Resolution = {
@@ -115,14 +134,26 @@ sealed class Env protected (val _scopes: List[Scope]) extends Pretty {
     loop(_scopes)
   }
 
-  def resolveSuper(): Resolution = {
-    // FIXME: https://github.com/twitter/rsc/issues/96
-    ???
-  }
-
-  def resolveSuper(value: String): Resolution = {
-    // FIXME: https://github.com/twitter/rsc/issues/96
-    ???
+  def resolveWithin(value: String): Resolution = {
+    @tailrec def loop(_scopes: List[Scope]): Resolution = {
+      _scopes match {
+        case (head: PackageScope) :: _ =>
+          val sym = head.sym.ownerChain.find(_.desc.value == value)
+          sym match {
+            case Some(foundSym) => FoundResolution(foundSym)
+            case None => MissingResolution
+          }
+        case (head: TemplateScope) :: tail =>
+          val found = head.tree.id.value == value
+          if (found) FoundResolution(head.sym)
+          else loop(tail)
+        case _ :: tail =>
+          loop(tail)
+        case Nil =>
+          MissingResolution
+      }
+    }
+    loop(_scopes)
   }
 
   override def printStr(p: Printer): Unit = {

@@ -12,6 +12,8 @@ object PrettyResolution {
         // FIXME: https://github.com/twitter/rsc/issues/104
         if (work != null) PrettyWork.abbr(p, work)
         else p.str("null")
+      case AmbiguousResolution =>
+        p.str("a")
       case MissingResolution =>
         p.str("m")
       case ErrorResolution =>

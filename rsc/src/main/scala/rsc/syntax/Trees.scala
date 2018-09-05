@@ -224,9 +224,9 @@ final case class Init(tpt: Tpt, argss: List[List[Term]]) extends Parent with Ter
 
 sealed trait Mod extends Tree
 
-sealed trait ModAccess extends Mod
-
 final case class ModAbstract() extends Mod
+
+sealed trait ModAccess extends Mod
 
 final case class ModAnnotation(init: Init) extends Mod
 
@@ -262,13 +262,13 @@ final case class ModPrivate() extends ModAccess
 
 final case class ModPrivateThis() extends ModAccess
 
-final case class ModPrivateWithin(id: AmbigId) extends ModAccess
+final case class ModPrivateWithin(id: AmbigId) extends ModWithin
 
 final case class ModProtected() extends ModAccess
 
 final case class ModProtectedThis() extends ModAccess
 
-final case class ModProtectedWithin(id: AmbigId) extends ModAccess
+final case class ModProtectedWithin(id: AmbigId) extends ModWithin
 
 final case class ModPublic() extends ModAccess
 
@@ -291,6 +291,10 @@ final case class ModVal() extends Mod
 final case class ModVar() extends Mod
 
 final case class ModVolatile() extends Mod
+
+sealed trait ModWithin extends ModAccess {
+  def id: AmbigId
+}
 
 sealed trait Modded extends Tree {
   def mods: Mods
@@ -327,10 +331,10 @@ sealed trait Modded extends Tree {
   def hasVar: Boolean = mods.trees.exists(_.isInstanceOf[ModVar])
   def hasVolatile: Boolean = mods.trees.exists(_.isInstanceOf[ModVolatile])
   def throws: List[ModThrows] = mods.trees.collect { case x: ModThrows => x }
-  def within: Option[AmbigId] = {
+  def within: Option[ModWithin] = {
     mods.trees.collectFirst {
-      case ModPrivateWithin(id) => id
-      case ModProtectedWithin(id) => id
+      case mod: ModPrivateWithin => mod
+      case mod: ModProtectedWithin => mod
     }
   }
 }
