@@ -23,7 +23,7 @@ trait Imports {
     def loop(mods: Mods, qual: TermPath): Importer = {
       val start = qual.pos.start
       if (in.token == ID) {
-        val tree = someId()
+        val tree = ambigId()
         if (in.token == DOT) {
           in.nextToken()
           val id = atPos(tree.pos)(TermId(tree.value))
@@ -59,20 +59,20 @@ trait Imports {
   private def importee(): Importee = {
     val start = in.offset
     if (in.token == ID) {
-      val id1 = someId()
+      val id1 = ambigId()
       if (in.token != ARROW) {
         atPos(id1.pos)(ImporteeName(id1))
       } else {
         val start = id1.pos.start
         in.nextToken()
         if (in.token == ID) {
-          val id2 = someId()
+          val id2 = ambigId()
           atPos(start)(ImporteeRename(id1, id2))
         } else if (in.token == USCORE) {
           in.nextToken()
           atPos(start)(ImporteeUnimport(id1))
         } else {
-          val idErr = errorSomeId()
+          val idErr = errorAmbigId()
           atPos(start)(ImporteeRename(id1, idErr))
         }
       }
@@ -81,7 +81,7 @@ trait Imports {
       in.nextToken()
       atPos(start)(ImporteeWildcard())
     } else {
-      val idErr = errorSomeId()
+      val idErr = errorAmbigId()
       atPos(start)(ImporteeName(idErr))
     }
   }

@@ -26,12 +26,12 @@ trait Paths {
     }
   }
 
-  def anonId(): AnonId = {
-    atPos(in.offset)(AnonId())
+  def ambigId(): AmbigId = {
+    atPos(in.offset)(AmbigId(value()))
   }
 
-  def someId(): AmbigId = {
-    atPos(in.offset)(AmbigId(value()))
+  def anonId(): AnonId = {
+    atPos(in.offset)(AnonId())
   }
 
   def termId(): TermId = {
@@ -139,7 +139,7 @@ trait Paths {
           val qual = atPos(firstId.pos)(AmbigId(firstId.value))
           val mix = {
             if (in.token == LBRACKET) {
-              inBrackets(atPos(in.offset)(someId()))
+              inBrackets(atPos(in.offset)(ambigId()))
             } else {
               anonId()
             }
@@ -160,7 +160,7 @@ trait Paths {
       val qual = anonId()
       val mix = {
         if (in.token == LBRACKET) {
-          inBrackets(atPos(in.offset)(someId()))
+          inBrackets(atPos(in.offset)(ambigId()))
         } else {
           anonId()
         }
@@ -171,8 +171,8 @@ trait Paths {
     }
   }
 
-  def errorSomeId(): AmbigId = {
-    someId()
+  def errorAmbigId(): AmbigId = {
+    ambigId()
   }
 
   def errorTermId(): TermId = {

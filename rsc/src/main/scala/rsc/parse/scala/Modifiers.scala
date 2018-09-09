@@ -115,7 +115,7 @@ trait Modifiers {
                     in.nextToken()
                     atPos(start)(ModPrivateThis())
                   } else {
-                    atPos(start)(ModPrivateWithin(someId()))
+                    atPos(start)(ModPrivateWithin(ambigId()))
                   }
                 }
               } else {
@@ -129,7 +129,7 @@ trait Modifiers {
                     in.nextToken()
                     atPos(start)(ModProtectedThis())
                   } else {
-                    atPos(start)(ModProtectedWithin(someId()))
+                    atPos(start)(ModProtectedWithin(ambigId()))
                   }
                 }
               } else {
