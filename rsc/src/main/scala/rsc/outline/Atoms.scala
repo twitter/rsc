@@ -16,7 +16,7 @@ final case class AmbigAtom(id: AmbigId) extends Atom
 
 final case class NamedAtom(id: NamedId) extends Atom
 
-final case class SuperAtom(id: ThisId) extends Atom
+final case class SuperAtom(id: SuperId) extends Atom
 
 final case class ThisAtom(id: ThisId) extends Atom
 

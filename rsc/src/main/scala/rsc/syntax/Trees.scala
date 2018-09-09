@@ -29,7 +29,7 @@ sealed trait Tree extends Pretty with Product {
   }
 }
 
-final case class AmbigId(value: String) extends AmbigPath with ThisId {
+final case class AmbigId(value: String) extends AmbigPath with SuperId with ThisId {
   def id = this
 }
 
@@ -37,7 +37,7 @@ sealed trait AmbigPath extends Path
 
 final case class AmbigSelect(qual: Path, id: AmbigId) extends AmbigPath
 
-final case class AnonId() extends Id with ThisId with UnambigId
+final case class AnonId() extends Id with SuperId with ThisId with UnambigId
 
 sealed trait Bounded extends Tree {
   def lbound: Option[Tpt]
@@ -423,6 +423,8 @@ final case class Self(id: UnambigId, tpt: Option[Tpt]) extends Stat with TermOut
 
 final case class Source(stats: List[Stat]) extends Tree
 
+sealed trait SuperId extends Id
+
 sealed trait Stat extends Tree
 
 sealed trait Term extends Stat
@@ -491,7 +493,7 @@ final case class TermSelect(qual: Term, id: TermId) extends TermPath
 
 final case class TermStub() extends Term
 
-final case class TermSuper(qual: ThisId, mix: ThisId) extends TermPath {
+final case class TermSuper(qual: ThisId, mix: SuperId) extends TermPath {
   def id = mix
 }
 
