@@ -60,12 +60,7 @@ class Compiler(val settings: Settings, val reporter: Reporter)
         return
       }
       if (reporter.problems.nonEmpty) {
-        val numProblems = reporter.problems.length
-        if (numProblems == 1) println("one error found")
-        else if (numProblems == 2) println("two errors found")
-        else if (numProblems == 3) println("three errors found")
-        else if (numProblems == 4) println("four errors found")
-        else println(s"$numProblems errors found")
+        reporter.append(ErrorSummary(reporter.problems))
         return
       }
     }
