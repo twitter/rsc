@@ -66,9 +66,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     }
   }
 
-  case class Index(
-      infos: Map[String, SymbolInformation],
-      anchors: Map[String, String])
+  case class Index(infos: Map[String, SymbolInformation], anchors: Map[String, String])
 
   private def load(path: Path): Index = {
     val infos = mutable.Map[String, SymbolInformation]()
@@ -108,9 +106,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     Index(infos1.map(info => info.symbol -> info).toMap, index.anchors)
   }
 
-  private def highlevelPatch(
-      index: Index,
-      info: SymbolInformation): SymbolInformation = {
+  private def highlevelPatch(index: Index, info: SymbolInformation): SymbolInformation = {
     val indexOps = new IndexOps(index)
     import indexOps._
     val stdlib = new rsc.semantics.Stdlib {}

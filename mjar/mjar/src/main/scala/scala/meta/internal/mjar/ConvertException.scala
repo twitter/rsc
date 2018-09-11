@@ -5,8 +5,7 @@ package scala.meta.internal.mjar
 import java.io.File.pathSeparator
 import java.nio.file._
 
-case class ConvertException(message: String, cause: Throwable)
-    extends Exception(message, cause)
+case class ConvertException(message: String, cause: Throwable) extends Exception(message, cause)
 
 object ConvertException {
   def apply(in: List[Path], sym: String, cause: Throwable): ConvertException = {

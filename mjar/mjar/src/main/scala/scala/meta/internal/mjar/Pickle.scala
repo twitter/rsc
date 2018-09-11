@@ -385,11 +385,11 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
               TypeName(gensym.wildcardExistential())
             } else {
               sinfo.kind match {
-                case k.LOCAL | k.FIELD | k.METHOD | k.CONSTRUCTOR | k.MACRO |
-                    k.PARAMETER | k.SELF_PARAMETER =>
+                case k.LOCAL | k.FIELD | k.METHOD | k.CONSTRUCTOR | k.MACRO | k.PARAMETER |
+                    k.SELF_PARAMETER =>
                   TermName(ssym.desc.value.encode)
-                case k.TYPE | k.TYPE_PARAMETER | k.OBJECT | k.PACKAGE_OBJECT |
-                    k.CLASS | k.TRAIT | k.INTERFACE =>
+                case k.TYPE | k.TYPE_PARAMETER | k.OBJECT | k.PACKAGE_OBJECT | k.CLASS | k.TRAIT |
+                    k.INTERFACE =>
                   TypeName(ssym.desc.value.encode)
                 case _ =>
                   crash(sinfo.toProtoString)
@@ -571,8 +571,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       } else if (ssym.isTrait) {
         sinfo.signature match {
           case s.ClassSignature(_, _, _, ds) =>
-            ds.symbols.forall(sym =>
-              sym.isDeferred || sym.isAbstractType || sym.isAliasType)
+            ds.symbols.forall(sym => sym.isDeferred || sym.isAbstractType || sym.isAliasType)
           case _ =>
             false
         }

@@ -6,10 +6,7 @@ import java.io.File.pathSeparator
 import java.nio.file._
 import rsc.checkbase._
 
-final case class Settings(
-    cp: List[Path] = Nil,
-    ins: List[Path] = Nil,
-    quiet: Boolean = false)
+final case class Settings(cp: List[Path] = Nil, ins: List[Path] = Nil, quiet: Boolean = false)
     extends SettingsBase
 
 // FIXME: https://github.com/twitter/rsc/issues/166

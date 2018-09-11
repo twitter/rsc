@@ -4,10 +4,7 @@ package rsc.util
 
 import rsc.lexis._
 
-final case class CrashException(
-    pos: Position,
-    message: String,
-    cause: Throwable)
+final case class CrashException(pos: Position, message: String, cause: Throwable)
     extends Exception(message, cause)
 
 object CrashException {

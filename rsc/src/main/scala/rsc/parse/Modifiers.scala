@@ -48,9 +48,7 @@ trait Modifiers {
     atPos(start)(Mods(annots(skipNewLines = false, exactlyOneArglist = false)))
   }
 
-  private def annots(
-      skipNewLines: Boolean,
-      exactlyOneArglist: Boolean): List[Mod] = {
+  private def annots(skipNewLines: Boolean, exactlyOneArglist: Boolean): List[Mod] = {
     if (skipNewLines) {
       newLineOpt()
     }

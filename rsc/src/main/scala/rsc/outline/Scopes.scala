@@ -306,8 +306,7 @@ final class PackageObjectScope private (
   }
 }
 
-class TemplateScope protected (sym: Symbol, val tree: DefnTemplate)
-    extends StorageScope(sym) {
+class TemplateScope protected (sym: Symbol, val tree: DefnTemplate) extends StorageScope(sym) {
   var _parents: List[Scope] = null
   var _self: List[Scope] = null
   var _env: Env = null

@@ -313,10 +313,7 @@ trait Terms {
     simpleTermRest(start, unfinished, canApply = canApply)
   }
 
-  private def simpleTermRest(
-      start: Offset,
-      unfinished: Term,
-      canApply: Boolean): Term = {
+  private def simpleTermRest(start: Offset, unfinished: Term, canApply: Boolean): Term = {
     if (canApply) newLineOptWhenFollowedBy(LBRACE)
     in.token match {
       case DOT =>
@@ -344,10 +341,7 @@ trait Terms {
     }
   }
 
-  private def lambdaRest(
-      start: Offset,
-      unfinished: Term,
-      location: Location): TermFunction = {
+  private def lambdaRest(start: Offset, unfinished: Term, location: Location): TermFunction = {
     accept(ARROW)
     val unfinishedReinterpretedAsParams = {
       object ParamLike {

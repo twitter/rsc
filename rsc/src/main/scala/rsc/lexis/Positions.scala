@@ -4,10 +4,7 @@ package rsc.lexis
 
 import rsc.pretty._
 
-sealed class Position protected (
-    val input: Input,
-    val start: Offset,
-    val end: Offset)
+sealed class Position protected (val input: Input, val start: Offset, val end: Offset)
     extends Pretty {
   def startLine: Int = input.offsetToLine(start)
   def startColumn: Int = start - input.lineToOffset(startLine)

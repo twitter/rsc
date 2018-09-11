@@ -6,8 +6,7 @@ import scala.meta.internal.scalasig._
 import scala.meta.scalasig._
 import scala.meta.scalasig.{highlevel => h}
 
-case class Scalasig(name: String, source: String, entries: Array[Entry])
-    extends Pretty {
+case class Scalasig(name: String, source: String, entries: Array[Entry]) extends Pretty {
   def toHighlevel: h.Scalasig = {
     try {
       ScalasigHighlevel(this)

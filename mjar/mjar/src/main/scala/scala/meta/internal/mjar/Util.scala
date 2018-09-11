@@ -5,8 +5,7 @@ package scala.meta.internal.mjar
 import scala.compat.Platform.EOL
 
 trait Util {
-  case class CrashException(message: String, cause: Throwable)
-      extends Exception(message, cause)
+  case class CrashException(message: String, cause: Throwable) extends Exception(message, cause)
 
   def crash(): Nothing = {
     crash(null, null)

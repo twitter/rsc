@@ -41,8 +41,7 @@ class Printer {
     else str("null")
   }
 
-  def rep[T](pre: String, xs: Iterable[T], sep: String, suf: String)(
-      f: T => Unit): Unit = {
+  def rep[T](pre: String, xs: Iterable[T], sep: String, suf: String)(f: T => Unit): Unit = {
     if (xs.nonEmpty) {
       append(pre)
       rep(xs, sep)(f)

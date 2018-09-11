@@ -5,8 +5,7 @@ package scala.meta.scalasig
 import scala.meta.scalasig.{highlevel => h}
 import scala.meta.scalasig.{lowlevel => l}
 
-case class ClassfileReadException(binary: Binary, cause: Throwable)
-    extends Exception {
+case class ClassfileReadException(binary: Binary, cause: Throwable) extends Exception {
   override def getMessage: String = {
     val details = s"${cause.getClass.getName}: ${cause.getMessage}"
     "failed to read classfile from ${binary}: $details"
@@ -14,8 +13,7 @@ case class ClassfileReadException(binary: Binary, cause: Throwable)
   setStackTrace(cause.getStackTrace)
 }
 
-case class ClassfileWriteException(classfile: Classfile, cause: Throwable)
-    extends Exception {
+case class ClassfileWriteException(classfile: Classfile, cause: Throwable) extends Exception {
   override def getMessage: String = {
     val details = s"${cause.getClass.getName}: ${cause.getMessage}"
     s"failed to write classfile ${classfile.name}: $details"
@@ -23,10 +21,7 @@ case class ClassfileWriteException(classfile: Classfile, cause: Throwable)
   setStackTrace(cause.getStackTrace)
 }
 
-case class ScalasigReadException(
-    binary: Binary,
-    classfile: Classfile,
-    cause: Throwable)
+case class ScalasigReadException(binary: Binary, classfile: Classfile, cause: Throwable)
     extends Exception {
   override def getMessage: String = {
     val where = binary match {
@@ -39,8 +34,7 @@ case class ScalasigReadException(
   setStackTrace(cause.getStackTrace)
 }
 
-case class ScalasigWriteException(scalasig: l.Scalasig, cause: Throwable)
-    extends Exception {
+case class ScalasigWriteException(scalasig: l.Scalasig, cause: Throwable) extends Exception {
   override def getMessage: String = {
     val details = s"${cause.getClass.getName}: ${cause.getMessage}"
     s"failed to write scalasig: $details"
@@ -48,8 +42,7 @@ case class ScalasigWriteException(scalasig: l.Scalasig, cause: Throwable)
   setStackTrace(cause.getStackTrace)
 }
 
-case class ScalasigConvertException(scalasig: Any, cause: Throwable)
-    extends Exception {
+case class ScalasigConvertException(scalasig: Any, cause: Throwable) extends Exception {
   override def getMessage: String = {
     val name = scalasig match {
       case h.Scalasig(name, _, _) => name

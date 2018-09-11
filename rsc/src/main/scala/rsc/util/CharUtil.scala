@@ -35,8 +35,8 @@ trait CharUtil {
 
   def isSymbolicIdPart(ch: Char): Boolean = {
     (ch: @switch) match {
-      case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' |
-          '?' | ':' | '=' | '&' | '|' | '\\' | '/' =>
+      case '~' | '!' | '@' | '#' | '%' | '^' | '*' | '+' | '-' | '<' | '>' | '?' | ':' | '=' | '&' |
+          '|' | '\\' | '/' =>
         true
       case _ =>
         val chtpe = Character.getType(ch)

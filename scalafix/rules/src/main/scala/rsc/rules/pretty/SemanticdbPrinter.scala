@@ -71,9 +71,7 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
       str("}")
     case s.MacroExpansionTree(expandee, _) =>
       expandee match {
-        case s.ApplyTree(
-            s.IdTree("scala/reflect/package.materializeClassTag()."),
-            Nil) =>
+        case s.ApplyTree(s.IdTree("scala/reflect/package.materializeClassTag()."), Nil) =>
           str("_root_.scala.reflect.`package`.classTag")
         case _ =>
           pprint(expandee)
@@ -160,8 +158,8 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
         case s.RepeatedType(utpe) =>
           opt(utpe)(normal)
           str("*")
-        case _: s.SuperType | _: s.ConstantType | _: s.IntersectionType |
-            _: s.UnionType | s.NoType =>
+        case _: s.SuperType | _: s.ConstantType | _: s.IntersectionType | _: s.UnionType |
+            s.NoType =>
           val details = tpe.asMessage.toProtoString
           sys.error(s"unsupported type: $details")
       }

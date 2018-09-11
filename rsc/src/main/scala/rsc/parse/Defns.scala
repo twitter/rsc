@@ -149,8 +149,7 @@ trait Defns {
         case (pat0 @ PatId(value), _) =>
           val id = atPos(pat0.pos)(TermId(value))
           atPos(pat0.pos)(PatVar(id, None))
-        case (pat0 @ PatVar(id, pat0Tpt), i)
-            if i == pats0.length - 1 && tpt.isEmpty =>
+        case (pat0 @ PatVar(id, pat0Tpt), i) if i == pats0.length - 1 && tpt.isEmpty =>
           tpt = pat0Tpt
           atPos(pat0.pos)(PatVar(id, None))
         case (pat0, _) =>

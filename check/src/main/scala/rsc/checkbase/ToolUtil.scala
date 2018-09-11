@@ -12,9 +12,7 @@ import scala.meta.io._
 import scala.util._
 
 trait ToolUtil extends CacheUtil with NscUtil {
-  def metacp(
-      dependencyClasspath: List[Path],
-      classpath: List[Path]): ToolResult[List[Path]] = {
+  def metacp(dependencyClasspath: List[Path], classpath: List[Path]): ToolResult[List[Path]] = {
     withConsole { console =>
       import scala.meta.metacp._
       val relative = Paths.get(metacpVersion).resolve("out")

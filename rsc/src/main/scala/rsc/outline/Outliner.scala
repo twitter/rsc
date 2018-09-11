@@ -9,11 +9,7 @@ import rsc.syntax._
 import rsc.util._
 
 // FIXME: https://github.com/twitter/rsc/issues/104
-final class Outliner private (
-    settings: Settings,
-    reporter: Reporter,
-    symtab: Symtab,
-    todo: Todo) {
+final class Outliner private (settings: Settings, reporter: Reporter, symtab: Symtab, todo: Todo) {
   def apply(env: Env, work: Work): Unit = {
     work match {
       case scope: Scope => apply(env, scope)
@@ -409,11 +405,7 @@ final class Outliner private (
 }
 
 object Outliner {
-  def apply(
-      settings: Settings,
-      reporter: Reporter,
-      symtab: Symtab,
-      todo: Todo): Outliner = {
+  def apply(settings: Settings, reporter: Reporter, symtab: Symtab, todo: Todo): Outliner = {
     new Outliner(settings, reporter, symtab, todo)
   }
 }

@@ -70,9 +70,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
 
   case class Index(sig: Scalasig, map: Map[String, EmbeddedSymbol])
 
-  private def load(
-      path: Path,
-      problem: String => Problem): Map[String, Index] = {
+  private def load(path: Path, problem: String => Problem): Map[String, Index] = {
     val scalasigs = mutable.Map[String, Index]()
     Scalasigs(path) {
       case ParsedScalasig(_, _, sig @ Scalasig(name, _, syms)) =>

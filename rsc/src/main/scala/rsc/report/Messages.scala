@@ -19,8 +19,7 @@ sealed trait Message extends Pretty with Product {
 
 // ============ FUNDAMENTAL ============
 
-final case class CrashMessage(pos: Position, message: String, ex: Throwable)
-    extends Message {
+final case class CrashMessage(pos: Position, message: String, ex: Throwable) extends Message {
   def sev = FatalSeverity
   def text = {
     ex match {
@@ -114,20 +113,17 @@ final case class UnclosedString(pos: Position) extends Message {
 
 // ============ PARSER ============
 
-final case class ExpectedToken(pos: Position, expected: Token, actual: Token)
-    extends Message {
+final case class ExpectedToken(pos: Position, expected: Token, actual: Token) extends Message {
   def sev = FatalSeverity
   def text = s"${tokenStr(expected)} expected but ${tokenStr(actual)} found"
 }
 
-final case class ExpectedId(pos: Position, expected: String, actual: Token)
-    extends Message {
+final case class ExpectedId(pos: Position, expected: String, actual: Token) extends Message {
   def sev = FatalSeverity
   def text = "$expected expected but ${tokenStr(actual)} found"
 }
 
-final case class ExpectedClassOrObjectDefinition(pos: Position)
-    extends Message {
+final case class ExpectedClassOrObjectDefinition(pos: Position) extends Message {
   def sev = FatalSeverity
   def text = "expected class or object definition"
 }
@@ -204,10 +200,7 @@ final case class IllegalStartOfStatement(pos: Position) extends Message {
   def text = "illegal start of statement"
 }
 
-final case class MixedLeftAndRightAssociativeOps(
-    pos: Position,
-    op1: String,
-    op2: String)
+final case class MixedLeftAndRightAssociativeOps(pos: Position, op1: String, op2: String)
     extends Message {
   def sev = ErrorSeverity
   def text = {

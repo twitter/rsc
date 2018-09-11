@@ -16,13 +16,9 @@ package scalasig {
       with l.ScalasigResult
       with h.ScalasigResult
 
-  case class ParsedClassfile(binary: Binary, classfile: Classfile)
-      extends ClassfileResult
+  case class ParsedClassfile(binary: Binary, classfile: Classfile) extends ClassfileResult
 
-  case class FailedScalasig(
-      binary: Binary,
-      classfile: Classfile,
-      cause: Throwable)
+  case class FailedScalasig(binary: Binary, classfile: Classfile, cause: Throwable)
       extends l.ScalasigResult
       with h.ScalasigResult
 
@@ -36,10 +32,7 @@ package scalasig.highlevel {
     def binary: Binary
   }
 
-  case class ParsedScalasig(
-      binary: Binary,
-      classfile: Classfile,
-      scalasig: Scalasig)
+  case class ParsedScalasig(binary: Binary, classfile: Classfile, scalasig: Scalasig)
       extends ScalasigResult
 }
 
@@ -48,9 +41,6 @@ package scalasig.lowlevel {
     def binary: Binary
   }
 
-  case class ParsedScalasig(
-      binary: Binary,
-      classfile: Classfile,
-      scalasig: Scalasig)
+  case class ParsedScalasig(binary: Binary, classfile: Classfile, scalasig: Scalasig)
       extends ScalasigResult
 }

@@ -114,12 +114,10 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
           case _ =>
             val info = index.symbols(symbol)
             target.body match {
-              case Term.ApplyType(Term.Name("implicitly"), _)
-                  if info.isImplicit =>
+              case Term.ApplyType(Term.Name("implicitly"), _) if info.isImplicit =>
                 return Patch.empty
-              case Term.ApplyType(
-                  Term.Select(Term.Name("Bijection"), Term.Name("connect")),
-                  _) if info.isImplicit =>
+              case Term.ApplyType(Term.Select(Term.Name("Bijection"), Term.Name("connect")), _)
+                  if info.isImplicit =>
                 return Patch.empty
               case _ =>
                 val returnType = info.signature match {

@@ -48,13 +48,7 @@ object ClassfileCodec {
 
   def toBinary(classfile: Classfile): Array[Byte] = {
     val classWriter = new ClassWriter(0)
-    classWriter.visit(
-      V1_8,
-      ACC_PUBLIC + ACC_SUPER,
-      classfile.name,
-      null,
-      "java/lang/Object",
-      null)
+    classWriter.visit(V1_8, ACC_PUBLIC + ACC_SUPER, classfile.name, null, "java/lang/Object", null)
     if (classfile.source.nonEmpty) {
       classWriter.visitSource(classfile.source, null)
     }

@@ -25,10 +25,7 @@ object Main extends MainBase[Settings, Path, NscGlobal#Tree, RscTree] {
     path.parseRsc()
   }
 
-  def checker(
-      settings: Settings,
-      nscResult: NscGlobal#Tree,
-      rscResult: RscTree) = {
+  def checker(settings: Settings, nscResult: NscGlobal#Tree, rscResult: RscTree) = {
     new Checker(nscGlobal, nscResult, rscResult)
   }
 
