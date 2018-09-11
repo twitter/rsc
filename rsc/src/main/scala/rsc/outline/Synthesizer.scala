@@ -60,10 +60,7 @@ final class Synthesizer private (
     defaultGetters(env, tree.tparams, tree)
   }
 
-  private def defaultGetters(
-      env: Env,
-      treeTparams: List[TypeParam],
-      tree: Parameterized): Unit = {
+  private def defaultGetters(env: Env, treeTparams: List[TypeParam], tree: Parameterized): Unit = {
     var paramPos = 0
     val treeParamss = tree.paramss
     treeParamss.zipWithIndex.foreach {

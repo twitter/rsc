@@ -225,8 +225,7 @@ lazy val publishableSettings = Seq(
   pomIncludeRepository := { x =>
     false
   },
-  licenses += "Apache v2" -> url(
-    "https://github.com/twitter/rsc/blob/master/LICENSE.md"),
+  licenses += "Apache v2" -> url("https://github.com/twitter/rsc/blob/master/LICENSE.md"),
   pomExtra := (
     <url>https://github.com/twitter/rsc</url>
     <inceptionYear>2017</inceptionYear>
@@ -264,8 +263,7 @@ lazy val semanticdbSettings = Def.settings(
   scalacOptions -= "-feature",
   scalacOptions -= "-Ywarn-unused-import",
   scalacOptions -= "-Xfatal-warnings",
-  addCompilerPlugin(
-    "org.scalameta" %% "semanticdb-scalac" % V.scalameta cross CrossVersion.full),
+  addCompilerPlugin("org.scalameta" %% "semanticdb-scalac" % V.scalameta cross CrossVersion.full),
   scalacOptions += "-Yrangepos",
   scalacOptions += "-P:semanticdb:text:off",
   scalacOptions += "-P:semanticdb:symbols:all",

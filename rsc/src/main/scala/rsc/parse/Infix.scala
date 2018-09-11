@@ -21,9 +21,7 @@ trait Infix {
     def op1 = opStack.head.operator.value
     if (opStack != base && op1.precedence == op2.precedence) {
       if (op1.isLeftAssoc != op2.isLeftAssoc) {
-        reportOffset(
-          opStack.head.offset,
-          MixedLeftAndRightAssociativeOps(_, op1, op2))
+        reportOffset(opStack.head.offset, MixedLeftAndRightAssociativeOps(_, op1, op2))
       }
     }
     def loop(top: Tree): Tree = {

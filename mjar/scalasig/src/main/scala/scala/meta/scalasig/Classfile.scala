@@ -4,10 +4,7 @@ package scala.meta.scalasig
 
 import scala.meta.internal.scalasig._
 
-case class Classfile(
-    name: String,
-    source: String,
-    scalasigBytes: Option[Array[Byte]]) {
+case class Classfile(name: String, source: String, scalasigBytes: Option[Array[Byte]]) {
   def toBinary: Array[Byte] = {
     try {
       ClassfileCodec.toBinary(this)

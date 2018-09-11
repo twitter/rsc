@@ -34,11 +34,7 @@ final class Parser private (
     with Wildcards
 
 object Parser {
-  def apply(
-      settings: Settings,
-      reporter: Reporter,
-      gensym: Gensym,
-      input: Input): Parser = {
+  def apply(settings: Settings, reporter: Reporter, gensym: Gensym, input: Input): Parser = {
     new Parser(settings, reporter, gensym, input)
   }
 }

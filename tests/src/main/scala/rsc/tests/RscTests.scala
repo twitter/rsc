@@ -25,11 +25,7 @@ trait RscTests extends FunSuite with FileFixtures with DiffUtil with ToolUtil {
     }
   }
 
-  def assertEquals(
-      h1: String,
-      b1: Array[Byte],
-      h2: String,
-      b2: Array[Byte]): Unit = {
+  def assertEquals(h1: String, b1: Array[Byte], h2: String, b2: Array[Byte]): Unit = {
     val xxd1 = xxd(b1).right.get
     val xxd2 = xxd(b2).right.get
     if (xxd1 != xxd2) {

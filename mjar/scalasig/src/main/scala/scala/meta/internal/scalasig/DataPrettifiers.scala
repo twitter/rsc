@@ -143,8 +143,7 @@ class HighlevelEntityPrettifier extends DataTransformer {
   }
 }
 
-class HighlevelScalasigPrettifier(sig: h.Scalasig)
-    extends HighlevelEntityPrettifier
+class HighlevelScalasigPrettifier(sig: h.Scalasig) extends HighlevelEntityPrettifier
 
 class LowlevelEntityPrettifier extends DataTransformer {
   override protected def apply(fields: List[Field]): List[Field] = {
@@ -215,8 +214,7 @@ class LowlevelEntityPrettifier extends DataTransformer {
   }
 }
 
-class LowlevelScalasigPrettifier(sig: l.Scalasig)
-    extends LowlevelEntityPrettifier {
+class LowlevelScalasigPrettifier(sig: l.Scalasig) extends LowlevelEntityPrettifier {
   override protected def apply(fields: List[Field]): List[Field] = {
     owner match {
       case entry: l.Entry =>

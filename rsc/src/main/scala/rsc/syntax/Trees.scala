@@ -20,8 +20,7 @@ sealed trait Tree extends Pretty with Product {
 
 final case class AnonId() extends Id
 
-final case class Case(pat: Pat, cond: Option[Term], stats: List[Stat])
-    extends Tree
+final case class Case(pat: Pat, cond: Option[Term], stats: List[Stat]) extends Tree
 
 final case class CtorId() extends NamedId {
   def value = CtorId.value
@@ -57,11 +56,7 @@ sealed trait DefnDef extends Stat with Parameterized with TermOutline {
 
 sealed trait DefnCtor extends DefnDef
 
-final case class DefnField(
-    mods: Mods,
-    id: TermId,
-    tpt: Option[Tpt],
-    rhs: Option[Term])
+final case class DefnField(mods: Mods, id: TermId, tpt: Option[Tpt], rhs: Option[Term])
     extends Stat
     with TermOutline
 
@@ -98,9 +93,7 @@ final case class DefnObject(
   def paramss = Nil
 }
 
-final case class DefnPackage(pid: TermPath, stats: List[Stat])
-    extends Stat
-    with TermOutline {
+final case class DefnPackage(pid: TermPath, stats: List[Stat]) extends Stat with TermOutline {
   def mods = Mods(Nil)
   def id = pid.id.asInstanceOf[NamedId]
 }
@@ -118,11 +111,7 @@ final case class DefnPackageObject(
   def paramss = Nil
 }
 
-final case class DefnPat(
-    mods: Mods,
-    pats: List[Pat],
-    tpt: Option[Tpt],
-    rhs: Option[Term])
+final case class DefnPat(mods: Mods, pats: List[Pat], tpt: Option[Tpt], rhs: Option[Term])
     extends Stat
 
 final case class DefnProcedure(
@@ -201,8 +190,7 @@ final case class ImporteeUnimport(id: SomeId) extends Importee
 
 final case class ImporteeWildcard() extends Importee
 
-final case class Importer(qual: TermPath, importees: List[Importee])
-    extends Tree
+final case class Importer(qual: TermPath, importees: List[Importee]) extends Tree
 
 final case class Init(tpt: Tpt, argss: List[List[Term]]) extends Term {
   val id = CtorId()
@@ -311,8 +299,7 @@ final case class PatAlternative(pats: List[Pat]) extends Pat
 
 final case class PatBind(pats: List[Pat]) extends Pat
 
-final case class PatExtract(fun: TermPath, targs: List[Tpt], args: List[Pat])
-    extends Pat
+final case class PatExtract(fun: TermPath, targs: List[Tpt], args: List[Pat]) extends Pat
 
 final case class PatExtractInfix(lhs: Pat, op: TermId, rhs: Pat) extends Pat
 
@@ -320,11 +307,7 @@ final case class PatId(value: String) extends Pat with NamedId {
   def name = TermName(value)
 }
 
-final case class PatInterpolate(
-    id: TermId,
-    parts: List[PatLit],
-    args: List[Pat])
-    extends Pat
+final case class PatInterpolate(id: TermId, parts: List[PatLit], args: List[Pat]) extends Pat
 
 final case class PatLit(value: Any) extends Pat
 
@@ -353,11 +336,7 @@ final case class PrimaryCtor(mods: Mods, paramss: List[List[Param]])
   def ret = Some(TptId("Unit").withSym(UnitClass))
 }
 
-final case class SecondaryCtor(
-    mods: Mods,
-    id: CtorId,
-    paramss: List[List[Param]],
-    rhs: Term)
+final case class SecondaryCtor(mods: Mods, id: CtorId, paramss: List[List[Param]], rhs: Term)
     extends DefnCtor
     with TermOutline {
   def tparams = Nil
@@ -382,11 +361,7 @@ final case class TermAnnotate(fun: Term, mods: Mods) extends Term
 
 final case class TermApply(fun: Term, args: List[Term]) extends Term
 
-final case class TermApplyInfix(
-    lhs: Term,
-    op: TermId,
-    targs: List[Tpt],
-    args: List[Term])
+final case class TermApplyInfix(lhs: Term, op: TermId, targs: List[Tpt], args: List[Term])
     extends Term
 
 final case class TermApplyPostfix(arg: Term, op: TermId) extends Term
@@ -415,14 +390,9 @@ final case class TermId(value: String) extends TermPath with NamedId {
   def name = TermName(value)
 }
 
-final case class TermIf(cond: Term, thenp: Term, elsep: Option[Term])
-    extends Term
+final case class TermIf(cond: Term, thenp: Term, elsep: Option[Term]) extends Term
 
-final case class TermInterpolate(
-    id: TermId,
-    parts: List[TermLit],
-    args: List[Term])
-    extends Term
+final case class TermInterpolate(id: TermId, parts: List[TermLit], args: List[Term]) extends Term
 
 final case class TermLit(value: Any) extends Term
 
@@ -461,14 +431,9 @@ final case class TermThis(qual: Id) extends TermPath {
 
 final case class TermThrow(term: Term) extends Term
 
-final case class TermTry(term: Term, catchp: List[Case], finallyp: Option[Term])
-    extends Term
+final case class TermTry(term: Term, catchp: List[Case], finallyp: Option[Term]) extends Term
 
-final case class TermTryWithHandler(
-    term: Term,
-    catchp: Term,
-    finallyp: Option[Term])
-    extends Term
+final case class TermTryWithHandler(term: Term, catchp: Term, finallyp: Option[Term]) extends Term
 
 final case class TermTuple(args: List[Term]) extends Term
 
@@ -478,8 +443,7 @@ final case class TermWildcard() extends Term {
   val id = AnonId()
 }
 
-final case class TermWildcardFunction(ids: List[AnonId], body: Term)
-    extends Term
+final case class TermWildcardFunction(ids: List[AnonId], body: Term) extends Term
 
 // FIXME: https://github.com/twitter/rsc/issues/81
 final case class TermXml(raw: String) extends Term
@@ -518,8 +482,7 @@ sealed trait TptPath extends Tpt with Path
 
 final case class TptParameterize(fun: Tpt, targs: List[Tpt]) extends TptApply
 
-final case class TptParameterizeInfix(lhs: Tpt, op: TptId, rhs: Tpt)
-    extends TptApply {
+final case class TptParameterizeInfix(lhs: Tpt, op: TptId, rhs: Tpt) extends TptApply {
   def fun = op
   def targs = List(lhs, rhs)
 }
@@ -543,8 +506,7 @@ final case class TptTuple(targs: List[Tpt]) extends TptApply {
   }
 }
 
-final case class TptWildcard(lbound: Option[Tpt], ubound: Option[Tpt])
-    extends Tpt {
+final case class TptWildcard(lbound: Option[Tpt], ubound: Option[Tpt]) extends Tpt {
   val id = AnonId()
   def lo = lbound.getOrElse(TptId("Nothing").withSym(NothingClass))
   def hi = ubound.getOrElse(TptId("Any").withSym(AnyClass))

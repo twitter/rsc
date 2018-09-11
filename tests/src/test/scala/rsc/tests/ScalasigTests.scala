@@ -24,28 +24,16 @@ class ScalasigTests extends RscTests {
             val scalasigBytes1 = classfile1.scalasigBytes.get
             val classfile2 = scalasig1.toClassfile
             val scalasigBytes2 = classfile2.scalasigBytes.get
-            assertEquals(
-              "scalasigBytes1",
-              scalasigBytes1,
-              "scalasigBytes2",
-              scalasigBytes2)
+            assertEquals("scalasigBytes1", scalasigBytes1, "scalasigBytes2", scalasigBytes2)
             Scalasig.fromClassfile(classfile2) match {
               case ParsedScalasig(_, _, scalasig2) =>
                 val scalasigStr1 = scalasig1.toHighlevel.toString
                 val scalasigStr2 = scalasig2.toHighlevel.toString
-                assertEquals(
-                  "scalasig1",
-                  scalasigStr1,
-                  "scalasig2",
-                  scalasigStr2)
+                assertEquals("scalasig1", scalasigStr1, "scalasig2", scalasigStr2)
                 val classfile3 = scalasig2.toClassfile
                 val classfileBytes2 = classfile2.toBinary
                 val classfileBytes3 = classfile3.toBinary
-                assertEquals(
-                  "classfileBytes2",
-                  classfileBytes2,
-                  "classfileBytes3",
-                  classfileBytes3)
+                assertEquals("classfileBytes2", classfileBytes2, "classfileBytes3", classfileBytes3)
               case EmptyScalasig(_, _) =>
                 fail(s"failed to parse classfile2: ${classfile2.dump()}")
               case FailedScalasig(_, _, cause) =>

@@ -18,9 +18,7 @@ import rsc.settings._
 import rsc.syntax._
 import rsc.util._
 
-class Compiler(val settings: Settings, val reporter: Reporter)
-    extends Closeable
-    with Pretty {
+class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable with Pretty {
   var trees: List[Source] = Nil
   var gensyms: Gensyms = Gensyms()
   var symtab: Symtab = Symtab(settings)

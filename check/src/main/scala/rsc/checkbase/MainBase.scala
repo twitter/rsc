@@ -7,10 +7,7 @@ import scala.collection.mutable
 import scala.meta.internal.cli._
 import scala.util._
 
-trait MainBase[S <: SettingsBase, I, N, R]
-    extends DiffUtil
-    with NscUtil
-    with ToolUtil {
+trait MainBase[S <: SettingsBase, I, N, R] extends DiffUtil with NscUtil with ToolUtil {
   def main(args: Array[String]): Unit = {
     val expandedArgs = Args.expand(args)
     settings(expandedArgs) match {

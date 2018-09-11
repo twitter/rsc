@@ -18,10 +18,7 @@ final case class Settings(
 // FIXME: https://github.com/twitter/rsc/issues/166
 object Settings {
   def parse(args: List[String]): Option[Settings] = {
-    def loop(
-        settings: Settings,
-        allowOptions: Boolean,
-        args: List[String]): Option[Settings] = {
+    def loop(settings: Settings, allowOptions: Boolean, args: List[String]): Option[Settings] = {
       args match {
         case "--" +: rest =>
           loop(settings, false, rest)

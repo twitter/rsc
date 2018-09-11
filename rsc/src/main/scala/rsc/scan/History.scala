@@ -6,18 +6,7 @@ trait History {
   self: Scanner =>
 
   def snapshot(): Snapshot = {
-    Snapshot(
-      offset,
-      start,
-      end,
-      token,
-      value,
-      _mode,
-      _ilevels,
-      _ilevel,
-      _slevels,
-      _slevel,
-      _blevel)
+    Snapshot(offset, start, end, token, value, _mode, _ilevels, _ilevel, _slevels, _slevel, _blevel)
   }
 
   def restore(snapshot: Snapshot): Unit = {
