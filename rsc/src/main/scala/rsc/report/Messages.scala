@@ -229,7 +229,8 @@ final case class UnboundWildcard(pos: Position) extends Message {
 
 // ============ TYPECHECKER ============
 
-final case class AmbiguousMember(env: Env, id: Id, resolution: AmbiguousResolution) extends Message {
+final case class AmbiguousMember(env: Env, id: Id, resolution: AmbiguousResolution)
+    extends Message {
   def sev = ErrorSeverity
   def pos = id.point
   def text = {
