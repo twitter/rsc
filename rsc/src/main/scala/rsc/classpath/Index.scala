@@ -82,65 +82,82 @@ object Index {
   def apply(classpath: List[Path]): Index = {
     val entries = new HashMap[Symbol, Entry]
     def visit(path: Path): Unit = {
-      if (Files.isDirectory(path)) {
-        val indexPath = path.resolve("META-INF/semanticdb.semanticidx")
-        val semanticdbRoot = path.resolve("META-INF/semanticdb")
-        if (Files.exists(indexPath)) {
-          val iindexes = {
-            val unbufferedStream = Files.newInputStream(indexPath)
-            val stream = new BufferedInputStream(unbufferedStream)
-            try i.Indexes.parseFrom(stream)
-            finally stream.close()
+      def fail(): Nothing = {
+        val explanation = s"""
+        |$path is not a supported classpath entry.
+        |Rsc only supports indexed SemanticDB classpaths.
+        |Indexed SemanticDB classpaths consist of directories or jars that have:
+        |  1) META-INF/semanticdb subdirectory with SemanticDB payloads.
+        |  2) META-INF/semanticdb.semanticidx file with an index of the payloads.
+        |Regular classpaths can be converted to SemanticDB classpaths via Metacp.
+        |SemanticDB classpaths can be indexed via Metai.
+        """.trim.stripMargin
+        crash(explanation)
+      }
+      if (Files.exists(path)) {
+        if (Files.isDirectory(path)) {
+          val indexPath = path.resolve("META-INF/semanticdb.semanticidx")
+          val semanticdbRoot = path.resolve("META-INF/semanticdb")
+          if (Files.exists(indexPath)) {
+            val iindexes = {
+              val unbufferedStream = Files.newInputStream(indexPath)
+              val stream = new BufferedInputStream(unbufferedStream)
+              try i.Indexes.parseFrom(stream)
+              finally stream.close()
+            }
+            iindexes.indexes.foreach { iindex =>
+              iindex.entries.foreach {
+                case (isym, i.PackageEntry()) =>
+                  entries.put(isym, PackageEntry())
+                case (isym, i.ToplevelEntry(iuri)) =>
+                  val semanticdbPath = semanticdbRoot.resolve(iuri)
+                  entries.put(isym, UncompressedEntry(semanticdbPath))
+                case (isym, i.Entry.Empty) =>
+                  ()
+              }
+            }
+          } else {
+            fail()
           }
-          iindexes.indexes.foreach { iindex =>
-            iindex.entries.foreach {
-              case (isym, i.PackageEntry()) =>
-                entries.put(isym, PackageEntry())
-              case (isym, i.ToplevelEntry(iuri)) =>
-                val semanticdbPath = semanticdbRoot.resolve(iuri)
-                entries.put(isym, UncompressedEntry(semanticdbPath))
-              case (isym, i.Entry.Empty) =>
-                ()
+        } else if (path.toString.endsWith(".jar")) {
+          val jar = new JarFile(path.toFile)
+          val indexEntry = jar.getEntry("META-INF/semanticdb.semanticidx")
+          if (indexEntry != null) {
+            val iindexes = {
+              val stream = jar.getInputStream(indexEntry)
+              try i.Indexes.parseFrom(stream)
+              finally stream.close()
+            }
+            iindexes.indexes.foreach { iindex =>
+              iindex.entries.foreach {
+                case (isym, i.PackageEntry()) =>
+                  entries.put(isym, PackageEntry())
+                case (isym, i.ToplevelEntry(iuri)) =>
+                  val jarEntry = jar.getEntry("META-INF/semanticdb/" + iuri)
+                  entries.put(isym, CompressedEntry(jar, jarEntry))
+                case (isym, i.Entry.Empty) =>
+                  ()
+              }
+            }
+          } else {
+            fail()
+          }
+          val manifest = jar.getManifest
+          if (manifest != null) {
+            val classpathAttr =
+              manifest.getMainAttributes.getValue("Class-Path")
+            if (classpathAttr != null) {
+              classpathAttr.split(" ").foreach { relativePath =>
+                val parentPath = path.toAbsolutePath.getParent
+                visit(parentPath.resolve(relativePath))
+              }
             }
           }
         } else {
-          crash(path.toString)
-        }
-      } else if (path.toString.endsWith(".jar")) {
-        val jar = new JarFile(path.toFile)
-        val indexEntry = jar.getEntry("META-INF/semanticdb.semanticidx")
-        if (indexEntry != null) {
-          val iindexes = {
-            val stream = jar.getInputStream(indexEntry)
-            try i.Indexes.parseFrom(stream)
-            finally stream.close()
-          }
-          iindexes.indexes.foreach { iindex =>
-            iindex.entries.foreach {
-              case (isym, i.PackageEntry()) =>
-                entries.put(isym, PackageEntry())
-              case (isym, i.ToplevelEntry(iuri)) =>
-                val jarEntry = jar.getEntry("META-INF/semanticdb/" + iuri)
-                entries.put(isym, CompressedEntry(jar, jarEntry))
-              case (isym, i.Entry.Empty) =>
-                ()
-            }
-          }
-        } else {
-          crash(path.toString)
-        }
-        val manifest = jar.getManifest
-        if (manifest != null) {
-          val classpathAttr = manifest.getMainAttributes.getValue("Class-Path")
-          if (classpathAttr != null) {
-            classpathAttr.split(" ").foreach { relativePath =>
-              val parentPath = path.toAbsolutePath.getParent
-              visit(parentPath.resolve(relativePath))
-            }
-          }
+          ()
         }
       } else {
-        crash(path.toString)
+        ()
       }
     }
     classpath.foreach(visit)

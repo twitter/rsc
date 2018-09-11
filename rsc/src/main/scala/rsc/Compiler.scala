@@ -117,6 +117,23 @@ class Compiler(val settings: Settings, val reporter: Reporter)
     val emptyScope = PackageScope(EmptyPackage, symtab._index)
     symtab.scopes(emptyScope.sym) = emptyScope
     todo.add(Env(), emptyScope)
+
+    def checkExists(sym: String): Unit = {
+      val scope = symtab.scopes.get(sym)
+      if (scope == null) {
+        crash(s"""
+        |missing core definition: $sym
+        |Unlike Scalac, Rsc requires that the following libraries are passed explicitly:
+        |  1) JDK libraries that are used in your code (at least, rt.jar).
+        |  2) Scala library.
+        |  3) Scala library synthetics (a SemanticDB-only artifact produced by Metacp).
+        """.trim.stripMargin)
+      }
+    }
+    checkExists("java/lang/")
+    checkExists("scala/")
+    checkExists("scala/Predef.")
+    checkExists("scala/AnyRef#")
   }
 
   private def schedule(): Unit = {
