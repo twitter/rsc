@@ -11,7 +11,7 @@ import scala.meta._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
-import scalafix.v0._
+import scalafix.internal.v0._
 
 class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
   def pprint(tree: s.Tree): Unit = tree match {

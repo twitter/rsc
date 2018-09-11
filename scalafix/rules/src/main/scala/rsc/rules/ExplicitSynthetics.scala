@@ -7,6 +7,7 @@ import rsc.rules.semantics._
 import rsc.rules.syntax._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta._
+import scalafix.internal.v0._
 import scalafix.syntax._
 import scalafix.v0._
 
