@@ -6,7 +6,7 @@ import java.io._
 import java.nio.file._
 import java.util.HashMap
 import rsc.gensym._
-import rsc.lexis._
+import rsc.inputs._
 import rsc.outline._
 import rsc.report._
 import rsc.semantics._
@@ -122,7 +122,7 @@ final class Semanticdb private (
             } else {
               if (ownerSym.desc.isPackage) {
                 val id = TermId(ownerSym.desc.value).withSym(ownerSym)
-                DefnPackage(id, Nil)
+                DefnPackage(Mods(Nil), id, Nil)
               } else {
                 crash(outline.id.sym)
               }
@@ -150,12 +150,22 @@ final class Semanticdb private (
     }
 
     def language: s.Language = {
-      l.SCALA
+      outline.lang match {
+        case ScalaLanguage => l.SCALA
+        case JavaLanguage => l.JAVA
+        case UnknownLanguage => l.UNKNOWN_LANGUAGE
+      }
     }
 
     def kind: s.SymbolInformation.Kind = {
       outline match {
-        case _: DefnClass => k.CLASS
+        case _: DefnClass if outline.hasAnnotationInterface => k.INTERFACE
+        case _: DefnClass if outline.hasClass => k.CLASS
+        case _: DefnClass if outline.hasEnum => k.CLASS
+        case _: DefnClass if outline.hasInterface => k.INTERFACE
+        case _: DefnClass if outline.hasTrait => k.TRAIT
+        case _: DefnClass => crash(outline)
+        case _: DefnCtor => k.CONSTRUCTOR
         case _: DefnField => crash(outline)
         case _: DefnMacro => k.MACRO
         case _: DefnMethod => k.METHOD
@@ -163,12 +173,10 @@ final class Semanticdb private (
         case _: DefnPackage => k.PACKAGE
         case _: DefnPackageObject => k.PACKAGE_OBJECT
         case _: DefnProcedure => k.METHOD
-        case _: DefnTrait => k.TRAIT
         case _: DefnType => k.TYPE
         case _: Param => k.PARAMETER
         case _: PatVar => crash(outline)
         case _: PrimaryCtor => k.CONSTRUCTOR
-        case _: SecondaryCtor => k.CONSTRUCTOR
         case _: Self => k.SELF_PARAMETER
         case _: TypeParam => k.TYPE_PARAMETER
       }
@@ -177,7 +185,7 @@ final class Semanticdb private (
     def properties: Int = {
       var result = 0
       def set(prop: s.SymbolInformation.Property) = result |= prop.value
-      if (outline.hasAbstract) set(p.ABSTRACT)
+      if (outline.hasAbstract || outline.hasInterface) set(p.ABSTRACT)
       outline match {
         case outline: DefnField if outline.rhs.isEmpty => set(p.ABSTRACT)
         case outline: DefnMethod if outline.rhs.isEmpty => set(p.ABSTRACT)
@@ -190,7 +198,7 @@ final class Semanticdb private (
       if (outline.isInstanceOf[DefnPackageObject]) set(p.FINAL)
       outline match {
         case outline: DefnClass =>
-          outline.inits.foreach {
+          outline.parents.foreach {
             case Init(path: TptPath, Nil) if path.id.sym == AnyValClass =>
               set(p.FINAL)
             case _ =>
@@ -207,12 +215,15 @@ final class Semanticdb private (
       if (outline.hasContravariant) set(p.CONTRAVARIANT)
       if (outline.hasVal) set(p.VAL)
       if (outline.hasVar) set(p.VAR)
+      if (outline.hasStatic) set(p.STATIC)
       if (outline.isInstanceOf[PrimaryCtor]) set(p.PRIMARY)
-      if (outline.isSynthetic) set(p.SYNTHETIC)
+      if (outline.hasEnum) set(p.ENUM)
+      if (outline.hasDefault) set(p.DEFAULT)
       outline match {
         case Param(_, _, _, Some(_)) => set(p.DEFAULT)
         case _ => ()
       }
+      if (outline.isSynthetic) set(p.SYNTHETIC)
       result
     }
 
@@ -224,20 +235,22 @@ final class Semanticdb private (
     }
 
     def signature: s.Signature = {
-      val isCtor = outline.isInstanceOf[DefnCtor]
+      val isCtor = outline.isInstanceOf[DefnCtor] || outline.isInstanceOf[PrimaryCtor]
       outline match {
+        case outline: DefnConstant =>
+          val tpe = s.TypeRef(s.NoType, outline.id.sym.owner, Nil)
+          s.ValueSignature(tpe)
         case outline: DefnDef =>
           val tparams = Some(s.Scope(outline.tparams.map(_.id.sym)))
           val paramss = {
-            val paramss = symtab._paramss.get(outline)
             def isImplicit(xs: List[Param]) = xs match {
               case Nil => false
               case xs => xs.forall(_.hasImplicit)
             }
-            if (isCtor && paramss.forall(isImplicit)) {
-              s.Scope() +: paramss.map(ps => s.Scope(ps.map(_.id.sym)))
+            if (isCtor && outline.desugaredParamss.forall(isImplicit)) {
+              s.Scope() +: outline.desugaredParamss.map(ps => s.Scope(ps.map(_.id.sym)))
             } else {
-              paramss.map(ps => s.Scope(ps.map(_.id.sym)))
+              outline.desugaredParamss.map(ps => s.Scope(ps.map(_.id.sym)))
             }
           }
           val ret = {
@@ -252,7 +265,7 @@ final class Semanticdb private (
           s.NoSignature
         case outline: DefnTemplate =>
           val tparams = Some(s.Scope(outline.tparams.map(_.id.sym)))
-          val parents = outline.parents.map(_.tpe)
+          val parents = outline.desugaredParents.map(_.tpe)
           val self = outline.self.flatMap(_.tpt).map(_.tpe).getOrElse(s.NoType)
           val decls = {
             symtab.scopes(outline.id.sym) match {
@@ -272,8 +285,8 @@ final class Semanticdb private (
           s.ClassSignature(tparams, parents, self, decls)
         case outline: DefnType =>
           val tparams = Some(s.Scope(outline.tparams.map(_.id.sym)))
-          val lbound = outline.lo.tpe
-          val ubound = outline.hi.tpe
+          val lbound = outline.desugaredLbound
+          val ubound = outline.desugaredUbound
           s.TypeSignature(tparams, lbound, ubound)
         case outline: Param =>
           val tpe = outline.tpt.map(_.tpe)
@@ -286,8 +299,8 @@ final class Semanticdb private (
           tpe.map(tpe => s.ValueSignature(tpe)).getOrElse(s.NoSignature)
         case outline: TypeParam =>
           val tparams = Some(s.Scope(outline.tparams.map(_.id.sym)))
-          val lbound = outline.lo.tpe
-          val ubound = outline.hi.tpe
+          val lbound = outline.desugaredLbound
+          val ubound = outline.desugaredUbound
           s.TypeSignature(tparams, lbound, ubound)
       }
     }
@@ -309,22 +322,59 @@ final class Semanticdb private (
             case outline if outline.hasPrivateThis =>
               s.PrivateThisAccess()
             case outline if outline.hasPrivateWithin =>
-              s.PrivateWithinAccess(outline.within.get.sym)
+              s.PrivateWithinAccess(outline.within.get.id.sym)
             case outline if outline.hasProtected =>
               s.ProtectedAccess()
             case outline if outline.hasProtectedThis =>
               s.ProtectedThisAccess()
             case outline if outline.hasProtectedWithin =>
-              s.ProtectedWithinAccess(outline.within.get.sym)
-            case _ =>
+              s.ProtectedWithinAccess(outline.within.get.id.sym)
+            case outline if outline.hasPublic =>
               s.PublicAccess()
+            case _ =>
+              language match {
+                case l.SCALA =>
+                  s.PublicAccess()
+                case l.JAVA =>
+                  val within = symbol.ownerChain.reverse.tail.find(_.desc.isPackage).get
+                  s.PrivateWithinAccess(within)
+                case l.UNKNOWN_LANGUAGE | l.Unrecognized(_) =>
+                  s.NoAccess
+              }
+
           }
       }
     }
   }
 
+  implicit class BoundedSemanticdbOps(bounded: Bounded) {
+    def desugaredLbound: s.Type = {
+      bounded.lang match {
+        case ScalaLanguage | UnknownLanguage =>
+          bounded.lbound.getOrElse(TptId("Nothing").withSym(NothingClass)).tpe
+        case JavaLanguage =>
+          s.NoType
+      }
+    }
+
+    def desugaredUbound: s.Type = {
+      bounded.lang match {
+        case ScalaLanguage | UnknownLanguage =>
+          bounded.ubound.getOrElse(TptId("Any").withSym(AnyClass)).tpe
+        case JavaLanguage =>
+          bounded.ubound.getOrElse(TptId("Object").withSym(ObjectClass)).tpe
+      }
+    }
+  }
+
+  implicit class ParameterizedSemanticdbOps(parameterized: Parameterized) {
+    def desugaredParamss: List[List[Param]] = {
+      symtab._paramss.get(parameterized)
+    }
+  }
+
   implicit class TemplateSemanticdbOps(template: DefnTemplate) {
-    def parents: List[Tpt] = {
+    def desugaredParents: List[Tpt] = {
       val rscParents = symtab._parents.get(template)
       val scalacFixup = {
         def parentSym(tpt: Tpt): Symbol = {
@@ -348,14 +398,13 @@ final class Semanticdb private (
               firstScope match {
                 case firstScope: TemplateScope =>
                   firstScope.tree match {
-                    case tree: DefnTrait =>
-                      superClass(tree.parents.map(parentSym))
                     case tree: DefnClass =>
-                      firstParentSym
+                      if (tree.hasClass) firstParentSym
+                      else superClass(tree.desugaredParents.map(parentSym))
                     case tree =>
                       crash(tree)
                   }
-                case firstScope: IndexScope =>
+                case firstScope: BinaryScope =>
                   val firstInfo = symtab._index.apply(firstParentSym)
                   if (firstInfo.isTrait || firstInfo.isInterface) {
                     superClass(firstInfo.parents)
@@ -420,9 +469,9 @@ final class Semanticdb private (
                   val gensym = gensyms(wildcard)
                   val sig = {
                     val tparams = Some(s.Scope())
-                    val lo = wildcard.lo.tpe
-                    val hi = wildcard.hi.tpe
-                    s.TypeSignature(tparams, lo, hi)
+                    val lbound = wildcard.desugaredLbound
+                    val ubound = wildcard.desugaredUbound
+                    s.TypeSignature(tparams, lbound, ubound)
                   }
                   s.SymbolInformation(
                     symbol = gensym.local(),
@@ -447,14 +496,32 @@ final class Semanticdb private (
               // FIXME: https://github.com/scalameta/scalameta/issues/1565
               crash(other)
           }
+        case TptArray(tpt) =>
+          s.TypeRef(s.NoType, "scala/Array#", List(tpt.tpe))
+        case TptBoolean() =>
+          s.TypeRef(s.NoType, "scala/Boolean#", Nil)
         case TptByName(tpt) =>
           s.ByNameType(tpt.tpe)
+        case TptByte() =>
+          s.TypeRef(s.NoType, "scala/Byte#", Nil)
+        case TptChar() =>
+          s.TypeRef(s.NoType, "scala/Char#", Nil)
+        case TptDouble() =>
+          s.TypeRef(s.NoType, "scala/Double#", Nil)
         case TptExistential(tpt, stats) =>
           // FIXME: https://github.com/twitter/rsc/issues/94
           s.NoType
+        case TptFloat() =>
+          s.TypeRef(s.NoType, "scala/Float#", Nil)
         case tpt: TptId =>
           // FIXME: https://github.com/twitter/rsc/issues/90
           s.TypeRef(s.NoType, tpt.sym, Nil)
+        case TptInt() =>
+          s.TypeRef(s.NoType, "scala/Int#", Nil)
+        case TptIntersect(tpts) =>
+          s.IntersectionType(tpts.map(_.tpe))
+        case TptLong() =>
+          s.TypeRef(s.NoType, "scala/Long#", Nil)
         case tpt: TptProject =>
           // FIXME: https://github.com/twitter/rsc/issues/91
           s.NoType
@@ -466,6 +533,8 @@ final class Semanticdb private (
         case tpt: TptSelect =>
           // FIXME: https://github.com/twitter/rsc/issues/90
           s.TypeRef(s.NoType, tpt.id.sym, Nil)
+        case TptShort() =>
+          s.TypeRef(s.NoType, "scala/Short#", Nil)
         case TptSingleton(id: TermId) =>
           // FIXME: https://github.com/twitter/rsc/issues/90
           s.SingleType(s.NoType, id.sym)
@@ -477,6 +546,8 @@ final class Semanticdb private (
           s.NoType
         case TptSingleton(TermThis(id)) =>
           s.ThisType(id.sym)
+        case TptVoid() =>
+          s.TypeRef(s.NoType, "scala/Unit#", Nil)
         case _: TptWildcard =>
           crash(tpt)
         case TptWildcardExistential(_, tpt) =>

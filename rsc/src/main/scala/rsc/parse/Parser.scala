@@ -3,38 +3,30 @@
 package rsc.parse
 
 import rsc.gensym._
-import rsc.lexis._
+import rsc.inputs._
 import rsc.report._
 import rsc.settings._
+import rsc.syntax._
 
-final class Parser private (
-    val settings: Settings,
-    val reporter: Reporter,
-    val gensym: Gensym,
-    val input: Input)
-    extends Bounds
-    with Contexts
-    with Defns
-    with Enumerators
-    with Groups
-    with Helpers
-    with Imports
-    with Infix
-    with Lits
-    with Messages
-    with Modifiers
-    with Newlines
-    with Params
-    with Paths
-    with Pats
-    with Sources
-    with Templates
-    with Terms
-    with Tpts
-    with Wildcards
+trait Parser {
+  def parse(): Source
+}
 
 object Parser {
   def apply(settings: Settings, reporter: Reporter, gensym: Gensym, input: Input): Parser = {
-    new Parser(settings, reporter, gensym, input)
+    input.lang match {
+      case ScalaLanguage =>
+        rsc.parse.scala.Parser(settings, reporter, gensym, input)
+      case JavaLanguage =>
+        rsc.parse.java.Parser(settings, reporter, gensym, input)
+      case UnknownLanguage =>
+        new Parser {
+          def parse(): Source = {
+            val msg = IllegalLanguage(Position(input, 0, 0))
+            reporter.append(msg)
+            Source(Nil)
+          }
+        }
+    }
   }
 }

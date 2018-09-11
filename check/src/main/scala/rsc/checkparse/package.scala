@@ -5,8 +5,7 @@ package rsc
 import java.nio.file._
 import rsc.checkbase._
 import rsc.gensym._
-import rsc.lexis.{BOF => RSC_BOF, EOF => RSC_EOF}
-import rsc.lexis.{Input => RscInput, Position => RscPosition}
+import rsc.inputs.{Input => RscInput}
 import rsc.parse.{Parser => RscParser}
 import rsc.pretty._
 import rsc.report.{StoreReporter => RscReporter}
@@ -23,16 +22,33 @@ package object checkparse extends NscUtil {
   implicit class PathParseOps(path: Path) {
     def parseNsc(nscGlobal: NscGlobal): Either[List[String], NscGlobal#Tree] = {
       try {
-        import nscGlobal.syntaxAnalyzer.{SourceFileParser => NscParser}
-        val nscReporter = nscGlobal.reporter.asInstanceOf[NscReporter]
-        nscReporter.reset()
-        val nscFile = NscAbstractFile.getFile(path.toFile)
-        val nscSource = new NscSourceFile(nscFile)
-        val nscParser = new NscParser(nscSource)
-        val nscTree = nscParser.parse()
-        val nscMessages = nscReporter.infos.toList.map(_.str)
-        if (nscMessages.nonEmpty) Left(nscMessages)
-        else Right(nscTree: NscGlobal#Tree)
+        if (path.toString.endsWith(".scala")) {
+          import nscGlobal.syntaxAnalyzer.{SourceFileParser => NscParser}
+          val nscReporter = nscGlobal.reporter.asInstanceOf[NscReporter]
+          nscReporter.reset()
+          val nscFile = NscAbstractFile.getFile(path.toFile)
+          val nscSource = new NscSourceFile(nscFile)
+          val nscParser = new NscParser(nscSource)
+          val nscTree = nscParser.parse()
+          val nscMessages = nscReporter.infos.toList.map(_.str)
+          if (nscMessages.nonEmpty) Left(nscMessages)
+          else Right(nscTree: NscGlobal#Tree)
+        } else if (path.toString.endsWith(".java")) {
+          import nscGlobal.syntaxAnalyzer.{JavaUnitParser => NscParser}
+          import nscGlobal.{CompilationUnit => NscUnit}
+          val nscReporter = nscGlobal.reporter.asInstanceOf[NscReporter]
+          nscReporter.reset()
+          val nscFile = NscAbstractFile.getFile(path.toFile)
+          val nscSource = new NscSourceFile(nscFile)
+          val nscUnit = new NscUnit(nscSource)
+          val nscParser = new NscParser(nscUnit)
+          val nscTree = nscParser.parse()
+          val nscMessages = nscReporter.infos.toList.map(_.str)
+          if (nscMessages.nonEmpty) Left(nscMessages)
+          else Right(nscTree: NscGlobal#Tree)
+        } else {
+          crash(s"illegal language: $path")
+        }
       } catch {
         case ex: Throwable =>
           Left(List(s"crash when parsing $path:$EOL:${ex.str}"))
@@ -46,48 +62,15 @@ package object checkparse extends NscUtil {
         val rscGensym = Gensym()
         val rscInput = RscInput(path)
         val rscParser = RscParser(rscSettings, rscReporter, rscGensym, rscInput)
-        rscParser.accept(RSC_BOF)
-        val rscTree = {
-          try rscParser.source()
-          catch {
-            case ex: CrashException =>
-              throw ex
-            case ex: Throwable =>
-              val offset = rscParser.in.lastOffset
-              val pos = RscPosition(rscInput, offset, offset)
-              val message = {
-                val header = ex.getClass.getName
-                val diagnostic = {
-                  if (ex.getMessage != null) ex.getMessage
-                  else "compiler crash"
-                }
-                s"$header: $diagnostic"
-              }
-              val ex1 = CrashException(pos, message)
-              ex1.setStackTrace(ex.getStackTrace)
-              throw ex1
-          }
-        }
-        rscParser.accept(RSC_EOF)
+        val rscTree = rscParser.parse()
         val rscMessages = rscReporter.messages.toList.map(_.str)
         if (rscMessages.nonEmpty) Left(rscMessages)
         else Right(rscTree)
       } catch {
-        case ex: CrashException =>
-          Left(List(ex.str))
         case ex: Throwable =>
-          Left(List(s"crash when parsing $path:$EOL${ex.str}"))
+          val message = rsc.report.CrashMessage(ex)
+          Left(List(message.str))
       }
-    }
-  }
-
-  implicit class StringParseOps(s: String) {
-    def parseNsc(nscGlobal: NscGlobal): Either[List[String], NscGlobal#Tree] = {
-      s.dump.parseNsc(nscGlobal)
-    }
-
-    def parseRsc(): Either[List[String], RscTree] = {
-      s.dump.parseRsc()
     }
   }
 

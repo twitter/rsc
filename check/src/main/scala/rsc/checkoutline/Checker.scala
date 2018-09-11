@@ -101,8 +101,6 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     var infos1 = index.infos.values.toList
     // WONTFIX: https://github.com/twitter/rsc/issues/121
     infos1 = infos1.filter(_.isEligible)
-    // NOTE: https://github.com/twitter/rsc/issues/191
-    infos1 = infos1.filter(_.isScala)
     Index(infos1.map(info => info.symbol -> info).toMap, index.anchors)
   }
 
@@ -117,6 +115,10 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
       // WONTFIX: https://github.com/scalameta/scalameta/issues/1538
       info1 = info1.copy(properties = info1.properties & ~p.VAL.value)
       info1 = info1.copy(properties = info1.properties & ~p.VAR.value)
+      // FIXME: https://github.com/scalameta/scalameta/issues/1762
+      if (info1.isJava) {
+        info1 = info1.copy(properties = info1.properties & ~p.DEFAULT.value)
+      }
     }
     // FIXME: https://github.com/scalameta/scalameta/issues/1492
     info1 = info1.copy(properties = info1.properties & ~p.SYNTHETIC.value)

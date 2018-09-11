@@ -8,24 +8,24 @@ import scala.meta.scalasig._
 
 trait DumpUtil {
   implicit class StringDumpOps(s: String) {
-    def dump(): Path = {
-      val tmpPath = Files.createTempFile("", ".txt")
+    def dump(extension: String = ".txt"): Path = {
+      val tmpPath = Files.createTempFile("", extension)
       Files.write(tmpPath, s.getBytes(UTF_8))
       tmpPath
     }
   }
 
   implicit class BytesDumpOps(bytes: Array[Byte]) {
-    def dump(): Path = {
-      val tmpPath = Files.createTempFile("", ".bin")
+    def dump(extension: String = ".bin"): Path = {
+      val tmpPath = Files.createTempFile("", extension)
       Files.write(tmpPath, bytes)
       tmpPath
     }
   }
 
   implicit class ClassfileDumpOps(classfile: Classfile) {
-    def dump(): Path = {
-      val tmpPath = Files.createTempFile("", ".class")
+    def dump(extension: String = ".class"): Path = {
+      val tmpPath = Files.createTempFile("", extension)
       Files.write(tmpPath, classfile.toBinary)
       tmpPath
     }

@@ -3,12 +3,22 @@
 package rsc.pretty
 
 import rsc.syntax._
+import rsc.util._
 
 object PrettyOutline {
   def desc(outline: Outline): String = {
     outline match {
       case outline: DefnClass =>
-        s"class ${outline.id.value}"
+        if (outline.hasAnnotationInterface) s"@interface ${outline.id.value}"
+        else if (outline.hasClass) s"class ${outline.id.value}"
+        else if (outline.hasEnum) s"enum ${outline.id.value}"
+        else if (outline.hasInterface) s"interface ${outline.id.value}"
+        else if (outline.hasTrait) s"trait ${outline.id.value}"
+        else crash(outline)
+      case outline: DefnConstant =>
+        s"constant ${outline.id.value}"
+      case outline: DefnCtor =>
+        s"constructor"
       case outline: DefnField =>
         if (outline.hasVal) s"val ${outline.id.value}"
         else s"var ${outline.id.value}"
@@ -24,8 +34,6 @@ object PrettyOutline {
         s"package object ${outline.id.value}"
       case outline: DefnProcedure =>
         s"def ${outline.id.value}"
-      case outline: DefnTrait =>
-        s"trait ${outline.id.value}"
       case outline: DefnType =>
         s"type ${outline.id.value}"
       case outline: Param =>
@@ -40,8 +48,6 @@ object PrettyOutline {
         }
       case outline: PrimaryCtor =>
         s"primary constructor"
-      case outline: SecondaryCtor =>
-        s"secondary constructor"
       case outline: Self =>
         s"self"
       case outline: TypeParam =>

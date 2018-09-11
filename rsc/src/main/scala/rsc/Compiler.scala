@@ -6,6 +6,7 @@ import java.io._
 import java.nio.file._
 import java.util.LinkedList
 import rsc.gensym._
+import rsc.inputs._
 import rsc.lexis._
 import rsc.outline._
 import rsc.parse._
@@ -13,7 +14,6 @@ import rsc.pretty._
 import rsc.report._
 import rsc.scan._
 import rsc.semanticdb._
-import rsc.semantics._
 import rsc.settings._
 import rsc.syntax._
 import rsc.util._
@@ -23,7 +23,6 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
   var gensyms: Gensyms = Gensyms()
   var symtab: Symtab = Symtab(settings)
   var todo: Todo = Todo()
-  var cursor: Any = null
 
   def run(): Unit = {
     for ((taskName, taskFn) <- tasks) {
@@ -31,12 +30,8 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
       try {
         taskFn()
       } catch {
-        case crash @ CrashException(pos, message, ex) =>
-          val ex1 = if (ex != null) ex else crash
-          val pos1 = if (pos != NoPosition) pos else cursor.pos
-          reporter.append(CrashMessage(pos1, message, ex1))
         case ex: Throwable =>
-          reporter.append(CrashMessage(cursor.pos, ex.getMessage, ex))
+          reporter.append(CrashMessage(ex))
       }
       val end = System.nanoTime()
       val ms = (end - start) / 1000000
@@ -85,17 +80,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
         } else {
           val gensym = gensyms(input)
           val parser = Parser(settings, reporter, gensym, input)
-          parser.accept(BOF)
-          val tree = {
-            try parser.source()
-            catch {
-              case ex: Throwable =>
-                val offset = parser.in.lastOffset
-                val pos = Position(input, offset, offset)
-                throw CrashException(pos, "compiler crash", ex)
-            }
-          }
-          parser.accept(EOF)
+          val tree = parser.parse()
           Some(tree)
         }
       } else {
@@ -109,69 +94,43 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
   }
 
   private def index(): Unit = {
-    val rootScope = PackageScope(RootPackage, symtab._index)
-    symtab.scopes(rootScope.sym) = rootScope
-    todo.add(Env(), rootScope)
-    val emptyScope = PackageScope(EmptyPackage, symtab._index)
-    symtab.scopes(emptyScope.sym) = emptyScope
-    todo.add(Env(), emptyScope)
-
-    def checkExists(sym: String): Unit = {
-      val scope = symtab.scopes.get(sym)
-      if (scope == null) {
-        crash(s"""
-        |missing core definition: $sym
-        |Unlike Scalac, Rsc requires that the following libraries are passed explicitly:
-        |  1) JDK libraries that are used in your code (at least, rt.jar).
-        |  2) Scala library.
-        |  3) Scala library synthetics (a SemanticDB-only artifact produced by Metacp).
-        """.trim.stripMargin)
-      }
-    }
-    checkExists("java/lang/")
-    checkExists("scala/")
-    checkExists("scala/Predef.")
-    checkExists("scala/AnyRef#")
+    val indexer = Indexer(settings, reporter, symtab, todo)
+    indexer.apply()
   }
 
   private def schedule(): Unit = {
-    val rootEnv = Env(symtab.scopes(RootPackage))
-
-    val javaLangQual = TermSelect(TermId("java"), TermId("lang"))
-    val javaLangImporter = Importer(javaLangQual, List(ImporteeWildcard()))
-    val javaLangScope = ImporterScope(javaLangImporter)
-    todo.add(rootEnv, javaLangScope)
-    val javaLangEnv = javaLangScope :: rootEnv
-
-    val scalaImporter = Importer(TermId("scala"), List(ImporteeWildcard()))
-    val scalaScope = ImporterScope(scalaImporter)
-    todo.add(javaLangEnv, scalaScope)
-    val scalaEnv = scalaScope :: javaLangEnv
-
-    val predefQual = TermSelect(TermId("scala"), TermId("Predef"))
-    val predefImporter = Importer(predefQual, List(ImporteeWildcard()))
-    val predefScope = ImporterScope(predefImporter)
-    todo.add(scalaEnv, predefScope)
-    val predefEnv = predefScope :: scalaEnv
-
     val scheduler = Scheduler(settings, reporter, gensyms, symtab, todo)
-    trees.foreach(scheduler.apply(predefEnv, _))
+    trees.foreach { tree =>
+      val env = Env(Nil, tree.lang)
+      scheduler.apply(env, tree)
+    }
   }
 
   private def outline(): Unit = {
     val outliner = Outliner(settings, reporter, symtab, todo)
     while (!todo.isEmpty) {
       val (env, work) = todo.remove()
-      cursor = work
-      work.unblock()
-      if (work.status.isPending) {
-        outliner.apply(env, work)
-      }
-      if (work.status.isBlocked) {
-        todo.add(env, work)
-      }
-      if (work.status.isCyclic) {
-        reporter.append(IllegalCyclicReference(work))
+      try {
+        work.unblock()
+        if (work.status.isPending) {
+          outliner.apply(env, work)
+        }
+        if (work.status.isBlocked) {
+          todo.add(env, work)
+        }
+        if (work.status.isCyclic) {
+          reporter.append(IllegalCyclicReference(work))
+        }
+      } catch {
+        case ex: Throwable =>
+          val pos = work match {
+            case x: ImporterScope => x.tree.pos
+            case x: PackageObjectScope => x.tree.pos
+            case x: TemplateScope => x.tree.pos
+            case x: Sketch => x.tree.pos
+            case _ => NoPosition
+          }
+          crash(pos, ex)
       }
     }
   }
@@ -181,8 +140,12 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
     val outlines = new LinkedList(symtab._outlines.values)
     while (!outlines.isEmpty) {
       val outline = outlines.remove()
-      cursor = outline
-      semanticdb.apply(outline)
+      try {
+        semanticdb.apply(outline)
+      } catch {
+        case ex: Throwable =>
+          crash(outline.pos, ex)
+      }
     }
     semanticdb.save()
   }

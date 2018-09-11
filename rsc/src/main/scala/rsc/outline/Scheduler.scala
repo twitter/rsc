@@ -4,6 +4,7 @@ package rsc.outline
 
 import java.util.LinkedHashSet
 import rsc.gensym._
+import rsc.inputs._
 import rsc.report._
 import rsc.semantics._
 import rsc.settings._
@@ -39,8 +40,8 @@ final class Scheduler private (
   private def assignSym(env: Env, outline: Outline): Unit = {
     val scope = {
       outline match {
-        case DefnPackage(TermSelect(qual: TermPath, _), _) =>
-          val parentPackage = DefnPackage(qual, Nil).withPos(outline.pos)
+        case DefnPackage(_, TermSelect(qual: TermPath, _), _) =>
+          val parentPackage = DefnPackage(Mods(Nil), qual, Nil).withPos(outline.pos)
           apply(env, parentPackage)
           symtab.scopes(qual.id.sym)
         case DefnPackageObject(_, id, _, _, _, _) =>
@@ -97,6 +98,8 @@ final class Scheduler private (
           outline match {
             case outline: DefnClass =>
               TypeSymbol(scope.sym, outline.id.value)
+            case outline: DefnConstant =>
+              TermSymbol(scope.sym, outline.id.value)
             case outline: DefnDef =>
               if (outline.hasVal) {
                 TermSymbol(scope.sym, outline.id.value)
@@ -117,8 +120,6 @@ final class Scheduler private (
               PackageSymbol(scope.sym, outline.id.value)
             case outline: DefnPackageObject =>
               TermSymbol(scope.sym, "package")
-            case outline: DefnTrait =>
-              TypeSymbol(scope.sym, outline.id.value)
             case outline: DefnType =>
               TypeSymbol(scope.sym, outline.id.value)
             case outline: Param =>
@@ -213,12 +214,13 @@ final class Scheduler private (
           ()
         case PatTuple(args) =>
           args.foreach(loop(env, _))
-        case pat @ PatVar(id, tpt) =>
+        case pat @ PatVar(mods, id, tpt) =>
           id match {
             case id: TermId =>
+              val fieldMods = Mods(tree.mods.trees ++ mods.trees)
               val fieldTpt = tpt.orElse(tree.tpt)
-              val fieldRhs = Some(TermSynthetic())
-              val field = DefnField(tree.mods, id, fieldTpt, fieldRhs)
+              val fieldRhs = Some(TermStub())
+              val field = DefnField(fieldMods, id, fieldTpt, fieldRhs)
               apply(env, field.withPos(tree.pos))
             case _ =>
               ()
@@ -248,13 +250,13 @@ final class Scheduler private (
     stats(TemplateLevel, templateEnv, tree.earlies)
     tree match {
       case tree: DefnClass =>
-        synthesizer.paramss(templateEnv, tree.ctor)
+        tree.primaryCtor.foreach(synthesizer.paramss(templateEnv, _))
         synthesizer.paramAccessors(templateEnv, tree)
-        apply(templateEnv, tree.ctor)
+        tree.primaryCtor.foreach(apply(templateEnv, _))
       case tree: DefnObject =>
         val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
         companionClass match {
-          case caseClass: DefnClass if caseClass.hasDefault =>
+          case caseClass: DefnClass if caseClass.hasDefaultParams =>
             synthesizer.defaultGetters(templateEnv, caseClass)
           case _ =>
             ()
@@ -268,7 +270,7 @@ final class Scheduler private (
         if (tree.hasCase) {
           synthesizer.caseClassMembers(templateEnv, tree)
         }
-        tree.inits.foreach {
+        tree.parents.foreach {
           case Init(TptId("AnyVal"), Nil) =>
             synthesizer.valueClassMembers(templateEnv, tree)
           case _ =>
@@ -367,7 +369,23 @@ final class Scheduler private (
   }
 
   private def source(env: Env, tree: Source): Env = {
-    stats(SourceLevel, env, tree.stats)
+    def wildcardImport(qual: Path, env: Env): Env = {
+      val importer = Importer(Mods(Nil), qual, List(ImporteeWildcard()))
+      val scope = ImporterScope(importer)
+      todo.add(env, scope)
+      scope :: env
+    }
+    val sourceEnv = tree.lang match {
+      case ScalaLanguage | UnknownLanguage =>
+        val rootEnv = symtab.scopes(RootPackage) :: env
+        val javaLangEnv = wildcardImport(TermSelect(TermId("java"), TermId("lang")), rootEnv)
+        val scalaEnv = wildcardImport(TermId("scala"), javaLangEnv)
+        wildcardImport(TermSelect(TermId("scala"), TermId("Predef")), scalaEnv)
+      case JavaLanguage =>
+        val rootEnv = symtab.scopes(RootPackage) :: env
+        wildcardImport(TermSelect(TermId("java"), TermId("lang")), rootEnv)
+    }
+    stats(SourceLevel, sourceEnv, tree.stats)
     env
   }
 
@@ -379,14 +397,14 @@ final class Scheduler private (
   private def stats(level: Level, env: Env, trees: List[Stat]): Env = {
     var essentialObjects: LinkedHashSet[Symbol] = null
     trees.foreach {
-      case caseClass: DefnClass if caseClass.hasCase || caseClass.hasDefault =>
+      case outline: DefnClass if outline.hasCase || outline.hasDefaultParams =>
         if (essentialObjects == null) {
           essentialObjects = new LinkedHashSet[Symbol]
         }
         val ownerSym = if (level == SourceLevel) EmptyPackage else env.owner.sym
-        val classSym = TypeSymbol(ownerSym, caseClass.id.value)
-        caseClass.id.sym = classSym
-        symtab._outlines.put(classSym, caseClass)
+        val classSym = TypeSymbol(ownerSym, outline.id.value)
+        outline.id.sym = classSym
+        symtab._outlines.put(classSym, outline)
         essentialObjects.add(classSym.companionObject)
       case _ =>
         ()
@@ -413,9 +431,9 @@ final class Scheduler private (
         tree match {
           case tree: DefnClass if tree.hasImplicit =>
             synthesizer.implicitClassConversion(currEnv, tree)
-          case tree: DefnCtor =>
+          case _: DefnCtor | _: PrimaryCtor =>
             ()
-          case tree: DefnDef if tree.hasDefault =>
+          case tree: DefnDef if tree.hasDefaultParams =>
             synthesizer.defaultGetters(treeEnv, tree)
           case _ =>
             ()
@@ -466,18 +484,20 @@ final class Scheduler private (
   }
 
   private implicit class ClassDefaultOps(tree: DefnClass) {
-    def hasDefault: Boolean = {
-      def primaryHasDefault = tree.ctor.hasDefault
-      def secondaryHasDefault = tree.stats.exists {
-        case stat: DefnCtor => stat.hasDefault
+    def hasDefaultParams: Boolean = {
+      def primaryHasDefaultParams = {
+        tree.primaryCtor.map(_.hasDefaultParams).getOrElse(false)
+      }
+      def secondaryHasDefaultParams = tree.stats.exists {
+        case stat: DefnCtor => stat.hasDefaultParams
         case _ => false
       }
-      primaryHasDefault || secondaryHasDefault
+      primaryHasDefaultParams || secondaryHasDefaultParams
     }
   }
 
   private implicit class DefDefaultOps(tree: DefnDef) {
-    def hasDefault: Boolean = {
+    def hasDefaultParams: Boolean = {
       tree.paramss.flatten.exists(_.rhs.nonEmpty)
     }
   }

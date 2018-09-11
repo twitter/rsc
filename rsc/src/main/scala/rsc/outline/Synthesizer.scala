@@ -49,7 +49,7 @@ final class Synthesizer private (
   }
 
   def defaultGetters(env: Env, tree: DefnClass): Unit = {
-    defaultGetters(env, tree.tparams, tree.ctor)
+    tree.primaryCtor.foreach(defaultGetters(env, tree.tparams, _))
     tree.stats.foreach {
       case ctor: DefnCtor => defaultGetters(env, tree.tparams, ctor)
       case _ => ()
@@ -88,10 +88,10 @@ final class Synthesizer private (
               case _ =>
                 None
             })
-            val id = TermId(tree.id.nameopt.get.value + "$default$" + paramPos)
+            val id = TermId(tree.id.valueopt.get + "$default$" + paramPos)
             val tparams = treeTparams.map { tp =>
               val mods = Mods(Nil)
-              val id = TptId(tp.id.nameopt.get.value).withPos(tp.id.pos)
+              val id = TptId(tp.id.valueopt.get).withPos(tp.id.pos)
               val lbound = tp.lbound.map(_.dupe)
               val ubound = tp.ubound.map(_.dupe)
               val tparam = TypeParam(mods, id, Nil, lbound, ubound, Nil, Nil)
@@ -101,7 +101,7 @@ final class Synthesizer private (
               .take(i)
               .map(_.map { p =>
                 val mods = Mods(Nil)
-                val id = TermId(p.id.nameopt.get.value)
+                val id = TermId(p.id.valueopt.get)
                 val tpt = p.tpt.map(_.dupe)
                 val param = Param(mods, id, tpt, None)
                 param.withPos(p.pos)
@@ -118,7 +118,7 @@ final class Synthesizer private (
                 TptAnnotate(paramTpt, Mods(List(annot)))
               }
             }
-            val rhs = Some(TermSynthetic())
+            val rhs = Some(TermStub())
             val meth = DefnMethod(mods, id, tparams, paramss, ret, rhs)
             scheduler(env, meth.withPos(param.pos))
           }
@@ -132,22 +132,22 @@ final class Synthesizer private (
     }
     val id = TermId(tree.id.value)
     val tparams = tree.tparams.map { tp =>
-      val id = TptId(tp.id.nameopt.get.value).withPos(tp.id.pos)
+      val id = TptId(tp.id.valueopt.get).withPos(tp.id.pos)
       val lbound = tp.lbound.map(_.dupe)
       val ubound = tp.ubound.map(_.dupe)
       val tparam = TypeParam(Mods(Nil), id, Nil, lbound, ubound, Nil, Nil)
       tparam.withPos(tp.pos)
     }
     val paramss = {
-      val ctorParamss = symtab._paramss.get(tree.ctor)
-      if (ctorParamss != null) {
-        ctorParamss match {
-          case List(List(ctorParam)) =>
-            val pos = ctorParam.id.pos
-            val id = TermId(ctorParam.id.nameopt.get.value).withPos(pos)
-            val tpt = ctorParam.tpt.map(_.dupe)
+      val paramss = symtab._paramss.get(tree.primaryCtor.get)
+      if (paramss != null) {
+        paramss match {
+          case List(List(param)) =>
+            val pos = param.id.pos
+            val id = TermId(param.id.valueopt.get).withPos(pos)
+            val tpt = param.tpt.map(_.dupe)
             val methParam = Param(Mods(Nil), id, tpt, None)
-            List(List(methParam.withPos(ctorParam.pos)))
+            List(List(methParam.withPos(param.pos)))
           case _ =>
             Nil
         }
@@ -160,43 +160,45 @@ final class Synthesizer private (
       if (tparams.isEmpty) Some(core)
       else Some(TptParameterize(core, tparams.map(_.id.asInstanceOf[TptId])))
     }
-    val rhs = Some(TermSynthetic())
+    val rhs = Some(TermStub())
     val meth = DefnMethod(mods, id, tparams, paramss, ret, rhs)
     scheduler(env, meth.withPos(tree.pos))
   }
 
   def paramAccessors(env: Env, tree: DefnClass): Unit = {
-    val paramss = symtab._paramss.get(tree.ctor)
-    paramss.zipWithIndex.foreach {
-      case (params, i) =>
-        params.foreach { param =>
-          val fieldMods = {
-            val valMods = {
-              if (param.hasVal || param.hasVar) Nil
-              else List(ModVal())
-            }
-            val accessMods = {
-              if (param.hasPrivate) Nil
-              else if (param.hasPrivateThis) Nil
-              else if (param.hasPrivateWithin) Nil
-              else if (param.hasProtected) Nil
-              else if (param.hasProtectedThis) Nil
-              else if (param.hasProtectedWithin) Nil
-              else if (param.hasVal) Nil
-              else if (param.hasVar) Nil
-              else {
-                if (tree.hasCase && i == 0) Nil
-                else List(ModPrivateThis())
+    tree.primaryCtor.foreach { primaryCtor =>
+      val paramss = symtab._paramss.get(primaryCtor)
+      paramss.zipWithIndex.foreach {
+        case (params, i) =>
+          params.foreach { param =>
+            val fieldMods = {
+              val valMods = {
+                if (param.hasVal || param.hasVar) Nil
+                else List(ModVal())
               }
+              val accessMods = {
+                if (param.hasPrivate) Nil
+                else if (param.hasPrivateThis) Nil
+                else if (param.hasPrivateWithin) Nil
+                else if (param.hasProtected) Nil
+                else if (param.hasProtectedThis) Nil
+                else if (param.hasProtectedWithin) Nil
+                else if (param.hasVal) Nil
+                else if (param.hasVar) Nil
+                else {
+                  if (tree.hasCase && i == 0) Nil
+                  else List(ModPrivateThis())
+                }
+              }
+              Mods(accessMods ++ param.mods.trees ++ valMods)
             }
-            Mods(accessMods ++ param.mods.trees ++ valMods)
+            val fieldId = TermId(param.id.valueopt.get).withPos(param.pos)
+            val fieldTpt = param.tpt.map(_.dupe)
+            val fieldRhs = Some(TermStub())
+            val field = DefnField(fieldMods, fieldId, fieldTpt, fieldRhs)
+            scheduler(env, field.withPos(param.pos))
           }
-          val fieldId = TermId(param.id.nameopt.get.value).withPos(param.pos)
-          val fieldTpt = param.tpt.map(_.dupe)
-          val fieldRhs = Some(TermSynthetic())
-          val field = DefnField(fieldMods, fieldId, fieldTpt, fieldRhs)
-          scheduler(env, field.withPos(param.pos))
-        }
+      }
     }
   }
 
@@ -207,7 +209,7 @@ final class Synthesizer private (
     } else {
       val tparams = {
         tree match {
-          case tree: DefnCtor =>
+          case _: DefnCtor | _: PrimaryCtor =>
             val enclosingClass = env._scopes.collectFirst {
               case x: TemplateScope if x.tree.isInstanceOf[DefnClass] => x.tree
             }
@@ -293,18 +295,18 @@ final class Synthesizer private (
   private def caseClassCopy(env: Env, tree: DefnClass): Unit = {
     val id = TermId("copy")
     val tparams = tree.tparams.map { tp =>
-      val id = TptId(tp.id.nameopt.get.value).withPos(tp.id.pos)
+      val id = TptId(tp.id.valueopt.get).withPos(tp.id.pos)
       val lbound = tp.lbound.map(_.dupe)
       val ubound = tp.ubound.map(_.dupe)
       val tparam = TypeParam(Mods(Nil), id, Nil, lbound, ubound, Nil, Nil)
       tparam.withPos(tp.pos)
     }
-    val paramss = tree.ctor.paramss.zipWithIndex.map {
+    val paramss = tree.primaryCtor.get.paramss.zipWithIndex.map {
       case (params, i) =>
         params.map { p =>
-          val id = TermId(p.id.nameopt.get.value).withPos(p.id.pos)
+          val id = TermId(p.id.valueopt.get).withPos(p.id.pos)
           val tpt = p.tpt.map(_.dupe)
-          val rhs = if (i == 0) Some(TermSynthetic()) else None
+          val rhs = if (i == 0) Some(TermStub()) else None
           val param = Param(Mods(Nil), id, tpt, rhs)
           param.withPos(p.pos)
         }
@@ -314,17 +316,17 @@ final class Synthesizer private (
       if (tparams.isEmpty) Some(core)
       else Some(TptParameterize(core, tparams.map(_.id.asInstanceOf[TptId])))
     }
-    val rhs = Some(TermSynthetic())
+    val rhs = Some(TermStub())
     val meth = DefnMethod(Mods(Nil), id, tparams, paramss, ret, rhs)
     scheduler(env, meth.withPos(tree.pos))
 
-    tree.ctor.paramss.head.zipWithIndex.foreach {
+    tree.primaryCtor.get.paramss.head.zipWithIndex.foreach {
       case (param, i) =>
         val mods = Mods(Nil)
         val id = TermId("copy$default$" + (i + 1))
         val tparams = tree.tparams.map { tp =>
           val mods = Mods(Nil)
-          val id = TptId(tp.id.nameopt.get.value).withPos(tp.id.pos)
+          val id = TptId(tp.id.valueopt.get).withPos(tp.id.pos)
           val lbound = tp.lbound.map(_.dupe)
           val ubound = tp.ubound.map(_.dupe)
           val tparam = TypeParam(mods, id, Nil, lbound, ubound, Nil, Nil)
@@ -336,7 +338,7 @@ final class Synthesizer private (
           val annot = ModAnnotation(Init(annotTpt, Nil))
           Some(TptAnnotate(param.tpt.get, Mods(List(annot))))
         }
-        val rhs = Some(TermSynthetic())
+        val rhs = Some(TermStub())
         val meth = DefnMethod(mods, id, tparams, Nil, ret, rhs)
         scheduler(env, meth.withPos(param.pos))
     }
@@ -378,7 +380,7 @@ final class Synthesizer private (
       List(List(param.withPos(tree.pos)))
     }
     val ret = Some(TptId("Boolean").withSym(BooleanClass))
-    val rhs = Some(TermSynthetic())
+    val rhs = Some(TermStub())
     val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
     scheduler(env, method.withPos(tree.pos))
   }
@@ -391,7 +393,7 @@ final class Synthesizer private (
         val id = TermId("toString")
         val paramss = List(Nil)
         val ret = Some(TptId("String").withSym(StringClass))
-        val rhs = Some(TermSynthetic())
+        val rhs = Some(TermStub())
         val method = DefnMethod(mods, id, Nil, paramss, ret, rhs)
         scheduler(env, method.withPos(tree.pos))
       case _ =>
@@ -402,18 +404,18 @@ final class Synthesizer private (
   private def caseClassCompanionApply(env: Env, tree: DefnClass): Unit = {
     val id = TermId("apply")
     val tparams = tree.tparams.map { tp =>
-      val id = TptId(tp.id.nameopt.get.value).withPos(tp.id.pos)
+      val id = TptId(tp.id.valueopt.get).withPos(tp.id.pos)
       val lbound = tp.lbound.map(_.dupe)
       val ubound = tp.ubound.map(_.dupe)
       val tparam = TypeParam(Mods(Nil), id, Nil, lbound, ubound, Nil, Nil)
       tparam.withPos(tp.pos)
     }
-    var hasDefault = false
-    val paramss = tree.ctor.paramss.map(_.map { p =>
-      val id = TermId(p.id.nameopt.get.value).withPos(p.id.pos)
+    var hasDefaultParams = false
+    val paramss = tree.primaryCtor.get.paramss.map(_.map { p =>
+      val id = TermId(p.id.valueopt.get).withPos(p.id.pos)
       val tpt = p.tpt.map(_.dupe)
       val rhs = p.rhs.map(_.dupe)
-      hasDefault |= p.rhs.nonEmpty
+      hasDefaultParams |= p.rhs.nonEmpty
       val param = Param(Mods(Nil), id, tpt, rhs)
       param.withPos(p.pos)
     })
@@ -422,16 +424,16 @@ final class Synthesizer private (
       if (tparams.isEmpty) Some(core)
       else Some(TptParameterize(core, tparams.map(_.id.asInstanceOf[TptId])))
     }
-    val rhs = Some(TermSynthetic())
+    val rhs = Some(TermStub())
     val meth = DefnMethod(Mods(Nil), id, tparams, paramss, ret, rhs)
     scheduler(env, meth.withPos(tree.pos))
-    if (hasDefault) defaultGetters(env, meth)
+    if (hasDefaultParams) defaultGetters(env, meth)
   }
 
   private def caseClassCompanionUnapply(env: Env, tree: DefnClass): Unit = {
     val id = TermId("unapply")
     val tparams = tree.tparams.map { tp =>
-      val id = TptId(tp.id.nameopt.get.value).withPos(tp.id.pos)
+      val id = TptId(tp.id.valueopt.get).withPos(tp.id.pos)
       val lbound = tp.lbound.map(_.dupe)
       val ubound = tp.ubound.map(_.dupe)
       val tparam = TypeParam(Mods(Nil), id, Nil, lbound, ubound, Nil, Nil)
@@ -447,7 +449,7 @@ final class Synthesizer private (
       List(List(param.withPos(tree.pos)))
     }
     val ret = {
-      val params = tree.ctor.paramss.headOption.getOrElse(Nil)
+      val params = tree.primaryCtor.get.paramss.headOption.getOrElse(Nil)
       params match {
         case Nil =>
           Some(TptId("Boolean").withSym(BooleanClass))
@@ -460,7 +462,7 @@ final class Synthesizer private (
           Some(TptParameterize(option, List(tuple)))
       }
     }
-    val rhs = Some(TermSynthetic())
+    val rhs = Some(TermStub())
     val meth = DefnMethod(Mods(Nil), id, tparams, paramss, ret, rhs)
     scheduler(env, meth.withPos(tree.pos))
   }
@@ -496,7 +498,7 @@ final class Synthesizer private (
   private def caseProductPrefix(env: Env, tree: DefnTemplate): Unit = {
     val id = TermId("productPrefix")
     val ret = Some(TptId("String").withSym(StringClass))
-    val rhs = Some(TermSynthetic())
+    val rhs = Some(TermStub())
     val method = DefnMethod(Mods(Nil), id, Nil, Nil, ret, rhs)
     scheduler(env, method.withPos(tree.pos))
   }
@@ -504,7 +506,7 @@ final class Synthesizer private (
   private def caseProductArity(env: Env, tree: DefnTemplate): Unit = {
     val id = TermId("productArity")
     val ret = Some(TptId("Int").withSym(IntClass))
-    val rhs = Some(TermSynthetic())
+    val rhs = Some(TermStub())
     val method = DefnMethod(Mods(Nil), id, Nil, Nil, ret, rhs)
     scheduler(env, method.withPos(tree.pos))
   }
@@ -517,7 +519,7 @@ final class Synthesizer private (
       List(List(param.withPos(tree.pos)))
     }
     val ret = Some(TptId("Any").withSym(AnyClass))
-    val rhs = Some(TermSynthetic())
+    val rhs = Some(TermStub())
     val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
     scheduler(env, method.withPos(tree.pos))
   }
@@ -529,7 +531,7 @@ final class Synthesizer private (
       val any = TptId("Any").withSym(AnyClass)
       Some(TptParameterize(iterator, List(any)))
     }
-    val rhs = Some(TermSynthetic())
+    val rhs = Some(TermStub())
     val method = DefnMethod(Mods(Nil), id, Nil, Nil, ret, rhs)
     scheduler(env, method.withPos(tree.pos))
   }
@@ -542,7 +544,7 @@ final class Synthesizer private (
       List(List(param.withPos(tree.pos)))
     }
     val ret = Some(TptId("Boolean").withSym(BooleanClass))
-    val rhs = Some(TermSynthetic())
+    val rhs = Some(TermStub())
     val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
     scheduler(env, method.withPos(tree.pos))
   }
@@ -551,7 +553,7 @@ final class Synthesizer private (
     val id = TermId("hashCode")
     val paramss = List(Nil)
     val ret = Some(TptId("Int").withSym(IntClass))
-    val rhs = Some(TermSynthetic())
+    val rhs = Some(TermStub())
     val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
     scheduler(env, method.withPos(tree.pos))
   }
@@ -560,7 +562,7 @@ final class Synthesizer private (
     val id = TermId("toString")
     val paramss = List(Nil)
     val ret = Some(TptId("String").withSym(StringClass))
-    val rhs = Some(TermSynthetic())
+    val rhs = Some(TermStub())
     val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
     scheduler(env, method.withPos(tree.pos))
   }
@@ -573,7 +575,7 @@ final class Synthesizer private (
       List(List(param.withPos(tree.pos)))
     }
     val ret = Some(TptId("Boolean").withSym(BooleanClass))
-    val rhs = Some(TermSynthetic())
+    val rhs = Some(TermStub())
     val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
     scheduler(env, method.withPos(tree.pos))
   }
@@ -582,7 +584,7 @@ final class Synthesizer private (
     val id = TermId("hashCode")
     val paramss = List(Nil)
     val ret = Some(TptId("Int").withSym(IntClass))
-    val rhs = Some(TermSynthetic())
+    val rhs = Some(TermStub())
     val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
     scheduler(env, method.withPos(tree.pos))
   }

@@ -2,13 +2,15 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.pretty
 
-import rsc.lexis._
+import rsc.inputs._
 import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
-import scala.{Symbol => StdlibSymbol}
+import _root_.scala.{Symbol => StdlibSymbol}
 
-class TreeStr(val p: Printer) {
+class TreeStr(p: Printer, l: KnownLanguage) {
+  var stack = List.empty[Tree]
+
   def apply(x: Tree): Unit = {
     apply(x, Undefined)
   }
@@ -22,29 +24,40 @@ class TreeStr(val p: Printer) {
   }
 
   def apply(x: Tree, w: Weight): Unit = {
-    def infixParens(xop: NamedId, wop: NamedId, left: Boolean): Boolean = {
-      val (xl, wl) = (xop.value.isLeftAssoc, wop.value.isLeftAssoc)
-      if (xl ^ wl) true
-      else {
-        val (l, r) = (wl, !wl)
-        val (xp, wp) = (xop.value.precedence, wop.value.precedence)
-        if (xp < wp) l
-        else if (xp > wp) r
-        else l ^ left
+    stack = x :: stack
+    try {
+      def infixParens(xop: NamedId, wop: NamedId, left: Boolean): Boolean = {
+        l match {
+          case ScalaLanguage =>
+            import rsc.lexis.scala._
+            val (xl, wl) = (xop.value.isLeftAssoc, wop.value.isLeftAssoc)
+            if (xl ^ wl) true
+            else {
+              val (l, r) = (wl, !wl)
+              val (xp, wp) = (xop.value.precedence, wop.value.precedence)
+              if (xp < wp) l
+              else if (xp > wp) r
+              else l ^ left
+            }
+          case JavaLanguage =>
+            ???
+        }
       }
+      val needsParens = (x.weight, w) match {
+        case (Undefined, _) => false
+        case (_, Undefined) => false
+        case (InfixExpr(xop), InfixExpr(wop)) => infixParens(xop, wop, true)
+        case (InfixExpr(xop), RhsInfixExpr(wop)) => infixParens(xop, wop, false)
+        case (InfixTyp(xop), InfixTyp(wop)) => infixParens(xop, wop, true)
+        case (InfixTyp(xop), RhsInfixTyp(wop)) => infixParens(xop, wop, false)
+        case (InfixPat(xop), InfixPat(wop)) => infixParens(xop, wop, true)
+        case (InfixPat(xop), RhsInfixPat(wop)) => infixParens(xop, wop, false)
+        case (xw, ww) => xw.value < ww.value
+      }
+      p.Parens.when(needsParens)(impl(x))
+    } finally {
+      stack = stack.tail
     }
-    val needsParens = (x.weight, w) match {
-      case (Undefined, _) => false
-      case (_, Undefined) => false
-      case (InfixExpr(xop), InfixExpr(wop)) => infixParens(xop, wop, true)
-      case (InfixExpr(xop), RhsInfixExpr(wop)) => infixParens(xop, wop, false)
-      case (InfixTyp(xop), InfixTyp(wop)) => infixParens(xop, wop, true)
-      case (InfixTyp(xop), RhsInfixTyp(wop)) => infixParens(xop, wop, false)
-      case (InfixPat(xop), InfixPat(wop)) => infixParens(xop, wop, true)
-      case (InfixPat(xop), RhsInfixPat(wop)) => infixParens(xop, wop, false)
-      case (xw, ww) => xw.value < ww.value
-    }
-    p.Parens.when(needsParens)(impl(x))
   }
 
   def apply(xs: Iterable[Tree], sep: String, w: Weight): Unit = {
@@ -77,8 +90,10 @@ class TreeStr(val p: Printer) {
 
   private def impl(x: Tree): Unit = {
     x match {
-      case AnonId() =>
-        p.str("_")
+      case AmbigSelect(qual, id) =>
+        apply(qual)
+        p.str(".")
+        apply(id)
       case Case(pat, cond, stats) =>
         p.str("case ")
         apply(pat, Pat)
@@ -88,14 +103,45 @@ class TreeStr(val p: Printer) {
         }
         p.str(" => ")
         p.Indent(printStats(stats))
-      case CtorId() =>
-        p.str("this")
-      case DefnField(mods, id, tpt, rhs) =>
+      case DefnConstant(mods, id, stats) =>
         apply(mods)
         apply(id)
-        if (id.isSymbolic) p.str(" ")
-        p.Prefix(": ")(tpt)(apply(_, "", Typ))
-        p.Prefix(" = ")(rhs)(apply(_, "", Expr))
+        p.Nest.when(stats.nonEmpty)(printStats(stats))
+      case DefnCtor(mods, id, paramss, rhs) =>
+        l match {
+          case ScalaLanguage =>
+            apply(mods)
+            p.str("def ")
+            apply(id)
+            apply(paramss)
+            p.Prefix(" = ")(apply(rhs, Expr))
+          case JavaLanguage =>
+            val (prefixMods, postfixMods) = mods.partition()
+            apply(prefixMods)
+            val _ :: (defnClass: DefnClass) :: _ = stack
+            p.str(defnClass.id)
+            apply(paramss)
+            p.Prefix(" ").when(postfixMods.trees.nonEmpty)(apply(postfixMods))
+            rhs match {
+              case TermStub() => p.str(" { ??? }")
+              case rhs => apply(rhs, Expr)
+            }
+        }
+      case DefnField(mods, id, tpt, rhs) =>
+        l match {
+          case ScalaLanguage =>
+            apply(mods)
+            apply(id)
+            if (id.isSymbolic) p.str(" ")
+            p.Prefix(": ")(tpt)(apply(_, "", Typ))
+            p.Prefix(" = ")(rhs)(apply(_, "", Expr))
+          case JavaLanguage =>
+            apply(mods)
+            p.Suffix(" ")(tpt)(apply(_, "", Typ))
+            apply(id)
+            p.Prefix(" = ")(rhs)(apply(_, "", Expr))
+            p.str(";")
+        }
       case DefnMacro(mods, id, tparams, paramss, ret, rhs) =>
         apply(mods)
         p.str("def ")
@@ -107,18 +153,45 @@ class TreeStr(val p: Printer) {
         p.str(" = macro ")
         apply(rhs)
       case DefnMethod(mods, id, tparams, paramss, ret, rhs) =>
-        apply(mods)
-        p.str("def ")
-        apply(id)
-        p.Brackets(tparams)(apply(_, ", "))
-        apply(paramss)
-        if (tparams.isEmpty && paramss.isEmpty && id.isSymbolic) p.str(" ")
-        p.Prefix(": ")(ret)(apply(_, "", Typ))
-        p.Prefix(" = ")(rhs)(apply(_, "", Expr))
-      case DefnPackage(pid, stats) =>
-        p.str("package ")
-        p.str(pid)
-        p.Nest.when(stats.nonEmpty)(printStats(stats))
+        l match {
+          case ScalaLanguage =>
+            apply(mods)
+            p.str("def ")
+            apply(id)
+            p.Brackets(tparams)(apply(_, ", "))
+            apply(paramss)
+            if (tparams.isEmpty && paramss.isEmpty && id.isSymbolic) p.str(" ")
+            p.Prefix(": ")(ret)(apply(_, "", Typ))
+            p.Prefix(" = ")(rhs)(apply(_, "", Expr))
+          case JavaLanguage =>
+            val (prefixMods, postfixMods) = mods.partition()
+            apply(prefixMods)
+            p.Suffix(" ")(tparams)(p.Angles(_)(apply(_, ", ")))
+            p.Suffix(" ")(ret)(apply(_, "", Typ))
+            apply(id)
+            apply(paramss)
+            p.Prefix(" ").when(postfixMods.trees.nonEmpty)(apply(postfixMods))
+            rhs match {
+              case Some(TermStub()) => p.str(" { ??? }")
+              case Some(rhs) => apply(rhs, Expr)
+              case None => p.str(";")
+            }
+        }
+      case DefnPackage(mods, pid, stats) =>
+        l match {
+          case ScalaLanguage =>
+            apply(mods)
+            p.str("package ")
+            p.str(pid)
+            p.Nest.when(stats.nonEmpty)(printStats(stats))
+          case JavaLanguage =>
+            apply(mods)
+            p.str("package ")
+            p.str(pid)
+            p.str(";")
+            p.str(EOL)
+            printStats(stats)
+        }
       case DefnPat(mods, pats, tpt, rhs) =>
         apply(mods)
         apply(pats, ", ")
@@ -132,37 +205,48 @@ class TreeStr(val p: Printer) {
         apply(paramss)
         p.Prefix(" ")(rhs)(apply(_, "", Expr))
       case x: DefnTemplate =>
-        apply(x.mods)
-        x match {
-          case _: DefnClass => p.str("class ")
-          case _: DefnObject => p.str("object ")
-          case _: DefnPackageObject => p.str("package object ")
-          case _: DefnTrait => p.str("trait ")
+        l match {
+          case ScalaLanguage =>
+            apply(x.mods)
+            x match {
+              case _: DefnClass => p.str("")
+              case _: DefnObject => p.str("object ")
+              case _: DefnPackageObject => p.str("package object ")
+            }
+            apply(x.id)
+            p.Brackets(x.tparams)(apply(_, ", "))
+            x match {
+              case DefnClass(_, _, _, Some(primaryCtor), _, _, _, _) => apply(primaryCtor)
+              case other => ()
+            }
+            if (x.earlies.isEmpty) {
+              p.Prefix(" extends ")(x.parents)(apply(_, " with "))
+            } else {
+              p.str(" extends")
+              p.Nest(apply(x.earlies, EOL))
+              p.Prefix(" with ")(x.parents)(apply(_, " with "))
+            }
+            p.Nest.when(x.self.nonEmpty || x.stats.nonEmpty) {
+              p.Suffix(EOL)(x.self)(apply(_, ""))
+              printStats(x.stats)
+            }
+          case JavaLanguage =>
+            apply(x.mods)
+            apply(x.id)
+            p.Angles(x.tparams)(apply(_, ", "))
+            val extendsTpts = x.parents.collect { case ParentExtends(tpt) => tpt }.headOption
+            p.Prefix(" extends ")(extendsTpts)(apply(_, "", Typ))
+            val implementsTpts = x.parents.collect { case ParentImplements(tpt) => tpt }
+            p.Prefix(" implements ").when(implementsTpts.nonEmpty)(apply(implementsTpts, "", Typ))
+            p.Nest(printStats(x.stats))
         }
-        apply(x.id)
-        p.Brackets(x.tparams)(apply(_, ", "))
-        x match {
-          case x: DefnClass => apply(x.ctor)
-          case other => ()
-        }
-        if (x.earlies.isEmpty) {
-          p.Prefix(" extends ")(x.inits)(apply(_, " with "))
-        } else {
-          p.str(" extends")
-          p.Nest(apply(x.earlies, EOL))
-          p.Prefix(" with ")(x.inits)(apply(_, " with "))
-        }
-        p.Nest.when(x.self.nonEmpty || x.stats.nonEmpty) {
-          p.Suffix(EOL)(x.self)(apply(_, ""))
-          printStats(x.stats)
-        }
-      case DefnType(mods, id, tparams, lbound, ubound, rhs) =>
+      case DefnType(mods, id, tparams, lo, hi, rhs) =>
         apply(mods)
         p.str("type ")
         apply(id)
         p.Brackets(tparams)(apply(_, ", "))
-        p.Prefix(" >: ")(lbound)(apply(_, "", Typ))
-        p.Prefix(" <: ")(ubound)(apply(_, "", Typ))
+        p.Prefix(" >: ")(lo)(apply(_, "", Typ))
+        p.Prefix(" <: ")(hi)(apply(_, "", Typ))
         p.Prefix(" = ")(rhs)(apply(_, "", Typ))
       case EnumeratorGenerator(pat, rhs) =>
         apply(pat, AnyPat3)
@@ -181,9 +265,43 @@ class TreeStr(val p: Printer) {
           case _: TermApplyPostfix => p.Parens(apply(rhs, Expr))
           case _ => apply(rhs, Expr)
         }
+      case x: Id =>
+        if (x.sym != NoSymbol) p.str("<" + x.sym + ">")
+        else {
+          def printValue(value: String): Unit = {
+            l match {
+              case ScalaLanguage =>
+                import rsc.lexis.scala._
+                x match {
+                  case PatId(value) if value.isPatVar =>
+                    p.str("`" + value + "`")
+                  case _ =>
+                    def hasBackquotes = x.pos.string.startsWith("`")
+                    def guessBackquotes = keywords.containsKey(value) || value == "then"
+                    if (hasBackquotes || guessBackquotes) p.str("`" + value + "`")
+                    else p.str(value)
+                }
+              case JavaLanguage =>
+                p.str(value)
+            }
+          }
+          x match {
+            case AmbigId(value) => printValue(value)
+            case AnonId() => p.str("_")
+            case CtorId() => p.str("this")
+            case NamedId(value) => printValue(value)
+          }
+        }
       case Import(importers) =>
-        p.str("import ")
-        apply(importers, ", ")
+        l match {
+          case ScalaLanguage =>
+            p.str("import ")
+            apply(importers, ", ")
+          case JavaLanguage =>
+            p.str("import ")
+            apply(importers, ", ")
+            p.str(";")
+        }
       case ImporteeName(id) =>
         apply(id)
       case ImporteeRename(from, to) =>
@@ -194,8 +312,13 @@ class TreeStr(val p: Printer) {
         apply(id)
         p.str(" => _")
       case ImporteeWildcard() =>
-        p.str("_")
-      case Importer(qual, importees) =>
+        l match {
+          case ScalaLanguage => p.str("_")
+          case JavaLanguage => p.str("*")
+        }
+      case Importer(mods, qual, importees) =>
+        apply(mods)
+        if (mods.trees.nonEmpty) p.str(" ")
         apply(qual, SimpleExpr1)
         p.str(".")
         val needsBraces = importees match {
@@ -216,18 +339,32 @@ class TreeStr(val p: Printer) {
         p.str("@")
         apply(tpt, SimpleTyp)
         apply(argss, Expr)
+      case ModAnnotationInterface() =>
+        p.str("@interface")
       case ModCase() =>
         p.str("case")
+      case ModClass() =>
+        p.str("class")
       case ModContravariant() =>
         p.str("-")
       case ModCovariant() =>
         p.str("+")
+      case ModDefault() =>
+        p.str("default")
+      case ModDims() =>
+        p.str("[]")
+      case ModEnum() =>
+        p.str("enum")
       case ModFinal() =>
         p.str("final")
       case ModImplicit() =>
         p.str("implicit")
+      case ModInterface() =>
+        p.str("interface")
       case ModLazy() =>
         p.str("lazy")
+      case ModNative() =>
+        p.str("native")
       case ModOverride() =>
         p.str("override")
       case ModPrivate() =>
@@ -244,31 +381,48 @@ class TreeStr(val p: Printer) {
       case ModProtectedWithin(within) =>
         p.str("protected")
         p.Brackets(apply(within, SimpleExpr1))
+      case ModPublic() =>
+        p.str("public")
       case ModSealed() =>
         p.str("sealed")
+      case ModStatic() =>
+        p.str("static")
+      case ModStrictfp() =>
+        p.str("strictfp")
+      case ModSynchronized() =>
+        p.str("synchronized")
+      case ModThrows(tpts) =>
+        p.str("throws ")
+        apply(tpts, ", ", Typ)
+      case ModTrait() =>
+        p.str("trait")
+      case ModTransient() =>
+        p.str("transient")
       case ModVal() =>
         p.str("val")
       case ModVar() =>
         p.str("var")
-      case x @ NamedId(v) =>
-        if (x.sym != NoSymbol) p.str("<" + x.sym + ">")
-        else {
-          x match {
-            case PatId(v) if v.isPatVar =>
-              p.str("`" + v + "`")
-            case _ =>
-              def hasBackquotes = x.pos.string.startsWith("`")
-              def guessBackquotes = keywords.containsKey(v) || v == "then"
-              if (hasBackquotes || guessBackquotes) p.str("`" + v + "`")
-              else p.str(v)
-          }
-        }
+      case ModVolatile() =>
+        p.str("volatile")
       case Param(mods, id, tpt, rhs) =>
-        apply(mods)
-        apply(id)
-        if (id.isSymbolic) p.str(" ")
-        p.Prefix(": ")(tpt)(apply(_, "", ParamTyp))
-        p.Prefix(" = ")(rhs)(apply(_, "", Expr))
+        l match {
+          case ScalaLanguage =>
+            apply(mods)
+            apply(id)
+            if (id.isSymbolic) p.str(" ")
+            p.Prefix(": ")(tpt)(apply(_, "", ParamTyp))
+            p.Prefix(" = ")(rhs)(apply(_, "", Expr))
+          case JavaLanguage =>
+            val (prefixMods, postfixMods) = mods.partition()
+            apply(prefixMods)
+            p.Suffix(" ")(tpt)(apply(_, "", ParamTyp))
+            apply(id)
+            p.Prefix(" ").when(postfixMods.trees.nonEmpty)(apply(postfixMods))
+        }
+      case ParentExtends(tpt) =>
+        apply(tpt, Typ)
+      case ParentImplements(tpt) =>
+        apply(tpt, Typ)
       case PatAlternative(pats) =>
         apply(pats, " | ", Pat)
       case PatBind(pats) =>
@@ -322,7 +476,8 @@ class TreeStr(val p: Printer) {
         apply(id, SimpleExpr1)
       case PatTuple(args) =>
         p.Parens(apply(args, ", ", Pat))
-      case PatVar(id, tpt) =>
+      case PatVar(mods, id, tpt) =>
+        apply(mods)
         id match {
           case AnonId() => p.str("_")
           case _ => apply(id)
@@ -337,12 +492,6 @@ class TreeStr(val p: Printer) {
         if (tree.id.sym != NoSymbol) p.str("<" + tree.id.sym + ">")
         else ()
         apply(paramss)
-      case SecondaryCtor(mods, id, paramss, rhs) =>
-        apply(mods)
-        p.str("def ")
-        apply(id)
-        apply(paramss)
-        p.Prefix(" = ")(apply(rhs, Expr))
       case Self(id, tpt) =>
         apply(id)
         p.Prefix(": ")(tpt)(apply(_, " ", Typ))
@@ -373,7 +522,15 @@ class TreeStr(val p: Printer) {
         apply(op, SimpleExpr1)
       case TermApplyPrefix(op, arg) =>
         apply(op, SimpleExpr1)
-        apply(arg, PrefixExpr)
+        def needsParens(term: Term): Boolean = term match {
+          case TermApply(fn, _) => needsParens(fn)
+          case _: TermApplyPrefix => true
+          case TermApplyType(fn, _) => needsParens(fn)
+          case _: TermLit => true
+          case TermSelect(qual, _) => needsParens(qual)
+          case _ => false
+        }
+        p.Parens.when(needsParens(arg))(apply(arg, PrefixExpr))
       case TermApplyType(fun, targs) =>
         apply(fun, SimpleExpr)
         p.Brackets(apply(targs, ", ", Typ))
@@ -490,12 +647,12 @@ class TreeStr(val p: Printer) {
         apply(qual, SimpleExpr)
         p.str(".")
         apply(id, SimpleExpr1)
+      case TermStub() =>
+        p.str("???")
       case TermSuper(qual, mix) =>
         p.Suffix(".")(qual.opt)(apply(_, "", SimpleExpr1))
         p.str("super")
         p.Brackets(mix.opt)(apply(_, "", SimpleExpr1))
-      case TermSynthetic() =>
-        p.str("???")
       case TermThis(qual) =>
         p.Suffix(".")(qual.opt)(apply(_, "", SimpleExpr1))
         p.str("this")
@@ -530,17 +687,30 @@ class TreeStr(val p: Printer) {
       case TermXml(raw) =>
         // FIXME: https://github.com/twitter/rsc/issues/81
         p.str(raw)
+      case TptArray(tpt) =>
+        apply(tpt, Typ)
+        p.str("[]")
       case TptAnnotate(tpt, mods) =>
         apply(tpt, SimpleTyp)
         p.str(" ")
         apply(mods)
+      case TptBoolean() =>
+        p.str("boolean")
       case TptByName(tpt) =>
         p.str("=>")
         apply(tpt, Typ)
+      case TptByte() =>
+        p.str("byte")
+      case TptChar() =>
+        p.str("char")
+      case TptDouble() =>
+        p.str("double")
       case TptExistential(tpt, stats) =>
         apply(tpt, AnyInfixTyp)
         p.str(" forSome ")
         p.Braces(apply(stats, "; "))
+      case TptFloat() =>
+        p.str("float")
       case TptFunction(targs) =>
         val params :+ ret = targs
         val needsParens = params match {
@@ -552,9 +722,21 @@ class TreeStr(val p: Printer) {
         p.Parens.when(needsParens)(apply(params, ", ", ParamTyp))
         p.str(" => ")
         apply(ret, Typ)
+      case TptInt() =>
+        p.str("int")
+      case TptIntersect(tpts) =>
+        apply(tpts, " & ", InfixTyp(TptId("&")))
+      case TptLong() =>
+        p.str("long")
       case TptParameterize(fun, targs) =>
-        apply(fun, SimpleTyp)
-        p.Brackets(apply(targs, ", ", Typ))
+        l match {
+          case ScalaLanguage =>
+            apply(fun, SimpleTyp)
+            p.Brackets(apply(targs, ", ", Typ))
+          case JavaLanguage =>
+            apply(fun, SimpleTyp)
+            p.Angles(apply(targs, ", ", Typ))
+        }
       case TptParameterizeInfix(lhs, op, rhs) =>
         apply(lhs, InfixTyp(op))
         p.str(" ")
@@ -562,40 +744,71 @@ class TreeStr(val p: Printer) {
         p.str(" ")
         apply(rhs, RhsInfixTyp(op))
       case TptProject(qual, id) =>
-        apply(qual, SimpleTyp)
-        p.str("#")
-        apply(id, SimpleTyp)
+        l match {
+          case ScalaLanguage =>
+            apply(qual, SimpleTyp)
+            p.str("#")
+            apply(id, SimpleTyp)
+          case JavaLanguage =>
+            apply(qual, SimpleTyp)
+            p.str(".")
+            apply(id, SimpleTyp)
+        }
       case TptRefine(tpt, stats) =>
         apply(tpt, " ", WithTyp)
         p.Braces(apply(stats, "; "))
       case TptRepeat(tpt) =>
-        apply(tpt, Typ)
-        p.str("*")
+        l match {
+          case ScalaLanguage =>
+            apply(tpt, Typ)
+            p.str("*")
+          case JavaLanguage =>
+            apply(tpt, Typ)
+            p.str("...")
+        }
       case TptSelect(qual, id) =>
         apply(qual, SimpleExpr)
         p.str(".")
         apply(id, SimpleTyp)
+      case TptShort() =>
+        p.str("short")
       case TptSingleton(path) =>
         apply(path, SimpleExpr)
         p.str(".type")
       case TptTuple(targs) =>
         p.Parens(apply(targs, ", ", Typ))
+      case TptVoid() =>
+        p.str("void")
       case TptWildcard(lbound, ubound) =>
-        p.str("_")
-        p.Prefix(" >: ")(lbound)(apply(_, ""))
-        p.Prefix(" <: ")(ubound)(apply(_, ""))
+        l match {
+          case ScalaLanguage =>
+            p.str("_")
+            p.Prefix(" >: ")(lbound)(apply(_, ""))
+            p.Prefix(" <: ")(ubound)(apply(_, ""))
+          case JavaLanguage =>
+            p.str("?")
+            p.Prefix(" extends ")(lbound)(apply(_, ""))
+            p.Prefix(" supet ")(ubound)(apply(_, ""))
+        }
       case TptWildcardExistential(_, tpt) =>
         apply(tpt, Typ)
       case TptWith(tpts) =>
         apply(tpts, " with ", WithTyp)
       case TypeParam(mods, id, tparams, lbound, ubound, vbounds, cbounds) =>
-        apply(mods)
-        apply(id)
-        p.Brackets(tparams)(apply(_, ", "))
-        p.Prefix(" >: ")(lbound)(apply(_, ""))
-        p.Prefix(" <: ")(ubound)(apply(_, ""))
-        p.Prefix(" <% ")(vbounds)(apply(_, " <% "))
-        p.Prefix(" : ")(cbounds)(apply(_, " : "))
+        l match {
+          case ScalaLanguage =>
+            apply(mods)
+            apply(id)
+            p.Brackets(tparams)(apply(_, ", "))
+            p.Prefix(" >: ")(lbound)(apply(_, ""))
+            p.Prefix(" <: ")(ubound)(apply(_, ""))
+            p.Prefix(" <% ")(vbounds)(apply(_, " <% "))
+            p.Prefix(" : ")(cbounds)(apply(_, " : "))
+          case JavaLanguage =>
+            apply(mods)
+            apply(id)
+            p.Prefix(" extends ")(ubound)(apply(_, ""))
+        }
     }
   }
 
@@ -619,7 +832,7 @@ class TreeStr(val p: Printer) {
           val needsBraces = {
             val simpleValue = arg match {
               case TermId(value) => Some(value)
-              case PatVar(TermId(value), _) => Some(value)
+              case PatVar(_, TermId(value), _) => Some(value)
               case _ => None
             }
             simpleValue match {
@@ -647,35 +860,41 @@ class TreeStr(val p: Printer) {
       val stat = stats(i)
       apply(stat)
 
-      if (i < stats.length - 1) {
-        stats(i + 1) match {
-          case next: Term =>
-            def needsSemicolon(prev: Option[Tree]): Boolean = prev match {
-              case Some(prev: DefnField) =>
-                needsSemicolon(prev.rhs)
-              case Some(prev: DefnMacro) =>
-                needsSemicolon(Some(prev.rhs))
-              case Some(prev: DefnMethod) =>
-                needsSemicolon(prev.rhs)
-              case Some(prev: DefnPat) =>
-                needsSemicolon(prev.rhs)
-              case Some(prev: TermApplyPostfix) =>
-                true
-              case Some(prev: Term) =>
-                next.isInstanceOf[TermBlock] ||
-                  next.isInstanceOf[TermPartialFunction] ||
-                  next.isInstanceOf[TermFunction]
+      val notLast = i < stats.length - 1
+      l match {
+        case ScalaLanguage =>
+          if (notLast) {
+            stats(i + 1) match {
+              case next: Term =>
+                def needsSemicolon(prev: Option[Tree]): Boolean = prev match {
+                  case Some(prev: DefnField) =>
+                    needsSemicolon(prev.rhs)
+                  case Some(prev: DefnMacro) =>
+                    needsSemicolon(Some(prev.rhs))
+                  case Some(prev: DefnMethod) =>
+                    needsSemicolon(prev.rhs)
+                  case Some(prev: DefnPat) =>
+                    needsSemicolon(prev.rhs)
+                  case Some(prev: TermApplyPostfix) =>
+                    true
+                  case Some(prev: Term) =>
+                    next.isInstanceOf[TermBlock] ||
+                      next.isInstanceOf[TermPartialFunction] ||
+                      next.isInstanceOf[TermFunction]
+                  case _ =>
+                    false
+                }
+                if (needsSemicolon(Some(stat))) {
+                  p.str(";")
+                }
               case _ =>
-                false
+                ()
             }
-            if (needsSemicolon(Some(stat))) {
-              p.str(";")
-            }
-          case _ =>
-            ()
-        }
-        p.str(EOL)
+          }
+        case JavaLanguage =>
+          ()
       }
+      if (notLast) p.str(EOL)
 
       i += 1
     }

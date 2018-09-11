@@ -4,6 +4,7 @@ package rsc.checkbase
 
 import rsc.util._
 import scala.collection.mutable
+import scala.meta.cli._
 import scala.meta.internal.cli._
 import scala.util._
 
@@ -12,8 +13,9 @@ trait MainBase[S <: SettingsBase, I, N, R] extends DiffUtil with NscUtil with To
     val expandedArgs = Args.expand(args)
     settings(expandedArgs) match {
       case Right(settings) =>
-        val problems = process(settings)
-        System.out.flush()
+        val reporter = Reporter()
+        val problems = process(reporter, settings)
+        reporter.err.flush()
         if (problems.nonEmpty) sys.exit(1) else sys.exit(0)
       case Left(failures) =>
         failures.foreach(println)
@@ -21,10 +23,10 @@ trait MainBase[S <: SettingsBase, I, N, R] extends DiffUtil with NscUtil with To
     }
   }
 
-  def process(settings: S): List[Problem] = {
+  def process(reporter: Reporter, settings: S): List[Problem] = {
     val allProblems = mutable.UnrolledBuffer[Problem]()
     def report(problem: Problem): Unit = {
-      println(problem)
+      reporter.err.println(problem)
       allProblems += problem
     }
 
@@ -63,17 +65,17 @@ trait MainBase[S <: SettingsBase, I, N, R] extends DiffUtil with NscUtil with To
 
     val numProblems = allProblems.length
     if (numProblems == 0) ()
-    else if (numProblems == 1) println("one problem found")
-    else if (numProblems == 2) println("two problems found")
-    else if (numProblems == 3) println("three problems found")
-    else if (numProblems == 4) println("four problems found")
-    else println(s"$numProblems problems found")
+    else if (numProblems == 1) reporter.err.println("one problem found")
+    else if (numProblems == 2) reporter.err.println("two problems found")
+    else if (numProblems == 3) reporter.err.println("three problems found")
+    else if (numProblems == 4) reporter.err.println("four problems found")
+    else reporter.err.println(s"$numProblems problems found")
 
     if (!settings.quiet) {
-      if (successes == 0) println("All checks failed")
-      else if (successes == inputs.length) println("All checks succeeded")
+      if (successes == 0) reporter.err.println("All checks failed")
+      else if (successes == inputs.length) reporter.err.println("All checks succeeded")
       else {
-        println(s"Only ${successes} out of ${inputs.length} checks succeeded")
+        reporter.err.println(s"Only ${successes} out of ${inputs.length} checks succeeded")
       }
     }
 

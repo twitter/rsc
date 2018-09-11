@@ -3,7 +3,7 @@
 // NOTE: This file has been partially copy/pasted from scalameta/scalameta.
 package rsc.rules.pretty
 
-import rsc.lexis._
+import rsc.lexis.scala._
 import rsc.pretty._
 import rsc.rules.semantics._
 import scala.collection.mutable

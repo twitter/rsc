@@ -8,14 +8,16 @@ import rsc.syntax._
 object PrettyAtom {
   def str(p: Printer, x: Atom): Unit = {
     x match {
-      case IdAtom(id) =>
+      case AmbigAtom(id) =>
+        p.str(id)
+      case NamedAtom(id) =>
         p.str(id)
       case SuperAtom(mix) =>
         p.str("super")
         mix match {
           case AnonId() =>
             ()
-          case NamedId(value) =>
+          case AmbigId(value) =>
             p.str("[")
             p.str(value)
             p.str("]")
@@ -24,7 +26,7 @@ object PrettyAtom {
         qual match {
           case AnonId() =>
             ()
-          case NamedId(value) =>
+          case AmbigId(value) =>
             p.str(value)
             p.str(".")
         }

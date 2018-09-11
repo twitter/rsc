@@ -11,7 +11,7 @@ object Main extends SimpleBase[Settings, Path, Path] {
   }
 
   def nscResult(settings: Settings) = {
-    val nscJar = scalac(settings.cp, settings.ins)
+    val nscJar = nsc(settings.cp, settings.ins)
     val metaJars = nscJar.right.flatMap(path => metacp(settings.cp, List(path)))
     metaJars.right.map(_.head)
   }

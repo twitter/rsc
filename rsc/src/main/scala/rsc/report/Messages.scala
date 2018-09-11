@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.report
 
+import rsc.inputs._
 import rsc.lexis._
 import rsc.outline._
 import rsc.pretty._
@@ -19,22 +20,12 @@ sealed trait Message extends Pretty with Product {
 
 // ============ FUNDAMENTAL ============
 
-final case class CrashMessage(pos: Position, message: String, ex: Throwable) extends Message {
+final case class CrashMessage(ex: Throwable) extends Message {
+  private lazy val crash = translateCrash(NoPosition, ex)
+  def pos = crash.pos
   def sev = FatalSeverity
-  def text = {
-    ex match {
-      case _: CrashException =>
-        "compiler crash"
-      case ex =>
-        if (ex != null) ex.getMessage else null
-        if (message != null) s"compiler crash: $message"
-        else "compiler crash"
-    }
-  }
-  override def explanation = {
-    if (ex != null) ex.str
-    else ""
-  }
+  def text = crash.message
+  override def explanation = if (crash.cause != null) crash.cause.str else crash.str
 }
 
 final case class ErrorSummary(errors: List[Message]) extends Message {
@@ -79,6 +70,11 @@ final case class IllegalEscape(pos: Position) extends Message {
 final case class IllegalNumber(pos: Position) extends Message {
   def sev = FatalSeverity
   def text = "illegal number"
+}
+
+final case class IllegalLanguage(pos: Position) extends Message {
+  def sev = FatalSeverity
+  def text = "illegal language"
 }
 
 final case class IllegalXml(pos: Position) extends Message {
@@ -150,6 +146,11 @@ final case class FilesNotFound() extends Message {
   def text = s"nothing to compile"
 }
 
+final case class IllegalEllipsis(pos: Position) extends Message {
+  def sev = FatalSeverity
+  def text = "illegal ellipsis"
+}
+
 final case class IllegalIdentifier(pos: Position) extends Message {
   def sev = FatalSeverity
   def text = "illegal identifier"
@@ -204,6 +205,7 @@ final case class MixedLeftAndRightAssociativeOps(pos: Position, op1: String, op2
     extends Message {
   def sev = ErrorSeverity
   def text = {
+    import rsc.lexis.scala._
     def status(op: String) = {
       if (op1.isLeftAssoc) "which is left-associative"
       else "which is right-associative"
@@ -226,6 +228,38 @@ final case class UnboundWildcard(pos: Position) extends Message {
 }
 
 // ============ TYPECHECKER ============
+
+final case class AmbiguousMember(env: Env, id: Id, resolution: AmbiguousResolution)
+    extends Message {
+  def sev = ErrorSeverity
+  def pos = id.point
+  def text = {
+    val qual = env._scopes.head.sym
+    id match {
+      case AmbigId(value) => s"ambiguous: $qual$value (${resolution.syms.mkString(", ")})"
+      case AnonId() => crash(id)
+      case CtorId() => crash(id)
+      case PatId(value) => s"ambiguous: value $qual$value (${resolution.syms.mkString(", ")})"
+      case TermId(value) => s"ambiguous: value $qual$value (${resolution.syms.mkString(", ")})"
+      case TptId(value) => s"ambiguous: type $qual$value (${resolution.syms.mkString(", ")})"
+    }
+  }
+}
+
+final case class AmbiguousId(id: Id, resolution: AmbiguousResolution) extends Message {
+  def sev = ErrorSeverity
+  def pos = id.point
+  def text = {
+    id match {
+      case AmbigId(value) => s"ambiguous: $value (${resolution.syms.mkString(", ")})"
+      case AnonId() => crash(id)
+      case CtorId() => crash(id)
+      case PatId(value) => s"ambiguous: value $value (${resolution.syms.mkString(", ")})"
+      case TermId(value) => s"ambiguous: value $value (${resolution.syms.mkString(", ")})"
+      case TptId(value) => s"ambiguous: type $value (${resolution.syms.mkString(", ")})"
+    }
+  }
+}
 
 final case class IllegalCyclicReference(work: Work) extends Message {
   def sev = ErrorSeverity
@@ -285,14 +319,14 @@ final case class UnboundMember(env: Env, id: Id) extends Message {
   def sev = ErrorSeverity
   def pos = id.point
   def text = {
-    val qual = env._scopes.head.sym.init
+    val qual = env._scopes.head.sym
     id match {
+      case AmbigId(value) => s"unbound: $qual$value"
       case AnonId() => crash(id)
       case CtorId() => crash(id)
-      case PatId(value) => s"unbound: value $qual.$value"
-      case SomeId(value) => s"unbound: $qual.$value"
-      case TermId(value) => s"unbound: value $qual.$value"
-      case TptId(value) => s"unbound: type $qual.$value"
+      case PatId(value) => s"unbound: value $qual$value"
+      case TermId(value) => s"unbound: value $qual$value"
+      case TptId(value) => s"unbound: type $qual$value"
     }
   }
 }
@@ -302,10 +336,10 @@ final case class UnboundId(id: Id) extends Message {
   def pos = id.point
   def text = {
     id match {
+      case AmbigId(value) => s"unbound: $value"
       case AnonId() => crash(id)
       case CtorId() => crash(id)
       case PatId(value) => s"unbound: value $value"
-      case SomeId(value) => s"unbound: $value"
       case TermId(value) => s"unbound: value $value"
       case TptId(value) => s"unbound: type $value"
     }

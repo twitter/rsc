@@ -180,6 +180,11 @@ class Printer {
       if (predicate) NoWrap else this
   }
 
+  case object Angles extends Wrap {
+    override def prefix = str("<")
+    override def suffix = str(">")
+  }
+
   case object Braces extends Wrap {
     override def prefix = str("{")
     override def suffix = str("}")

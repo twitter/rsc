@@ -43,7 +43,7 @@ object PrettyWork {
     x match {
       case x: ClasspathScope =>
         p.str(" [...]")
-      case x: StorageScope =>
+      case x: SourceScope =>
         p.str(" [")
         val storage = x._storage.asScala.toList.sortBy(_._1.str)
         val symbols = {

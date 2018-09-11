@@ -2,19 +2,23 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.util
 
-import rsc.semantics._
+import rsc.inputs._
 import rsc.syntax._
 
 trait TreeUtil {
   implicit class TreeUtilIdOps(id: Id) {
-    def opt: Option[NamedId] = {
+    def opt: Option[Id] = {
       id match {
-        case id: NamedId => Some(id)
-        case _ => None
+        case AnonId() => None
+        case id => Some(id)
       }
     }
-    def nameopt: Option[Name] = {
-      id.opt.map(_.name)
+    def valueopt: Option[String] = {
+      id match {
+        case AmbigId(value) => Some(value)
+        case AnonId() => None
+        case NamedId(value) => Some(value)
+      }
     }
     def isSymbolic: Boolean = {
       id match {
@@ -23,6 +27,23 @@ trait TreeUtil {
         case _ =>
           false
       }
+    }
+  }
+
+  implicit class TreeUtilModsOps(mods: Mods) {
+    def :+(mod: Mod): Mods = {
+      val pos1 = Position(mods.pos.input, mods.pos.start, mod.pos.end)
+      val mods1 = Mods(mods.trees :+ mod)
+      mods1.withPos(pos1)
+    }
+
+    def partition(): (Mods, Mods) = {
+      val (prefixTrees, postfixTrees) = mods.trees.partition {
+        case _: ModThrows => false
+        case _: ModDims => false
+        case _ => true
+      }
+      (Mods(prefixTrees), Mods(postfixTrees))
     }
   }
 }

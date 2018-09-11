@@ -1,0 +1,65 @@
+// Copyright (c) 2017-2018 Twitter, Inc.
+// Licensed under the Apache License, Version 2.0 (see LICENSE.md).
+package rsc.lexis.java
+
+import java.util.HashMap
+
+trait Keywords {
+  val keywords = {
+    val results = new HashMap[String, Token]
+    results.put("abstract", ABSTRACT)
+    results.put("assert", ASSERT)
+    results.put("boolean", BOOLEAN)
+    results.put("break", BREAK)
+    results.put("byte", BYTE)
+    results.put("case", CASE)
+    results.put("catch", CATCH)
+    results.put("char", CHAR)
+    results.put("class", CLASS)
+    results.put("const", CONST)
+    results.put("continue", CONTINUE)
+    results.put("default", DEFAULT)
+    results.put("do", DO)
+    results.put("double", DOUBLE)
+    results.put("else", ELSE)
+    results.put("enum", ENUM)
+    results.put("extends", EXTENDS)
+    results.put("false", FALSE)
+    results.put("final", FINAL)
+    results.put("finally", FINALLY)
+    results.put("float", FLOAT)
+    results.put("for", FOR)
+    results.put("goto", GOTO)
+    results.put("if", IF)
+    results.put("implements", IMPLEMENTS)
+    results.put("import", IMPORT)
+    results.put("instanceof", INSTANCEOF)
+    results.put("int", INT)
+    results.put("interface", INTERFACE)
+    results.put("long", LONG)
+    results.put("native", NATIVE)
+    results.put("new", NEW)
+    results.put("null", NULL)
+    results.put("package", PACKAGE)
+    results.put("private", PRIVATE)
+    results.put("protected", PROTECTED)
+    results.put("public", PUBLIC)
+    results.put("return", RETURN)
+    results.put("short", SHORT)
+    results.put("static", STATIC)
+    results.put("strictfp", STRICTFP)
+    results.put("super", SUPER)
+    results.put("switch", SWITCH)
+    results.put("synchronized", SYNCHRONIZED)
+    results.put("this", THIS)
+    results.put("throw", THROW)
+    results.put("throws", THROWS)
+    results.put("transient", TRANSIENT)
+    results.put("true", TRUE)
+    results.put("try", TRY)
+    results.put("void", VOID)
+    results.put("volatile", VOLATILE)
+    results.put("while", WHILE)
+    results
+  }
+}

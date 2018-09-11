@@ -6,6 +6,12 @@ trait Dupe {
   implicit class DupeTreeOps[T <: Tree](tree: T) {
     def dupe: T = {
       val result = tree match {
+        case AmbigId(value) =>
+          AmbigId(value)
+        case AmbigSelect(qual, id) =>
+          val qual1 = qual.dupe
+          val id1 = id.dupe
+          AmbigSelect(qual1, id1)
         case AnonId() =>
           AnonId()
         case Case(pat, cond, stats) =>
@@ -15,16 +21,27 @@ trait Dupe {
           Case(pat1, cond1, stats1)
         case CtorId() =>
           CtorId()
-        case DefnClass(mods, id, tparams, ctor, earlies, inits, self, stats) =>
+        case DefnClass(mods, id, tparams, primaryCtor, earlies, inits, self, stats) =>
           val mods1 = mods.dupe
           val id1 = id.dupe
           val tparams1 = tparams.map(_.dupe)
-          val ctor1 = ctor.dupe
+          val primaryCtor1 = primaryCtor.map(_.dupe)
           val earlies1 = earlies.map(_.dupe)
           val inits1 = inits.map(_.dupe)
           val self1 = self.map(_.dupe)
           val ss1 = stats.map(_.dupe)
-          DefnClass(mods1, id1, tparams1, ctor1, earlies1, inits1, self1, ss1)
+          DefnClass(mods1, id1, tparams1, primaryCtor1, earlies1, inits1, self1, ss1)
+        case DefnConstant(mods, id, stats) =>
+          val mods1 = mods.dupe
+          val id1 = id.dupe
+          val stats1 = stats.map(_.dupe)
+          DefnConstant(mods1, id1, stats1)
+        case DefnCtor(mods, id, paramss, rhs) =>
+          val mods1 = mods.dupe
+          val id1 = id.dupe
+          val paramss1 = paramss.map(_.map(_.dupe))
+          val rhs1 = rhs.dupe
+          DefnCtor(mods1, id1, paramss1, rhs1)
         case DefnField(mods, id, tpt, rhs) =>
           val mods1 = mods.dupe
           val id1 = id.dupe
@@ -55,10 +72,11 @@ trait Dupe {
           val self1 = self.map(_.dupe)
           val stats1 = stats.map(_.dupe)
           DefnObject(mods1, id1, earlies1, inits1, self1, stats1)
-        case DefnPackage(pid, stats) =>
+        case DefnPackage(mods, pid, stats) =>
+          val mods1 = mods.dupe
           val pid1 = pid.dupe
           val stats1 = stats.map(_.dupe)
-          DefnPackage(pid1, stats1)
+          DefnPackage(mods1, pid1, stats1)
         case DefnPackageObject(mods, id, earlies, inits, self, stats) =>
           val mods1 = mods.dupe
           val id1 = id.dupe
@@ -80,23 +98,14 @@ trait Dupe {
           val paramss1 = paramss.map(_.map(_.dupe))
           val rhs1 = rhs.map(_.dupe)
           DefnProcedure(mods1, id1, tparams1, paramss1, rhs1)
-        case DefnTrait(mods, id, tparams, earlies, inits, self, stats) =>
+        case DefnType(mods, id, tparams, lo, hi, rhs) =>
           val mods1 = mods.dupe
           val id1 = id.dupe
           val tparams1 = tparams.map(_.dupe)
-          val earlies1 = earlies.map(_.dupe)
-          val inits1 = inits.map(_.dupe)
-          val self1 = self.map(_.dupe)
-          val stats1 = stats.map(_.dupe)
-          DefnTrait(mods1, id1, tparams1, earlies1, inits1, self1, stats1)
-        case DefnType(mods, id, tparams, lbound, ubound, rhs) =>
-          val mods1 = mods.dupe
-          val id1 = id.dupe
-          val tparams1 = tparams.map(_.dupe)
-          val lbound1 = lbound.map(_.dupe)
-          val ubound1 = ubound.map(_.dupe)
+          val lo1 = lo.map(_.dupe)
+          val hi1 = hi.map(_.dupe)
           val rhs1 = rhs.map(_.dupe)
-          DefnType(mods1, id1, tparams1, lbound1, ubound1, rhs1)
+          DefnType(mods1, id1, tparams1, lo1, hi1, rhs1)
         case Import(importers) =>
           val importers1 = importers.map(_.dupe)
           Import(importers1)
@@ -112,10 +121,11 @@ trait Dupe {
           ImporteeUnimport(id1)
         case ImporteeWildcard() =>
           ImporteeWildcard()
-        case Importer(qual, importees) =>
+        case Importer(mods, qual, importees) =>
+          val mods1 = mods.dupe
           val qual1 = qual.dupe
           val importees1 = importees.map(_.dupe)
-          Importer(qual1, importees1)
+          Importer(mods1, qual1, importees1)
         case Init(tpt, argss) =>
           val tpt1 = tpt.dupe
           val argss1 = argss.map(_.map(_.dupe))
@@ -125,18 +135,32 @@ trait Dupe {
         case ModAnnotation(init) =>
           val init1 = init.dupe
           ModAnnotation(init1)
+        case ModAnnotationInterface() =>
+          ModCase()
         case ModCase() =>
           ModCase()
+        case ModClass() =>
+          ModClass()
         case ModContravariant() =>
           ModContravariant()
         case ModCovariant() =>
           ModCovariant()
+        case ModDefault() =>
+          ModDefault()
+        case ModDims() =>
+          ModDims()
+        case ModEnum() =>
+          ModEnum()
         case ModFinal() =>
           ModFinal()
         case ModImplicit() =>
           ModImplicit()
+        case ModInterface() =>
+          ModInterface()
         case ModLazy() =>
           ModLazy()
+        case ModNative() =>
+          ModNative()
         case ModOverride() =>
           ModOverride()
         case ModPrivate() =>
@@ -153,12 +177,29 @@ trait Dupe {
         case ModProtectedWithin(id) =>
           val id1 = id.dupe
           ModProtectedWithin(id1)
+        case ModPublic() =>
+          ModPublic()
         case ModSealed() =>
           ModSealed()
+        case ModStatic() =>
+          ModStatic()
+        case ModStrictfp() =>
+          ModStrictfp()
+        case ModSynchronized() =>
+          ModSynchronized()
+        case ModThrows(tpts) =>
+          val tpts1 = tpts.map(_.dupe)
+          ModThrows(tpts1)
+        case ModTrait() =>
+          ModTrait()
+        case ModTransient() =>
+          ModTransient()
         case ModVal() =>
           ModVal()
         case ModVar() =>
           ModVar()
+        case ModVolatile() =>
+          ModVolatile()
         case Mods(trees) =>
           val trees1 = trees.map(_.dupe)
           Mods(trees1)
@@ -168,6 +209,12 @@ trait Dupe {
           val tpt1 = tpt.map(_.dupe)
           val rhs1 = rhs.map(_.dupe)
           Param(mods1, id1, tpt1, rhs1)
+        case ParentExtends(tpt) =>
+          val tpt1 = tpt.dupe
+          ParentExtends(tpt1)
+        case ParentImplements(tpt) =>
+          val tpt1 = tpt.dupe
+          ParentImplements(tpt1)
         case PatAlternative(pats) =>
           val pats1 = pats.map(_.dupe)
           PatAlternative(pats1)
@@ -203,28 +250,21 @@ trait Dupe {
         case PatTuple(args) =>
           val args1 = args.map(_.dupe)
           PatTuple(args1)
-        case PatVar(id, tpt) =>
+        case PatVar(mods, id, tpt) =>
+          val mods1 = mods.dupe
           val id1 = id.dupe
           val tpt1 = tpt.map(_.dupe)
-          PatVar(id1, tpt1)
+          PatVar(mods1, id1, tpt1)
         case PatXml(raw) =>
           PatXml(raw)
         case PrimaryCtor(mods, paramss) =>
           val mods1 = mods.dupe
           val paramss1 = paramss.map(_.map(_.dupe))
           PrimaryCtor(mods1, paramss1)
-        case SecondaryCtor(mods, id, paramss, rhs) =>
-          val mods1 = mods.dupe
-          val id1 = id.dupe
-          val paramss1 = paramss.map(_.map(_.dupe))
-          val rhs1 = rhs.dupe
-          SecondaryCtor(mods1, id1, paramss1, rhs1)
         case Self(id, tpt) =>
           val id1 = id.dupe
           val tpt1 = tpt.map(_.dupe)
           Self(id1, tpt1)
-        case SomeId(value) =>
-          SomeId(value)
         case Source(stats) =>
           val stats1 = stats.map(_.dupe)
           Source(stats1)
@@ -324,12 +364,12 @@ trait Dupe {
           val qual1 = qual.dupe
           val id1 = id.dupe
           TermSelect(qual1, id1)
+        case TermStub() =>
+          TermStub()
         case TermSuper(qual, mix) =>
           val qual1 = qual.dupe
           val mix1 = mix.dupe
           TermSuper(qual1, mix1)
-        case TermSynthetic() =>
-          TermSynthetic()
         case TermThis(qual) =>
           val qual1 = qual.dupe
           TermThis(qual1)
@@ -365,18 +405,38 @@ trait Dupe {
           val tpt1 = tpt.dupe
           val mods1 = mods.dupe
           TptAnnotate(tpt1, mods1)
+        case TptArray(tpt) =>
+          val tpt1 = tpt.dupe
+          TptArray(tpt1)
+        case TptBoolean() =>
+          TptBoolean()
         case TptByName(tpt) =>
           val tpt1 = tpt.dupe
           TptByName(tpt1)
+        case TptByte() =>
+          TptByte()
+        case TptChar() =>
+          TptChar()
+        case TptDouble() =>
+          TptDouble()
         case TptExistential(tpt, stats) =>
           val tpt1 = tpt.dupe
           val stats1 = stats.map(_.dupe)
           TptExistential(tpt1, stats1)
+        case TptFloat() =>
+          TptFloat()
         case TptFunction(targs) =>
           val targs1 = targs.map(_.dupe)
           TptFunction(targs1)
         case TptId(value) =>
           TptId(value)
+        case TptInt() =>
+          TptInt()
+        case TptIntersect(tpts) =>
+          val tpt1 = tpts.map(_.dupe)
+          TptIntersect(tpt1)
+        case TptLong() =>
+          TptLong()
         case TptParameterize(fun, targs) =>
           val fun1 = fun.dupe
           val targs1 = targs.map(_.dupe)
@@ -401,12 +461,16 @@ trait Dupe {
           val qual1 = qual.dupe
           val id1 = id.dupe
           TptSelect(qual1, id1)
+        case TptShort() =>
+          TptShort()
         case TptSingleton(path) =>
           val path1 = path.dupe
           TptSingleton(path1)
         case TptTuple(targs) =>
           val targs1 = targs.map(_.dupe)
           TptTuple(targs1)
+        case TptVoid() =>
+          TptVoid()
         case TptWildcard(lbound, ubound) =>
           val lbound1 = lbound.map(_.dupe)
           val ubound1 = ubound.map(_.dupe)
