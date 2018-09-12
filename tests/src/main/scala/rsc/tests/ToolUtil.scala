@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.tests
 
-import java.io.File.pathSeparator
 import java.nio.file._
 import rsc.checkbase._
 import rsc.pretty._
@@ -10,24 +9,6 @@ import scala.sys.process._
 import scala.util._
 
 trait ToolUtil extends rsc.checkbase.ToolUtil {
-  def coursier(artifacts: List[String]): ToolResult[List[Path]] = {
-    val coursier = BuildInfo.sourceRoot.toPath.resolve("bin/coursier")
-    val buf = new StringBuilder
-    val logger = ProcessLogger(line => buf.append(line + EOL))
-    val exitcode = s"$coursier fetch -p ${artifacts.mkString(" ")}".!(logger)
-    val output = buf.toString
-    if (exitcode == 0) {
-      val classpath = output.split(pathSeparator).map(p => Paths.get(p)).toList
-      Right(classpath)
-    } else {
-      Left(List(output))
-    }
-  }
-
-  def coursier(artifacts: String*): ToolResult[List[Path]] = {
-    coursier(artifacts.toList)
-  }
-
   def xxd(bytes: Array[Byte]): ToolResult[String] = {
     val temp = Files.createTempFile("xxd", ".bin")
     Files.write(temp, bytes)

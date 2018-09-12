@@ -1,0 +1,8 @@
+class C {
+  for {
+    xs <- ???
+    val y = ???
+  } yield {
+    ???
+  }
+}
