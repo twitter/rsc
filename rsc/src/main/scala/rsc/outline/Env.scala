@@ -32,6 +32,19 @@ sealed class Env protected (val _scopes: List[Scope], val lang: Language) extend
   }
 
   def resolve(name: Name): Resolution = {
+    @tailrec def loopTemplates(_scopes: List[Scope]): Resolution = {
+      _scopes match {
+        case (head: TemplateScope) :: tail =>
+          head.resolve(name) match {
+            case MissingResolution => loopTemplates(tail)
+            case other => other
+          }
+        case _ :: tail =>
+          loopTemplates(tail)
+        case Nil =>
+          MissingResolution
+      }
+    }
     @tailrec def loopPackages(_scopes: List[Scope]): Resolution = {
       _scopes match {
         case (head: PackageScope) :: tail =>
@@ -56,11 +69,16 @@ sealed class Env protected (val _scopes: List[Scope], val lang: Language) extend
           MissingResolution
       }
     }
-    loopPackages(_scopes) match {
+    loopTemplates(_scopes) match {
       case MissingResolution =>
-        loopOthers(_scopes)
-      case packageResolution =>
-        packageResolution
+        loopPackages(_scopes) match {
+          case MissingResolution =>
+            loopOthers(_scopes)
+          case packageResolution =>
+            packageResolution
+        }
+      case templateResolution =>
+        templateResolution
     }
   }
 
