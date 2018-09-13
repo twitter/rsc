@@ -239,7 +239,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
       case ExistentialType(tpe, decls) =>
         val tpe1 = highlevelPatch(tpe)
         val decls1 = decls.map(highlevelPatch)
-        StructuralType(tpe1, decls1)
+        ExistentialType(tpe1, decls1)
       case UniversalType(tparams, tpe) =>
         val tparams1 = tparams.map(highlevelPatch)
         val tpe1 = highlevelPatch(tpe)
