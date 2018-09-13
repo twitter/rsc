@@ -557,7 +557,13 @@ final class Semanticdb private (
           s.NoType
         case TptRefine(tpt, stats) =>
           // FIXME: https://github.com/twitter/rsc/issues/95
-          s.NoType
+          val tpe = tpt match {
+            case Some(tpt: TptWith) => tpt.tpe
+            case Some(tpt) => s.WithType(List(tpt.tpe))
+            case None => s.NoType
+          }
+          val decls = Some(s.Scope())
+          s.StructuralType(tpe, decls)
         case TptRepeat(tpt) =>
           s.RepeatedType(tpt.tpe)
         case TptSelect(qual, id) =>

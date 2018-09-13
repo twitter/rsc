@@ -280,7 +280,7 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
         ()
       case TptRefine(tpt, stats) =>
         // FIXME: https://github.com/twitter/rsc/issues/95
-        ()
+        tpt.foreach(apply(env, sketch, _))
       case TptRepeat(tpt) =>
         apply(env, sketch, tpt)
       case TptWildcard(ubound, lbound) =>
