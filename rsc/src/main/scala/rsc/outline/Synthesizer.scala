@@ -302,10 +302,11 @@ final class Synthesizer private (
     val paramss = tree.primaryCtor.get.paramss.zipWithIndex.map {
       case (params, i) =>
         params.map { p =>
+          val mods = p.mods.filter(_.isInstanceOf[ModImplicit])
           val id = TermId(p.id.valueopt.get).withPos(p.id.pos)
           val tpt = p.tpt.map(_.dupe)
           val rhs = if (i == 0) Some(TermStub()) else None
-          val param = Param(Mods(Nil), id, tpt, rhs)
+          val param = Param(mods, id, tpt, rhs)
           param.withPos(p.pos)
         }
     }
@@ -410,11 +411,12 @@ final class Synthesizer private (
     }
     var hasDefaultParams = false
     val paramss = tree.primaryCtor.get.paramss.map(_.map { p =>
+      val mods = p.mods.filter(_.isInstanceOf[ModImplicit])
       val id = TermId(p.id.valueopt.get).withPos(p.id.pos)
       val tpt = p.tpt.map(_.dupe)
       val rhs = p.rhs.map(_.dupe)
       hasDefaultParams |= p.rhs.nonEmpty
-      val param = Param(Mods(Nil), id, tpt, rhs)
+      val param = Param(mods, id, tpt, rhs)
       param.withPos(p.pos)
     })
     val ret = {
