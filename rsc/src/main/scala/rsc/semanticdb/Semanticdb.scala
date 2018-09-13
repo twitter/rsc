@@ -135,10 +135,14 @@ final class Semanticdb private (
             }
           }
           if (owner.isVisible) {
-            outline.mods.trees.forall {
-              case ModPrivate() => owner.isInstanceOf[DefnPackage]
-              case ModPrivateThis() => false
-              case _ => true
+            if (outline.isInstanceOf[Param]) {
+              true
+            } else {
+              outline.mods.trees.forall {
+                case ModPrivate() => owner.isInstanceOf[DefnPackage]
+                case ModPrivateThis() => false
+                case _ => true
+              }
             }
           } else {
             false
