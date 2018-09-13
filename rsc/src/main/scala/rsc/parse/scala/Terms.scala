@@ -80,21 +80,29 @@ trait Terms {
       case TRY =>
         in.nextToken()
         val expr = term()
-        val catchpOpt =
+        val catchpOpt = {
           if (in.token == CATCH) {
             in.nextToken()
             Some(term())
-          } else None
-        val finallyp = if (in.token == FINALLY) {
-          in.nextToken()
-          Some(term())
-        } else None
+          } else {
+            None
+          }
+        }
+        val finallyp = {
+          if (in.token == FINALLY) {
+            in.nextToken()
+            Some(term())
+          } else {
+            None
+          }
+        }
         catchpOpt match {
           case Some(TermPartialFunction(cases)) =>
             TermTry(expr, cases, finallyp)
           case Some(catchp) =>
             TermTryWithHandler(expr, catchp, finallyp)
-          case None => TermTry(expr, Nil, finallyp)
+          case None =>
+            TermTry(expr, Nil, finallyp)
         }
       case THROW =>
         in.nextToken()
@@ -111,7 +119,7 @@ trait Terms {
         TermReturn(term)
       case FOR =>
         in.nextToken()
-        val enumerators: List[Enumerator] =
+        val enumerators: List[Enumerator] = {
           if (in.token == LPAREN) {
             inParens(this.enumerators())
           } else if (in.token == LBRACE) {
@@ -120,6 +128,7 @@ trait Terms {
             accept(LPAREN)
             List()
           }
+        }
         newLinesOpt()
         if (in.token == YIELD) {
           in.nextToken()

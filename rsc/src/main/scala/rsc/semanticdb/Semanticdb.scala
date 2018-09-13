@@ -16,6 +16,7 @@ import rsc.util._
 import scala.collection.JavaConverters._
 import scala.collection.mutable.UnrolledBuffer
 import scala.meta.internal.{semanticdb => s}
+import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 import scala.meta.internal.semanticdb.SymbolOccurrence.{Role => r}
@@ -84,13 +85,18 @@ final class Semanticdb private (
       val infoIt = infos.entrySet.iterator
       while (infoIt.hasNext) {
         val entry = infoIt.next()
+        val language = entry.getKey.lang match {
+          case ScalaLanguage => l.SCALA
+          case JavaLanguage => l.JAVA
+          case UnknownLanguage => l.UNKNOWN_LANGUAGE
+        }
         var occurrences = occs.get(entry.getKey)
         if (occurrences == null) occurrences = UnrolledBuffer.empty
         val symbols = entry.getValue
         val document = s.TextDocument(
           schema = s.Schema.SEMANTICDB4,
           uri = cwd.relativize(entry.getKey.path.toAbsolutePath).toString,
-          language = l.SCALA,
+          language = language,
           occurrences = occurrences,
           symbols = symbols)
         documents += document
@@ -129,10 +135,14 @@ final class Semanticdb private (
             }
           }
           if (owner.isVisible) {
-            outline.mods.trees.forall {
-              case ModPrivate() => owner.isInstanceOf[DefnPackage]
-              case ModPrivateThis() => false
-              case _ => true
+            if (outline.isInstanceOf[Param]) {
+              true
+            } else {
+              outline.mods.trees.forall {
+                case ModPrivate() => owner.isInstanceOf[DefnPackage]
+                case ModPrivateThis() => false
+                case _ => true
+              }
             }
           } else {
             false
@@ -254,8 +264,32 @@ final class Semanticdb private (
             }
           }
           val ret = {
-            if (isCtor) s.NoType
-            else outline.ret.map(_.tpe).getOrElse(s.NoType)
+            outline.ret match {
+              case Some(tpt) =>
+                if (isCtor) s.NoType
+                else tpt.tpe
+              case None =>
+                outline match {
+                  case DefnMethod(mods, _, _, _, _, Some(TermLit(value)))
+                      if mods.hasFinal && mods.hasVal =>
+                    val const = value match {
+                      case () => s.UnitConstant()
+                      case value: Boolean => s.BooleanConstant(value)
+                      case value: Byte => s.ByteConstant(value)
+                      case value: Short => s.ShortConstant(value)
+                      case value: Char => s.CharConstant(value)
+                      case value: Int => s.IntConstant(value)
+                      case value: Long => s.LongConstant(value)
+                      case value: Float => s.FloatConstant(value)
+                      case value: Double => s.DoubleConstant(value)
+                      case value: String => s.StringConstant(value)
+                      case null => s.NullConstant()
+                    }
+                    s.ConstantType(const)
+                  case _ =>
+                    s.NoType
+                }
+            }
           }
           s.MethodSignature(tparams, paramss, ret)
         case outline: DefnField =>
@@ -527,12 +561,36 @@ final class Semanticdb private (
           s.NoType
         case TptRefine(tpt, stats) =>
           // FIXME: https://github.com/twitter/rsc/issues/95
-          s.NoType
+          val tpe = tpt match {
+            case Some(TptWith(tpts)) => s.WithType(tpts.map(_.tpe))
+            case Some(tpt) => s.WithType(List(tpt.tpe))
+            case None => s.NoType
+          }
+          val decls = Some(s.Scope())
+          s.StructuralType(tpe, decls)
         case TptRepeat(tpt) =>
           s.RepeatedType(tpt.tpe)
-        case tpt: TptSelect =>
+        case TptSelect(qual, id) =>
           // FIXME: https://github.com/twitter/rsc/issues/90
-          s.TypeRef(s.NoType, tpt.id.sym, Nil)
+          val needsPre = {
+            if (id.sym.owner != qual.id.sym) {
+              id.sym.owner.desc match {
+                case d.Term("package") => id.sym.owner.owner != qual.id.sym
+                case _ => true
+              }
+            } else {
+              false
+            }
+          }
+          if (needsPre) {
+            val pre = qual match {
+              case _: TermThis => s.ThisType(qual.id.sym)
+              case _ => s.SingleType(s.NoType, qual.id.sym)
+            }
+            s.TypeRef(pre, id.sym, Nil)
+          } else {
+            s.TypeRef(s.NoType, id.sym, Nil)
+          }
         case TptShort() =>
           s.TypeRef(s.NoType, "scala/Short#", Nil)
         case TptSingleton(id: TermId) =>

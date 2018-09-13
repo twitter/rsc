@@ -2,7 +2,7 @@ lazy val V = new {
   val asm = "6.0"
   val scala = computeScalaVersionFromTravisYml("2.11")
   val scalafix = computeScalafixVersionFromBinScalafix()
-  val scalameta = "4.0.0-M10"
+  val scalameta = "4.0.0-RC1"
   val scalatest = "3.0.5"
 }
 
@@ -68,9 +68,9 @@ lazy val check = project
     libraryDependencies += "org.scalameta" %% "metap" % V.scalameta
   )
 
-lazy val core = project
+lazy val examplesCore = project
   .in(file("examples/core"))
-  .dependsOn(function)
+  .dependsOn(examplesFunction)
   .settings(
     commonSettings,
     semanticdbSettings,
@@ -78,8 +78,12 @@ lazy val core = project
     libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
   )
 
-lazy val function = project
+lazy val examplesFunction = project
   .in(file("examples/function"))
+  .settings(commonSettings)
+
+lazy val examplesSemantic = project
+  .in(file("examples/semantic"))
   .settings(commonSettings)
 
 lazy val mjar = project
@@ -161,7 +165,7 @@ lazy val scalap = project
 
 lazy val tests = project
   .in(file("tests"))
-  .dependsOn(check, function, mjar, rsc, scalap)
+  .dependsOn(check, mjar, rsc, scalap)
   .enablePlugins(BuildInfoPlugin)
   .configs(Fast, Slow)
   .settings(
@@ -171,11 +175,14 @@ lazy val tests = project
     buildInfoUsePackageAsPath := true,
     buildInfoKeys := Seq(
       "sourceRoot" -> (baseDirectory in ThisBuild).value,
-      BuildInfoKey.map(dependencyClasspath.in(core, Compile)) {
+      BuildInfoKey.map(dependencyClasspath.in(examplesCore, Compile)) {
         case (k, v) => "coreDeps" -> v.map(_.data)
       },
-      BuildInfoKey.map(dependencyClasspath.in(function, Compile)) {
+      BuildInfoKey.map(dependencyClasspath.in(examplesFunction, Compile)) {
         case (k, v) => "functionDeps" -> v.map(_.data)
+      },
+      BuildInfoKey.map(dependencyClasspath.in(examplesSemantic, Compile)) {
+        case (k, v) => "semanticDeps" -> v.map(_.data)
       }
     ),
     buildInfoPackage := "rsc.tests",

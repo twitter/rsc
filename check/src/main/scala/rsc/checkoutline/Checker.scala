@@ -162,11 +162,111 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         ()
     }
 
+    // NOTE: This is a no-op, provided here for the ease of experimentation.
+    info1 = info1.copy(signature = highlevelPatch(info1.signature))
+
     // FIXME: https://github.com/twitter/rsc/issues/93
     // FIXME: https://github.com/scalameta/scalameta/issues/1315
     info1 = info1.copy(annotations = Nil)
 
     info1
+  }
+
+  private def highlevelPatch(sig: Signature): Signature = {
+    sig match {
+      case ClassSignature(tparams, parents, self, decls) =>
+        val tparams1 = tparams.map(highlevelPatch)
+        val parents1 = parents.map(highlevelPatch)
+        val self1 = highlevelPatch(self)
+        val decls1 = decls.map(highlevelPatch)
+        ClassSignature(tparams1, parents1, self1, decls1)
+      case MethodSignature(tparams, paramss, ret) =>
+        val tparams1 = tparams.map(highlevelPatch)
+        val paramss1 = paramss.map(highlevelPatch)
+        val ret1 = highlevelPatch(ret)
+        MethodSignature(tparams1, paramss1, ret1)
+      case TypeSignature(tparams, lo, hi) =>
+        val tparams1 = tparams.map(highlevelPatch)
+        val lo1 = highlevelPatch(lo)
+        val hi1 = highlevelPatch(hi)
+        TypeSignature(tparams1, lo1, hi1)
+      case ValueSignature(tpe) =>
+        val tpe1 = highlevelPatch(tpe)
+        ValueSignature(tpe1)
+      case NoSignature =>
+        NoSignature
+    }
+  }
+
+  private def highlevelPatch(tpe: Type): Type = {
+    tpe match {
+      case TypeRef(pre, sym, targs) =>
+        val pre1 = highlevelPatch(pre)
+        val sym1 = highlevelPatch(sym)
+        val targs1 = targs.map(highlevelPatch)
+        TypeRef(pre1, sym1, targs1)
+      case SingleType(pre, sym) =>
+        val pre1 = highlevelPatch(pre)
+        val sym1 = highlevelPatch(sym)
+        SingleType(pre1, sym1)
+      case ThisType(sym) =>
+        val sym1 = highlevelPatch(sym)
+        ThisType(sym1)
+      case SuperType(pre, sym) =>
+        val pre1 = highlevelPatch(pre)
+        val sym1 = highlevelPatch(sym)
+        SuperType(pre1, sym1)
+      case ConstantType(constant) =>
+        val constant1 = constant
+        ConstantType(constant1)
+      case IntersectionType(tpes) =>
+        val tpes1 = tpes.map(highlevelPatch)
+        IntersectionType(tpes1)
+      case UnionType(tpes) =>
+        val tpes1 = tpes.map(highlevelPatch)
+        UnionType(tpes1)
+      case WithType(tpes) =>
+        val tpes1 = tpes.map(highlevelPatch)
+        WithType(tpes1)
+      case StructuralType(tpe, decls) =>
+        val tpe1 = highlevelPatch(tpe)
+        val decls1 = decls.map(highlevelPatch)
+        StructuralType(tpe1, decls1)
+      case AnnotatedType(anns, tpe) =>
+        val anns1 = anns.map(highlevelPatch)
+        val tpe1 = highlevelPatch(tpe)
+        AnnotatedType(anns1, tpe1)
+      case ExistentialType(tpe, decls) =>
+        val tpe1 = highlevelPatch(tpe)
+        val decls1 = decls.map(highlevelPatch)
+        ExistentialType(tpe1, decls1)
+      case UniversalType(tparams, tpe) =>
+        val tparams1 = tparams.map(highlevelPatch)
+        val tpe1 = highlevelPatch(tpe)
+        UniversalType(tparams1, tpe1)
+      case ByNameType(tpe) =>
+        val tpe1 = highlevelPatch(tpe)
+        ByNameType(tpe1)
+      case RepeatedType(tpe) =>
+        val tpe1 = highlevelPatch(tpe)
+        RepeatedType(tpe1)
+      case NoType =>
+        NoType
+    }
+  }
+
+  private def highlevelPatch(scope: Scope): Scope = {
+    scope
+  }
+
+  private def highlevelPatch(ann: Annotation): Annotation = {
+    val Annotation(tpe) = ann
+    val tpe1 = highlevelPatch(tpe)
+    Annotation(tpe1)
+  }
+
+  private def highlevelPatch(sym: String): String = {
+    sym
   }
 
   private def lowlevelRepr(info: SymbolInformation): String = {
@@ -177,6 +277,29 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     var s1 = s
     s1 = s1.replaceAll("symbol: \"local(\\d+)\"", "symbol: \"localNNN\"")
     s1 = s1.replaceAll("symbol: \".*?#_\\$(\\d+)#\"", "symbol: \"localNNN\"")
+    val rxProperties = "properties: (\\d+)".r
+    s1 = rxProperties.replaceAllIn(
+      s1, { m =>
+        val props = m.group(1).toInt
+        val buf = List.newBuilder[String]
+        def has(prop: SymbolInformation.Property): Boolean = (props & prop.value) != 0
+        if (has(p.ABSTRACT)) buf += "ABSTRACT"
+        if (has(p.FINAL)) buf += "FINAL"
+        if (has(p.SEALED)) buf += "SEALED"
+        if (has(p.IMPLICIT)) buf += "IMPLICIT"
+        if (has(p.LAZY)) buf += "LAZY"
+        if (has(p.CASE)) buf += "CASE"
+        if (has(p.COVARIANT)) buf += "COVARIANT"
+        if (has(p.CONTRAVARIANT)) buf += "CONTRAVARIANT"
+        if (has(p.VAL)) buf += "VAL"
+        if (has(p.VAR)) buf += "VAR"
+        if (has(p.STATIC)) buf += "STATIC"
+        if (has(p.PRIMARY)) buf += "PRIMARY"
+        if (has(p.ENUM)) buf += "ENUM"
+        if (has(p.DEFAULT)) buf += "DEFAULT"
+        s"properties: ${buf.result.mkString(", ")}"
+      }
+    )
     s1
   }
 

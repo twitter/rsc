@@ -19,4 +19,11 @@ class ParseTests extends RscTests {
     val problems = Main.process(reporter, settings)
     if (problems.nonEmpty) fail()
   }
+
+  test("parse for syntactic") {
+    val reporter = Reporter()
+    val settings = Settings(syntacticFiles, quiet = true)
+    val problems = Main.process(reporter, settings)
+    if (problems.nonEmpty) fail()
+  }
 }

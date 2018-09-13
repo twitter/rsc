@@ -54,8 +54,9 @@ object Build extends AutoPlugin {
     def all: List[String] = List(
       "bench",
       "check",
-      "core",
-      "function",
+      "examplesCore",
+      "examplesFunction",
+      "examplesSemantic",
       "mjar",
       "rsc",
       "scalafixInput",

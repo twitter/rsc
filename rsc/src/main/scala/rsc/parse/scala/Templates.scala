@@ -85,7 +85,7 @@ trait Templates {
     init
   }
 
-  private def templateBraces(earlies: List[Stat], inits: List[Init]): Template =
+  private def templateBraces(earlies: List[Stat], inits: List[Init]): Template = {
     banEscapingWildcards {
       newLineOptWhenFollowedBy(LBRACE)
       if (in.token == LBRACE) {
@@ -190,4 +190,5 @@ trait Templates {
         Template(earlies, inits, self, stats)
       }
     }
+  }
 }

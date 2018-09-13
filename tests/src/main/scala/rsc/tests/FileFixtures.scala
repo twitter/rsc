@@ -37,14 +37,32 @@ trait FileFixtures extends ToolUtil {
     javaLibrary ++ BuildInfo.functionDeps.map(_.toPath).toList
   }
 
+  lazy val syntacticDir: Path = {
+    buildRoot.resolve("examples/syntactic")
+  }
+
+  lazy val syntacticFiles: List[Path] = {
+    val allFiles = Files.walk(syntacticDir).iterator.asScala.toList
+    allFiles.filter(_.toString.endsWith(".scala"))
+  }
+
+  lazy val semanticDic: Path = {
+    buildRoot.resolve("examples/semantic")
+  }
+
+  lazy val semanticFiles: List[Path] = {
+    val allFiles = Files.walk(semanticDic).iterator.asScala.toList
+    allFiles.filter(_.toString.endsWith(".scala"))
+  }
+
+  lazy val semanticClasspath: List[Path] = {
+    javaLibrary ++ BuildInfo.semanticDeps.map(_.toPath).toList
+  }
+
   lazy val javaLibrary: List[Path] = {
     val bootcpProp = System.getProperty("sun.boot.class.path")
     val bootcp = bootcpProp.split(pathSeparator).map(p => Paths.get(p)).toList
     bootcp.filter(_.toString.endsWith("rt.jar"))
-  }
-
-  lazy val scalaLibrary: List[Path] = {
-    coursier("org.scala-lang:scala-library:2.12.6").right.get
   }
 
   lazy val scalasigExpects: Map[String, List[Path]] = {

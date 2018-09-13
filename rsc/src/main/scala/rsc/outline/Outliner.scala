@@ -113,14 +113,18 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
           val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
           companionClass match {
             case caseClass: DefnClass if caseClass.hasCase =>
-              if (caseClass.tparams.isEmpty && tree.isSynthetic) {
-                val params = caseClass.primaryCtor.get.paramss.headOption.getOrElse(Nil)
-                val sym = AbstractFunctionClass(params.length)
-                val core = TptId(sym.desc.value).withSym(sym)
-                val paramTpts = params.map(_.tpt.get.dupe)
-                val caseClassRef = caseClass.id
-                val parent = TptParameterize(core, paramTpts :+ caseClassRef)
-                appendParent(env, parent)
+              if (tree.isSynthetic && !caseClass.hasAbstract) {
+                (caseClass.tparams, caseClass.primaryCtor.get.paramss) match {
+                  case (Nil, List(params)) if params.length <= 22 =>
+                    val sym = AbstractFunctionClass(params.length)
+                    val core = TptId(sym.desc.value).withSym(sym)
+                    val paramTpts = params.map(_.tpt.get.dupe)
+                    val caseClassRef = caseClass.id
+                    val parent = TptParameterize(core, paramTpts :+ caseClassRef)
+                    appendParent(env, parent)
+                  case _ =>
+                    ()
+                }
               }
               val parent = TptId("Serializable").withSym(SerializableClass)
               appendParent(env, parent)
@@ -276,7 +280,7 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
         ()
       case TptRefine(tpt, stats) =>
         // FIXME: https://github.com/twitter/rsc/issues/95
-        ()
+        tpt.foreach(apply(env, sketch, _))
       case TptRepeat(tpt) =>
         apply(env, sketch, tpt)
       case TptWildcard(ubound, lbound) =>

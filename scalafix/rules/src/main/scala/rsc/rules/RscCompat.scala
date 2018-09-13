@@ -12,7 +12,7 @@ import scala.meta._
 import scala.meta.contrib._
 import scala.meta.internal.{semanticdb => s}
 import scalafix.internal.util._
-import scalafix.lint.LintMessage
+import scalafix.internal.v0._
 import scalafix.rule._
 import scalafix.syntax._
 import scalafix.util.TokenOps
@@ -160,8 +160,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
       case ex: Throwable =>
         val sw = new java.io.StringWriter()
         ex.printStackTrace(new PrintWriter(sw))
-        val category = LintCategory.error("")
-        Patch.lint(LintMessage(sw.toString, target.name.pos, category))
+        Patch.lint(Diagnostic("RscCompat", sw.toString, target.name.pos))
     }
   }
 }

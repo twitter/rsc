@@ -11,7 +11,7 @@ import scala.meta._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
-import scalafix.v0._
+import scalafix.internal.v0._
 
 class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
   def pprint(tree: s.Tree): Unit = tree match {
@@ -38,7 +38,7 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
       pprint(qual)
       if (needsParens) str(")")
       str(".")
-      pprint(id.get.sym)
+      pprint(id.get.symbol)
     case s.IdTree(sym) =>
       sym.owner.desc match {
         case d.None =>
@@ -62,10 +62,10 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
       params match {
         case Seq() => str("() => ")
         case Seq(id) =>
-          pprint(id.sym)
+          pprint(id.symbol)
           str(" => ")
         case _ =>
-          rep("(", params, ", ", ") => ")(id => pprint(id.sym))
+          rep("(", params, ", ", ") => ")(id => pprint(id.symbol))
       }
       pprint(term)
       str("}")

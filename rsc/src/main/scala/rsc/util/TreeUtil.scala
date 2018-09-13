@@ -32,18 +32,35 @@ trait TreeUtil {
 
   implicit class TreeUtilModsOps(mods: Mods) {
     def :+(mod: Mod): Mods = {
-      val pos1 = Position(mods.pos.input, mods.pos.start, mod.pos.end)
-      val mods1 = Mods(mods.trees :+ mod)
-      mods1.withPos(pos1)
+      if (mod.pos != NoPosition) {
+        val pos1 = Position(mods.pos.input, mods.pos.start, mod.pos.end)
+        val mods1 = Mods(mods.trees :+ mod)
+        mods1.withPos(pos1)
+      } else {
+        Mods(mods.trees :+ mod)
+      }
     }
 
-    def partition(): (Mods, Mods) = {
-      val (prefixTrees, postfixTrees) = mods.trees.partition {
-        case _: ModThrows => false
-        case _: ModDims => false
-        case _ => true
+    def +:(mod: Mod): Mods = {
+      if (mod.pos != NoPosition) {
+        val pos1 = Position(mods.pos.input, mod.pos.start, mods.pos.end)
+        val mods1 = Mods(mod +: mods.trees)
+        mods1.withPos(pos1)
+      } else {
+        Mods(mod +: mods.trees)
       }
-      (Mods(prefixTrees), Mods(postfixTrees))
+    }
+
+    def filter(fn: Mod => Boolean): Mods = {
+      Mods(mods.trees.filter(fn))
+    }
+
+    def map(fn: Mod => Mod): Mods = {
+      Mods(mods.trees.map(fn))
+    }
+
+    def flatMap(fn: Mod => Iterable[Mod]): Mods = {
+      Mods(mods.trees.flatMap(fn))
     }
   }
 }
