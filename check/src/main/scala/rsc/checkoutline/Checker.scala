@@ -277,6 +277,27 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     var s1 = s
     s1 = s1.replaceAll("symbol: \"local(\\d+)\"", "symbol: \"localNNN\"")
     s1 = s1.replaceAll("symbol: \".*?#_\\$(\\d+)#\"", "symbol: \"localNNN\"")
+    val rxProperties = "properties: (\\d+)".r
+    s1 = rxProperties.replaceAllIn(s1, { m =>
+      val props = m.group(1).toInt
+      val buf = List.newBuilder[String]
+      def has(prop: SymbolInformation.Property): Boolean = (props & prop.value) != 0
+      if (has(p.ABSTRACT)) buf += "ABSTRACT"
+      if (has(p.FINAL)) buf += "FINAL"
+      if (has(p.SEALED)) buf += "SEALED"
+      if (has(p.IMPLICIT)) buf += "IMPLICIT"
+      if (has(p.LAZY)) buf += "LAZY"
+      if (has(p.CASE)) buf += "CASE"
+      if (has(p.COVARIANT)) buf += "COVARIANT"
+      if (has(p.CONTRAVARIANT)) buf += "CONTRAVARIANT"
+      if (has(p.VAL)) buf += "VAL"
+      if (has(p.VAR)) buf += "VAR"
+      if (has(p.STATIC)) buf += "STATIC"
+      if (has(p.PRIMARY)) buf += "PRIMARY"
+      if (has(p.ENUM)) buf += "ENUM"
+      if (has(p.DEFAULT)) buf += "DEFAULT"
+      s"properties: ${buf.result.mkString(", ")}"
+    })
     s1
   }
 
