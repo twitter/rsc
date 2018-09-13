@@ -115,7 +115,7 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
             case caseClass: DefnClass if caseClass.hasCase =>
               if (tree.isSynthetic) {
                 (caseClass.tparams, caseClass.primaryCtor.get.paramss) match {
-                  case (Nil, List(params)) =>
+                  case (Nil, List(params)) if params.length <= 22 =>
                     val sym = AbstractFunctionClass(params.length)
                     val core = TptId(sym.desc.value).withSym(sym)
                     val paramTpts = params.map(_.tpt.get.dupe)

@@ -431,40 +431,43 @@ final class Synthesizer private (
   }
 
   private def caseClassCompanionUnapply(env: Env, tree: DefnClass): Unit = {
-    val id = TermId("unapply")
-    val tparams = tree.tparams.map { tp =>
-      val id = TptId(tp.id.valueopt.get).withPos(tp.id.pos)
-      val lbound = tp.lbound.map(_.dupe)
-      val ubound = tp.ubound.map(_.dupe)
-      val tparam = TypeParam(Mods(Nil), id, Nil, lbound, ubound, Nil, Nil)
-      tparam.withPos(tp.pos)
-    }
-    val paramss = {
-      val tpt = {
-        val core = tree.id
-        if (tparams.isEmpty) core
-        else TptParameterize(core, tparams.map(_.id.asInstanceOf[TptId]))
+    val params = tree.primaryCtor.get.paramss.headOption.getOrElse(Nil)
+    if (params.length <= 22) {
+      val id = TermId("unapply")
+      val tparams = tree.tparams.map { tp =>
+        val id = TptId(tp.id.valueopt.get).withPos(tp.id.pos)
+        val lbound = tp.lbound.map(_.dupe)
+        val ubound = tp.ubound.map(_.dupe)
+        val tparam = TypeParam(Mods(Nil), id, Nil, lbound, ubound, Nil, Nil)
+        tparam.withPos(tp.pos)
       }
-      val param = Param(Mods(Nil), TermId("x$0"), Some(tpt), None)
-      List(List(param.withPos(tree.pos)))
-    }
-    val ret = {
-      val params = tree.primaryCtor.get.paramss.headOption.getOrElse(Nil)
-      params match {
-        case Nil =>
-          Some(TptId("Boolean").withSym(BooleanClass))
-        case List(param) =>
-          val option = TptId("Option").withSym(OptionClass)
-          Some(TptParameterize(option, List(param.tpt.get.dupe)))
-        case params =>
-          val option = TptId("Option").withSym(OptionClass)
-          val tuple = TptTuple(params.map(_.tpt.get.dupe))
-          Some(TptParameterize(option, List(tuple)))
+      val paramss = {
+        val tpt = {
+          val core = tree.id
+          if (tparams.isEmpty) core
+          else TptParameterize(core, tparams.map(_.id.asInstanceOf[TptId]))
+        }
+        val param = Param(Mods(Nil), TermId("x$0"), Some(tpt), None)
+        List(List(param.withPos(tree.pos)))
       }
+      val ret = {
+        val params = tree.primaryCtor.get.paramss.headOption.getOrElse(Nil)
+        params match {
+          case Nil =>
+            Some(TptId("Boolean").withSym(BooleanClass))
+          case List(param) =>
+            val option = TptId("Option").withSym(OptionClass)
+            Some(TptParameterize(option, List(param.tpt.get.dupe)))
+          case params =>
+            val option = TptId("Option").withSym(OptionClass)
+            val tuple = TptTuple(params.map(_.tpt.get.dupe))
+            Some(TptParameterize(option, List(tuple)))
+        }
+      }
+      val rhs = Some(TermStub())
+      val meth = DefnMethod(Mods(Nil), id, tparams, paramss, ret, rhs)
+      scheduler(env, meth.withPos(tree.pos))
     }
-    val rhs = Some(TermStub())
-    val meth = DefnMethod(Mods(Nil), id, tparams, paramss, ret, rhs)
-    scheduler(env, meth.withPos(tree.pos))
   }
 
   private def caseObjectProductPrefix(env: Env, tree: DefnObject): Unit = {
