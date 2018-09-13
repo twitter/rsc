@@ -562,7 +562,7 @@ final class Semanticdb private (
         case TptRefine(tpt, stats) =>
           // FIXME: https://github.com/twitter/rsc/issues/95
           val tpe = tpt match {
-            case Some(tpt: TptWith) => tpt.tpe
+            case Some(TptWith(tpts)) => s.WithType(tpts.map(_.tpe))
             case Some(tpt) => s.WithType(List(tpt.tpe))
             case None => s.NoType
           }

@@ -1,7 +1,10 @@
 package ticket95
 
-class X
+trait X
+trait Y
+
 object M {
-  def m: X {} = ???
+  def m1: X {} = ???
+  def m2: X with Y {} = ???
 }
 
