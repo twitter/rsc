@@ -259,8 +259,32 @@ final class Semanticdb private (
             }
           }
           val ret = {
-            if (isCtor) s.NoType
-            else outline.ret.map(_.tpe).getOrElse(s.NoType)
+            outline.ret match {
+              case Some(tpt) =>
+                if (isCtor) s.NoType
+                else tpt.tpe
+              case None =>
+                outline match {
+                  case DefnMethod(mods, _, _, _, _, Some(TermLit(value)))
+                      if mods.hasFinal && mods.hasVal =>
+                    val const = value match {
+                      case () => s.UnitConstant()
+                      case value: Boolean => s.BooleanConstant(value)
+                      case value: Byte => s.ByteConstant(value)
+                      case value: Short => s.ShortConstant(value)
+                      case value: Char => s.CharConstant(value)
+                      case value: Int => s.IntConstant(value)
+                      case value: Long => s.LongConstant(value)
+                      case value: Float => s.FloatConstant(value)
+                      case value: Double => s.DoubleConstant(value)
+                      case value: String => s.StringConstant(value)
+                      case null => s.NullConstant()
+                    }
+                    s.ConstantType(const)
+                  case _ =>
+                    s.NoType
+                }
+            }
           }
           s.MethodSignature(tparams, paramss, ret)
         case outline: DefnField =>
