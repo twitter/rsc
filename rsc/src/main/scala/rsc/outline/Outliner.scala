@@ -113,7 +113,7 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
           val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
           companionClass match {
             case caseClass: DefnClass if caseClass.hasCase =>
-              if (tree.isSynthetic) {
+              if (tree.isSynthetic && !caseClass.hasAbstract) {
                 (caseClass.tparams, caseClass.primaryCtor.get.paramss) match {
                   case (Nil, List(params)) if params.length <= 22 =>
                     val sym = AbstractFunctionClass(params.length)
