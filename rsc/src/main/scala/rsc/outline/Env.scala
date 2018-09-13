@@ -5,6 +5,7 @@ package rsc.outline
 import rsc.inputs._
 import rsc.pretty._
 import rsc.semantics._
+import rsc.syntax._
 import rsc.util._
 import scala.annotation.tailrec
 
@@ -168,8 +169,12 @@ sealed class Env protected (val _scopes: List[Scope], val lang: Language) extend
           }
         case (head: TemplateScope) :: tail =>
           val found = head.tree.id.value == value
-          if (found) FoundResolution(head.sym)
-          else loop(tail)
+          if (found) {
+            val sym = if (head.tree.isInstanceOf[DefnPackageObject]) head.sym.owner else head.sym
+            FoundResolution(sym)
+          } else {
+            loop(tail)
+          }
         case _ :: tail =>
           loop(tail)
         case Nil =>
