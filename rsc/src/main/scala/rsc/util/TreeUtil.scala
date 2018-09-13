@@ -36,14 +36,5 @@ trait TreeUtil {
       val mods1 = Mods(mods.trees :+ mod)
       mods1.withPos(pos1)
     }
-
-    def partition(): (Mods, Mods) = {
-      val (prefixTrees, postfixTrees) = mods.trees.partition {
-        case _: ModThrows => false
-        case _: ModDims => false
-        case _ => true
-      }
-      (Mods(prefixTrees), Mods(postfixTrees))
-    }
   }
 }
