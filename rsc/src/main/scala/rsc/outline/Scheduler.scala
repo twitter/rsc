@@ -78,10 +78,7 @@ final class Scheduler private (
         if (outline.hasVar) {
           val param = Param(Mods(Nil), TermId("x$1"), outline.tpt, None)
             .withPos(outline.pos)
-          val setterMods = Mods(outline.mods.trees.filter {
-            case ModImplicit() => false
-            case _ => true
-          })
+          val setterMods = outline.mods.filter(!_.isInstanceOf[ModImplicit])
           val setter = DefnMethod(
             setterMods,
             TermId(outline.id.value + "_=").withPos(outline.id.pos),

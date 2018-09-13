@@ -74,12 +74,11 @@ class TreeStr(p: Printer, l: KnownLanguage) {
         if (isImplicitParams) p.str("implicit ")
         val xs1 = xs.map {
           case p @ Param(mods, id, tpt, rhs) =>
-            val trees1 = mods.trees.filter {
+            val mods1 = mods.filter {
               case ModImplicit() if isImplicitParams => false
               case _ => true
             }
-            val mods1 = Mods(trees1).withPos(mods.pos)
-            Param(mods1, id, tpt, rhs).withPos(p.pos)
+            Param(mods1, id, tpt, rhs)
           case other =>
             other
         }

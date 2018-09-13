@@ -68,7 +68,7 @@ final class Synthesizer private (
         params.foreach { param =>
           paramPos += 1
           if (param.rhs.nonEmpty) {
-            val mods = Mods(tree.mods.trees.flatMap {
+            val mods = tree.mods.flatMap {
               case mod: ModPrivate =>
                 Some(mod)
               case mod: ModPrivateThis =>
@@ -87,7 +87,7 @@ final class Synthesizer private (
                 Some(mod)
               case _ =>
                 None
-            })
+            }
             val id = TermId(tree.id.valueopt.get + "$default$" + paramPos)
             val tparams = treeTparams.map { tp =>
               val mods = Mods(Nil)
@@ -127,9 +127,7 @@ final class Synthesizer private (
   }
 
   def implicitClassConversion(env: Env, tree: DefnClass): Unit = {
-    val mods = Mods {
-      tree.mods.trees.filter(_.isInstanceOf[ModAccess]) ++ List(ModImplicit())
-    }
+    val mods = tree.mods.filter(_.isInstanceOf[ModAccess]) :+ ModImplicit()
     val id = TermId(tree.id.value)
     val tparams = tree.tparams.map { tp =>
       val id = TptId(tp.id.valueopt.get).withPos(tp.id.pos)
@@ -281,7 +279,7 @@ final class Synthesizer private (
   }
 
   def syntheticCompanion(env: Env, tree: DefnClass): Unit = {
-    val mods = Mods(tree.mods.trees.filter(_.isInstanceOf[ModAccess]))
+    val mods = tree.mods.filter(_.isInstanceOf[ModAccess])
     val id = TermId(tree.id.value)
     val companion = DefnObject(mods, id, Nil, Nil, None, Nil)
     scheduler(env, companion.withPos(tree.pos))
