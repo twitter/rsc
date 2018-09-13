@@ -16,6 +16,7 @@ import rsc.util._
 import scala.collection.JavaConverters._
 import scala.collection.mutable.UnrolledBuffer
 import scala.meta.internal.{semanticdb => s}
+import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 import scala.meta.internal.semanticdb.SymbolOccurrence.{Role => r}
@@ -559,9 +560,27 @@ final class Semanticdb private (
           s.NoType
         case TptRepeat(tpt) =>
           s.RepeatedType(tpt.tpe)
-        case tpt: TptSelect =>
+        case TptSelect(qual, id) =>
           // FIXME: https://github.com/twitter/rsc/issues/90
-          s.TypeRef(s.NoType, tpt.id.sym, Nil)
+          val needsPre = {
+            if (id.sym.owner != qual.id.sym) {
+              id.sym.owner.desc match {
+                case d.Term("package") => id.sym.owner.owner != qual.id.sym
+                case _ => true
+              }
+            } else {
+              false
+            }
+          }
+          if (needsPre) {
+            val pre = qual match {
+              case _: TermThis => s.ThisType(qual.id.sym)
+              case _ => s.SingleType(s.NoType, qual.id.sym)
+            }
+            s.TypeRef(pre, id.sym, Nil)
+          } else {
+            s.TypeRef(s.NoType, id.sym, Nil)
+          }
         case TptShort() =>
           s.TypeRef(s.NoType, "scala/Short#", Nil)
         case TptSingleton(id: TermId) =>
