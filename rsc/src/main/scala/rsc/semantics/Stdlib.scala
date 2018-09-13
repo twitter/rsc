@@ -3,8 +3,7 @@
 package rsc.semantics
 
 trait Stdlib {
-  def AbstractFunctionClass(params: Int): Symbol =
-    "scala/runtime/AbstractFunction" + params + "#"
+  def AbstractFunctionClass(params: Int): Symbol = "scala/runtime/AbstractFunction" + params + "#"
   val AnyClass: Symbol = "scala/Any#"
   val AnyRefClass: Symbol = "scala/AnyRef#"
   val AnyValClass: Symbol = "scala/AnyVal#"
@@ -23,7 +22,6 @@ trait Stdlib {
   val SingletonClass: Symbol = "scala/Singleton#"
   val StringClass: Symbol = "java/lang/String#"
   def TupleClass(params: Int): Symbol = "scala/Tuple" + params + "#"
-  val UncheckedVarianceClass: Symbol =
-    "scala/annotation/unchecked/uncheckedVariance#"
+  val UncheckedVarianceClass: Symbol = "scala/annotation/unchecked/uncheckedVariance#"
   val UnitClass: Symbol = "scala/Unit#"
 }

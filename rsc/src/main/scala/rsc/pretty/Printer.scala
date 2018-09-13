@@ -173,11 +173,13 @@ class Printer {
       suffix
     }
 
-    def when(predicate: Boolean): Wrap =
+    def when(predicate: Boolean): Wrap = {
       if (predicate) this else NoWrap
+    }
 
-    def unless(predicate: Boolean): Wrap =
+    def unless(predicate: Boolean): Wrap = {
       if (predicate) NoWrap else this
+    }
   }
 
   case object Angles extends Wrap {

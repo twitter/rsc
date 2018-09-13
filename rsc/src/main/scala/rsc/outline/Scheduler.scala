@@ -52,8 +52,7 @@ final class Scheduler private (
             if (existingScope != null) {
               existingScope
             } else {
-              val rootScope =
-                symtab.scopes(RootPackage).asInstanceOf[PackageScope]
+              val rootScope = symtab.scopes(RootPackage).asInstanceOf[PackageScope]
               val newScope = PackageScope(packageSym, rootScope._index)
               symtab.scopes(packageSym) = newScope
               todo.add(env, newScope)
@@ -76,8 +75,7 @@ final class Scheduler private (
           outline.rhs).withPos(outline.pos)
         apply(env, getter)
         if (outline.hasVar) {
-          val param = Param(Mods(Nil), TermId("x$1"), outline.tpt, None)
-            .withPos(outline.pos)
+          val param = Param(Mods(Nil), TermId("x$1"), outline.tpt, None).withPos(outline.pos)
           val setterMods = outline.mods.filter(!_.isInstanceOf[ModImplicit])
           val setter = DefnMethod(
             setterMods,

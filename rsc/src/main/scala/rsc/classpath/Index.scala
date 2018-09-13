@@ -144,8 +144,7 @@ object Index {
           }
           val manifest = jar.getManifest
           if (manifest != null) {
-            val classpathAttr =
-              manifest.getMainAttributes.getValue("Class-Path")
+            val classpathAttr = manifest.getMainAttributes.getValue("Class-Path")
             if (classpathAttr != null) {
               classpathAttr.split(" ").foreach { relativePath =>
                 val parentPath = path.toAbsolutePath.getParent
