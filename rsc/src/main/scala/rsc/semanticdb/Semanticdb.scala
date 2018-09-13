@@ -84,13 +84,18 @@ final class Semanticdb private (
       val infoIt = infos.entrySet.iterator
       while (infoIt.hasNext) {
         val entry = infoIt.next()
+        val language = entry.getKey.lang match {
+          case ScalaLanguage => l.SCALA
+          case JavaLanguage => l.JAVA
+          case UnknownLanguage => l.UNKNOWN_LANGUAGE
+        }
         var occurrences = occs.get(entry.getKey)
         if (occurrences == null) occurrences = UnrolledBuffer.empty
         val symbols = entry.getValue
         val document = s.TextDocument(
           schema = s.Schema.SEMANTICDB4,
           uri = cwd.relativize(entry.getKey.path.toAbsolutePath).toString,
-          language = l.SCALA,
+          language = language,
           occurrences = occurrences,
           symbols = symbols)
         documents += document
