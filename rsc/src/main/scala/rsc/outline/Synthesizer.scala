@@ -48,6 +48,15 @@ final class Synthesizer private (
     caseObjectToString(env, tree)
   }
 
+  def defaultConstructor(env: Env, tree: DefnClass): Unit = {
+    val mods = tree.mods.filter(_.isInstanceOf[ModAccess])
+    val id = CtorId().withPos(tree.id.pos)
+    val paramss = List(List())
+    val rhs = TermStub()
+    val ctor = DefnCtor(mods, id, paramss, rhs)
+    scheduler(env, ctor.withPos(tree.pos))
+  }
+
   def defaultGetters(env: Env, tree: DefnClass): Unit = {
     tree.primaryCtor.foreach(defaultGetters(env, tree.tparams, _))
     tree.stats.foreach {

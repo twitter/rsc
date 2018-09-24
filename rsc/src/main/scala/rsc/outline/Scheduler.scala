@@ -245,9 +245,15 @@ final class Scheduler private (
     stats(TemplateLevel, templateEnv, tree.earlies)
     tree match {
       case tree: DefnClass =>
-        tree.primaryCtor.foreach(synthesizer.paramss(templateEnv, _))
-        synthesizer.paramAccessors(templateEnv, tree)
-        tree.primaryCtor.foreach(apply(templateEnv, _))
+        tree.lang match {
+          case ScalaLanguage | UnknownLanguage =>
+            tree.primaryCtor.foreach(synthesizer.paramss(templateEnv, _))
+            synthesizer.paramAccessors(templateEnv, tree)
+            tree.primaryCtor.foreach(apply(templateEnv, _))
+          case JavaLanguage =>
+            val hasCtor = tree.stats.exists(_.isInstanceOf[DefnCtor])
+            if (!hasCtor && tree.hasClass) synthesizer.defaultConstructor(templateEnv, tree)
+        }
       case tree: DefnObject =>
         val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
         companionClass match {
