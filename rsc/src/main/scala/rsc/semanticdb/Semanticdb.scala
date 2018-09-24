@@ -176,7 +176,7 @@ final class Semanticdb private (
         case _: DefnClass if outline.hasTrait => k.TRAIT
         case _: DefnClass => crash(outline)
         case _: DefnCtor => k.CONSTRUCTOR
-        case _: DefnField => crash(outline)
+        case _: DefnField => k.FIELD
         case _: DefnMacro => k.MACRO
         case _: DefnMethod => k.METHOD
         case _: DefnObject => k.OBJECT

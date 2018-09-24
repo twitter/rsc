@@ -66,26 +66,34 @@ final class Scheduler private (
     }
     outline match {
       case outline: DefnField =>
-        val getter = DefnMethod(
-          outline.mods,
-          TermId(outline.id.value).withPos(outline.id.pos),
-          Nil,
-          Nil,
-          outline.tpt,
-          outline.rhs).withPos(outline.pos)
-        apply(env, getter)
-        if (outline.hasVar) {
-          val param = Param(Mods(Nil), TermId("x$1"), outline.tpt, None).withPos(outline.pos)
-          val setterMods = outline.mods.filter(!_.isInstanceOf[ModImplicit])
-          val setter = DefnMethod(
-            setterMods,
-            TermId(outline.id.value + "_=").withPos(outline.id.pos),
-            Nil,
-            List(List(param)),
-            Some(TptId("Unit").withSym(UnitClass)),
-            outline.rhs
-          ).withPos(outline.pos)
-          apply(env, setter)
+        outline.lang match {
+          case ScalaLanguage | UnknownLanguage =>
+            val getter = DefnMethod(
+              outline.mods,
+              TermId(outline.id.value).withPos(outline.id.pos),
+              Nil,
+              Nil,
+              outline.tpt,
+              outline.rhs).withPos(outline.pos)
+            apply(env, getter)
+            if (outline.hasVar) {
+              val param = Param(Mods(Nil), TermId("x$1"), outline.tpt, None).withPos(outline.pos)
+              val setterMods = outline.mods.filter(!_.isInstanceOf[ModImplicit])
+              val setter = DefnMethod(
+                setterMods,
+                TermId(outline.id.value + "_=").withPos(outline.id.pos),
+                Nil,
+                List(List(param)),
+                Some(TptId("Unit").withSym(UnitClass)),
+                outline.rhs
+              ).withPos(outline.pos)
+              apply(env, setter)
+            }
+          case JavaLanguage =>
+            val sym = TermSymbol(scope.sym, outline.id.value)
+            scope.enter(outline.id.name, sym)
+            outline.id.sym = sym
+            symtab._outlines.put(sym, outline)
         }
       case outline =>
         val gensym = gensyms(outline)
