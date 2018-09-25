@@ -304,6 +304,12 @@ final class PackageObjectScope private (
   }
 }
 
+object PackageObjectScope {
+  def apply(tree: DefnPackageObject, packageScope: PackageScope): PackageObjectScope = {
+    new PackageObjectScope(tree.id.sym, tree, packageScope)
+  }
+}
+
 final class ParamScope private (owner: Symbol) extends SourceScope(owner)
 
 object ParamScope {
