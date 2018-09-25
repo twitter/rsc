@@ -53,7 +53,7 @@ sealed trait BinaryScope extends Scope {
     // TODO: Utilizing selfs is probably incorrect when doing lookups from Java,
     // but hopefully we'll rewrite the name resolution logic before this becomes a problem.
     (info.parents ++ info.self).foreach { parent =>
-      val memberSym = loadDecl(parent, name)
+      val memberSym = loadMember(parent, name)
       if (memberSym != NoSymbol) {
         return memberSym
       }
