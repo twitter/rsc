@@ -588,7 +588,7 @@ final class Semanticdb private (
         case TptFloat() =>
           s.TypeRef(s.NoType, "scala/Float#", Nil)
         case tpt: TptId =>
-          // FIXME: https://github.com/twitter/rsc/issues/90
+          // FIXME: https://github.com/twitter/rsc/issues/198
           s.TypeRef(s.NoType, tpt.sym, Nil)
         case TptInt() =>
           s.TypeRef(s.NoType, "scala/Int#", Nil)
@@ -611,7 +611,7 @@ final class Semanticdb private (
         case TptRepeat(tpt) =>
           s.RepeatedType(tpt.tpe)
         case TptSelect(qual, id) =>
-          // FIXME: https://github.com/twitter/rsc/issues/90
+          // FIXME: https://github.com/twitter/rsc/issues/198
           val needsPre = {
             if (id.sym.owner != qual.id.sym) {
               id.sym.owner.desc match {
@@ -634,10 +634,10 @@ final class Semanticdb private (
         case TptShort() =>
           s.TypeRef(s.NoType, "scala/Short#", Nil)
         case TptSingleton(id: TermId) =>
-          // FIXME: https://github.com/twitter/rsc/issues/90
+          // FIXME: https://github.com/twitter/rsc/issues/198
           s.SingleType(s.NoType, id.sym)
         case TptSingleton(TermSelect(_, id)) =>
-          // FIXME: https://github.com/twitter/rsc/issues/90
+          // FIXME: https://github.com/twitter/rsc/issues/198
           s.SingleType(s.NoType, id.sym)
         case TptSingleton(_: TermSuper) =>
           // FIXME: https://github.com/twitter/rsc/issues/96
