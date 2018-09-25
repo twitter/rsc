@@ -25,8 +25,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
       (nscInfo, rscInfo) match {
         case (Some(nscInfo), Some(rscInfo)) =>
           // FIXME: https://github.com/twitter/rsc/issues/90
-          if (sym == "com/twitter/util/Credentials.parser.auth()." ||
-              sym == "com/twitter/util/Credentials.parser.content()." ||
+          if (sym == "com/twitter/util/Credentials.parser.content()." ||
               sym == "com/twitter/util/NilStopwatch.start().") {
             ()
           } else {
