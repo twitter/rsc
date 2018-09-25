@@ -19,6 +19,7 @@ trait Stdlib {
   val OptionClass: Symbol = "scala/Option#"
   val ProductClass: Symbol = "scala/Product#"
   val SerializableClass: Symbol = "scala/Serializable#"
+  val SeqClass: Symbol = "scala/collection/Seq#"
   val SingletonClass: Symbol = "scala/Singleton#"
   val StringClass: Symbol = "java/lang/String#"
   def TupleClass(params: Int): Symbol = "scala/Tuple" + params + "#"

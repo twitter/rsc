@@ -300,7 +300,7 @@ final class Synthesizer private (
   }
 
   private def caseClassCopy(env: Env, tree: DefnClass): Unit = {
-    if (!tree.hasAbstract) {
+    if (!tree.hasAbstract && !tree.primaryCtor.get.hasRepeated) {
       val id = TermId("copy")
       val tparams = tree.tparams.map { tp =>
         val id = TptId(tp.id.valueopt.get).withPos(tp.id.pos)
@@ -446,7 +446,10 @@ final class Synthesizer private (
   private def caseClassCompanionUnapply(env: Env, tree: DefnClass): Unit = {
     val params = tree.primaryCtor.get.paramss.headOption.getOrElse(Nil)
     if (params.length <= 22) {
-      val id = TermId("unapply")
+      val id = {
+        if (tree.primaryCtor.get.hasRepeated) TermId("unapplySeq")
+        else TermId("unapply")
+      }
       val tparams = tree.tparams.map { tp =>
         val id = TptId(tp.id.valueopt.get).withPos(tp.id.pos)
         val lbound = tp.lbound.map(_.dupe)
@@ -463,6 +466,12 @@ final class Synthesizer private (
         val param = Param(Mods(Nil), TermId("x$0"), Some(tpt), None)
         List(List(param.withPos(tree.pos)))
       }
+      def paramTpt(param: Param): Tpt = {
+        param.tpt.get match {
+          case TptRepeat(tpt) => TptParameterize(TptId("Seq").withSym(SeqClass), List(tpt.dupe))
+          case tpt => tpt.dupe
+        }
+      }
       val ret = {
         val params = tree.primaryCtor.get.paramss.headOption.getOrElse(Nil)
         params match {
@@ -470,10 +479,10 @@ final class Synthesizer private (
             Some(TptId("Boolean").withSym(BooleanClass))
           case List(param) =>
             val option = TptId("Option").withSym(OptionClass)
-            Some(TptParameterize(option, List(param.tpt.get.dupe)))
+            Some(TptParameterize(option, List(paramTpt(param))))
           case params =>
             val option = TptId("Option").withSym(OptionClass)
-            val tuple = TptTuple(params.map(_.tpt.get.dupe))
+            val tuple = TptTuple(params.map(param => paramTpt(param)))
             Some(TptParameterize(option, List(tuple)))
         }
       }
