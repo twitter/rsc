@@ -248,19 +248,21 @@ final class Scheduler private (
     val tparamEnv = tparams(env, tree)
     val selfEnv = self(tparamEnv, tree)
     val templateEnv = {
-      val templateScope = {
-        tree match {
-          case tree: DefnPackageObject =>
-            val packageScope = symtab.scopes(tree.id.sym.owner).asInstanceOf[PackageScope]
-            PackageObjectScope(tree, packageScope)
-          case tree =>
-            TemplateScope(tree)
-        }
+      tree match {
+        case tree: DefnPackageObject =>
+          val packageScope = symtab.scopes(tree.id.sym.owner).asInstanceOf[PackageScope]
+          val templateScope = PackageObjectScope(tree, packageScope)
+          val templateEnv = templateScope :: packageScope :: selfEnv
+          symtab.scopes(tree.id.sym) = templateScope
+          todo.add(packageScope :: tparamEnv, templateScope)
+          templateEnv
+        case tree =>
+          val templateScope = TemplateScope(tree)
+          val templateEnv = templateScope :: selfEnv
+          symtab.scopes(tree.id.sym) = templateScope
+          todo.add(tparamEnv, templateScope)
+          templateEnv
       }
-      val templateEnv = templateScope :: selfEnv
-      symtab.scopes(tree.id.sym) = templateScope
-      todo.add(tparamEnv, templateScope)
-      templateEnv
     }
     stats(TemplateLevel, templateEnv, tree.earlies)
     tree match {
