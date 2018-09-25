@@ -469,8 +469,28 @@ final class Semanticdb private (
         val scalacFirstParentSym = superClass(rscParentSyms)
         val rscFirstParentSym = rscParentSyms.headOption.getOrElse(NoSymbol)
         if (scalacFirstParentSym != rscFirstParentSym) {
-          val scalacFirstParent = TptId(scalacFirstParentSym.desc.value)
-          List(scalacFirstParent.withSym(scalacFirstParentSym))
+          val scalacFirstParent = {
+            // FIXME: https://github.com/twitter/rsc/issues/224
+            val id = TptId(scalacFirstParentSym.desc.value).withSym(scalacFirstParentSym)
+            rscParents match {
+              case List(TptParameterize(_, targs), _*) =>
+                val tparams = {
+                  val isSource = symtab.scopes(scalacFirstParentSym).isInstanceOf[SourceScope]
+                  if (isSource) {
+                    val outline = symtab._outlines.get(scalacFirstParentSym)
+                    outline.asInstanceOf[Parameterized].tparams.map(_.id.sym)
+                  } else {
+                    val sig = symtab._index.apply(scalacFirstParentSym).signature
+                    sig.asInstanceOf[s.ClassSignature].typeParameters.symbols
+                  }
+                }
+                if (tparams.nonEmpty) TptParameterize(id, targs)
+                else id
+              case _ =>
+                id
+            }
+          }
+          List(scalacFirstParent)
         } else {
           Nil
         }
