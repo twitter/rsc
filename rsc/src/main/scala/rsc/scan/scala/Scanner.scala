@@ -576,10 +576,8 @@ final class Scanner private (val settings: Settings, val reporter: Reporter, val
                   i += 1
                 }
                 buf += unicode.toChar
-              case ch =>
+              case other =>
                 buf += '\\'
-                buf += ch
-                nextChar()
             }
           } else {
             buf += ch
