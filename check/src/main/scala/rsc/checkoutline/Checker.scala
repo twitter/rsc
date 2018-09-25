@@ -24,21 +24,15 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
       val rscInfo = rscIndex1.infos.get(sym)
       (nscInfo, rscInfo) match {
         case (Some(nscInfo), Some(rscInfo)) =>
-          // FIXME: https://github.com/twitter/rsc/issues/90
-          if (sym == "com/twitter/util/Credentials.parser.content()." ||
-              sym == "com/twitter/util/NilStopwatch.start().") {
-            ()
-          } else {
-            val nscInfo1 = highlevelPatch(nscIndex, nscInfo)
-            val rscInfo1 = highlevelPatch(rscIndex, rscInfo)
-            val nscRepr = lowlevelPatch(lowlevelRepr(nscInfo1))
-            val rscRepr = lowlevelPatch(lowlevelRepr(rscInfo1))
-            val nscString = nscRepr.toString
-            val rscString = rscRepr.toString
-            if (nscString != rscString) {
-              val header = s"${rscIndex1.anchors(sym)}: $sym"
-              problems += DifferentProblem(header, nscString, rscString)
-            }
+          val nscInfo1 = highlevelPatch(nscIndex, nscInfo)
+          val rscInfo1 = highlevelPatch(rscIndex, rscInfo)
+          val nscRepr = lowlevelPatch(lowlevelRepr(nscInfo1))
+          val rscRepr = lowlevelPatch(lowlevelRepr(rscInfo1))
+          val nscString = nscRepr.toString
+          val rscString = rscRepr.toString
+          if (nscString != rscString) {
+            val header = s"${rscIndex1.anchors(sym)}: $sym"
+            problems += DifferentProblem(header, nscString, rscString)
           }
         case (Some(nscInfo), None) =>
           if (sym.contains("#_$")) {
