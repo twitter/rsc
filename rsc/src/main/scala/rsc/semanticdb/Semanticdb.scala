@@ -39,17 +39,7 @@ final class Semanticdb private (
       infoBuf = new UnrolledBuffer[s.SymbolInformation]
       infos.put(input, infoBuf)
     }
-    val info = s.SymbolInformation(
-      symbol = outline.symbol,
-      language = outline.language,
-      kind = outline.kind,
-      properties = outline.properties,
-      displayName = outline.displayName,
-      signature = outline.signature,
-      annotations = outline.annotations,
-      access = outline.access
-    )
-    infoBuf += info
+    infoBuf += outline.info
     if (settings.debug) {
       var occBuf = occs.get(input)
       if (occBuf == null) {
@@ -155,6 +145,19 @@ final class Semanticdb private (
   }
 
   implicit class OutlineSemanticdbOps(outline: Outline) {
+    def info: s.SymbolInformation = {
+      s.SymbolInformation(
+        symbol = outline.symbol,
+        language = outline.language,
+        kind = outline.kind,
+        properties = outline.properties,
+        displayName = outline.displayName,
+        signature = outline.signature,
+        annotations = outline.annotations,
+        access = outline.access
+      )
+    }
+
     def symbol: String = {
       outline.id.sym
     }
@@ -542,9 +545,26 @@ final class Semanticdb private (
           s.TypeRef(s.NoType, "scala/Char#", Nil)
         case TptDouble() =>
           s.TypeRef(s.NoType, "scala/Double#", Nil)
-        case TptExistential(tpt, stats) =>
-          // FIXME: https://github.com/twitter/rsc/issues/94
-          s.NoType
+        case existentialTpt @ TptExistential(tpt, stats) =>
+          val tpe = tpt.tpe
+          val decls = {
+            val scope = symtab._existentials.get(existentialTpt)
+            if (scope != null) {
+              val outlines = {
+                val maybeMultis = scope._storage.values.asScala.toList
+                val noMultis = maybeMultis.flatMap(_.asMulti)
+                noMultis.map { sym =>
+                  val outline = symtab._outlines.get(sym)
+                  if (outline == null) crash(sym)
+                  outline
+                }
+              }
+              Some(s.Scope(hardlinks = outlines.map(_.info)))
+            } else {
+              crash(existentialTpt)
+            }
+          }
+          s.ExistentialType(tpe, decls)
         case TptFloat() =>
           s.TypeRef(s.NoType, "scala/Float#", Nil)
         case tpt: TptId =>

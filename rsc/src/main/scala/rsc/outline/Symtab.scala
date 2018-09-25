@@ -14,6 +14,7 @@ import rsc.util._
 final class Symtab private (settings: Settings) extends Closeable with Pretty {
   val _index = Index(settings.cp)
   val _scopes = new HashMap[Symbol, Scope]
+  val _existentials = new HashMap[TptExistential, ExistentialScope]
   val _outlines = new LinkedHashMap[Symbol, Outline]
   val _paramss = new HashMap[Parameterized, List[List[Param]]]
   val _parents = new HashMap[DefnTemplate, List[Tpt]]

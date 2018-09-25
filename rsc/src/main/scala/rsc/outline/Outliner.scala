@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.outline
 
+import rsc.gensym._
 import rsc.inputs._
 import rsc.report._
 import rsc.semantics._
@@ -10,7 +11,16 @@ import rsc.syntax._
 import rsc.util._
 
 // FIXME: https://github.com/twitter/rsc/issues/104
-final class Outliner private (settings: Settings, reporter: Reporter, symtab: Symtab, todo: Todo) {
+final class Outliner private (
+    settings: Settings,
+    reporter: Reporter,
+    gensyms: Gensyms,
+    symtab: Symtab,
+    todo: Todo) {
+  private lazy val scheduler: Scheduler = {
+    Scheduler(settings, reporter, gensyms, symtab, todo)
+  }
+
   def apply(env: Env, work: Work): Unit = {
     work match {
       case scope: Scope => apply(env, scope)
@@ -269,9 +279,13 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
         mods.annots.foreach(annot => apply(env, sketch, annot.init.tpt))
       case TptByName(tpt) =>
         apply(env, sketch, tpt)
-      case TptExistential(tpt, stats) =>
-        // FIXME: https://github.com/twitter/rsc/issues/94
-        ()
+      case existentialTpt @ TptExistential(tpt, stats) =>
+        val existentialScope = ExistentialScope()
+        symtab._existentials.put(existentialTpt, existentialScope)
+        val existentialEnv = existentialScope :: env
+        stats.foreach(scheduler.apply(existentialEnv, _))
+        existentialScope.succeed()
+        apply(existentialEnv, sketch, tpt)
       case TptIntersect(tpts) =>
         tpts.foreach(apply(env, sketch, _))
       case tpt: TptPath =>
@@ -287,7 +301,6 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
         ubound.foreach(apply(env, sketch, _))
         lbound.foreach(apply(env, sketch, _))
       case TptWildcardExistential(_, tpt) =>
-        // FIXME: https://github.com/twitter/rsc/issues/94
         apply(env, sketch, tpt)
       case TptWith(tpts) =>
         tpts.foreach(apply(env, sketch, _))
@@ -505,7 +518,12 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
 }
 
 object Outliner {
-  def apply(settings: Settings, reporter: Reporter, symtab: Symtab, todo: Todo): Outliner = {
-    new Outliner(settings, reporter, symtab, todo)
+  def apply(
+      settings: Settings,
+      reporter: Reporter,
+      gensyms: Gensyms,
+      symtab: Symtab,
+      todo: Todo): Outliner = {
+    new Outliner(settings, reporter, gensyms, symtab, todo)
   }
 }

@@ -147,7 +147,7 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
   }
 }
 
-// ============ INDEX SCOPES ============
+// ============ BINARY SCOPES ============
 
 final class ClasspathScope private (sym: Symbol, val _index: Index)
     extends Scope(sym)
@@ -399,5 +399,13 @@ final class TypeParamScope private (owner: Symbol) extends SourceScope(owner)
 object TypeParamScope {
   def apply(owner: Symbol): TypeParamScope = {
     new TypeParamScope(owner)
+  }
+}
+
+final class ExistentialScope private () extends SourceScope(NoSymbol)
+
+object ExistentialScope {
+  def apply(): ExistentialScope = {
+    new ExistentialScope()
   }
 }

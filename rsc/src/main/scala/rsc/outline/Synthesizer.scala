@@ -16,7 +16,7 @@ final class Synthesizer private (
     gensyms: Gensyms,
     symtab: Symtab,
     todo: Todo) {
-  private lazy val scheduler = {
+  private lazy val scheduler: Scheduler = {
     Scheduler(settings, reporter, gensyms, symtab, todo)
   }
 

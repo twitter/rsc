@@ -107,7 +107,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
   }
 
   private def outline(): Unit = {
-    val outliner = Outliner(settings, reporter, symtab, todo)
+    val outliner = Outliner(settings, reporter, gensyms, symtab, todo)
     while (!todo.isEmpty) {
       val (env, work) = todo.remove()
       try {
