@@ -251,8 +251,8 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
           // FIXME: https://github.com/twitter/rsc/issues/96
           crash(stpe.asMessage.toProtoString)
         case s.ConstantType(sconst) =>
-          // FIXME: https://github.com/twitter/rsc/issues/118
-          crash(stpe.asMessage.toProtoString)
+          val lit = emitLiteral(sconst.value.get)
+          ConstantType(lit)
         case stpe @ s.StructuralType(sret, sdecls) =>
           val srefinement = Transients.srefinement(stpe)
           symtab(srefinement.symbol) = srefinement
