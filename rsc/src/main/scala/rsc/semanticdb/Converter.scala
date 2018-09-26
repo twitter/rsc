@@ -20,6 +20,7 @@ final class Converter private (
     with Eligibility
     with Modifiers
     with Params
+    with Prefixes
     with Templates
     with Tpts {
   def isEligible: Boolean = {

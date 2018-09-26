@@ -8,7 +8,6 @@ import rsc.util._
 import scala.collection.JavaConverters._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.{Language => l}
-import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 
@@ -97,8 +96,7 @@ trait Tpts {
         case TptFloat() =>
           s.TypeRef(s.NoType, "scala/Float#", Nil)
         case tpt: TptId =>
-          // FIXME: https://github.com/twitter/rsc/issues/198
-          s.TypeRef(s.NoType, tpt.sym, Nil)
+          s.TypeRef(prefix(tpt), tpt.sym, Nil)
         case TptInt() =>
           s.TypeRef(s.NoType, "scala/Int#", Nil)
         case TptIntersect(tpts) =>
@@ -120,34 +118,15 @@ trait Tpts {
         case TptRepeat(tpt) =>
           s.RepeatedType(tpt.tpe)
         case TptSelect(qual, id) =>
-          // FIXME: https://github.com/twitter/rsc/issues/198
-          val needsPre = {
-            if (id.sym.owner != qual.id.sym) {
-              id.sym.owner.desc match {
-                case d.Term("package") => id.sym.owner.owner != qual.id.sym
-                case _ => true
-              }
-            } else {
-              false
-            }
-          }
-          if (needsPre) {
-            val pre = qual match {
-              case _: TermThis => s.ThisType(qual.id.sym)
-              case _ => s.SingleType(s.NoType, qual.id.sym)
-            }
-            s.TypeRef(pre, id.sym, Nil)
-          } else {
-            s.TypeRef(s.NoType, id.sym, Nil)
-          }
+          s.TypeRef(prefix(qual, id), id.sym, Nil)
         case TptShort() =>
           s.TypeRef(s.NoType, "scala/Short#", Nil)
         case TptSingleton(id: TermId) =>
-          // FIXME: https://github.com/twitter/rsc/issues/198
-          s.SingleType(s.NoType, id.sym)
+          s.SingleType(prefix(id), id.sym)
+        case TptSingleton(TermSelect(qual: Path, id)) =>
+          s.SingleType(prefix(qual, id), id.sym)
         case TptSingleton(TermSelect(_, id)) =>
-          // FIXME: https://github.com/twitter/rsc/issues/198
-          s.SingleType(s.NoType, id.sym)
+          crash(tpt)
         case TptSingleton(_: TermSuper) =>
           // FIXME: https://github.com/twitter/rsc/issues/96
           s.NoType
