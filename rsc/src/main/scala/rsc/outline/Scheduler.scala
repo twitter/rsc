@@ -18,7 +18,7 @@ final class Scheduler private (
     gensyms: Gensyms,
     symtab: Symtab,
     todo: Todo) {
-  private lazy val synthesizer = {
+  private lazy val synthesizer: Synthesizer = {
     Synthesizer(settings, reporter, gensyms, symtab, todo)
   }
 
@@ -66,74 +66,87 @@ final class Scheduler private (
     }
     outline match {
       case outline: DefnField =>
-        val getter = DefnMethod(
-          outline.mods,
-          TermId(outline.id.value).withPos(outline.id.pos),
-          Nil,
-          Nil,
-          outline.tpt,
-          outline.rhs).withPos(outline.pos)
-        apply(env, getter)
-        if (outline.hasVar) {
-          val param = Param(Mods(Nil), TermId("x$1"), outline.tpt, None).withPos(outline.pos)
-          val setterMods = outline.mods.filter(!_.isInstanceOf[ModImplicit])
-          val setter = DefnMethod(
-            setterMods,
-            TermId(outline.id.value + "_=").withPos(outline.id.pos),
-            Nil,
-            List(List(param)),
-            Some(TptId("Unit").withSym(UnitClass)),
-            outline.rhs
-          ).withPos(outline.pos)
-          apply(env, setter)
+        outline.lang match {
+          case ScalaLanguage | UnknownLanguage =>
+            val getter = DefnMethod(
+              outline.mods.dupe,
+              TermId(outline.id.value).withPos(outline.id.pos),
+              Nil,
+              Nil,
+              outline.tpt.map(_.dupe),
+              outline.rhs.map(_.dupe)).withPos(outline.pos)
+            apply(env, getter)
+            if (outline.hasVar) {
+              val param =
+                Param(Mods(Nil), TermId("x$1"), outline.tpt.map(_.dupe), None).withPos(outline.pos)
+              val setter = DefnMethod(
+                outline.mods.filter(!_.isInstanceOf[ModImplicit]),
+                TermId(outline.id.value + "_=").withPos(outline.id.pos),
+                Nil,
+                List(List(param)),
+                Some(TptId("Unit").withSym(UnitClass)),
+                outline.rhs.map(_.dupe)
+              ).withPos(outline.pos)
+              apply(env, setter)
+            }
+          case JavaLanguage =>
+            val sym = TermSymbol(scope.sym, outline.id.value)
+            scope.enter(outline.id.name, sym)
+            outline.id.sym = sym
+            symtab._outlines.put(sym, outline)
+            symtab._envs.put(sym, env)
         }
       case outline =>
         val gensym = gensyms(outline)
         val sym = {
-          outline match {
-            case outline: DefnClass =>
-              TypeSymbol(scope.sym, outline.id.value)
-            case outline: DefnConstant =>
-              TermSymbol(scope.sym, outline.id.value)
-            case outline: DefnDef =>
-              if (outline.hasVal) {
+          if (scope.sym.isGlobal) {
+            outline match {
+              case outline: DefnClass =>
+                TypeSymbol(scope.sym, outline.id.value)
+              case outline: DefnConstant =>
                 TermSymbol(scope.sym, outline.id.value)
-              } else {
-                def loop(attempt: Int): String = {
-                  val disambig = if (attempt == 0) s"()" else s"(+$attempt)"
-                  val sym = MethodSymbol(scope.sym, outline.id.value, disambig)
-                  if (symtab._outlines.containsKey(sym)) loop(attempt + 1)
-                  else sym
+              case outline: DefnDef =>
+                if (outline.hasVal) {
+                  TermSymbol(scope.sym, outline.id.value)
+                } else {
+                  def loop(attempt: Int): String = {
+                    val disambig = if (attempt == 0) s"()" else s"(+$attempt)"
+                    val sym = MethodSymbol(scope.sym, outline.id.value, disambig)
+                    if (symtab._outlines.containsKey(sym)) loop(attempt + 1)
+                    else sym
+                  }
+                  loop(0)
                 }
-                loop(0)
-              }
-            case outline: DefnField =>
-              crash(outline)
-            case outline: DefnObject =>
-              TermSymbol(scope.sym, outline.id.value)
-            case outline: DefnPackage =>
-              PackageSymbol(scope.sym, outline.id.value)
-            case outline: DefnPackageObject =>
-              TermSymbol(scope.sym, "package")
-            case outline: DefnType =>
-              TypeSymbol(scope.sym, outline.id.value)
-            case outline: Param =>
-              outline.id match {
-                case AnonId() => ParamSymbol(scope.sym, gensym.anon())
-                case id: NamedId => ParamSymbol(scope.sym, id.value)
-              }
-            case outline: PatVar =>
-              outline.id match {
-                case AnonId() => TermSymbol(scope.sym, gensym.anon())
-                case id: NamedId => TermSymbol(scope.sym, id.value)
-              }
-            case outline: Self =>
-              LocalSymbol(gensym)
-            case outline: TypeParam =>
-              outline.id match {
-                case AnonId() => TypeParamSymbol(scope.sym, "_")
-                case id: NamedId => TypeParamSymbol(scope.sym, id.value)
-              }
+              case outline: DefnField =>
+                crash(outline)
+              case outline: DefnObject =>
+                TermSymbol(scope.sym, outline.id.value)
+              case outline: DefnPackage =>
+                PackageSymbol(scope.sym, outline.id.value)
+              case outline: DefnPackageObject =>
+                TermSymbol(scope.sym, "package")
+              case outline: DefnType =>
+                TypeSymbol(scope.sym, outline.id.value)
+              case outline: Param =>
+                outline.id match {
+                  case AnonId() => ParamSymbol(scope.sym, gensym.anon())
+                  case id: NamedId => ParamSymbol(scope.sym, id.value)
+                }
+              case outline: PatVar =>
+                outline.id match {
+                  case AnonId() => TermSymbol(scope.sym, gensym.anon())
+                  case id: NamedId => TermSymbol(scope.sym, id.value)
+                }
+              case outline: Self =>
+                LocalSymbol(gensym)
+              case outline: TypeParam =>
+                outline.id match {
+                  case AnonId() => TypeParamSymbol(scope.sym, "_")
+                  case id: NamedId => TypeParamSymbol(scope.sym, id.value)
+                }
+            }
+          } else {
+            LocalSymbol(gensym)
           }
         }
         outline.id match {
@@ -142,6 +155,7 @@ final class Scheduler private (
         }
         outline.id.sym = sym
         symtab._outlines.put(sym, outline)
+        symtab._envs.put(sym, env)
     }
   }
 
@@ -236,18 +250,34 @@ final class Scheduler private (
     val tparamEnv = tparams(env, tree)
     val selfEnv = self(tparamEnv, tree)
     val templateEnv = {
-      val templateScope = TemplateScope(tree)
-      val templateEnv = templateScope :: selfEnv
-      symtab.scopes(tree.id.sym) = templateScope
-      todo.add(tparamEnv, templateScope)
-      templateEnv
+      tree match {
+        case tree: DefnPackageObject =>
+          val packageScope = symtab.scopes(tree.id.sym.owner).asInstanceOf[PackageScope]
+          val templateScope = PackageObjectScope(tree, packageScope)
+          val templateEnv = templateScope :: packageScope :: selfEnv
+          symtab.scopes(tree.id.sym) = templateScope
+          todo.add(packageScope :: tparamEnv, templateScope)
+          templateEnv
+        case tree =>
+          val templateScope = TemplateScope(tree)
+          val templateEnv = templateScope :: selfEnv
+          symtab.scopes(tree.id.sym) = templateScope
+          todo.add(tparamEnv, templateScope)
+          templateEnv
+      }
     }
     stats(TemplateLevel, templateEnv, tree.earlies)
     tree match {
       case tree: DefnClass =>
-        tree.primaryCtor.foreach(synthesizer.paramss(templateEnv, _))
-        synthesizer.paramAccessors(templateEnv, tree)
-        tree.primaryCtor.foreach(apply(templateEnv, _))
+        tree.lang match {
+          case ScalaLanguage | UnknownLanguage =>
+            tree.primaryCtor.foreach(synthesizer.paramss(templateEnv, _))
+            synthesizer.paramAccessors(templateEnv, tree)
+            tree.primaryCtor.foreach(apply(templateEnv, _))
+          case JavaLanguage =>
+            val hasCtor = tree.stats.exists(_.isInstanceOf[DefnCtor])
+            if (!hasCtor && tree.hasClass) synthesizer.defaultConstructor(templateEnv, tree)
+        }
       case tree: DefnObject =>
         val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
         companionClass match {
@@ -293,8 +323,8 @@ final class Scheduler private (
     mods(env, tree.mods)
     assignSym(env, tree)
     val tparamEnv = tparams(env, tree)
-    tree.lbound.foreach(todo.add(tparamEnv, _))
-    tree.ubound.foreach(todo.add(tparamEnv, _))
+    tree.lo.foreach(todo.add(tparamEnv, _))
+    tree.hi.foreach(todo.add(tparamEnv, _))
     tree.rhs.foreach(todo.add(tparamEnv, _))
     env
   }

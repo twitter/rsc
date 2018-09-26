@@ -362,6 +362,7 @@ sealed trait Outline extends Modded {
 sealed trait Parameterized extends Outline {
   def paramss: List[List[Param]]
   def tparams: List[TypeParam]
+  def hasRepeated: Boolean = paramss.flatMap(_.flatMap(_.tpt)).exists(_.isInstanceOf[TptRepeat])
 }
 
 final case class Param(mods: Mods, id: UnambigId, tpt: Option[Tpt], rhs: Option[Term])

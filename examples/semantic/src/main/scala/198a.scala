@@ -1,4 +1,4 @@
-package ticket198
+package ticket198a
 
 object Foo extends Enumeration {
   val Bar: Foo.this.Value = Value

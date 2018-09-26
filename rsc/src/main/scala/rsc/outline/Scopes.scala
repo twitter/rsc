@@ -53,7 +53,7 @@ sealed trait BinaryScope extends Scope {
     // TODO: Utilizing selfs is probably incorrect when doing lookups from Java,
     // but hopefully we'll rewrite the name resolution logic before this becomes a problem.
     (info.parents ++ info.self).foreach { parent =>
-      val memberSym = loadDecl(parent, name)
+      val memberSym = loadMember(parent, name)
       if (memberSym != NoSymbol) {
         return memberSym
       }
@@ -147,7 +147,7 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
   }
 }
 
-// ============ INDEX SCOPES ============
+// ============ BINARY SCOPES ============
 
 final class ClasspathScope private (sym: Symbol, val _index: Index)
     extends Scope(sym)
@@ -304,6 +304,12 @@ final class PackageObjectScope private (
   }
 }
 
+object PackageObjectScope {
+  def apply(tree: DefnPackageObject, packageScope: PackageScope): PackageObjectScope = {
+    new PackageObjectScope(tree.id.sym, tree, packageScope)
+  }
+}
+
 final class ParamScope private (owner: Symbol) extends SourceScope(owner)
 
 object ParamScope {
@@ -399,5 +405,13 @@ final class TypeParamScope private (owner: Symbol) extends SourceScope(owner)
 object TypeParamScope {
   def apply(owner: Symbol): TypeParamScope = {
     new TypeParamScope(owner)
+  }
+}
+
+final class ExistentialScope private () extends SourceScope(NoSymbol)
+
+object ExistentialScope {
+  def apply(): ExistentialScope = {
+    new ExistentialScope()
   }
 }

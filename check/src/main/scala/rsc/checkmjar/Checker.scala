@@ -152,11 +152,11 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         case NoPrefix =>
           NoPrefix
         case ThisType(sym) =>
-          // WONTFIX: https://github.com/twitter/rsc/issues/90
+          // FIXME: https://github.com/twitter/rsc/issues/228
           val sym1 = NoSymbol
           ThisType(sym1)
         case SingleType(pre: Type, sym: Symbol) =>
-          // WONTFIX: https://github.com/twitter/rsc/issues/90
+          // FIXME: https://github.com/twitter/rsc/issues/228
           val pre1 = loop(normalizePrefix(pre))
           val sym1 = sym
           SingleType(pre1, sym1)
@@ -164,7 +164,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
           val lit1 = lit
           ConstantType(lit1)
         case TypeRef(pre, sym, targs) =>
-          // WONTFIX: https://github.com/twitter/rsc/issues/90
+          // FIXME: https://github.com/twitter/rsc/issues/228
           val pre1 = loop(normalizePrefix(pre))
           val sym1 = sym
           val targs1 = targs.map(loop)

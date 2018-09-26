@@ -12,4 +12,11 @@ class MjarTests extends RscTests {
     val problems = Main.process(reporter, settings)
     if (problems.nonEmpty) fail()
   }
+
+  test("mjar for semantic") {
+    val reporter = Reporter()
+    val settings = Settings(semanticClasspath, semanticFiles, quiet = true)
+    val problems = Main.process(reporter, settings)
+    if (problems.nonEmpty) fail()
+  }
 }
