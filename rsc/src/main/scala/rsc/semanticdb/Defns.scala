@@ -35,7 +35,8 @@ trait Defns {
     }
 
     def language: s.Language = {
-      outline.lang match {
+      // FIXME: https://github.com/twitter/rsc/issues/98
+      root.lang match {
         case ScalaLanguage => l.SCALA
         case JavaLanguage => l.JAVA
         case UnknownLanguage => l.UNKNOWN_LANGUAGE
@@ -108,7 +109,8 @@ trait Defns {
         case Param(_, _, _, Some(_)) => set(p.DEFAULT)
         case _ => ()
       }
-      if (outline.isSynthetic) set(p.SYNTHETIC)
+      // FIXME: https://github.com/twitter/rsc/issues/98
+      if (root.isSynthetic) set(p.SYNTHETIC)
       result
     }
 

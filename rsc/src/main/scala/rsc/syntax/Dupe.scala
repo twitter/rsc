@@ -106,6 +106,17 @@ trait Dupe {
           val hi1 = hi.map(_.dupe)
           val rhs1 = rhs.map(_.dupe)
           DefnType(mods1, id1, tparams1, lo1, hi1, rhs1)
+        case EnumeratorGenerator(pat, rhs) =>
+          val pat1 = pat.dupe
+          val rhs1 = rhs.dupe
+          EnumeratorGenerator(pat1, rhs1)
+        case EnumeratorGuard(cond) =>
+          val cond1 = cond.dupe
+          EnumeratorGuard(cond1)
+        case EnumeratorVal(pat, rhs) =>
+          val pat1 = pat.dupe
+          val rhs1 = rhs.dupe
+          EnumeratorVal(pat1, rhs1)
         case Import(importers) =>
           val importers1 = importers.map(_.dupe)
           Import(importers1)

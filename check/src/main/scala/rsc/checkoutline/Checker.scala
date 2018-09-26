@@ -276,7 +276,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     var s1 = s
     s1 = s1.replaceAll("symbol: \"local(\\d+)\"", "symbol: \"localNNN\"")
     s1 = s1.replaceAll("symbol: \".*?#_\\$(\\d+)#\"", "symbol: \"localNNN\"")
-    val rxProperties = "properties: (\\d+)".r
+    val rxProperties = "properties: (-?\\d+)".r
     s1 = rxProperties.replaceAllIn(
       s1, { m =>
         val props = m.group(1).toInt
@@ -296,7 +296,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         if (has(p.PRIMARY)) buf += "PRIMARY"
         if (has(p.ENUM)) buf += "ENUM"
         if (has(p.DEFAULT)) buf += "DEFAULT"
-        s"properties: ${buf.result.mkString(", ")}"
+        if (has(p.SYNTHETIC)) buf += "SYNTHETIC"
+        s"properties: ${buf.result.mkString(" | ")}"
       }
     )
     s1

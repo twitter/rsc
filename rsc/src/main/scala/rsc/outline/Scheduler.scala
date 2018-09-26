@@ -69,23 +69,23 @@ final class Scheduler private (
         outline.lang match {
           case ScalaLanguage | UnknownLanguage =>
             val getter = DefnMethod(
-              outline.mods,
+              outline.mods.dupe,
               TermId(outline.id.value).withPos(outline.id.pos),
               Nil,
               Nil,
-              outline.tpt,
-              outline.rhs).withPos(outline.pos)
+              outline.tpt.map(_.dupe),
+              outline.rhs.map(_.dupe)).withPos(outline.pos)
             apply(env, getter)
             if (outline.hasVar) {
-              val param = Param(Mods(Nil), TermId("x$1"), outline.tpt, None).withPos(outline.pos)
-              val setterMods = outline.mods.filter(!_.isInstanceOf[ModImplicit])
+              val param =
+                Param(Mods(Nil), TermId("x$1"), outline.tpt.map(_.dupe), None).withPos(outline.pos)
               val setter = DefnMethod(
-                setterMods,
+                outline.mods.filter(!_.isInstanceOf[ModImplicit]),
                 TermId(outline.id.value + "_=").withPos(outline.id.pos),
                 Nil,
                 List(List(param)),
                 Some(TptId("Unit").withSym(UnitClass)),
-                outline.rhs
+                outline.rhs.map(_.dupe)
               ).withPos(outline.pos)
               apply(env, setter)
             }
@@ -323,8 +323,8 @@ final class Scheduler private (
     mods(env, tree.mods)
     assignSym(env, tree)
     val tparamEnv = tparams(env, tree)
-    tree.lbound.foreach(todo.add(tparamEnv, _))
-    tree.ubound.foreach(todo.add(tparamEnv, _))
+    tree.lo.foreach(todo.add(tparamEnv, _))
+    tree.hi.foreach(todo.add(tparamEnv, _))
     tree.rhs.foreach(todo.add(tparamEnv, _))
     env
   }
