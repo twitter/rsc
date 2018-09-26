@@ -94,6 +94,7 @@ final class Scheduler private (
             scope.enter(outline.id.name, sym)
             outline.id.sym = sym
             symtab._outlines.put(sym, outline)
+            symtab._envs.put(sym, env)
         }
       case outline =>
         val gensym = gensyms(outline)
@@ -154,6 +155,7 @@ final class Scheduler private (
         }
         outline.id.sym = sym
         symtab._outlines.put(sym, outline)
+        symtab._envs.put(sym, env)
     }
   }
 

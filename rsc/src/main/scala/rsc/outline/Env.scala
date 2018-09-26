@@ -32,6 +32,7 @@ sealed class Env protected (val _scopes: List[Scope], val lang: Language) extend
     Env(scope :: _scopes, lang)
   }
 
+  // FIXME: https://github.com/twitter/rsc/issues/229
   def resolve(name: Name): Resolution = {
     @tailrec def loopTemplates(_scopes: List[Scope]): Resolution = {
       _scopes match {

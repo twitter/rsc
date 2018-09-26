@@ -24,15 +24,21 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
       val rscInfo = rscIndex1.infos.get(sym)
       (nscInfo, rscInfo) match {
         case (Some(nscInfo), Some(rscInfo)) =>
-          val nscInfo1 = highlevelPatch(nscIndex, nscInfo)
-          val rscInfo1 = highlevelPatch(rscIndex, rscInfo)
-          val nscRepr = lowlevelPatch(lowlevelRepr(nscInfo1))
-          val rscRepr = lowlevelPatch(lowlevelRepr(rscInfo1))
-          val nscString = nscRepr.toString
-          val rscString = rscRepr.toString
-          if (nscString != rscString) {
-            val header = s"${rscIndex1.anchors(sym)}: $sym"
-            problems += DifferentProblem(header, nscString, rscString)
+          if (nscInfo.symbol == "com/twitter/util/Stopwatches.start()." ||
+              nscInfo.symbol == "com/twitter/util/StopwatchBenchmark.StopwatchState#elapsed.") {
+            // FIXME: https://github.com/scalameta/scalameta/issues/1782
+            ()
+          } else {
+            val nscInfo1 = highlevelPatch(nscIndex, nscInfo)
+            val rscInfo1 = highlevelPatch(rscIndex, rscInfo)
+            val nscRepr = lowlevelPatch(lowlevelRepr(nscInfo1))
+            val rscRepr = lowlevelPatch(lowlevelRepr(rscInfo1))
+            val nscString = nscRepr.toString
+            val rscString = rscRepr.toString
+            if (nscString != rscString) {
+              val header = s"${rscIndex1.anchors(sym)}: $sym"
+              problems += DifferentProblem(header, nscString, rscString)
+            }
           }
         case (Some(nscInfo), None) =>
           if (sym.contains("#_$")) {
