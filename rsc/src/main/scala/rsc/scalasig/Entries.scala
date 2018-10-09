@@ -1,12 +1,12 @@
 // Copyright (c) 2017-2018 Twitter, Inc.
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
-package scala.meta.internal.mjar
+package rsc.scalasig
 
 import java.util.Arrays
 import scala.collection.mutable
 import scala.meta.scalasig.lowlevel._
 
-class Entries {
+class Entries private () {
   private var entries = new Array[Entry](1024)
   private var offset = 0
   private val cache = new mutable.HashMap[Key, Ref]
@@ -32,5 +32,11 @@ class Entries {
 
   def toArray: Array[Entry] = {
     Arrays.copyOfRange(entries, 0, offset)
+  }
+}
+
+object Entries {
+  def apply(): Entries = {
+    new Entries
   }
 }

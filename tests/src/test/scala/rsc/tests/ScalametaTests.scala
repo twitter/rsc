@@ -12,8 +12,8 @@ import scala.collection.mutable
 import scala.meta.scalasig._
 import scala.meta.scalasig.lowlevel._
 
-class ScalasigTests extends RscTests {
-  test("scalasigs for core", Slow) {
+class ScalametaTests extends RscTests {
+  test("roundtrip for core", Slow) {
     var scalasigActuals = mutable.Map[String, Scalasig]()
     var numProblems = 0
     Scalasigs(coreClasspath) { result =>

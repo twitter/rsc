@@ -18,7 +18,7 @@ import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.{Language => l}
 import scala.meta.internal.semanticdb.SymbolOccurrence.{Role => r}
 
-final class Semanticdb private (
+final class Writer private (
     settings: Settings,
     reporter: Reporter,
     gensyms: Gensyms,
@@ -40,6 +40,7 @@ final class Semanticdb private (
     val sym = outline.id.sym
     val info = converter.toSymbolInformation
     infoBuf += info
+    symtab._infos.put(sym, info)
     if (sym.owner.desc.isPackage) {
       sym.ownerChain.foreach { sym =>
         val entry = {
@@ -47,6 +48,9 @@ final class Semanticdb private (
           else i.ToplevelEntry("combined.semanticdb")
         }
         index(sym) = entry
+      }
+      if (!sym.desc.isPackage) {
+        symtab._toplevels.add(outline)
       }
     }
     if (settings.debug) {
@@ -105,12 +109,8 @@ final class Semanticdb private (
   }
 }
 
-object Semanticdb {
-  def apply(
-      settings: Settings,
-      reporter: Reporter,
-      gensyms: Gensyms,
-      symtab: Symtab): Semanticdb = {
-    new Semanticdb(settings, reporter, gensyms, symtab)
+object Writer {
+  def apply(settings: Settings, reporter: Reporter, gensyms: Gensyms, symtab: Symtab): Writer = {
+    new Writer(settings, reporter, gensyms, symtab)
   }
 }

@@ -13,7 +13,6 @@ import rsc.parse._
 import rsc.pretty._
 import rsc.report._
 import rsc.scan._
-import rsc.semanticdb._
 import rsc.settings._
 import rsc.syntax._
 import rsc.util._
@@ -64,7 +63,8 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
     "index" -> (() => index()),
     "schedule" -> (() => schedule()),
     "outline" -> (() => outline()),
-    "semanticdb" -> (() => semanticdb())
+    "semanticdb" -> (() => semanticdb()),
+    "scalasig" -> (() => scalasig())
   )
 
   private def parse(): Unit = {
@@ -136,18 +136,34 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends Closeable
   }
 
   private def semanticdb(): Unit = {
-    val semanticdb = Semanticdb(settings, reporter, gensyms, symtab)
+    val writer = rsc.semanticdb.Writer(settings, reporter, gensyms, symtab)
     val outlines = new LinkedList(symtab._outlines.values)
     while (!outlines.isEmpty) {
       val outline = outlines.remove()
       try {
-        semanticdb.apply(outline)
+        writer.apply(outline)
       } catch {
         case ex: Throwable =>
           crash(outline.pos, ex)
       }
     }
-    semanticdb.save()
+    if (!settings.artifacts.contains(ArtifactSemanticdb)) return
+    writer.save()
+  }
+
+  private def scalasig(): Unit = {
+    if (!settings.artifacts.contains(ArtifactScalasig)) return
+    val writer = rsc.scalasig.Writer(settings, reporter, symtab)
+    val toplevels = new LinkedList(symtab._toplevels)
+    while (!toplevels.isEmpty) {
+      val outline = toplevels.remove()
+      try {
+        writer.apply(outline)
+      } catch {
+        case ex: Throwable =>
+          crash(outline.pos, ex)
+      }
+    }
   }
 
   def close(): Unit = {

@@ -2,6 +2,6 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.settings
 
-sealed trait Abi
-case object Abi211 extends Abi
-case object Abi212 extends Abi
+sealed trait Artifact
+case object ArtifactSemanticdb extends Artifact
+case object ArtifactScalasig extends Artifact

@@ -63,5 +63,11 @@ trait Symbols {
       if (sym.endsWith("#")) sym.substring(0, sym.length - 1) + "."
       else NoSymbol
     }
+
+    def companionSymbol: Symbol = {
+      if (sym.endsWith(".")) sym.substring(0, sym.length - 1) + "#"
+      else if (sym.endsWith("#")) sym.substring(0, sym.length - 1) + "."
+      else NoSymbol
+    }
   }
 }

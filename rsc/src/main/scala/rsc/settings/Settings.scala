@@ -6,7 +6,8 @@ import java.io._
 import java.nio.file._
 
 final case class Settings(
-    abi: Abi = Scalac211,
+    abi: Abi = Abi211,
+    artifacts: List[Artifact] = List(ArtifactSemanticdb, ArtifactScalasig),
     cp: List[Path] = Nil,
     d: Path = Paths.get(""),
     debug: Boolean = false,
@@ -24,14 +25,25 @@ object Settings {
           loop(settings, false, rest)
         case "-abi" +: s_abi +: rest if allowOptions =>
           s_abi match {
-            case "scalac211" =>
-              loop(settings.copy(abi = Scalac211), true, rest)
-            case "scalac212" =>
-              loop(settings.copy(abi = Scalac212), true, rest)
+            case "211" =>
+              loop(settings.copy(abi = Abi211), true, rest)
+            case "212" =>
+              loop(settings.copy(abi = Abi212), true, rest)
             case other =>
               println(s"unknown abi $other")
               loop(settings, true, rest)
           }
+        case "-artifacts" +: s_artifacts +: rest if allowOptions =>
+          val artifacts = s_artifacts.split(",").toList.map {
+            case "semanticdb" =>
+              ArtifactSemanticdb
+            case "scalasig" =>
+              ArtifactScalasig
+            case other =>
+              println(s"unknown artifact $other")
+              return loop(settings, true, rest)
+          }
+          loop(settings.copy(artifacts = artifacts), true, rest)
         case ("-classpath" | "-cp") +: s_cp +: rest if allowOptions =>
           val cp = s_cp.split(File.pathSeparator).map(s => Paths.get(s)).toList
           loop(settings.copy(cp = settings.cp ++ cp), true, rest)

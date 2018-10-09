@@ -1,9 +1,11 @@
 // Copyright (c) 2017-2018 Twitter, Inc.
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
-package scala.meta.internal.mjar
+package rsc.scalasig
 
+import rsc.gensym._
+import rsc.settings._
+import rsc.util._
 import scala.collection.mutable
-import scala.meta.mjar._
 import scala.meta.scalasig._
 import scala.meta.scalasig.lowlevel._
 import scala.meta.internal.{semanticdb => s}
@@ -20,10 +22,10 @@ import scala.reflect.NameTransformer
 // The best that we have is the Scala compiler source code:
 // * https://github.com/scala/scala/blob/v2.12.6/src/compiler/scala/tools/nsc/symtab/classfile/Pickler.scala
 
-class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
-  private val entries = new Entries
-  private val gensym = new Gensym
-  private var owners = new Owners
+class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: String) {
+  private val entries = Entries()
+  private val gensym = Gensym()
+  private var owners = Owners()
 
   private def emitName(name: Name): Ref = {
     entries.getOrElseUpdate(NameKey(name))(name)
@@ -68,7 +70,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         entries.getOrElseUpdate(ModuleRefKey(ssym)) {
           val name = ssym.name match {
             case TypeName(value) => emitName(TermName(value))
-            case other => crash(other)
+            case other => crash(other.toString)
           }
           val owner = emitSym(ssym.owner, RefMode)
           val flags = ssym.flags
@@ -89,7 +91,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
             } else if (ssym.isExistential) {
               emitSym(owners.sexistentialOwner, RefMode)
             } else {
-              crash((ssym, symtab.get(ssym)))
+              crash(ssym)
             }
           }
           val flags = {
@@ -115,7 +117,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
             ValSymbol(name, owner, flags, within, info, alias)
           } else {
             val sdefault = s.SymbolInformation(symbol = ssym)
-            val sinfo = symtab.getOrElse(ssym, sdefault)
+            val sinfo = mtab.getOrElse(ssym, sdefault)
             crash(sinfo.toProtoString)
           }
         }
@@ -129,26 +131,26 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
 
   private def emitScope(sscope: s.Scope): List[Ref] = {
     val buf = List.newBuilder[Ref]
-    sscope.hardlinks.foreach(info => symtab(info.symbol) = info)
+    sscope.hardlinks.foreach(info => mtab(info.symbol) = info)
     sscope.symbols.map { ssym =>
       if (ssym.isAccessor) {
         if (!ssym.isPrivateThis || ssym.isLazy) {
           buf += emitEmbeddedSym(ssym, RefMode)
         }
-        if (!ssym.isDeferred && !(abi == Scalac212 && ssym.isLazy)) {
+        if (!ssym.isDeferred && !(settings.abi == Abi212 && ssym.isLazy)) {
           val emitNow = if (ssym.isStable) ssym.isGetter else ssym.isSetter
           if (emitNow) {
             val sfieldInfo = {
               if (ssym.isStable) Transients.svalField(ssym)
               else Transients.svarField(ssym)
             }
-            symtab(sfieldInfo.symbol) = sfieldInfo
+            mtab(sfieldInfo.symbol) = sfieldInfo
             emitEmbeddedSym(sfieldInfo.symbol, RefMode)
           }
         }
         if (ssym.isCaseGetter && !ssym.isPublic) {
           val scaseAccessor = Transients.scaseAccessor(ssym)
-          symtab(scaseAccessor.symbol) = scaseAccessor
+          mtab(scaseAccessor.symbol) = scaseAccessor
           emitEmbeddedSym(scaseAccessor.symbol, RefMode)
         }
       } else if (ssym.isObject) {
@@ -177,26 +179,26 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
               val parents = sparents.map(emitTpe)
               if (ssym.isObject || ssym.isPackageObject) {
                 val smoduleCtor = Transients.smoduleCtor(ssym)
-                symtab(smoduleCtor.symbol) = smoduleCtor
+                mtab(smoduleCtor.symbol) = smoduleCtor
                 emitEmbeddedSym(smoduleCtor.symbol, RefMode)
               }
               if (ssym.isTrait && !ssym.isInterface) {
                 val straitCtor = Transients.straitCtor(ssym)
-                symtab(straitCtor.symbol) = straitCtor
+                mtab(straitCtor.symbol) = straitCtor
                 emitEmbeddedSym(straitCtor.symbol, RefMode)
               }
               emitScope(ssym.sdecls)
               if (ssym.isValueClass) {
-                if (!symtab.contains(ssym.companionSym)) {
+                if (!mtab.contains(ssym.companionSym)) {
                   val scompanion = Transients.ssyntheticCompanion(ssym)
-                  symtab(scompanion.symbol) = scompanion
+                  mtab(scompanion.symbol) = scompanion
                   emitEmbeddedSym(scompanion.symbol, ModuleRefMode)
                   emitEmbeddedSym(scompanion.symbol, RefMode)
                 }
               }
               if (ssym.isValueCompanion) {
                 val sinfos = Transients.sextensionMethods(ssym)
-                sinfos.foreach(sinfo => symtab(sinfo.symbol) = sinfo)
+                sinfos.foreach(sinfo => mtab(sinfo.symbol) = sinfo)
                 sinfos.foreach(sinfo => emitEmbeddedSym(sinfo.symbol, RefMode))
               }
               ClassInfoType(sym, parents)
@@ -257,7 +259,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
           ConstantType(lit)
         case stpe @ s.StructuralType(sret, sdecls) =>
           val srefinement = Transients.srefinement(stpe)
-          symtab(srefinement.symbol) = srefinement
+          mtab(srefinement.symbol) = srefinement
           val sym = emitEmbeddedSym(srefinement.symbol, RefMode)
           val parents = {
             sret match {
@@ -346,14 +348,14 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         case value: s.SymbolInformation =>
           EnumLit(emitSym(value.symbol, RefMode))
         case other =>
-          crash(other)
+          crash(other.toString)
       }
     }
   }
 
   def toScalasig: Scalasig = {
     val name = sroot1.jname
-    val source = symtab.anchor(sroot1).getOrElse("")
+    val source = if (settings.debug) mtab.anchor(sroot1).getOrElse("") else ""
     val entries = this.entries.toArray
     Scalasig(name, source, entries)
   }
@@ -364,7 +366,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
     }
     def isEmbedded: Boolean = {
       if (ssym.isGlobal) {
-        if (symtab.contains(ssym)) {
+        if (mtab.contains(ssym)) {
           if (isToplevel) ssym.startsWith(sroot1) || ssym.startsWith(sroot2)
           else ssym.owner.isEmbedded
         } else {
@@ -391,7 +393,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
     }
     def name: Name = {
       if (ssym.isEmbedded) {
-        symtab.get(ssym) match {
+        mtab.get(ssym) match {
           case Some(sinfo) =>
             if (ssym.isExistential) {
               // FIXME: https://github.com/twitter/rsc/issues/94
@@ -432,7 +434,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
 
   private implicit class HardlinkOps(ssym: String) {
     private lazy val sinfo: s.SymbolInformation = {
-      symtab.get(ssym) match {
+      mtab.get(ssym) match {
         case Some(sinfo) => sinfo
         case None => crash(ssym)
       }
@@ -520,7 +522,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
           val sparamName = TermName(value.stripSuffix(" ").stripSuffix("_$eq"))
           val speers = ssym.owner.sdecls.symbols
           val sprimaryCtor = speers.find(_.name == TermName("<init>"))
-          val sprimaryInfo = sprimaryCtor.flatMap(symtab.get).map(_.signature)
+          val sprimaryInfo = sprimaryCtor.flatMap(mtab.get).map(_.signature)
           sprimaryInfo match {
             case Some(s.MethodSignature(_, sctorParamss, _)) =>
               val sctorParams = sctorParamss.flatMap(_.symbols)
@@ -558,7 +560,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       }
     }
     def isCaseCompanion: Boolean = {
-      symtab.contains(ssym.companionSym) && ssym.companionSym.isCase
+      mtab.contains(ssym.companionSym) && ssym.companionSym.isCase
     }
     def isDefaultParam: Boolean = {
       sinfo.isDefault || ssym.desc.value.contains("$default$")
@@ -599,7 +601,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       sinfo.isContravariant
     }
     def isRefinement: Boolean = {
-      symtab.contains(ssym) && symtab(ssym).displayName == "<refinement>"
+      mtab.contains(ssym) && mtab(ssym).displayName == "<refinement>"
     }
     def isExistential: Boolean = {
       // FIXME: https://github.com/twitter/rsc/issues/94
@@ -618,7 +620,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       }
     }
     def isValueCompanion: Boolean = {
-      symtab.contains(ssym.companionSym) && ssym.companionSym.isValueClass
+      mtab.contains(ssym.companionSym) && ssym.companionSym.isValueClass
     }
     def isStatic: Boolean = {
       sinfo.isStatic
@@ -743,7 +745,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       sinfo.within
     }
     def spre: Pre = {
-      if (symtab.contains(ssym) &&
+      if (mtab.contains(ssym) &&
           (ssym.isParam || ssym.isTypeParam || ssym.startsWith("local"))) {
         NoPre
       } else {
@@ -861,7 +863,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       val sfieldSig = {
         sgetterSym.ssig match {
           case NullaryMethodSig(stpe) => s.ValueSignature(stpe)
-          case sother => crash((sgetterSym, sother))
+          case sother => crash(sother.toString)
         }
       }
       s.SymbolInformation(
@@ -891,10 +893,10 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
             sparam.ssig match {
               case NoSig => s.NoSignature
               case ValueSig(stpe) => s.ValueSignature(stpe)
-              case sother => crash((ssetterSym, sother))
+              case sother => crash(sother.toString)
             }
           case sother =>
-            crash((ssetterSym, sother))
+            crash(sother.toString)
         }
       }
       s.SymbolInformation(
@@ -912,12 +914,12 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
     def scaseAccessor(sgetterSym: String): s.SymbolInformation = {
       val saccessorName = {
         // FIXME: https://github.com/twitter/rsc/issues/99
-        if (abi == Scalac211) gensym.caseAccessor(sgetterSym.desc.value)
-        else crash(abi)
+        if (settings.abi == Abi211) gensym.caseAccessor(sgetterSym.desc.value)
+        else crash(settings.abi.toString)
       }
       val saccessorDesc = d.Method(saccessorName, "()")
       val saccessorSym = Symbols.Global(sgetterSym.owner, saccessorDesc)
-      val saccessorSig = symtab(sgetterSym).signature
+      val saccessorSig = mtab(sgetterSym).signature
       scaseAccessors += saccessorSym
       s.SymbolInformation(
         symbol = saccessorSym,
@@ -934,18 +936,18 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       val xbuf = List.newBuilder[s.SymbolInformation]
       val sclassSym = sobjectSym.companionSym
       val s.ClassSignature(sctparamScope, _, _, Some(s.Scope(scdecls, _))) =
-        symtab(sclassSym).signature
+        mtab(sclassSym).signature
       val Some(s.Scope(sctparamSyms, _)) = sctparamScope
       val _ +: scmethodSyms = scdecls.dropWhile(_.desc.value != "<init>")
       scmethodSyms.foreach { smethodSym =>
-        val smethod = symtab(smethodSym)
+        val smethod = mtab(smethodSym)
         val xmethodName = smethodSym.desc.value + "$extension"
         val d.Method(_, xmethodDisambig) = smethodSym.desc
         val xmethodDesc = d.Method(xmethodName, xmethodDisambig)
         val xmethodSym = Symbols.Global(sobjectSym, xmethodDesc)
         val xmethodSig = {
           val s.MethodSignature(stparamSyms, sparamSymss, sret) =
-            symtab(smethodSym).signature
+            mtab(smethodSym).signature
           val stparamMap = mutable.Map[String, String]()
           def rebind(stpe: s.Type): s.Type = {
             stpe match {
@@ -969,7 +971,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
             val sxtparamSyms = stparamSyms ++ sctparamSyms
             val xtparamSyms = sxtparamSyms.map { sxtparamSym =>
               val xtparamSym = Symbols.Global(xmethodSym, sxtparamSym.desc)
-              val stparam = symtab(sxtparamSym)
+              val stparam = mtab(sxtparamSym)
               xbuf += stparam.copy(symbol = xtparamSym)
               stparamMap(sxtparamSym) = xtparamSym
               xtparamSym
@@ -997,7 +999,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
             val xparamsBuf = List.newBuilder[String]
             sparamSyms.foreach { sparamSym =>
               val xparamSym = Symbols.Global(xmethodSym, sparamSym.desc)
-              val sparam = symtab(sparamSym)
+              val sparam = mtab(sparamSym)
               val s.ValueSignature(sparamTpe) = sparam.signature
               val xparamSig = s.ValueSignature(rebind(sparamTpe))
               xbuf += sparam.copy(symbol = xparamSym, signature = xparamSig)
@@ -1066,19 +1068,31 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       val result = stack.tail.find(!_.isRefinement).get
       if (result.isGetter) {
         val info = Transients.svalField(result)
-        symtab(info.symbol) = info
+        mtab(info.symbol) = info
         info.symbol
       } else if (result.isSetter) {
         val info = Transients.svarField(result)
-        symtab(info.symbol) = info
+        mtab(info.symbol) = info
         info.symbol
       } else if (result.isParam && result.owner.isSetter) {
         val info = Transients.svarField(result.owner)
-        symtab(info.symbol) = info
+        mtab(info.symbol) = info
         info.symbol
       } else {
         result
       }
     }
+  }
+
+  private object Owners {
+    def apply(): Owners = {
+      new Owners
+    }
+  }
+}
+
+object Pickle {
+  def apply(settings: Settings, mtab: Mtab, sroot1: String, sroot2: String): Pickle = {
+    new Pickle(settings, mtab, sroot1, sroot2)
   }
 }

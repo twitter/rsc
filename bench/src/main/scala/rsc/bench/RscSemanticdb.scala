@@ -15,7 +15,7 @@ import org.openjdk.jmh.annotations.Mode._
 class RscSemanticdb extends RscBenchmark {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
-    val out = Files.createTempDirectory("semanticdb_")
-    runCompiler("-cp", bs.rscDeps, "-d", out, bs.files)
+    val rscOut = Files.createTempDirectory("rsc_")
+    runCompiler("-cp", bs.rscDeps, "-d", rscOut, "-artifacts", "semanticdb", bs.files)
   }
 }

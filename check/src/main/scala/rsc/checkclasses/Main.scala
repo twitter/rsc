@@ -11,14 +11,13 @@ object Main extends SimpleBase[Settings, Path, Path] {
   }
 
   def nscResult(settings: Settings) = {
-    val depsClasses = nsc(settings.cp, settings.deps)
-    depsClasses.right.flatMap(depsClasses => nsc(settings.cp :+ depsClasses, settings.ins))
+    val nscJar = nsc(settings.cp, settings.deps)
+    nscJar.right.flatMap(nscJar => nsc(settings.cp :+ nscJar, settings.ins))
   }
 
   def rscResult(settings: Settings) = {
-    val depsSemanticdbs = rsc(settings.cp, settings.deps)
-    val depsMjar = depsSemanticdbs.right.flatMap(depsSemanticdbs => mjar(List(depsSemanticdbs)))
-    depsMjar.right.flatMap(depsMjar => nsc(settings.cp :+ depsMjar, settings.ins))
+    val rscJar = rsc(settings.cp, settings.deps)
+    rscJar.right.flatMap(rscJar => nsc(settings.cp :+ rscJar, settings.ins))
   }
 
   def checker(settings: Settings, nscResult: Path, rscResult: Path) = {

@@ -58,7 +58,6 @@ object Build extends AutoPlugin {
       "examplesDependencies",
       "examplesFunction",
       "examplesSemantic",
-      "mjar",
       "rsc",
       "scalafixInput",
       "scalafixOutput",
@@ -70,7 +69,6 @@ object Build extends AutoPlugin {
     )
     def public: List[String] = List(
       "check",
-      "mjar",
       "rsc",
       "scalafixRules",
       "scalasig"
@@ -110,7 +108,7 @@ object Build extends AutoPlugin {
       lazy val benchAll = command(
         "cleanAll",
         "compileAll",
-        "bench/jmh:run RscParse RscIndex RscOutline RscSemanticdb RscMjar ScalacCompile"
+        "bench/jmh:run RscParse RscIndex RscOutline RscSemanticdb RscScalasig ScalacCompile"
       )
       lazy val publish = command(projects.public.map(_ + "/publish"))
       lazy val publishLocal = command(projects.public.map(_ + "/publishLocal"))
@@ -127,7 +125,8 @@ object Build extends AutoPlugin {
       lazy val benchIndex = "bench/jmh:run RscIndex"
       lazy val benchOutline = "bench/jmh:run RscOutline"
       lazy val benchSemanticdb = "bench/jmh:run RscSemanticdb"
-      lazy val benchMjar = "bench/jmh:run RscMjar"
+      lazy val benchScalasig = "bench/jmh:run RscScalasig"
+      lazy val benchScalac = "bench/jmh:run ScalacCompile"
       lazy val rewrite = "core/rewrite"
     }
 

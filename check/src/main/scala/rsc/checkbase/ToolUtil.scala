@@ -42,18 +42,6 @@ trait ToolUtil extends CacheUtil with NscUtil {
     }
   }
 
-  def mjar(classpath: List[Path]): ToolResult[Path] = {
-    withConsole { console =>
-      import scala.meta.mjar._
-      val out = Files.createTempFile("out", ".jar")
-      val settings = Settings().withClasspath(classpath).withOut(out)
-      Mjar.process(settings, console.reporter) match {
-        case Some(out) => Right(out)
-        case None => Left(List(console.err))
-      }
-    }
-  }
-
   def nsc(classpath: List[Path], sources: List[Path]): ToolResult[Path] = {
     val hasScala = sources.exists(_.toString.endsWith(".scala"))
     val hasJava = sources.exists(_.toString.endsWith(".java"))

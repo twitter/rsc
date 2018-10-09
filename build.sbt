@@ -27,7 +27,7 @@ addCommandAlias("benchParse", ui.benchParse)
 addCommandAlias("benchIndex", ui.benchIndex)
 addCommandAlias("benchOutline", ui.benchOutline)
 addCommandAlias("benchSemanticdb", ui.benchSemanticdb)
-addCommandAlias("benchMjar", ui.benchMjar)
+addCommandAlias("benchScalasig", ui.benchScalasig)
 addCommandAlias("publish", ui.publish)
 addCommandAlias("publishLocal", ui.publishLocal)
 addCommandAlias("publishSigned", ui.publishSigned)
@@ -53,7 +53,7 @@ lazy val bench = project
 
 lazy val check = project
   .in(file("check"))
-  .dependsOn(mjar, rsc)
+  .dependsOn(rsc)
   .settings(
     commonSettings,
     publishableSettings,
@@ -100,20 +100,9 @@ lazy val examplesSemantic = project
   .dependsOn(examplesDependencies)
   .settings(commonSettings)
 
-lazy val mjar = project
-  .in(file("mjar/mjar"))
-  .dependsOn(scalasig)
-  .disablePlugins(BackgroundRunPlugin)
-  .settings(
-    commonSettings,
-    publishableSettings,
-    libraryDependencies += "org.scalameta" %% "cli" % V.scalameta,
-    libraryDependencies += "org.scalameta" %% "semanticdb" % V.scalameta,
-    mainClass := Some("scala.meta.cli.Mjar")
-  )
-
 lazy val rsc = project
   .in(file("rsc"))
+  .dependsOn(scalasig)
   .disablePlugins(BackgroundRunPlugin)
   .settings(
     commonSettings,
@@ -158,7 +147,7 @@ lazy val scalafixTests = project
   )
 
 lazy val scalasig = project
-  .in(file("mjar/scalasig"))
+  .in(file("scalasig/scalasig"))
   .settings(
     commonSettings,
     publishableSettings,
@@ -167,7 +156,7 @@ lazy val scalasig = project
   )
 
 lazy val scalap = project
-  .in(file("mjar/scalap"))
+  .in(file("scalasig/scalap"))
   .dependsOn(scalasig)
   .disablePlugins(BackgroundRunPlugin)
   .settings(
@@ -179,7 +168,7 @@ lazy val scalap = project
 
 lazy val tests = project
   .in(file("tests"))
-  .dependsOn(check, mjar, rsc, scalap)
+  .dependsOn(check, rsc, scalap)
   .enablePlugins(BuildInfoPlugin)
   .configs(Fast, Slow)
   .settings(
