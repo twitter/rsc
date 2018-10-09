@@ -2,17 +2,18 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.semanticdb
 
-import java.io._
 import java.nio.file._
 import java.util.HashMap
 import rsc.gensym._
 import rsc.inputs._
 import rsc.outline._
 import rsc.report._
+import rsc.semantics._
 import rsc.settings._
 import rsc.syntax._
 import rsc.util._
-import scala.collection.mutable.UnrolledBuffer
+import scala.collection.mutable
+import scala.meta.internal.{semanticidx => i}
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.{Language => l}
 import scala.meta.internal.semanticdb.SymbolOccurrence.{Role => r}
@@ -22,8 +23,9 @@ final class Semanticdb private (
     reporter: Reporter,
     gensyms: Gensyms,
     symtab: Symtab) {
-  private val infos = new HashMap[Input, UnrolledBuffer[s.SymbolInformation]]
-  private val occs = new HashMap[Input, UnrolledBuffer[s.SymbolOccurrence]]
+  private val infos = new HashMap[Input, mutable.UnrolledBuffer[s.SymbolInformation]]
+  private val occs = new HashMap[Input, mutable.UnrolledBuffer[s.SymbolOccurrence]]
+  private val index = mutable.Map[String, i.Entry]()
 
   def apply(outline: Outline): Unit = {
     val converter = Converter(settings, reporter, gensyms, symtab, outline)
@@ -32,14 +34,25 @@ final class Semanticdb private (
     if (input == NoInput) crash(outline)
     var infoBuf = infos.get(input)
     if (infoBuf == null) {
-      infoBuf = new UnrolledBuffer[s.SymbolInformation]
+      infoBuf = mutable.UnrolledBuffer[s.SymbolInformation]()
       infos.put(input, infoBuf)
     }
-    infoBuf += converter.toSymbolInformation
+    val sym = outline.id.sym
+    val info = converter.toSymbolInformation
+    infoBuf += info
+    if (sym.owner.desc.isPackage) {
+      sym.ownerChain.foreach { sym =>
+        val entry = {
+          if (sym.desc.isPackage) i.PackageEntry()
+          else i.ToplevelEntry("combined.semanticdb")
+        }
+        index(sym) = entry
+      }
+    }
     if (settings.debug) {
       var occBuf = occs.get(input)
       if (occBuf == null) {
-        occBuf = new UnrolledBuffer[s.SymbolOccurrence]
+        occBuf = mutable.UnrolledBuffer[s.SymbolOccurrence]()
         occs.put(input, occBuf)
       }
       val pos = {
@@ -62,38 +75,33 @@ final class Semanticdb private (
   }
 
   def save(): Unit = {
-    val out = settings.d.resolve("META-INF/semanticdb/combined.semanticdb")
-    Files.createDirectories(out.toAbsolutePath.getParent)
-    val fos = Files.newOutputStream(out)
-    val bos = new BufferedOutputStream(fos)
-    try {
-      val cwd = Paths.get("").toAbsolutePath
-      val documents = new UnrolledBuffer[s.TextDocument]
-      val infoIt = infos.entrySet.iterator
-      while (infoIt.hasNext) {
-        val entry = infoIt.next()
-        val language = entry.getKey.lang match {
-          case ScalaLanguage => l.SCALA
-          case JavaLanguage => l.JAVA
-          case UnknownLanguage => l.UNKNOWN_LANGUAGE
-        }
-        var occurrences = occs.get(entry.getKey)
-        if (occurrences == null) occurrences = UnrolledBuffer.empty
-        val symbols = entry.getValue
-        val document = s.TextDocument(
-          schema = s.Schema.SEMANTICDB4,
-          uri = cwd.relativize(entry.getKey.path.toAbsolutePath).toString,
-          language = language,
-          occurrences = occurrences,
-          symbols = symbols)
-        documents += document
+    val cwd = Paths.get("").toAbsolutePath
+    val documents = mutable.UnrolledBuffer[s.TextDocument]()
+    val infoIt = infos.entrySet.iterator
+    while (infoIt.hasNext) {
+      val entry = infoIt.next()
+      val language = entry.getKey.lang match {
+        case ScalaLanguage => l.SCALA
+        case JavaLanguage => l.JAVA
+        case UnknownLanguage => l.UNKNOWN_LANGUAGE
       }
-      val payload = s.TextDocuments(documents = documents)
-      payload.writeTo(bos)
-    } finally {
-      bos.close()
-      fos.close()
+      var occurrences = occs.get(entry.getKey)
+      if (occurrences == null) occurrences = mutable.UnrolledBuffer.empty
+      val symbols = entry.getValue
+      val document = s.TextDocument(
+        schema = s.Schema.SEMANTICDB4,
+        uri = cwd.relativize(entry.getKey.path.toAbsolutePath).toString,
+        language = language,
+        occurrences = occurrences,
+        symbols = symbols)
+      documents += document
     }
+    val semanticdbPayload = s.TextDocuments(documents = documents)
+    val semanticdbFile = settings.d.resolve("META-INF/semanticdb/combined.semanticdb")
+    semanticdbPayload.writeTo(semanticdbFile)
+    val semanticidxPayload = i.Index(entries = index.toMap)
+    val semanticidxFile = settings.d.resolve("META-INF/semanticdb.semanticidx")
+    semanticidxPayload.writeTo(semanticidxFile)
   }
 }
 
