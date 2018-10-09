@@ -103,7 +103,7 @@ final class Writer private (
     val semanticdbPayload = s.TextDocuments(documents = documents)
     val semanticdbFile = settings.d.resolve("META-INF/semanticdb/combined.semanticdb")
     semanticdbPayload.writeTo(semanticdbFile)
-    val semanticidxPayload = i.Index(entries = index.toMap)
+    val semanticidxPayload = i.Indexes(indexes = List(i.Index(entries = index.toMap)))
     val semanticidxFile = settings.d.resolve("META-INF/semanticdb.semanticidx")
     semanticidxPayload.writeTo(semanticidxFile)
   }
