@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.tests
 
-import rsc.checkclasses._
+import rsc.checkbytecode._
 import scala.meta.cli._
 
-class ClassTests extends RscTests {
-  test("classes for semantic") {
+class BytecodeTests extends RscTests {
+  test("bytecode for semantic") {
     val reporter = Reporter()
     val settings = Settings(dependenciesClasspath, dependenciesFiles, semanticFiles, quiet = true)
     val problems = Main.process(reporter, settings)
