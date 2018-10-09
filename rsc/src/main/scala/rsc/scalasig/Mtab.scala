@@ -5,18 +5,17 @@ package rsc.scalasig
 import java.nio.file._
 import rsc.inputs._
 import rsc.outline._
-import rsc.util._
 import scala.meta.internal.{semanticdb => s}
 
 class Mtab private (symtab: Symtab) {
   def apply(sym: String): s.SymbolInformation = {
-    val info = symtab._infos.get(sym)
-    if (info != null) info
-    else crash(sym)
+    val sourceInfo = symtab._infos.get(sym)
+    if (sourceInfo != null) sourceInfo
+    else symtab._index(sym)
   }
 
   def contains(sym: String): Boolean = {
-    symtab._infos.containsKey(sym)
+    symtab._infos.containsKey(sym) || symtab._index.contains(sym)
   }
 
   def get(sym: String): Option[s.SymbolInformation] = {
