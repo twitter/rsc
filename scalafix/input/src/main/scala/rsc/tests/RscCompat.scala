@@ -49,6 +49,16 @@ object RscCompat_Test {
   protected[this] class ProtectedThis { def x1 = "" }
   protected[rsc] class ProtectedRsc { def x1 = "" }
 
+  private trait PrivateTrait { def x1 = "" }
+  trait PublicTrait {
+    private def x1 = ""
+    private[this] def x2 = ""
+    private[rsc] def x3 = ""
+    protected def x4 = ""
+    protected[this] def x5 = ""
+    protected[rsc] def x6 = ""
+  }
+
   object Config {
     val x = 1
     val y = 2
