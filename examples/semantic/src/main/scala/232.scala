@@ -1,3 +1,3 @@
-// package ticket232
+package ticket232
 
-// class C extends T
+class C extends T

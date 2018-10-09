@@ -42,6 +42,16 @@ object RscCompat_Test {
   protected[this] class ProtectedThis { def x1: _root_.java.lang.String = "" }
   protected[rsc] class ProtectedRsc { def x1: _root_.java.lang.String = "" }
 
+  private trait PrivateTrait { def x1 = "" }
+  trait PublicTrait {
+    private def x1: _root_.java.lang.String = ""
+    private[this] def x2: _root_.java.lang.String = ""
+    private[rsc] def x3: _root_.java.lang.String = ""
+    protected def x4: _root_.java.lang.String = ""
+    protected[this] def x5: _root_.java.lang.String = ""
+    protected[rsc] def x6: _root_.java.lang.String = ""
+  }
+
   object Config {
     val x: Int = 1
     val y = 2

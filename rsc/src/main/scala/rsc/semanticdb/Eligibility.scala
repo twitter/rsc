@@ -37,6 +37,8 @@ trait Eligibility {
           if (owner.isVisible) {
             if (outline.isInstanceOf[Param]) {
               true
+            } else if (owner.isInstanceOf[DefnClass] && owner.hasTrait) {
+              true
             } else {
               outline.mods.trees.forall {
                 case ModPrivate() => owner.isInstanceOf[DefnPackage]

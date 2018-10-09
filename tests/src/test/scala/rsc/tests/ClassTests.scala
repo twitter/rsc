@@ -8,7 +8,7 @@ import scala.meta.cli._
 class ClassTests extends RscTests {
   test("classes for semantic") {
     val reporter = Reporter()
-    val settings = Settings(semanticClasspath, dependenciesFiles, semanticFiles, quiet = true)
+    val settings = Settings(dependenciesClasspath, dependenciesFiles, semanticFiles, quiet = true)
     val problems = Main.process(reporter, settings)
     if (problems.nonEmpty) fail()
   }

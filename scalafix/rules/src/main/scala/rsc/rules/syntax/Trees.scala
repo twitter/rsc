@@ -79,14 +79,20 @@ trait Trees {
   implicit class ModOps(mods: List[Mod]) {
     def isVisible: Boolean = {
       mods.forall {
-        case mod @ Mod.Private(_: Name.Anonymous) =>
-          val defnParent = mod.parent.flatMap(_.parent)
-          defnParent match {
-            case Some(_: Source | _: Pkg) => true
-            case _ => false
+        case mod @ Mod.Private(within) =>
+          within match {
+            case _: Name.Anonymous | _: Term.This =>
+              val defnParent = mod.parent.flatMap(_.parent) match {
+                case Some(template: Template) => template.parent
+                case parent => parent
+              }
+              defnParent match {
+                case Some(_: Source | _: Pkg | _: Defn.Trait) => true
+                case _ => false
+              }
+            case _ =>
+              true
           }
-        case Mod.Private(_: Term.This) =>
-          false
         case _ =>
           true
       }
