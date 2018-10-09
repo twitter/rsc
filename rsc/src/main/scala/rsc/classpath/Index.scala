@@ -14,7 +14,7 @@ import scala.meta.internal.semanticdb.{Language => l}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.{semanticidx => i}
 
-final class Index private (entries: HashMap[Symbol, Entry]) extends Closeable {
+final class Index private (entries: HashMap[Symbol, Entry]) extends AutoCloseable {
   private val infos = new HashMap[Symbol, s.SymbolInformation]
 
   def contains(sym: Symbol): Boolean = {

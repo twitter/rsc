@@ -205,7 +205,7 @@ evidence parameters) and `Symtab.parents` (for synthetic parents such as
 `Product` and `Serializable`).
 
 ```scala
-final class Symtab private (settings: Settings) extends Closeable with Pretty {
+final class Symtab private (settings: Settings) extends AutoCloseable with Pretty {
   val _scopes = new HashMap[Symbol, Scope]
   val _outlines = new HashMap[Symbol, Outline]
   val _paramss = new HashMap[Parameterized, List[List[Param]]]
@@ -250,7 +250,7 @@ to signatures in the SemanticDB format. Check out
 to learn more about supported languages and their metadata.
 
 ```scala
-final class Index private (entries: HashMap[Symbol, Entry]) extends Closeable {
+final class Index private (entries: HashMap[Symbol, Entry]) extends AutoCloseable {
   private val infos = new HashMap[Symbol, s.SymbolInformation]
 
   def contains(sym: Symbol): Boolean = {

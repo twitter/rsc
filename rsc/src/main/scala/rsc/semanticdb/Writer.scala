@@ -7,6 +7,7 @@ import java.util.HashMap
 import rsc.gensym._
 import rsc.input._
 import rsc.outline._
+import rsc.output._
 import rsc.report._
 import rsc.semantics._
 import rsc.settings._
@@ -22,12 +23,13 @@ final class Writer private (
     settings: Settings,
     reporter: Reporter,
     gensyms: Gensyms,
-    symtab: Symtab) {
+    symtab: Symtab,
+    output: Output) {
   private val infos = new HashMap[Input, mutable.UnrolledBuffer[s.SymbolInformation]]
   private val occs = new HashMap[Input, mutable.UnrolledBuffer[s.SymbolOccurrence]]
   private val index = mutable.Map[String, i.Entry]()
 
-  def apply(outline: Outline): Unit = {
+  def write(outline: Outline): Unit = {
     val converter = Converter(settings, reporter, gensyms, symtab, outline)
     if (!converter.isEligible) return
     val input = outline.pos.input
@@ -100,17 +102,22 @@ final class Writer private (
         symbols = symbols)
       documents += document
     }
+    val semanticdbPath = Paths.get("META-INF/semanticdb/combined.semanticdb")
     val semanticdbPayload = s.TextDocuments(documents = documents)
-    val semanticdbFile = settings.d.resolve("META-INF/semanticdb/combined.semanticdb")
-    semanticdbPayload.writeTo(semanticdbFile)
+    output.write(semanticdbPath, semanticdbPayload.toByteArray)
+    val semanticidxPath = Paths.get("META-INF/semanticdb.semanticidx")
     val semanticidxPayload = i.Indexes(indexes = List(i.Index(entries = index.toMap)))
-    val semanticidxFile = settings.d.resolve("META-INF/semanticdb.semanticidx")
-    semanticidxPayload.writeTo(semanticidxFile)
+    output.write(semanticidxPath, semanticidxPayload.toByteArray)
   }
 }
 
 object Writer {
-  def apply(settings: Settings, reporter: Reporter, gensyms: Gensyms, symtab: Symtab): Writer = {
-    new Writer(settings, reporter, gensyms, symtab)
+  def apply(
+      settings: Settings,
+      reporter: Reporter,
+      gensyms: Gensyms,
+      symtab: Symtab,
+      output: Output): Writer = {
+    new Writer(settings, reporter, gensyms, symtab, output)
   }
 }

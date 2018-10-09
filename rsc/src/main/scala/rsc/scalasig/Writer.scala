@@ -4,6 +4,7 @@ package rsc.scalasig
 
 import java.nio.file._
 import rsc.outline._
+import rsc.output._
 import rsc.report._
 import rsc.settings._
 import rsc.syntax._
@@ -12,11 +13,16 @@ import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.scalasig._
 
-final class Writer private (settings: Settings, reporter: Reporter, symtab: Symtab) {
+final class Writer private (
+    settings:
+    Settings,
+    reporter: Reporter,
+    symtab: Symtab,
+    output: Output) {
   private val mtab = Mtab(symtab)
   private val done = mutable.HashSet[String]()
 
-  def apply(outline: Outline): Unit = {
+  def write(outline: Outline): Unit = {
     val sym = outline.id.sym
     val companionSym = {
       val desc = sym.desc
@@ -35,23 +41,21 @@ final class Writer private (settings: Settings, reporter: Reporter, symtab: Symt
 
     val scalasig = pickle.toScalasig
     val classfile = scalasig.toClassfile
-    val path = settings.d.resolve(classfile.name + ".class")
-    Files.createDirectories(path.toAbsolutePath.getParent)
-    Files.write(path, classfile.toBinary)
+    val path = Paths.get(classfile.name + ".class")
+    output.write(path, classfile.toBinary)
 
     if (mtab.contains(companionSym)) {
       val markerName = classfile.name + "$"
       val markerSource = classfile.source
       val markerClassfile = Classfile(markerName, markerSource, None)
-      val markerPath = settings.d.resolve(markerClassfile.name + ".class")
-      Files.createDirectories(markerPath.toAbsolutePath.getParent)
-      Files.write(markerPath, markerClassfile.toBinary)
+      val markerPath = Paths.get(markerClassfile.name + ".class")
+      output.write(markerPath, markerClassfile.toBinary)
     }
   }
 }
 
 object Writer {
-  def apply(settings: Settings, reporter: Reporter, symtab: Symtab): Writer = {
-    new Writer(settings, reporter, symtab)
+  def apply(settings: Settings, reporter: Reporter, symtab: Symtab, output: Output): Writer = {
+    new Writer(settings, reporter, symtab, output)
   }
 }
