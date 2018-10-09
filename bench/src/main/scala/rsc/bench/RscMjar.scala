@@ -21,7 +21,10 @@ class RscMjar extends RscBenchmark {
     runCompiler("-cp", bs.rscDeps, "-out", rscOut, bs.files)
 
     val mjarOut = Files.createTempFile("mjar", ".jar")
-    val settings = Settings().withClasspath(List(rscOut)).withOut(mjarOut)
+    val settings = Settings()
+      .withDependencyClasspath(bs.rscClasspath)
+      .withClasspath(List(rscOut))
+      .withOut(mjarOut)
     val reporter = Reporter().withOut(System.out).withErr(System.err)
     Mjar.process(settings, reporter) match {
       case Some(_) => ()

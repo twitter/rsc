@@ -42,14 +42,19 @@ trait ToolUtil extends CacheUtil with NscUtil {
     }
   }
 
-  def mjar(classpath: List[Path]): ToolResult[Path] = {
-    withConsole { console =>
-      import scala.meta.mjar._
-      val out = Files.createTempFile("out", ".jar")
-      val settings = Settings().withClasspath(classpath).withOut(out)
-      Mjar.process(settings, console.reporter) match {
-        case Some(out) => Right(out)
-        case None => Left(List(console.err))
+  def mjar(dependencyClasspath: List[Path], semanticdb: Path): ToolResult[Path] = {
+    metacp(Nil, dependencyClasspath).right.flatMap { dependencyClasspath =>
+      withConsole { console =>
+        import scala.meta.mjar._
+        val out = Files.createTempFile("out", ".jar")
+        val settings = Settings()
+          .withDependencyClasspath(dependencyClasspath)
+          .withClasspath(List(semanticdb))
+          .withOut(out)
+        Mjar.process(settings, console.reporter) match {
+          case Some(out) => Right(out)
+          case None => Left(List(console.err))
+        }
       }
     }
   }

@@ -16,7 +16,7 @@ object Main extends SimpleBase[Settings, Path, Path] {
 
   def rscResult(settings: Settings) = {
     val semanticdbResult = rsc(settings.cp, settings.ins)
-    semanticdbResult.right.flatMap(path => mjar(List(path)))
+    semanticdbResult.right.flatMap(semanticdbResult => mjar(settings.cp, semanticdbResult))
   }
 
   def checker(settings: Settings, nscResult: Path, rscResult: Path) = {
