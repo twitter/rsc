@@ -5,6 +5,7 @@ package rsc.output
 import java.io._
 import java.nio.file._
 import java.util.jar._
+import java.util.zip.Deflater._
 import rsc.settings._
 
 sealed trait Output extends AutoCloseable {
@@ -32,6 +33,7 @@ class JarOutput(settings: Settings) extends Output {
       val os = Files.newOutputStream(settings.d)
       val bos = new BufferedOutputStream(os)
       jos = new JarOutputStream(bos)
+      jos.setLevel(NO_COMPRESSION)
     }
   }
 
