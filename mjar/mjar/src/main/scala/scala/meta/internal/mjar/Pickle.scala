@@ -49,8 +49,15 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         }
       }
       val owner = {
-        if (ssym.owner.isNone || ssym.owner.isRootPackage) None
-        else Some(emitExternalSym(ssym.owner, RefMode))
+        if (ssym.owner.isNone || ssym.owner.isRootPackage) {
+          None
+        } else {
+          var sowner = ssym.owner
+          if (ssym.desc.isType && sowner.desc.isType && ssym.isStatic) {
+            sowner = Symbols.Global(sowner.owner, d.Term(sowner.desc.value))
+          }
+          Some(emitExternalSym(sowner, RefMode))
+        }
       }
       if (isModule && smode.emitModuleClasses) {
         ExtModClassRef(name, owner)
@@ -747,7 +754,11 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
           (ssym.isParam || ssym.isTypeParam || ssym.startsWith("local"))) {
         NoPre
       } else {
-        SomePre(s.ThisType(ssym.owner))
+        var sowner = ssym.owner
+        if (ssym.desc.isType && sowner.desc.isType && ssym.isStatic) {
+          sowner = Symbols.Global(sowner.owner, d.Term(sowner.desc.value))
+        }
+        SomePre(s.ThisType(sowner))
       }
     }
     def stpe: s.Type = {
