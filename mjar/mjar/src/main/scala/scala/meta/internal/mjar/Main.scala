@@ -24,7 +24,7 @@ class Main(settings: Settings, reporter: Reporter) {
       try {
         val symtab = Symtab(settings)
         val done = mutable.HashSet[String]()
-        symtab.todo.foreach { sym =>
+        symtab.toplevels.foreach { sym =>
           if (!done(sym)) {
             try {
               val companionSym = {

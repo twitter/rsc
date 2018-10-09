@@ -16,8 +16,8 @@ object Main extends SimpleBase[Settings, Path, Path] {
   }
 
   def rscResult(settings: Settings) = {
-    val depsSemanticdb = rsc(settings.cp, settings.deps)
-    val depsMjar = depsSemanticdb.right.flatMap(depsSemanticdb => mjar(settings.cp, depsSemanticdb))
+    val depsSemanticdbs = rsc(settings.cp, settings.deps)
+    val depsMjar = depsSemanticdbs.right.flatMap(depsSemanticdbs => mjar(List(depsSemanticdbs)))
     depsMjar.right.flatMap(depsMjar => nsc(settings.cp :+ depsMjar, settings.ins))
   }
 

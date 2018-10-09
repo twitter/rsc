@@ -3,15 +3,15 @@
 package scala.meta.internal.mjar
 
 import scala.collection.mutable
+import scala.collection.mutable.LinkedHashMap
 import scala.meta.internal.semanticdb._
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolOccurrence.{Role => r}
 import scala.meta.mjar._
 
 class Symtab private (
-    infos: mutable.Map[String, SymbolInformation],
-    anchors: mutable.Map[String, String],
-    val todo: mutable.UnrolledBuffer[String]) {
+    infos: LinkedHashMap[String, SymbolInformation],
+    anchors: LinkedHashMap[String, String]) {
   def apply(sym: String): SymbolInformation = {
     infos(sym)
   }
@@ -32,6 +32,18 @@ class Symtab private (
     infos(sym) = info
   }
 
+  lazy val toplevels: List[String] = {
+    infos.keys.filter { sym =>
+      val info = apply(sym)
+      if (info.isPackageObject || info.isClass || info.isInterface ||
+          info.isObject || info.isTrait) {
+        info.symbol.owner.desc.isPackage
+      } else {
+        false
+      }
+    }.toList
+  }
+
   def anchor(sym: String): Option[String] = {
     anchors.get(sym)
   }
@@ -39,12 +51,9 @@ class Symtab private (
 
 object Symtab {
   def apply(settings: Settings): Symtab = {
-    val unifiedClasspath = (settings.dependencyClasspath ++ settings.classpath).distinct
-    val infos = mutable.Map[String, SymbolInformation]()
-    val anchors = mutable.Map[String, String]()
-    val todo = mutable.UnrolledBuffer[String]()
-    unifiedClasspath.foreach { path =>
-      val inTodo = settings.classpath.contains(path)
+    val infos = LinkedHashMap[String, SymbolInformation]()
+    val anchors = LinkedHashMap[String, String]()
+    settings.classpath.foreach { path =>
       Locator(path) { (_, payload) =>
         payload.documents.foreach { document =>
           val ranges = mutable.Map[String, Range]()
@@ -57,24 +66,20 @@ object Symtab {
             }
           }
           document.symbols.foreach { info =>
-            val sym = info.symbol
-            if (sym.isGlobal) {
-              infos(sym) = info
+            if (info.symbol.isGlobal) {
+              infos(info.symbol) = info
               if (settings.debug) {
                 var anchor = document.uri
-                ranges.get(sym).foreach { range =>
+                ranges.get(info.symbol).foreach { range =>
                   anchor += s":${range.startLine + 1}"
                 }
-                anchors(sym) = anchor
-              }
-              if (inTodo && sym.owner.desc.isPackage && !sym.desc.isPackage) {
-                todo += sym
+                anchors(info.symbol) = anchor
               }
             }
           }
         }
       }
     }
-    new Symtab(infos, anchors, todo)
+    new Symtab(infos, anchors)
   }
 }

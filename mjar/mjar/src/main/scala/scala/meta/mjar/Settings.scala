@@ -10,14 +10,12 @@ final class Settings private (
     val abi: Abi,
     val classpath: List[Path],
     val debug: Boolean,
-    val dependencyClasspath: List[Path],
     val out: Path) {
   private def this() = {
     this(
       abi = Scalac211,
       classpath = Nil,
       debug = false,
-      dependencyClasspath = Nil,
       out = Paths.get("out.jar")
     )
   }
@@ -34,10 +32,6 @@ final class Settings private (
     copy(debug = debug)
   }
 
-  def withDependencyClasspath(dependencyClasspath: List[Path]): Settings = {
-    copy(dependencyClasspath = dependencyClasspath)
-  }
-
   def withOut(out: Path): Settings = {
     copy(out = out)
   }
@@ -46,15 +40,9 @@ final class Settings private (
       abi: Abi = abi,
       classpath: List[Path] = classpath,
       debug: Boolean = debug,
-      dependencyClasspath: List[Path] = dependencyClasspath,
       out: Path = out
   ): Settings = {
-    new Settings(
-      abi = abi,
-      classpath = classpath,
-      debug = debug,
-      dependencyClasspath = dependencyClasspath,
-      out = out)
+    new Settings(abi = abi, classpath = classpath, debug = debug, out = out)
   }
 }
 
@@ -74,9 +62,6 @@ object Settings {
           None
         case "--debug" +: rest if allowOptions =>
           loop(settings.copy(debug = true), true, rest)
-        case "--dependency-classpath" +: s_dcp +: rest =>
-          val dcp = s_dcp.split(pathSeparator).map(p => Paths.get(p)).toList
-          loop(settings.copy(dependencyClasspath = settings.dependencyClasspath ++ dcp), true, rest)
         case "--release" +: rest if allowOptions =>
           loop(settings.copy(debug = false), true, rest)
         case "-out" +: s_out +: rest if allowOptions =>
