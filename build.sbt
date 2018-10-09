@@ -58,25 +58,38 @@ lazy val check = project
     commonSettings,
     publishableSettings,
     moduleName := "rsc-check",
+    scalacOptions += "-Xexperimental",
+    libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3",
     libraryDependencies += "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
+    libraryDependencies += "commons-cli" % "commons-cli" % "1.4",
+    libraryDependencies += "org.ow2.asm" % "asm" % V.asm,
+    libraryDependencies += "org.ow2.asm" % "asm-util" % V.asm,
+    libraryDependencies += "org.scala-lang" % "scalap" % V.scala,
+    libraryDependencies += "org.eclipse.jgit" % "org.eclipse.jgit" % "4.6.0.201612231935-r",
     libraryDependencies += "io.github.soc" % "directories" % "10",
     libraryDependencies += "org.scala-lang" % "scala-compiler" % V.scala,
     libraryDependencies += "org.scalameta" %% "cli" % V.scalameta,
     libraryDependencies += "org.scalameta" %% "metac" % V.scalameta cross CrossVersion.full,
     libraryDependencies += "org.scalameta" %% "metacp" % V.scalameta,
     libraryDependencies += "org.scalameta" %% "metai" % V.scalameta,
-    libraryDependencies += "org.scalameta" %% "metap" % V.scalameta
+    libraryDependencies += "org.scalameta" %% "metap" % V.scalameta,
+    libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.25",
+    libraryDependencies += "org.slf4j" % "log4j-over-slf4j" % "1.7.25"
   )
 
 lazy val examplesCore = project
   .in(file("examples/core"))
-  .dependsOn(examplesFunction)
+  .dependsOn(examplesDependencies, examplesFunction)
   .settings(
     commonSettings,
     semanticdbSettings,
     libraryDependencies += "org.scala-lang" % "scala-reflect" % V.scala,
     libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
   )
+
+lazy val examplesDependencies = project
+  .in(file("examples/dependencies"))
+  .settings(commonSettings)
 
 lazy val examplesFunction = project
   .in(file("examples/function"))
@@ -180,6 +193,9 @@ lazy val tests = project
       },
       BuildInfoKey.map(dependencyClasspath.in(examplesFunction, Compile)) {
         case (k, v) => "functionDeps" -> v.map(_.data)
+      },
+      BuildInfoKey.map(dependencyClasspath.in(examplesDependencies, Compile)) {
+        case (k, v) => "dependenciesDeps" -> v.map(_.data)
       },
       BuildInfoKey.map(dependencyClasspath.in(examplesSemantic, Compile)) {
         case (k, v) => "semanticDeps" -> v.map(_.data)
