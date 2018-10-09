@@ -75,6 +75,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
           val within = ssym.swithin.map(emitSym(_, RefMode))
           if (ssym.swithin.isEmpty) emitSym(Symbols.None, RefMode)
           val info = emitTpe(ssym.stpe)
+          emitSymAnnots(ssym, smode)
           ModuleSymbol(name, owner, flags, within, info)
         }
       } else {
@@ -99,6 +100,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
           val within = ssym.swithin.map(emitSym(_, RefMode))
           if (ssym.swithin.isEmpty) emitSym(Symbols.None, RefMode)
           val info = emitSig(ssym.ssig)
+          emitSymAnnots(ssym, smode)
           if (ssym.isTypeParam || ssym.isAbstractType) {
             TypeSymbol(name, owner, flags, within, info)
           } else if (ssym.isAliasType) {
@@ -266,7 +268,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
           RefinedType(sym, parents)
         case s.AnnotatedType(sannots, sret) =>
           val ret = emitTpe(sret)
-          val annots = sannots.toList.map(emitAnnot)
+          val annots = sannots.toList.map(emitAnnotInfo)
           AnnotatedType(ret, annots)
         case s.ExistentialType(sret, sdecls) =>
           val decls = emitScope(sdecls)
@@ -295,11 +297,22 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
     }
   }
 
-  private def emitAnnot(sannot: s.Annotation): Ref = {
-    entries.getOrElseUpdate(AnnotationKey(sannot)) {
+  private def emitAnnotInfo(sannot: s.Annotation): Ref = {
+    entries.getOrElseUpdate(AnnotInfoKey(sannot)) {
       // FIXME: https://github.com/twitter/rsc/issues/93
       val tpe = emitTpe(sannot.tpe)
       AnnotInfo(tpe, Nil)
+    }
+  }
+
+  private def emitSymAnnots(ssym: String, smode: Mode): Unit = {
+    ssym.annots.foreach { sannot =>
+      entries.getOrElseUpdate(SymAnnotKey(ssym, sannot)) {
+        // FIXME: https://github.com/twitter/rsc/issues/93
+        val sym = emitEmbeddedSym(ssym, smode)
+        val tpe = emitTpe(sannot.tpe)
+        SymAnnot(sym, tpe, Nil)
+      }
     }
   }
 
@@ -647,6 +660,9 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       if (ssym.isLazy) result |= LAZY
       if (ssym.isExistential) result |= EXISTENTIAL
       result
+    }
+    def annots: List[s.Annotation] = {
+      sinfo.annotations.toList
     }
     def ssig: Sig = {
       def maybePolySig(stparamSyms: Option[s.Scope], sig: Sig): Sig = {

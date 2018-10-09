@@ -232,7 +232,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         val decls1 = decls.map(highlevelPatch)
         StructuralType(tpe1, decls1)
       case AnnotatedType(anns, tpe) =>
-        val anns1 = anns.map(highlevelPatch)
+        // FIXME: https://github.com/twitter/rsc/issues/93
+        val anns1 = Nil
         val tpe1 = highlevelPatch(tpe)
         AnnotatedType(anns1, tpe1)
       case ExistentialType(tpe, decls) =>

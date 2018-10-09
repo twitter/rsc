@@ -217,8 +217,7 @@ trait Defns {
     }
 
     def annotations: List[s.Annotation] = {
-      // FIXME: https://github.com/twitter/rsc/issues/93
-      Nil
+      outline.mods.annotations
     }
 
     def access: s.Access = {

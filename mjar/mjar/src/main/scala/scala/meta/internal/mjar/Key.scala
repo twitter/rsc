@@ -13,7 +13,8 @@ case class SigKey(ssig: Sig) extends Key
 case class TypeKey(stpe: s.Type, disambig: Int) extends Key
 case object NoPreKey extends Key
 case class LiteralKey(value: Any) extends Key
-case class AnnotationKey(sann: s.Annotation) extends Key
+case class AnnotInfoKey(sann: s.Annotation) extends Key
+case class SymAnnotKey(ssym: String, sann: s.Annotation) extends Key
 
 object TypeKey {
   def apply(stpe: s.Type): TypeKey = {
