@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.output
 
+import java.io._
 import java.nio.file._
+import java.util.jar._
 import rsc.settings._
 
 sealed trait Output extends AutoCloseable {
@@ -21,10 +23,35 @@ class DirectoryOutput(settings: Settings) extends Output {
   }
 }
 
+class JarOutput(settings: Settings) extends Output {
+  private var jos: JarOutputStream = _
+
+  private def ensureStream(): Unit = {
+    if (jos == null) {
+      Files.createDirectories(settings.d.toAbsolutePath.getParent)
+      val os = Files.newOutputStream(settings.d)
+      val bos = new BufferedOutputStream(os)
+      jos = new JarOutputStream(bos)
+    }
+  }
+
+  def write(path: Path, bytes: Array[Byte]): Unit = {
+    ensureStream()
+    jos.putNextEntry(new JarEntry(path.toString))
+    jos.write(bytes)
+    jos.closeEntry()
+  }
+
+  def close(): Unit = {
+    ensureStream()
+    jos.close()
+  }
+}
+
 object Output {
   def apply(settings: Settings): Output = {
     if (settings.d.toString.endsWith(".jar")) {
-      ???
+      new JarOutput(settings)
     } else {
       new DirectoryOutput(settings)
     }

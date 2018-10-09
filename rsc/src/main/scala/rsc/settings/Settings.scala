@@ -9,7 +9,7 @@ final case class Settings(
     abi: Abi = Abi211,
     artifacts: List[Artifact] = List(ArtifactSemanticdb, ArtifactScalasig),
     cp: List[Path] = Nil,
-    d: Path = Paths.get(""),
+    d: Path = Paths.get("out.jar"),
     debug: Boolean = false,
     ins: List[Path] = Nil,
     xprint: Set[String] = Set[String](),
