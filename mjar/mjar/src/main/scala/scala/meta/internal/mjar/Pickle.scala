@@ -306,7 +306,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
   }
 
   private def emitSymAnnots(ssym: String, smode: Mode): Unit = {
-    ssym.annots.foreach { sannot =>
+    ssym.sannots.foreach { sannot =>
       entries.getOrElseUpdate(SymAnnotKey(ssym, sannot)) {
         // FIXME: https://github.com/twitter/rsc/issues/93
         val sym = emitEmbeddedSym(ssym, smode)
@@ -661,7 +661,7 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
       if (ssym.isExistential) result |= EXISTENTIAL
       result
     }
-    def annots: List[s.Annotation] = {
+    def sannots: List[s.Annotation] = {
       sinfo.annotations.toList
     }
     def ssig: Sig = {
@@ -871,7 +871,8 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         properties = sfieldProps,
         displayName = sfieldName,
         signature = sfieldSig,
-        annotations = Nil,
+        // FIXME: https://github.com/twitter/rsc/issues/93
+        annotations = sgetterSym.sannots,
         access = s.PrivateThisAccess()
       )
     }
@@ -903,7 +904,8 @@ class Pickle(abi: Abi, symtab: Symtab, sroot1: String, sroot2: String) {
         properties = sfieldProps,
         displayName = sfieldName,
         signature = sfieldSig,
-        annotations = Nil,
+        // FIXME: https://github.com/twitter/rsc/issues/93
+        annotations = ssetterSym.sannots,
         access = s.PrivateThisAccess()
       )
     }

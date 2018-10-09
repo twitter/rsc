@@ -68,6 +68,7 @@ final class Scheduler private (
       case outline: DefnField =>
         outline.lang match {
           case ScalaLanguage | UnknownLanguage =>
+            // FIXME: https://github.com/twitter/rsc/issues/93
             val getter = DefnMethod(
               outline.mods.dupe,
               TermId(outline.id.value).withPos(outline.id.pos),
@@ -80,6 +81,7 @@ final class Scheduler private (
               val param =
                 Param(Mods(Nil), TermId("x$1"), outline.tpt.map(_.dupe), None).withPos(outline.pos)
               val setter = DefnMethod(
+                // FIXME: https://github.com/twitter/rsc/issues/93
                 outline.mods.filter(!_.isInstanceOf[ModImplicit]),
                 TermId(outline.id.value + "_=").withPos(outline.id.pos),
                 Nil,
