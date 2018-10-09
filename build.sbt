@@ -79,7 +79,7 @@ lazy val check = project
 
 lazy val examplesCore = project
   .in(file("examples/core"))
-  .dependsOn(examplesDependencies, examplesFunction)
+  .dependsOn(examplesFunction)
   .settings(
     commonSettings,
     semanticdbSettings,
@@ -97,6 +97,7 @@ lazy val examplesFunction = project
 
 lazy val examplesSemantic = project
   .in(file("examples/semantic"))
+  .dependsOn(examplesDependencies)
   .settings(commonSettings)
 
 lazy val mjar = project
