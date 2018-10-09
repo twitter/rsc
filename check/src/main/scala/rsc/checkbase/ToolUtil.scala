@@ -111,16 +111,15 @@ trait ToolUtil extends CacheUtil with NscUtil {
     import _root_.rsc.Compiler
     import _root_.rsc.report._
     import _root_.rsc.settings._
-    val semanticdbDir = Files.createTempDirectory("rsc-semanticdb_")
+    val out = Files.createTempDirectory("rsc_")
     rsci(classpath).right.flatMap { rscClasspath =>
-      val out = semanticdbDir.resolve("META-INF/semanticdb/rsc.semanticdb")
-      val settings = Settings(cp = rscClasspath, ins = sources, out = out)
+      val settings = Settings(cp = rscClasspath, d = out, ins = sources)
       val reporter = StoreReporter(settings)
       val compiler = Compiler(settings, reporter)
       try {
         compiler.run()
         if (reporter.problems.isEmpty) {
-          Right(semanticdbDir)
+          Right(out)
         } else {
           Left(reporter.problems.map(_.str))
         }

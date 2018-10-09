@@ -62,8 +62,9 @@ final class Semanticdb private (
   }
 
   def save(): Unit = {
-    Files.createDirectories(settings.out.toAbsolutePath.getParent)
-    val fos = Files.newOutputStream(settings.out)
+    val out = settings.d.resolve("META-INF/semanticdb/combined.semanticdb")
+    Files.createDirectories(out.toAbsolutePath.getParent)
+    val fos = Files.newOutputStream(out)
     val bos = new BufferedOutputStream(fos)
     try {
       val cwd = Paths.get("").toAbsolutePath

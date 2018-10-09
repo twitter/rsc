@@ -17,8 +17,8 @@ import scala.meta.mjar._
 class RscMjar extends RscBenchmark {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
-    val rscOut = Files.createTempFile("rsc", ".semanticdb")
-    runCompiler("-cp", bs.rscDeps, "-out", rscOut, bs.files)
+    val rscOut = Files.createTempDirectory("semanticdb_")
+    runCompiler("-cp", bs.rscDeps, "-d", rscOut, bs.files)
 
     val mjarOut = Files.createTempFile("mjar", ".jar")
     val settings = Settings().withClasspath(List(rscOut)).withOut(mjarOut)
