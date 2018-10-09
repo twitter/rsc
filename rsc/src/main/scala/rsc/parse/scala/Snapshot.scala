@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.parse.scala
 
-import rsc.inputs._
+import rsc.input._
 import rsc.lexis.scala._
 import rsc.scan.scala.{Snapshot => ScanSnapshot}
 import rsc.syntax._

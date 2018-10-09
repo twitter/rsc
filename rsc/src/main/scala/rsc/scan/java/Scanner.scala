@@ -3,7 +3,7 @@
 // NOTE: This file has been partially copy/pasted from lampepfl/dotty.
 package rsc.scan.java
 
-import rsc.inputs._
+import rsc.input._
 import rsc.lexis.java._
 import rsc.report._
 import rsc.settings._

@@ -4,7 +4,7 @@ package rsc.outline
 
 import java.util.LinkedHashSet
 import rsc.gensym._
-import rsc.inputs._
+import rsc.input._
 import rsc.report._
 import rsc.semantics._
 import rsc.settings._

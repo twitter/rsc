@@ -3,7 +3,7 @@
 package rsc.gensym
 
 import java.util.HashMap
-import rsc.inputs._
+import rsc.input._
 import rsc.syntax._
 
 final class Gensyms private () {

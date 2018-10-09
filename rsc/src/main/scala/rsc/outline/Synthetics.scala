@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.outline
 
-import rsc.inputs._
+import rsc.input._
 import rsc.syntax._
 
 trait Synthetics {

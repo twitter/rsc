@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.pretty
 
-import rsc.inputs._
+import rsc.input._
 
 object PrettyInput {
   def str(p: Printer, x: Input): Unit = {

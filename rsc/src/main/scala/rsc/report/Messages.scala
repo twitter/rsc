@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.report
 
-import rsc.inputs._
+import rsc.input._
 import rsc.lexis._
 import rsc.outline._
 import rsc.pretty._

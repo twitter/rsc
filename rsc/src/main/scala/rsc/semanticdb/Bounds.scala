@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.semanticdb
 
-import rsc.inputs._
+import rsc.input._
 import rsc.semantics._
 import rsc.syntax._
 import scala.meta.internal.{semanticdb => s}

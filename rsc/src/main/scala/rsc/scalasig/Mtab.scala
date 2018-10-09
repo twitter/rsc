@@ -3,7 +3,7 @@
 package rsc.scalasig
 
 import java.nio.file._
-import rsc.inputs._
+import rsc.input._
 import rsc.outline._
 import scala.meta.internal.{semanticdb => s}
 

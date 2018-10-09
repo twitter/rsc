@@ -5,7 +5,7 @@ package rsc.semanticdb
 import java.nio.file._
 import java.util.HashMap
 import rsc.gensym._
-import rsc.inputs._
+import rsc.input._
 import rsc.outline._
 import rsc.report._
 import rsc.semantics._

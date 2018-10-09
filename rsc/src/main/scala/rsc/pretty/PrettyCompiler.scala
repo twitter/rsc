@@ -4,7 +4,7 @@ package rsc.pretty
 
 import java.nio.file._
 import rsc.Compiler
-import rsc.inputs._
+import rsc.input._
 import rsc.lexis._
 import rsc.report._
 import rsc.scan._
