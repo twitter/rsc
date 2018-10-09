@@ -25,6 +25,7 @@ final class Writer private (
     gensyms: Gensyms,
     symtab: Symtab,
     output: Output) {
+  private val cwd = Paths.get("").toAbsolutePath
   private val infos = new HashMap[Input, mutable.UnrolledBuffer[s.SymbolInformation]]
   private val occs = new HashMap[Input, mutable.UnrolledBuffer[s.SymbolOccurrence]]
   private val index = mutable.Map[String, i.Entry]()
@@ -45,11 +46,12 @@ final class Writer private (
     symtab._infos.put(sym, info)
     if (sym.owner.desc.isPackage) {
       sym.ownerChain.foreach { sym =>
-        val entry = {
-          if (sym.desc.isPackage) i.PackageEntry()
-          else i.ToplevelEntry("combined.semanticdb")
+        if (sym.desc.isPackage) {
+          index(sym) = i.PackageEntry()
+        } else {
+          val uri = cwd.relativize(input.path.toAbsolutePath).toString + ".semanticdb"
+          index(sym) = i.ToplevelEntry(uri)
         }
-        index(sym) = entry
       }
       if (!sym.desc.isPackage) {
         symtab._toplevels.add(outline)
@@ -81,8 +83,6 @@ final class Writer private (
   }
 
   def save(): Unit = {
-    val cwd = Paths.get("").toAbsolutePath
-    val documents = mutable.UnrolledBuffer[s.TextDocument]()
     val infoIt = infos.entrySet.iterator
     while (infoIt.hasNext) {
       val entry = infoIt.next()
@@ -100,11 +100,11 @@ final class Writer private (
         language = language,
         occurrences = occurrences,
         symbols = symbols)
-      documents += document
+      val documents = List(document)
+      val semanticdbPath = Paths.get(s"META-INF/semanticdb/${document.uri}.semanticdb")
+      val semanticdbPayload = s.TextDocuments(documents = documents)
+      output.write(semanticdbPath, semanticdbPayload.toByteArray)
     }
-    val semanticdbPath = Paths.get("META-INF/semanticdb/combined.semanticdb")
-    val semanticdbPayload = s.TextDocuments(documents = documents)
-    output.write(semanticdbPath, semanticdbPayload.toByteArray)
     val semanticidxPath = Paths.get("META-INF/semanticdb.semanticidx")
     val semanticidxPayload = i.Indexes(indexes = List(i.Index(entries = index.toMap)))
     output.write(semanticidxPath, semanticidxPayload.toByteArray)
