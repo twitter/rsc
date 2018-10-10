@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.parse.java
 
-import rsc.inputs._
+import rsc.input._
 import rsc.lexis.java._
 import rsc.report._
 import rsc.syntax._

@@ -2,16 +2,16 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.outline
 
-import java.io._
-import java.util.{HashMap, LinkedHashMap}
+import java.util.{HashMap, LinkedHashMap, LinkedList}
 import rsc.classpath._
 import rsc.pretty._
 import rsc.semantics._
 import rsc.settings._
 import rsc.syntax._
 import rsc.util._
+import scala.meta.internal.{semanticdb => s}
 
-final class Symtab private (settings: Settings) extends Closeable with Pretty {
+final class Symtab private (settings: Settings) extends AutoCloseable with Pretty {
   val _index = Index(settings.cp)
   val _scopes = new HashMap[Symbol, Scope]
   val _envs = new HashMap[Symbol, Env]
@@ -20,6 +20,8 @@ final class Symtab private (settings: Settings) extends Closeable with Pretty {
   val _parents = new HashMap[DefnTemplate, List[Tpt]]
   val _inferred = new HashMap[Symbol, Tpt]
   val _existentials = new HashMap[TptExistential, ExistentialScope]
+  val _infos = new HashMap[Symbol, s.SymbolInformation]
+  val _toplevels = new LinkedList[Outline]
 
   object scopes {
     def apply(sym: Symbol): Scope = {

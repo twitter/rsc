@@ -42,18 +42,6 @@ trait ToolUtil extends CacheUtil with NscUtil {
     }
   }
 
-  def mjar(classpath: List[Path]): ToolResult[Path] = {
-    withConsole { console =>
-      import scala.meta.mjar._
-      val out = Files.createTempFile("out", ".jar")
-      val settings = Settings().withClasspath(classpath).withOut(out)
-      Mjar.process(settings, console.reporter) match {
-        case Some(out) => Right(out)
-        case None => Left(List(console.err))
-      }
-    }
-  }
-
   def nsc(classpath: List[Path], sources: List[Path]): ToolResult[Path] = {
     val hasScala = sources.exists(_.toString.endsWith(".scala"))
     val hasJava = sources.exists(_.toString.endsWith(".java"))
@@ -111,16 +99,15 @@ trait ToolUtil extends CacheUtil with NscUtil {
     import _root_.rsc.Compiler
     import _root_.rsc.report._
     import _root_.rsc.settings._
-    val semanticdbDir = Files.createTempDirectory("rsc-semanticdb_")
+    val out = Files.createTempDirectory("rsc_")
     rsci(classpath).right.flatMap { rscClasspath =>
-      val out = semanticdbDir.resolve("META-INF/semanticdb/rsc.semanticdb")
-      val settings = Settings(cp = rscClasspath, ins = sources, out = out)
+      val settings = Settings(cp = rscClasspath, d = out, ins = sources)
       val reporter = StoreReporter(settings)
       val compiler = Compiler(settings, reporter)
       try {
         compiler.run()
         if (reporter.problems.isEmpty) {
-          Right(semanticdbDir)
+          Right(out)
         } else {
           Left(reporter.problems.map(_.str))
         }

@@ -3,5 +3,5 @@
 package rsc.settings
 
 sealed trait Abi
-case object Scalac211 extends Abi
-case object Scalac212 extends Abi
+case object Abi211 extends Abi
+case object Abi212 extends Abi

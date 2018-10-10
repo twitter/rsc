@@ -83,14 +83,14 @@ final class Synthesizer private (
               case mod: ModPrivateThis =>
                 Some(ModPrivate())
               case mod: ModPrivateWithin =>
-                if (settings.abi == Scalac211) None
+                if (settings.abi == Abi211) None
                 else Some(mod)
               case mod: ModProtected =>
                 Some(mod)
               case mod: ModProtectedThis =>
                 Some(ModProtected())
               case mod: ModProtectedWithin =>
-                if (settings.abi == Scalac211) Some(ModProtected())
+                if (settings.abi == Abi211) Some(ModProtected())
                 else Some(mod)
               case mod: ModFinal =>
                 Some(mod)

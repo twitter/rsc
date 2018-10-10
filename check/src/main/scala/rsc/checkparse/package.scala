@@ -5,7 +5,7 @@ package rsc
 import java.nio.file._
 import rsc.checkbase._
 import rsc.gensym._
-import rsc.inputs.{Input => RscInput}
+import rsc.input.{Input => RscInput}
 import rsc.parse.{Parser => RscParser}
 import rsc.pretty._
 import rsc.report.{StoreReporter => RscReporter}

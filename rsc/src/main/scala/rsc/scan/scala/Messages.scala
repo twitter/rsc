@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.scan.scala
 
-import rsc.inputs._
+import rsc.input._
 import rsc.report._
 import rsc.util._
 

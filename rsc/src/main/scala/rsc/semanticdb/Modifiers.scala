@@ -10,8 +10,11 @@ trait Modifiers {
 
   protected implicit class ModifierOps(mods: Mods) {
     def annotations: List[s.Annotation] = {
-      // FIXME: https://github.com/twitter/rsc/issues/93
-      mods.annots.map(annot => s.Annotation(tpe = s.NoType))
+      mods.annots.flatMap { annot =>
+        // FIXME: https://github.com/twitter/rsc/issues/93
+        if (annot.init.argss.flatten.isEmpty) Some(s.Annotation(tpe = annot.init.tpt.tpe))
+        else None
+      }
     }
   }
 }
