@@ -14,8 +14,7 @@ import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.scalasig._
 
 final class Writer private (
-    settings:
-    Settings,
+    settings: Settings,
     reporter: Reporter,
     symtab: Symtab,
     output: Output) {
