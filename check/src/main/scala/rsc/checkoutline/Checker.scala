@@ -313,7 +313,10 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         } else if (sym.desc.isPackage) {
           SymbolInformation(symbol = sym, kind = k.PACKAGE)
         } else {
-          index.infos(sym)
+          index.infos.get(sym) match {
+            case Some(info) => info
+            case None => SymbolInformation(symbol = sym)
+          }
         }
       }
     }
