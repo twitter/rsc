@@ -14,8 +14,17 @@ trait Defns {
     val id = tptId()
     val tparams = typeParams()
     val parents = templateParents(mods)
-    val stats = inBraces(templateStats())
+    val stats = inBraces(templateStats(mods))
     atPos(start)(DefnClass(mods, id, tparams, None, Nil, parents, None, stats))
+  }
+
+  private def defnConstant(): DefnConstant = {
+    val start = in.offset
+    val mods = this.mods()
+    val id = termId()
+    if (in.token == LPAREN) skipParens()
+    if (in.token == LBRACE) skipBraces()
+    atPos(start)(DefnConstant(mods, id))
   }
 
   private def defnCtor(mods: Mods, id: CtorId): DefnCtor = {
@@ -77,40 +86,47 @@ trait Defns {
     parents.result
   }
 
-  private def templateStats(): List[Stat] = {
+  private def templateStats(mods: Mods): List[Stat] = {
+    var first = true
     val stats = List.newBuilder[Stat]
     while (in.token != RBRACE && in.token != EOF) {
-      val mods = this.mods()
-      in.token match {
-        case CLASS =>
-          val modClass = atPos(in.offset)(ModClass())
-          in.nextToken()
-          stats += defnClass(mods :+ modClass)
-        case ENUM =>
-          val modEnum = atPos(in.offset)(ModEnum())
-          in.nextToken()
-          stats += defnClass(mods :+ modEnum)
-        case INTERFACE =>
-          val modInterface = atPos(in.offset)(ModInterface())
-          in.nextToken()
-          stats += defnClass(mods :+ modInterface)
-        case LBRACE =>
-          skipBraces()
-        case _ =>
-          val tparams = typeParams()
-          val tpt = this.tpt()
-          if (in.token == LPAREN) {
-            val id = atPos(tpt.pos)(CtorId())
-            stats += defnCtor(mods, id)
-          } else {
-            val id = termId()
+      if (first && mods.hasEnum) {
+        stats ++= commaSeparated(defnConstant)
+        accept(SEMI)
+      } else {
+        val mods = this.mods()
+        in.token match {
+          case CLASS =>
+            val modClass = atPos(in.offset)(ModClass())
+            in.nextToken()
+            stats += defnClass(mods :+ modClass)
+          case ENUM =>
+            val modEnum = atPos(in.offset)(ModEnum())
+            in.nextToken()
+            stats += defnClass(mods :+ modEnum)
+          case INTERFACE =>
+            val modInterface = atPos(in.offset)(ModInterface())
+            in.nextToken()
+            stats += defnClass(mods :+ modInterface)
+          case LBRACE =>
+            skipBraces()
+          case _ =>
+            val tparams = typeParams()
+            val tpt = this.tpt()
             if (in.token == LPAREN) {
-              stats += defnMethod(mods, tparams, tpt, id)
+              val id = atPos(tpt.pos)(CtorId())
+              stats += defnCtor(mods, id)
             } else {
-              stats += defnField(mods, tpt, id)
+              val id = termId()
+              if (in.token == LPAREN) {
+                stats += defnMethod(mods, tparams, tpt, id)
+              } else {
+                stats += defnField(mods, tpt, id)
+              }
             }
-          }
+        }
       }
+      first = false
     }
     stats.result
   }

@@ -31,11 +31,10 @@ trait Dupe {
           val self1 = self.map(_.dupe)
           val ss1 = stats.map(_.dupe)
           DefnClass(mods1, id1, tparams1, primaryCtor1, earlies1, inits1, self1, ss1)
-        case DefnConstant(mods, id, stats) =>
+        case DefnConstant(mods, id) =>
           val mods1 = mods.dupe
           val id1 = id.dupe
-          val stats1 = stats.map(_.dupe)
-          DefnConstant(mods1, id1, stats1)
+          DefnConstant(mods1, id1)
         case DefnCtor(mods, id, paramss, rhs) =>
           val mods1 = mods.dupe
           val id1 = id.dupe

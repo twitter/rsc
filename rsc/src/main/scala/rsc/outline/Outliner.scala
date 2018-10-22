@@ -119,6 +119,10 @@ final class Outliner private (
         case tree if tree.hasCase =>
           appendParent(env, TptId("Product").withSym(ProductClass))
           appendParent(env, TptId("Serializable").withSym(SerializableClass))
+        case tree if tree.hasEnum =>
+          val id = TptId("Enum").withSym(EnumClass)
+          val ref = tree.id.asInstanceOf[TptId]
+          appendParent(env, TptParameterize(id, List(ref)))
         case tree: DefnObject =>
           val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
           companionClass match {

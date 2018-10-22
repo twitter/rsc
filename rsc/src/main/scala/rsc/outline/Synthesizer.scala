@@ -135,6 +135,11 @@ final class Synthesizer private (
     }
   }
 
+  def enumMembers(env: Env, tree: DefnClass): Unit = {
+    enumValueOf(env, tree)
+    enumValues(env, tree)
+  }
+
   def implicitClassConversion(env: Env, tree: DefnClass): Unit = {
     val mods = tree.mods.filter(_.isInstanceOf[ModAccess]) :+ ModImplicit()
     val id = TermId(tree.id.value)
@@ -589,6 +594,30 @@ final class Synthesizer private (
     val ret = Some(TptId("String").withSym(StringClass))
     val rhs = Some(TermStub())
     val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
+    scheduler(env, method.withPos(tree.pos))
+  }
+
+  private def enumValueOf(env: Env, tree: DefnClass): Unit = {
+    val mods = Mods(List(ModPublic(), ModStatic()))
+    val id = TermId("valueOf")
+    val paramss = {
+      val tpt = TptId("String").withSym(StringClass)
+      val param = Param(Mods(Nil), TermId("name"), Some(tpt), None)
+      List(List(param.withPos(tree.pos)))
+    }
+    val ret = Some(tree.id)
+    val rhs = Some(TermStub())
+    val method = DefnMethod(mods, id, Nil, paramss, ret, rhs)
+    scheduler(env, method.withPos(tree.pos))
+  }
+
+  private def enumValues(env: Env, tree: DefnClass): Unit = {
+    val mods = Mods(List(ModPublic(), ModStatic()))
+    val id = TermId("values")
+    val paramss = List(Nil)
+    val ret = Some(TptArray(tree.id))
+    val rhs = Some(TermStub())
+    val method = DefnMethod(mods, id, Nil, paramss, ret, rhs)
     scheduler(env, method.withPos(tree.pos))
   }
 

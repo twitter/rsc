@@ -24,6 +24,7 @@ final class Scheduler private (
 
   def apply(env: Env, tree: Tree): Env = {
     tree match {
+      case tree: DefnConstant => defnConstant(env, tree)
       case tree: DefnDef => defnDef(env, tree)
       case tree: DefnField => defnField(env, tree)
       case tree: DefnPackage => defnPackage(env, tree)
@@ -161,6 +162,12 @@ final class Scheduler private (
     }
   }
 
+  private def defnConstant(env: Env, tree: DefnConstant): Env = {
+    mods(env, tree.mods)
+    assignSym(env, tree)
+    env
+  }
+
   private def defnDef(env: Env, tree: DefnDef): Env = {
     // NOTE: Primary ctors are typechecked in env.outer,
     // but their mods are typechecked in env.
@@ -296,6 +303,9 @@ final class Scheduler private (
       case tree: DefnClass =>
         if (tree.hasCase) {
           synthesizer.caseClassMembers(templateEnv, tree)
+        }
+        if (tree.hasEnum) {
+          synthesizer.enumMembers(templateEnv, tree)
         }
         tree.parents.foreach {
           case Init(TptId("AnyVal"), Nil) =>

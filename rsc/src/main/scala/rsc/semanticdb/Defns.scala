@@ -51,6 +51,7 @@ trait Defns {
         case _: DefnClass if outline.hasInterface => k.INTERFACE
         case _: DefnClass if outline.hasTrait => k.TRAIT
         case _: DefnClass => crash(outline)
+        case _: DefnConstant => k.FIELD
         case _: DefnCtor => k.CONSTRUCTOR
         case _: DefnField => k.FIELD
         case _: DefnMacro => k.MACRO
@@ -79,7 +80,9 @@ trait Defns {
         case outline: DefnType if outline.rhs.isEmpty => set(p.ABSTRACT)
         case _ => ()
       }
+      if (outline.hasEnum) set(p.FINAL)
       if (outline.hasFinal && !outline.isInstanceOf[Param]) set(p.FINAL)
+      if (outline.isInstanceOf[DefnConstant]) set(p.FINAL)
       if (outline.isInstanceOf[DefnObject]) set(p.FINAL)
       if (outline.isInstanceOf[DefnPackageObject]) set(p.FINAL)
       outline match {
@@ -102,8 +105,10 @@ trait Defns {
       if (outline.hasVal) set(p.VAL)
       if (outline.hasVar) set(p.VAR)
       if (outline.hasStatic) set(p.STATIC)
+      if (outline.isInstanceOf[DefnConstant]) set(p.STATIC)
       if (outline.isInstanceOf[PrimaryCtor]) set(p.PRIMARY)
       if (outline.hasEnum) set(p.ENUM)
+      if (outline.isInstanceOf[DefnConstant]) set(p.ENUM)
       if (outline.hasDefault) set(p.DEFAULT)
       outline match {
         case Param(_, _, _, Some(_)) => set(p.DEFAULT)
@@ -246,12 +251,15 @@ trait Defns {
                 case l.SCALA =>
                   s.PublicAccess()
                 case l.JAVA =>
-                  val within = symbol.ownerChain.reverse.tail.find(_.desc.isPackage).get
-                  s.PrivateWithinAccess(within)
+                  if (outline.isInstanceOf[DefnConstant]) {
+                    s.PublicAccess()
+                  } else {
+                    val within = symbol.ownerChain.reverse.tail.find(_.desc.isPackage).get
+                    s.PrivateWithinAccess(within)
+                  }
                 case l.UNKNOWN_LANGUAGE | l.Unrecognized(_) =>
                   s.NoAccess
               }
-
           }
       }
     }

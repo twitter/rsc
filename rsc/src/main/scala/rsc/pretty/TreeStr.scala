@@ -102,10 +102,9 @@ class TreeStr(p: Printer, l: KnownLanguage) {
         }
         p.str(" => ")
         p.Indent(printStats(stats))
-      case DefnConstant(mods, id, stats) =>
+      case DefnConstant(mods, id) =>
         apply(mods)
         apply(id)
-        p.Nest.when(stats.nonEmpty)(printStats(stats))
       case DefnCtor(mods, id, paramss, rhs) =>
         l match {
           case ScalaLanguage =>
@@ -892,9 +891,15 @@ class TreeStr(p: Printer, l: KnownLanguage) {
             }
           }
         case JavaLanguage =>
-          ()
+          stat match {
+            case _: DefnConstant =>
+              if (notLast && stats(i + 1).isInstanceOf[DefnConstant]) p.str(",")
+              else p.str(";")
+            case _ =>
+              ()
+          }
       }
-      if (notLast) p.str(EOL)
+      if (notLast && !stats(i + 1).isInstanceOf[DefnConstant]) p.str(EOL)
 
       i += 1
     }

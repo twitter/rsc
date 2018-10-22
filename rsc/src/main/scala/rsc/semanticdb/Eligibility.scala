@@ -35,7 +35,9 @@ trait Eligibility {
             }
           }
           if (owner.isVisible) {
-            if (outline.isInstanceOf[Param]) {
+            if (outline.isInstanceOf[DefnCtor] && owner.hasEnum) {
+              false
+            } else if (outline.isInstanceOf[Param]) {
               true
             } else if (owner.isInstanceOf[DefnClass] && owner.hasTrait) {
               true
