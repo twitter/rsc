@@ -277,6 +277,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     var s1 = s
     s1 = s1.replaceAll("symbol: \"local(\\d+)\"", "symbol: \"localNNN\"")
     s1 = s1.replaceAll("symbol: \".*?#_\\$(\\d+)#\"", "symbol: \"localNNN\"")
+    // FIXME: https://github.com/scalameta/scalameta/issues/1797
+    s1 = s1.replaceAll("symbol: \"(.*)##\"", "symbol: \"$1.\"")
     val rxProperties = "properties: (-?\\d+)".r
     s1 = rxProperties.replaceAllIn(
       s1, { m =>

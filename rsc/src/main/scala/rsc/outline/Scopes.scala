@@ -97,9 +97,18 @@ sealed trait BinaryScope extends Scope {
         // TODO: This is accidentally correct when doing lookups from Java,
         // because Java programs don't have TermIds in reference roles.
         val javaDeclSym = TypeSymbol(owner, value)
-        if (_index.contains(javaDeclSym) &&
-            _index(javaDeclSym).isJava) {
+        if (_index.contains(javaDeclSym) && _index(javaDeclSym).isJava) {
           return javaDeclSym
+        }
+      case _ =>
+        ()
+    }
+
+    name match {
+      case TypeName(value) if value.endsWith("$") =>
+        val moduleSym = loadDecl(owner, TermName(value.stripSuffix("$")))
+        if (_index.contains(moduleSym)) {
+          return moduleSym
         }
       case _ =>
         ()
