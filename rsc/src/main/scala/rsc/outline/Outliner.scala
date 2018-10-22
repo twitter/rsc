@@ -61,15 +61,37 @@ final class Outliner private (
           case _: FailedResolution =>
             scope.fail()
           case FoundResolution(scopeSym) =>
-            val parentScope = symtab.scopes(scopeSym)
-            parentScope.status match {
+            val parentScope1 = symtab.scopes(scopeSym)
+            parentScope1.status match {
               case _: IncompleteStatus =>
-                scope.block(parentScope)
+                scope.block(parentScope1)
               case _: FailedStatus =>
                 scope.fail()
               case SucceededStatus =>
-                scope.parent = parentScope
-                scope.succeed()
+                scope.parent1 = parentScope1
+                env.lang match {
+                  case ScalaLanguage | UnknownLanguage =>
+                    scope.succeed()
+                  case JavaLanguage =>
+                    if (qualSym.isPackage) {
+                      scope.succeed()
+                    } else {
+                      val parentScope2 = symtab.scopes.get(scopeSym.companionSymbol)
+                      if (parentScope2 != null) {
+                        parentScope2.status match {
+                          case _: IncompleteStatus =>
+                            scope.block(parentScope2)
+                          case _: FailedStatus =>
+                            scope.fail()
+                          case SucceededStatus =>
+                            scope.parent2 = parentScope2
+                            scope.succeed()
+                        }
+                      } else {
+                        scope.succeed()
+                      }
+                    }
+                }
             }
         }
     }
@@ -440,7 +462,45 @@ final class Outliner private (
                       resolution
                     case FoundResolution(scopeSym) =>
                       val env1 = Env(List(symtab.scopes(scopeSym)), env.lang)
-                      loop(env1, id)
+                      val resolution1 = env1.resolve(id.name)
+                      resolution1 match {
+                        case resolution1: AmbiguousResolution =>
+                          if (env1 == startingEnv) reporter.append(AmbiguousId(id, resolution1))
+                          else reporter.append(AmbiguousMember(env1, id, resolution1))
+                          resolution1
+                        case _: BlockedResolution =>
+                          resolution1
+                        case _: FailedResolution =>
+                          env.lang match {
+                            case ScalaLanguage | UnknownLanguage =>
+                              if (env1 == startingEnv) reporter.append(UnboundId(id))
+                              else reporter.append(UnboundMember(env1, id))
+                              resolution1
+                            case JavaLanguage =>
+                              val scope2 = symtab.scopes.get(scopeSym.companionSymbol)
+                              if (scope2 != null) {
+                                val env2 = Env(List(scope2), env.lang)
+                                val resolution2 = env2.resolve(id.name)
+                                resolution2 match {
+                                  case _: AmbiguousResolution =>
+                                    resolution1
+                                  case _: BlockedResolution =>
+                                    resolution2
+                                  case _: FailedResolution =>
+                                    resolution1
+                                  case FoundResolution(sym) =>
+                                    qual.id.sym = scope2.sym
+                                    id.sym = sym
+                                    resolution2
+                                }
+                              } else {
+                                resolution1
+                              }
+                          }
+                        case FoundResolution(sym) =>
+                          id.sym = sym
+                          resolution1
+                      }
                   }
               }
             case TptSingleton(qual) =>
