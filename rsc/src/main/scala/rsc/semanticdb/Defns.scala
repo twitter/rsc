@@ -254,6 +254,8 @@ trait Defns {
                 case l.JAVA =>
                   if (outline.isInstanceOf[DefnConstant]) {
                     s.PublicAccess()
+                  } else if (outline.hasInterface || outline.hasAnnotationInterface) {
+                    s.PublicAccess()
                   } else {
                     val within = symbol.ownerChain.reverse.tail.find(_.desc.isPackage).get
                     s.PrivateWithinAccess(within)

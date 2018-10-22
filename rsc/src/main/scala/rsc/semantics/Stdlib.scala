@@ -4,6 +4,7 @@ package rsc.semantics
 
 trait Stdlib {
   def AbstractFunctionClass(params: Int): Symbol = "scala/runtime/AbstractFunction" + params + "#"
+  val AnnotationClass: Symbol = "java/lang/annotation/Annotation#"
   val AnyClass: Symbol = "scala/Any#"
   val AnyRefClass: Symbol = "scala/AnyRef#"
   val AnyValClass: Symbol = "scala/AnyVal#"
