@@ -74,7 +74,7 @@ trait Defns {
       def set(prop: s.SymbolInformation.Property) = result |= prop.value
       if (outline.hasAbstract || outline.hasInterface) set(p.ABSTRACT)
       outline match {
-        case outline: DefnField if outline.rhs.isEmpty => set(p.ABSTRACT)
+        case outline: DefnField if outline.rhs.isEmpty && language != l.JAVA => set(p.ABSTRACT)
         case outline: DefnMethod if outline.rhs.isEmpty => set(p.ABSTRACT)
         case outline: DefnProcedure if outline.rhs.isEmpty => set(p.ABSTRACT)
         case outline: DefnType if outline.rhs.isEmpty => set(p.ABSTRACT)
