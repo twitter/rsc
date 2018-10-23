@@ -257,8 +257,14 @@ trait Defns {
                   } else if (outline.hasInterface || outline.hasAnnotationInterface) {
                     s.PublicAccess()
                   } else {
-                    val within = symbol.ownerChain.reverse.tail.find(_.desc.isPackage).get
-                    s.PrivateWithinAccess(within)
+                    val ownerSym = outline.id.sym.owner
+                    val owner = symtab._outlines.get(ownerSym)
+                    if (owner != null && (owner.hasInterface || owner.hasAnnotationInterface)) {
+                      s.PublicAccess()
+                    } else {
+                      val within = symbol.ownerChain.reverse.tail.find(_.desc.isPackage).get
+                      s.PrivateWithinAccess(within)
+                    }
                   }
                 case l.UNKNOWN_LANGUAGE | l.Unrecognized(_) =>
                   s.NoAccess
