@@ -106,6 +106,7 @@ trait Defns {
       if (outline.hasVar) set(p.VAR)
       if (outline.hasStatic) set(p.STATIC)
       if (outline.hasEnum && !outline.id.sym.owner.isPackage) set(p.STATIC)
+      if (outline.hasInterface && !outline.id.sym.owner.isPackage) set(p.STATIC)
       if (outline.isInstanceOf[DefnConstant]) set(p.STATIC)
       if (outline.isInstanceOf[PrimaryCtor]) set(p.PRIMARY)
       if (outline.hasEnum) set(p.ENUM)
