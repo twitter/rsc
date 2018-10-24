@@ -94,7 +94,11 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
             if (ssym.isRefinement && ssym.owner.isRootPackage) {
               emitSym(sroot1, ModuleRefMode)
             } else if (ssym.isGlobal) {
-              emitSym(ssym.owner, RefMode)
+              var sowner = ssym.owner
+              if (ssym.isJava && ssym.isStatic) {
+                sowner = Symbols.Global(sowner.owner, d.Term(sowner.desc.value))
+              }
+              emitSym(sowner, RefMode)
             } else if (ssym.isExistential) {
               emitSym(owners.sexistentialOwner, RefMode)
             } else {
