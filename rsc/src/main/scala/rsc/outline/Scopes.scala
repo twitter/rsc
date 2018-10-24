@@ -50,7 +50,8 @@ sealed trait BinaryScope extends Scope {
 
     val info = _index(owner)
 
-    // TODO: Utilizing selfs is probably incorrect when doing lookups from Java,
+    // FIXME: https://github.com/twitter/rsc/issues/229.
+    // Utilizing selfs is probably incorrect when doing lookups from Java,
     // but hopefully we'll rewrite the name resolution logic before this becomes a problem.
     (info.parents ++ info.self).foreach { parent =>
       val memberSym = loadMember(parent, name)
@@ -59,7 +60,8 @@ sealed trait BinaryScope extends Scope {
       }
     }
 
-    // TODO: Utilizing package objects is incorrect when doing lookups from Java,
+    // FIXME: https://github.com/twitter/rsc/issues/229.
+    // Utilizing package objects is incorrect when doing lookups from Java,
     // but hopefully we'll rewrite the name resolution logic before this becomes a problem.
     if (info.isPackage) {
       val packageObjectSym = TermSymbol(owner, "package")
@@ -94,12 +96,22 @@ sealed trait BinaryScope extends Scope {
           return packageSym
         }
 
-        // TODO: This is accidentally correct when doing lookups from Java,
+        // FIXME: https://github.com/twitter/rsc/issues/229.
+        // This is accidentally correct when doing lookups from Java,
         // because Java programs don't have TermIds in reference roles.
         val javaDeclSym = TypeSymbol(owner, value)
-        if (_index.contains(javaDeclSym) &&
-            _index(javaDeclSym).isJava) {
+        if (_index.contains(javaDeclSym) && _index(javaDeclSym).isJava) {
           return javaDeclSym
+        }
+      case _ =>
+        ()
+    }
+
+    name match {
+      case TypeName(value) if value.endsWith("$") =>
+        val moduleSym = loadDecl(owner, TermName(value.stripSuffix("$")))
+        if (_index.contains(moduleSym)) {
+          return moduleSym
         }
       case _ =>
         ()
@@ -204,19 +216,36 @@ object PackageScope {
 // ============ SOURCE SCOPES ============
 
 final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
-  var _parent: Scope = null
+  var _parent1: Scope = null
+  var _parent2: Scope = null
 
-  def parent: Scope = {
+  def parent1: Scope = {
     if (status.isSucceeded) {
-      _parent
+      _parent1
     } else {
       crash(this)
     }
   }
 
-  def parent_=(parent: Scope): Unit = {
+  def parent1_=(parent1: Scope): Unit = {
     if (status.isPending) {
-      _parent = parent
+      _parent1 = parent1
+    } else {
+      crash(this)
+    }
+  }
+
+  def parent2: Scope = {
+    if (status.isSucceeded) {
+      _parent2
+    } else {
+      crash(this)
+    }
+  }
+
+  def parent2_=(parent2: Scope): Unit = {
+    if (status.isPending) {
+      _parent2 = parent2
     } else {
       crash(this)
     }
@@ -271,7 +300,19 @@ final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
         case _: FailedStatus =>
           MissingResolution
         case SucceededStatus =>
-          parent.resolve(name1)
+          val resolution1 = parent1.resolve(name1)
+          resolution1 match {
+            case _: BlockedResolution =>
+              resolution1
+            case _: FailedResolution =>
+              if (parent2 != null) {
+                parent2.resolve(name1)
+              } else {
+                resolution1
+              }
+            case _: FoundResolution =>
+              resolution1
+          }
       }
     } else {
       MissingResolution
@@ -279,7 +320,7 @@ final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
   }
 
   override def succeed(): Unit = {
-    if (_parent == null) {
+    if (_parent1 == null) {
       crash(this)
     }
     super.succeed()

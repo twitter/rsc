@@ -28,7 +28,11 @@ object PrettyWork {
       x match {
         case x: ImporterScope =>
           p.str(" ")
-          p.str(x.parent.sym)
+          p.str(x.parent1.sym)
+          if (x.parent2 != null) {
+            p.str(" and ")
+            p.str(x.parent2.sym)
+          }
         case x: ClasspathScope =>
           val info = x._index(x.sym)
           p.str(" ")

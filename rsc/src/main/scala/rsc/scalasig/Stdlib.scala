@@ -10,9 +10,12 @@ trait Stdlib {
   val AnyRefClass: String = "scala/AnyRef#"
   val AnyValClass: String = "scala/AnyVal#"
   val ByNameClass: String = "scala/`<byname>`#"
-  val RepeatedClass: String = "scala/`<repeated>`#"
+  val JavaAnnotationClass: String = "java/lang/annotation/Annotation#"
   val NothingClass: String = "scala/Nothing#"
   val NothingTpe: s.Type = s.TypeRef(s.NoType, NothingClass, Nil)
   val ObjectClass: String = "java/lang/Object#"
+  val RepeatedClass: String = "scala/`<repeated>`#"
+  val ScalaAnnotationClass: String = "scala/annotation/Annotation#"
+  val ScalaClassfileAnnotationClass: String = "scala/annotation/ClassfileAnnotation#"
   val UnitClass: String = "scala/Unit#"
 }

@@ -94,7 +94,11 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
             if (ssym.isRefinement && ssym.owner.isRootPackage) {
               emitSym(sroot1, ModuleRefMode)
             } else if (ssym.isGlobal) {
-              emitSym(ssym.owner, RefMode)
+              var sowner = ssym.owner
+              if (ssym.isJava && ssym.isStatic) {
+                sowner = Symbols.Global(sowner.owner, d.Term(sowner.desc.value))
+              }
+              emitSym(sowner, RefMode)
             } else if (ssym.isExistential) {
               emitSym(owners.sexistentialOwner, RefMode)
             } else {
@@ -183,9 +187,19 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
               PolyType(ret, tparams)
             case ClassSig(sparents, ssym) =>
               val sym = emitSym(ssym, RefMode)
-              val parents = sparents.map(emitTpe)
+              val parents = {
+                if (ssym.isJavaAnnotation) {
+                  val sparents = List.newBuilder[s.Type]
+                  sparents += s.TypeRef(s.NoType, ScalaAnnotationClass, Nil)
+                  sparents += s.TypeRef(s.NoType, ScalaClassfileAnnotationClass, Nil)
+                  sparents += s.TypeRef(s.NoType, JavaAnnotationClass, Nil)
+                  sparents.result.map(emitTpe)
+                } else {
+                  sparents.map(emitTpe)
+                }
+              }
               if (ssym.isObject || ssym.isPackageObject) {
-                val smoduleCtor = Transients.smoduleCtor(ssym)
+                val smoduleCtor = Transients.sdefaultCtor(ssym)
                 mtab(smoduleCtor.symbol) = smoduleCtor
                 emitEmbeddedSym(smoduleCtor.symbol, RefMode)
               }
@@ -207,6 +221,11 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
                 val sinfos = Transients.sextensionMethods(ssym)
                 sinfos.foreach(sinfo => mtab(sinfo.symbol) = sinfo)
                 sinfos.foreach(sinfo => emitEmbeddedSym(sinfo.symbol, RefMode))
+              }
+              if (ssym.isJavaAnnotation) {
+                val sannCtor = Transients.sdefaultCtor(ssym)
+                mtab(sannCtor.symbol) = sannCtor
+                emitEmbeddedSym(sannCtor.symbol, RefMode)
               }
               ClassInfoType(sym, parents)
             case RefinedSig(sparents, ssym) =>
@@ -507,7 +526,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     }
     def isDeferred: Boolean = {
       def isAbstractMember: Boolean = {
-        sinfo.isAbstract && !ssym.isClass && !ssym.isTrait
+        sinfo.isAbstract && !ssym.isClass && !ssym.isTrait && !ssym.isJavaAnnotation
       }
       isAbstractMember || ssym.isTypeParam
     }
@@ -615,6 +634,17 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       // FIXME: https://github.com/twitter/rsc/issues/95
       ssym.isLocal
     }
+    def isJavaAnnotation: Boolean = {
+      sinfo.signature match {
+        case s.ClassSignature(_, parents, _, _) =>
+          parents.exists {
+            case s.TypeRef(_, JavaAnnotationClass, _) => true
+            case _ => false
+          }
+        case _ =>
+          false
+      }
+    }
     def isValueClass: Boolean = {
       sinfo.signature match {
         case s.ClassSignature(_, sparents, _, _) =>
@@ -650,7 +680,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       if (ssym.isDeferred) result |= DEFERRED
       if (ssym.isDef) result |= METHOD
       if (ssym.isObject || ssym.isPackageObject) result |= MODULE
-      if (ssym.isInterface) result |= INTERFACE
+      if (ssym.isInterface && !ssym.isJavaAnnotation) result |= INTERFACE
       if (ssym.isMutable) result |= MUTABLE
       if (ssym.isParam || ssym.isTypeParam) result |= PARAM
       if (ssym.isByNameParam) result |= BYNAMEPARAM
@@ -668,6 +698,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       if (ssym.isParamAccessor) result |= PARAMACCESSOR
       if (ssym.isLazy) result |= LAZY
       if (ssym.isExistential) result |= EXISTENTIAL
+      if (ssym.isJavaAnnotation) result |= JAVA_ANNOTATION
       result
     }
     def sannots: List[s.Annotation] = {
@@ -834,7 +865,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
         access = s.PublicAccess()
       )
     }
-    def smoduleCtor(sobjectSym: String): s.SymbolInformation = {
+    def sdefaultCtor(sobjectSym: String): s.SymbolInformation = {
       val ssig = s.MethodSignature(Some(s.Scope()), List(s.Scope()), s.NoType)
       s.SymbolInformation(
         symbol = Symbols.Global(sobjectSym, d.Method(dn.Constructor, "()")),

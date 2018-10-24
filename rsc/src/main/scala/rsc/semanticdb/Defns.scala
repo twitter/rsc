@@ -51,6 +51,7 @@ trait Defns {
         case _: DefnClass if outline.hasInterface => k.INTERFACE
         case _: DefnClass if outline.hasTrait => k.TRAIT
         case _: DefnClass => crash(outline)
+        case _: DefnConstant => k.FIELD
         case _: DefnCtor => k.CONSTRUCTOR
         case _: DefnField => k.FIELD
         case _: DefnMacro => k.MACRO
@@ -73,13 +74,15 @@ trait Defns {
       def set(prop: s.SymbolInformation.Property) = result |= prop.value
       if (outline.hasAbstract || outline.hasInterface) set(p.ABSTRACT)
       outline match {
-        case outline: DefnField if outline.rhs.isEmpty => set(p.ABSTRACT)
+        case outline: DefnField if outline.rhs.isEmpty && language != l.JAVA => set(p.ABSTRACT)
         case outline: DefnMethod if outline.rhs.isEmpty => set(p.ABSTRACT)
         case outline: DefnProcedure if outline.rhs.isEmpty => set(p.ABSTRACT)
         case outline: DefnType if outline.rhs.isEmpty => set(p.ABSTRACT)
         case _ => ()
       }
+      if (outline.hasEnum) set(p.FINAL)
       if (outline.hasFinal && !outline.isInstanceOf[Param]) set(p.FINAL)
+      if (outline.isInstanceOf[DefnConstant]) set(p.FINAL)
       if (outline.isInstanceOf[DefnObject]) set(p.FINAL)
       if (outline.isInstanceOf[DefnPackageObject]) set(p.FINAL)
       outline match {
@@ -102,8 +105,12 @@ trait Defns {
       if (outline.hasVal) set(p.VAL)
       if (outline.hasVar) set(p.VAR)
       if (outline.hasStatic) set(p.STATIC)
+      if (outline.hasEnum && !outline.id.sym.owner.isPackage) set(p.STATIC)
+      if (outline.hasInterface && !outline.id.sym.owner.isPackage) set(p.STATIC)
+      if (outline.isInstanceOf[DefnConstant]) set(p.STATIC)
       if (outline.isInstanceOf[PrimaryCtor]) set(p.PRIMARY)
       if (outline.hasEnum) set(p.ENUM)
+      if (outline.isInstanceOf[DefnConstant]) set(p.ENUM)
       if (outline.hasDefault) set(p.DEFAULT)
       outline match {
         case Param(_, _, _, Some(_)) => set(p.DEFAULT)
@@ -246,12 +253,23 @@ trait Defns {
                 case l.SCALA =>
                   s.PublicAccess()
                 case l.JAVA =>
-                  val within = symbol.ownerChain.reverse.tail.find(_.desc.isPackage).get
-                  s.PrivateWithinAccess(within)
+                  if (outline.isInstanceOf[DefnConstant]) {
+                    s.PublicAccess()
+                  } else if (outline.hasInterface || outline.hasAnnotationInterface) {
+                    s.PublicAccess()
+                  } else {
+                    val ownerSym = outline.id.sym.owner
+                    val owner = symtab._outlines.get(ownerSym)
+                    if (owner != null && (owner.hasInterface || owner.hasAnnotationInterface)) {
+                      s.PublicAccess()
+                    } else {
+                      val within = symbol.ownerChain.reverse.tail.find(_.desc.isPackage).get
+                      s.PrivateWithinAccess(within)
+                    }
+                  }
                 case l.UNKNOWN_LANGUAGE | l.Unrecognized(_) =>
                   s.NoAccess
               }
-
           }
       }
     }

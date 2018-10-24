@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.outline
 
-import java.util.{HashMap, LinkedHashMap, LinkedList}
+import java.util.{HashMap, HashSet, LinkedHashMap, LinkedList}
 import rsc.classpath._
 import rsc.pretty._
 import rsc.semantics._
@@ -22,6 +22,7 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
   val _existentials = new HashMap[TptExistential, ExistentialScope]
   val _infos = new HashMap[Symbol, s.SymbolInformation]
   val _toplevels = new LinkedList[Outline]
+  val _statics = new HashSet[Symbol]
 
   object scopes {
     def apply(sym: Symbol): Scope = {

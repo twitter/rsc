@@ -9,6 +9,7 @@ import rsc.semantics._
 import rsc.settings._
 import rsc.syntax._
 import rsc.util._
+import scala.collection.mutable
 
 // FIXME: https://github.com/twitter/rsc/issues/104
 final class Outliner private (
@@ -60,15 +61,37 @@ final class Outliner private (
           case _: FailedResolution =>
             scope.fail()
           case FoundResolution(scopeSym) =>
-            val parentScope = symtab.scopes(scopeSym)
-            parentScope.status match {
+            val parentScope1 = symtab.scopes(scopeSym)
+            parentScope1.status match {
               case _: IncompleteStatus =>
-                scope.block(parentScope)
+                scope.block(parentScope1)
               case _: FailedStatus =>
                 scope.fail()
               case SucceededStatus =>
-                scope.parent = parentScope
-                scope.succeed()
+                scope.parent1 = parentScope1
+                env.lang match {
+                  case ScalaLanguage | UnknownLanguage =>
+                    scope.succeed()
+                  case JavaLanguage =>
+                    if (qualSym.isPackage) {
+                      scope.succeed()
+                    } else {
+                      val parentScope2 = symtab.scopes.get(scopeSym.companionSymbol)
+                      if (parentScope2 != null) {
+                        parentScope2.status match {
+                          case _: IncompleteStatus =>
+                            scope.block(parentScope2)
+                          case _: FailedStatus =>
+                            scope.fail()
+                          case SucceededStatus =>
+                            scope.parent2 = parentScope2
+                            scope.succeed()
+                        }
+                      } else {
+                        scope.succeed()
+                      }
+                    }
+                }
             }
         }
     }
@@ -76,8 +99,8 @@ final class Outliner private (
 
   private def trySucceed(env: Env, scope: TemplateScope): Unit = {
     case class ResolvedParent(tpt: Tpt, scope: Scope)
-    val buf = List.newBuilder[ResolvedParent]
-    def appendParent(env: Env, tpt: Tpt): Unit = {
+    val buf = mutable.ListBuffer[ResolvedParent]()
+    def insertParent(env: Env, tpt: Tpt, index: Int): Unit = {
       if (scope.status.isPending) {
         def loop(tpt: Tpt): Resolution = {
           tpt match {
@@ -108,10 +131,16 @@ final class Outliner private (
               case _: FailedResolution =>
                 scope.fail()
               case FoundResolution(scopeSym) =>
-                buf += ResolvedParent(tpt, symtab.scopes(scopeSym))
+                buf.insert(index, ResolvedParent(tpt, symtab.scopes(scopeSym)))
             }
         }
       }
+    }
+    def appendParent(env: Env, tpt: Tpt): Unit = {
+      insertParent(env, tpt, buf.length)
+    }
+    def prependParent(env: Env, tpt: Tpt): Unit = {
+      insertParent(env, tpt, 0)
     }
     // FIXME: https://github.com/twitter/rsc/issues/98
     def synthesizeParents(env: Env, tree: DefnTemplate): Unit = {
@@ -119,6 +148,12 @@ final class Outliner private (
         case tree if tree.hasCase =>
           appendParent(env, TptId("Product").withSym(ProductClass))
           appendParent(env, TptId("Serializable").withSym(SerializableClass))
+        case tree if tree.hasEnum =>
+          val id = TptId("Enum").withSym(EnumClass)
+          val ref = tree.id.asInstanceOf[TptId]
+          prependParent(env, TptParameterize(id, List(ref)))
+        case tree if tree.hasAnnotationInterface =>
+          appendParent(env, TptId("Annotation").withSym(JavaAnnotationClass))
         case tree: DefnObject =>
           val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
           companionClass match {
@@ -427,7 +462,45 @@ final class Outliner private (
                       resolution
                     case FoundResolution(scopeSym) =>
                       val env1 = Env(List(symtab.scopes(scopeSym)), env.lang)
-                      loop(env1, id)
+                      val resolution1 = env1.resolve(id.name)
+                      resolution1 match {
+                        case resolution1: AmbiguousResolution =>
+                          if (env1 == startingEnv) reporter.append(AmbiguousId(id, resolution1))
+                          else reporter.append(AmbiguousMember(env1, id, resolution1))
+                          resolution1
+                        case _: BlockedResolution =>
+                          resolution1
+                        case _: FailedResolution =>
+                          env.lang match {
+                            case ScalaLanguage | UnknownLanguage =>
+                              if (env1 == startingEnv) reporter.append(UnboundId(id))
+                              else reporter.append(UnboundMember(env1, id))
+                              resolution1
+                            case JavaLanguage =>
+                              val scope2 = symtab.scopes.get(scopeSym.companionSymbol)
+                              if (scope2 != null) {
+                                val env2 = Env(List(scope2), env.lang)
+                                val resolution2 = env2.resolve(id.name)
+                                resolution2 match {
+                                  case _: AmbiguousResolution =>
+                                    resolution1
+                                  case _: BlockedResolution =>
+                                    resolution2
+                                  case _: FailedResolution =>
+                                    resolution1
+                                  case FoundResolution(sym) =>
+                                    qual.id.sym = scope2.sym
+                                    id.sym = sym
+                                    resolution2
+                                }
+                              } else {
+                                resolution1
+                              }
+                          }
+                        case FoundResolution(sym) =>
+                          id.sym = sym
+                          resolution1
+                      }
                   }
               }
             case TptSingleton(qual) =>

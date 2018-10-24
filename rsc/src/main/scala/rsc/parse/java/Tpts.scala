@@ -26,9 +26,6 @@ trait Tpts {
     val start = in.offset
     val tpt = {
       in.token match {
-        case ID =>
-          val unfinished = parameterizedTpt(start, tptId())
-          referenceTpt(start, unfinished)
         case QMARK =>
           wildcardTpt()
         case BOOLEAN =>
@@ -58,6 +55,9 @@ trait Tpts {
         case VOID =>
           in.nextToken()
           atPos(start)(TptVoid())
+        case other =>
+          val unfinished = parameterizedTpt(start, tptId())
+          referenceTpt(start, unfinished)
       }
     }
     arrayTpt(start, tpt)

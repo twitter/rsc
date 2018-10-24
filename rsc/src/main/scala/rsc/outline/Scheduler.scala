@@ -24,6 +24,7 @@ final class Scheduler private (
 
   def apply(env: Env, tree: Tree): Env = {
     tree match {
+      case tree: DefnConstant => defnConstant(env, tree)
       case tree: DefnDef => defnDef(env, tree)
       case tree: DefnField => defnField(env, tree)
       case tree: DefnPackage => defnPackage(env, tree)
@@ -158,7 +159,17 @@ final class Scheduler private (
         outline.id.sym = sym
         symtab._outlines.put(sym, outline)
         symtab._envs.put(sym, env)
+        if (outline.hasStatic) {
+          symtab._statics.add(sym.owner)
+          symtab._statics.add(sym.owner.companionObject)
+        }
     }
+  }
+
+  private def defnConstant(env: Env, tree: DefnConstant): Env = {
+    mods(env, tree.mods)
+    assignSym(env, tree)
+    env
   }
 
   private def defnDef(env: Env, tree: DefnDef): Env = {
@@ -296,6 +307,9 @@ final class Scheduler private (
       case tree: DefnClass =>
         if (tree.hasCase) {
           synthesizer.caseClassMembers(templateEnv, tree)
+        }
+        if (tree.hasEnum) {
+          synthesizer.enumMembers(templateEnv, tree)
         }
         tree.parents.foreach {
           case Init(TptId("AnyVal"), Nil) =>
