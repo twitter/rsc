@@ -5,7 +5,6 @@ package scalafix.internal.v0
 import scala.collection.mutable
 import scala.meta.internal.{semanticdb => s}
 
-// FIXME: https://github.com/scalameta/scalameta/issues/1724
 case class DocumentSymbols(doc: s.TextDocument) {
   private val map = mutable.Map[String, s.SymbolInformation]()
   doc.symbols.foreach(append)
