@@ -5,7 +5,11 @@ package scalafix.internal.v0
 import scala.meta._
 import scala.meta.internal.{semanticdb => s}
 
-case class DocumentIndex(val doc: s.TextDocument) {
+case class DocumentIndex(legacyIndex: LegacySemanticdbIndex) {
+  lazy val doc: s.TextDocument = {
+    legacyIndex.doc.internal.textDocument
+  }
+
   lazy val input: Input = {
     Input.VirtualFile(doc.uri, doc.text)
   }
@@ -27,14 +31,10 @@ case class DocumentIndex(val doc: s.TextDocument) {
   }
 
   lazy val symbols: DocumentSymbols = {
-    DocumentSymbols(doc)
+    DocumentSymbols(legacyIndex)
   }
 
   lazy val synthetics: Map[s.Range, s.Synthetic] = {
     doc.synthetics.map(synth => synth.range.get -> synth).toMap
-  }
-
-  def withText(text: String): DocumentIndex = {
-    DocumentIndex(doc.copy(text = text))
   }
 }

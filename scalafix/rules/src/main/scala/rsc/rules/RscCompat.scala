@@ -45,22 +45,36 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
 
   private def collectRewriteTargets(ctx: RuleCtx): List[RewriteTarget] = {
     val buf = List.newBuilder[RewriteTarget]
-    def loop(env: Env, tree: Tree): Unit = {
+    def loop(env: Env, tree: Tree): Env = {
       tree match {
         case Source(stats) =>
-          stats.foreach(loop(env, _))
-        case Pkg(_, stats) =>
-          stats.foreach(loop(env, _))
+          val rootScope = PackageScope(index.symbols, "_root_/")
+          val javaLangScope = ImporterScope(index.symbols, "java/lang/", List(Importee.Wildcard()))
+          val scalaScope = ImporterScope(index.symbols, "scala/", List(Importee.Wildcard()))
+          val predefScope = ImporterScope(index.symbols, "scala/Predef.", List(Importee.Wildcard()))
+          val env1 = predefScope :: scalaScope :: javaLangScope :: rootScope :: env
+          stats.foldLeft(env1)(loop)
+        case Import(importers) =>
+          importers.foldLeft(env)(loop)
+        case Importer(ref, importees) =>
+          return ImporterScope(index.symbols, ref.name.symbol.get.syntax, importees) :: env
+        case Pkg(ref, stats) =>
+          val env1 = PackageScope(index.symbols, ref.name.symbol.get.syntax) :: env
+          stats.foldLeft(env1)(loop)
         case Pkg.Object(_, name, templ) =>
-          loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
+          val env1 = TemplateScope(index.symbols, name.symbol.get.syntax) :: env
+          loop(env1, templ)
         case defn @ Defn.Class(_, name, _, _, templ) if defn.isVisible =>
-          loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
+          val env1 = TemplateScope(index.symbols, name.symbol.get.syntax) :: env
+          loop(env1, templ)
         case defn @ Defn.Trait(_, name, _, _, templ) if defn.isVisible =>
-          loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
+          val env1 = TemplateScope(index.symbols, name.symbol.get.syntax) :: env
+          loop(env1, templ)
         case defn @ Defn.Object(_, name, templ) if defn.isVisible =>
-          loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
+          val env1 = TemplateScope(index.symbols, name.symbol.get.syntax) :: env
+          loop(env1, templ)
         case Template(early, _, _, stats) =>
-          (early ++ stats).foreach(loop(env, _))
+          (early ++ stats).foldLeft(env)(loop)
         case defn @ InferredDefnField(name, body) if defn.isVisible =>
           val before = name.tokens.head
           val after = name.tokens.last
@@ -99,6 +113,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
         case _ =>
           ()
       }
+      env
     }
     loop(Env(Nil), ctx.tree)
     buf.result
@@ -132,7 +147,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
                     val details = other.asMessage.toProtoString
                     sys.error(s"unsupported outline: $details")
                 }
-                val printer = new SemanticdbPrinter(target.env, index)
+                val printer = new SemanticdbPrinter(target.env, index, config)
                 printer.pprint(returnType)
                 printer.toString
             }

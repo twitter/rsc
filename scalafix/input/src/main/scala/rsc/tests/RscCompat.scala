@@ -1,5 +1,6 @@
 /*
 rules = "scala:rsc.rules.RscCompat"
+RscCompat.better = false
 RscCompat.hardcoded = {
   "rsc/tests/RscCompat_Test.Config.x.": "Int",
   "rsc/tests/RscCompat_Test.Config.y.": ""
@@ -124,7 +125,8 @@ object RscCompat_Test {
     val compoundType6 = new A with B { def k: Int = ??? }
     val compoundType7 = ??? : A with (List[T] forSome { type T }) with B
 
-    val annType1 = ??? : C @ann
+    // FIXME: https://github.com/twitter/rsc/issues/317
+    // val annType1 = ??? : C @ann
 
     val existentialType1 = ??? : T forSome { type T }
     val existentialType2 = ??? : List[_]

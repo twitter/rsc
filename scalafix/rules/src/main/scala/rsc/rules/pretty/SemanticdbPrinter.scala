@@ -5,15 +5,17 @@ package rsc.rules.pretty
 
 import rsc.lexis.scala._
 import rsc.pretty._
+import rsc.rules._
 import rsc.rules.semantics._
 import scala.collection.mutable
 import scala.meta._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
+import scala.meta.internal.semanticdb.Scala.{Names => n}
 import scalafix.internal.v0._
 
-class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
+class SemanticdbPrinter(env: Env, index: DocumentIndex, config: RscCompatConfig) extends Printer {
   def pprint(tree: s.Tree): Unit = tree match {
     case s.OriginalTree(range) =>
       str(index.substring(range).get)
@@ -97,21 +99,38 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
             str(" => ")
             normal(ret)
           } else {
-            val prettyPre = if (pre == s.NoType) sym.trivialPrefix(env) else pre
-            prettyPre match {
-              case _: s.SingleType | _: s.ThisType | _: s.SuperType =>
-                prefix(prettyPre)
-                str(".")
-              case s.NoType =>
-                ()
-              case _ =>
-                prefix(prettyPre)
-                str("#")
+            // TODO: At the moment, we return None for local symbols, since they don't have a desc.
+            // The logic to improve on this is left for future work.
+            val name = sym.desc match {
+              case d.Term(value) => Some(n.TermName(value))
+              case d.Type(value) => Some(n.TypeName(value))
+              case d.Package(value) => Some(n.TermName(value))
+              case d.Parameter(value) => Some(n.TermName(value))
+              case d.TypeParameter(value) => Some(n.TypeName(value))
+              case other => None
+            }
+            // TODO: If the lookup returns NoSymbol, we can insert an import and skip the prefix.
+            // The logic to implement this is left for future work.
+            if (config.better && name.map(env.lookup) == Some(sym)) {
+              ()
+            } else {
+              val prettyPre = if (pre == s.NoType) sym.trivialPrefix(env) else pre
+              prettyPre match {
+                case _: s.SingleType | _: s.ThisType | _: s.SuperType =>
+                  prefix(prettyPre)
+                  str(".")
+                case s.NoType =>
+                  ()
+                case _ =>
+                  prefix(prettyPre)
+                  str("#")
+              }
             }
             pprint(sym)
             rep("[", args, ", ", "]")(normal)
           }
         case s.SingleType(pre, sym) =>
+          // TODO: Also check for config.better.
           val prettyPre = if (pre == s.NoType) sym.trivialPrefix(env) else pre
           opt(prettyPre, ".")(prefix)
           pprint(sym)
