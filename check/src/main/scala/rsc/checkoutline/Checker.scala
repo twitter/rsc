@@ -156,6 +156,10 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
           val pss1 = List(Scope())
           info1 = info1.update(_.signature := MethodSignature(tps, pss1, ret))
         }
+        // FIXME: https://github.com/twitter/rsc/issues/258
+        if (info.symbol.contains("$default$")) {
+          info1 = info1.update(_.signature := NoSignature)
+        }
       case _ =>
         ()
     }
