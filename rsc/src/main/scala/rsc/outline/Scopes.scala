@@ -255,28 +255,26 @@ final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
     crash(this)
   }
 
-  val _mappings: Map[String, String] = new LinkedHashMap[String, String]
-  var _wildcard: Boolean = false
-  tree.importees.foreach {
-    case ImporteeName(AmbigId(value)) =>
-      _mappings.put(value, value)
-    case ImporteeRename(AmbigId(from), AmbigId(to)) =>
-      _mappings.put(to, from)
-    case ImporteeUnimport(AmbigId(value)) =>
-      _mappings.put(value, null)
-    case ImporteeWildcard() =>
-      _wildcard = true
-  }
-
   private def remap(name: Name): Name = {
-    val value1 = {
-      val mapValue = _mappings.get(name.value)
-      if (_wildcard && (mapValue == null)) {
-        name.value
-      } else {
-        mapValue
+    def loop(importees: List[Importee]): String = {
+      importees match {
+        case ImporteeName(AmbigId(value)) :: rest =>
+          if (name.value == value) value
+          else loop(rest)
+        case ImporteeRename(AmbigId(from), AmbigId(to)) :: rest =>
+          if (name.value == from) null
+          else if (name.value == to) from
+          else loop(rest)
+        case ImporteeUnimport(AmbigId(value)) :: rest =>
+          if (name.value == value) null
+          else loop(rest)
+        case ImporteeWildcard() :: rest =>
+          name.value
+        case Nil =>
+          null
       }
     }
+    val value1 = loop(tree.importees)
     if (value1 != null) {
       name match {
         case _: TermName =>
