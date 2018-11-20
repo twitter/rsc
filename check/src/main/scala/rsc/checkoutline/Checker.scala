@@ -52,7 +52,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
           if (sym.desc.value == "equals" ||
               sym.desc.value == "hashCode" ||
               sym.desc.value == "toString" ||
-              sym.contains("#equals().(x$1)")) {
+              sym.contains("#equals(")) {
             // FIXME: https://github.com/twitter/rsc/issues/98
             ()
           } else {
