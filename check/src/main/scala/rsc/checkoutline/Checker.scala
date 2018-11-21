@@ -119,6 +119,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
       info1 = info1.copy(properties = info1.properties & ~p.DEFAULT.value)
     }
     // FIXME: https://github.com/scalameta/scalameta/issues/1492
+    // FIXME: https://github.com/twitter/rsc/issues/264
     info1 = info1.copy(properties = info1.properties & ~p.SYNTHETIC.value)
 
     info1.signature match {
@@ -164,7 +165,6 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         ()
     }
 
-    // NOTE: This is a no-op, provided here for the ease of experimentation.
     info1 = info1.copy(signature = highlevelPatch(info1.signature))
 
     // FIXME: https://github.com/twitter/rsc/issues/93
@@ -259,7 +259,10 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   }
 
   private def highlevelPatch(scope: Scope): Scope = {
-    scope
+    val index = Index(Map(), Map())
+    val symlinks1 = scope.symlinks
+    val hardlinks1 = scope.hardlinks.map(highlevelPatch(index, _))
+    Scope(symlinks1, hardlinks1)
   }
 
   private def highlevelPatch(ann: Annotation): Annotation = {
