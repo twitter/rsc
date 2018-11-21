@@ -261,7 +261,11 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   private def highlevelPatch(scope: Scope): Scope = {
     val index = Index(Map(), Map())
     val symlinks1 = scope.symlinks
-    val hardlinks1 = scope.hardlinks.map(highlevelPatch(index, _))
+    val hardlinks1 = scope.hardlinks.flatMap { hardlink =>
+      // FIXME: https://github.com/scalameta/scalameta/issues/1806
+      if (hardlink.displayName == "<refinement>") None
+      else Some(highlevelPatch(index, hardlink))
+    }
     Scope(symlinks1, hardlinks1)
   }
 
