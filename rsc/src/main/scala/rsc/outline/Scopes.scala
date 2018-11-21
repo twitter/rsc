@@ -135,8 +135,8 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
           if (existing != null) {
             val actual = {
               (existing.desc, sym.desc) match {
-                case (d.Term("package"), _: d.Package) => existing
-                case (_: d.Package, d.Term("package")) => sym
+                case (_: d.Package, d.Term("package")) => existing
+                case (d.Term("package"), _: d.Package) => sym
                 case _ => MultiSymbol(existing, sym)
               }
             }

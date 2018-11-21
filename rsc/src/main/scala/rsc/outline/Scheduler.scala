@@ -156,8 +156,13 @@ final class Scheduler private (
           }
         }
         outline.id match {
-          case id: NamedId => scope.enter(id.name, sym)
-          case id: AnonId => ()
+          case id: NamedId =>
+            outline match {
+              case _: DefnPackageObject => scope.enter(TermName("package"), sym)
+              case _ => scope.enter(id.name, sym)
+            }
+          case id: AnonId =>
+            ()
         }
         outline.id.sym = sym
         symtab._outlines.put(sym, outline)
