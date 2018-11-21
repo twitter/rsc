@@ -7,6 +7,7 @@ import rsc.classpath._
 import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
+import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 
 sealed abstract class Scope(val sym: Symbol) extends Work {
   def enter(name: Name, sym: Symbol): Symbol
@@ -132,7 +133,13 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
         case _ =>
           val existing = _storage.get(name)
           if (existing != null) {
-            val actual = MultiSymbol(existing, sym)
+            val actual = {
+              (existing.desc, sym.desc) match {
+                case (d.Term("package"), _: d.Package) => existing
+                case (_: d.Package, d.Term("package")) => sym
+                case _ => MultiSymbol(existing, sym)
+              }
+            }
             _storage.put(name, actual)
             existing
           } else {
