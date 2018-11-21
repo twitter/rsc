@@ -106,14 +106,29 @@ trait Tpts {
         case tpt: TptProject =>
           // FIXME: https://github.com/twitter/rsc/issues/91
           s.NoType
-        case TptRefine(tpt, stats) =>
-          // FIXME: https://github.com/twitter/rsc/issues/95
+        case refinementTpt @ TptRefine(tpt, stats) =>
           val tpe = tpt match {
             case Some(TptWith(tpts)) => s.WithType(tpts.map(_.tpe))
             case Some(tpt) => s.WithType(List(tpt.tpe))
             case None => s.NoType
           }
-          val decls = Some(s.Scope())
+          val decls = {
+            val scope = symtab._refinements.get(refinementTpt)
+            if (scope != null) {
+              val outlines = {
+                val maybeMultis = scope._storage.values.asScala.toList
+                val noMultis = maybeMultis.flatMap(_.asMulti)
+                noMultis.map { sym =>
+                  val outline = symtab._outlines.get(sym)
+                  if (outline == null) crash(sym)
+                  outline
+                }
+              }
+              Some(s.Scope(hardlinks = outlines.map(_.info)))
+            } else {
+              crash(refinementTpt)
+            }
+          }
           s.StructuralType(tpe, decls)
         case TptRepeat(tpt) =>
           s.RepeatedType(tpt.tpe)

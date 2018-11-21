@@ -100,7 +100,6 @@ final class Scheduler private (
             symtab._envs.put(sym, env)
         }
       case outline =>
-        val gensym = gensyms(outline)
         val sym = {
           if (scope.sym.isGlobal) {
             outline match {
@@ -131,16 +130,19 @@ final class Scheduler private (
               case outline: DefnType =>
                 TypeSymbol(scope.sym, outline.id.value)
               case outline: Param =>
+                val gensym = gensyms(outline)
                 outline.id match {
                   case AnonId() => ParamSymbol(scope.sym, gensym.anon())
                   case id: NamedId => ParamSymbol(scope.sym, id.value)
                 }
               case outline: PatVar =>
+                val gensym = gensyms(outline)
                 outline.id match {
                   case AnonId() => TermSymbol(scope.sym, gensym.anon())
                   case id: NamedId => TermSymbol(scope.sym, id.value)
                 }
               case outline: Self =>
+                val gensym = gensyms.global
                 LocalSymbol(gensym)
               case outline: TypeParam =>
                 outline.id match {
@@ -149,6 +151,7 @@ final class Scheduler private (
                 }
             }
           } else {
+            val gensym = gensyms.global
             LocalSymbol(gensym)
           }
         }

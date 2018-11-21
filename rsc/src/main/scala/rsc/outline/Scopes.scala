@@ -454,3 +454,11 @@ object ExistentialScope {
     new ExistentialScope()
   }
 }
+
+final class RefinementScope private () extends SourceScope(NoSymbol)
+
+object RefinementScope {
+  def apply(): RefinementScope = {
+    new RefinementScope()
+  }
+}

@@ -20,6 +20,7 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
   val _parents = new HashMap[DefnTemplate, List[Tpt]]
   val _inferred = new HashMap[Symbol, Tpt]
   val _existentials = new HashMap[TptExistential, ExistentialScope]
+  val _refinements = new HashMap[TptRefine, RefinementScope]
   val _infos = new HashMap[Symbol, s.SymbolInformation]
   val _toplevels = new LinkedList[Outline]
   val _statics = new HashSet[Symbol]

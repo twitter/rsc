@@ -327,9 +327,13 @@ final class Outliner private (
         apply(env, sketch, tpt: Path)
       case tpt: TptPrimitive =>
         ()
-      case TptRefine(tpt, stats) =>
-        // FIXME: https://github.com/twitter/rsc/issues/95
-        tpt.foreach(apply(env, sketch, _))
+      case refinementTpt @ TptRefine(tpt, stats) =>
+        val refinementScope = RefinementScope()
+        symtab._refinements.put(refinementTpt, refinementScope)
+        val refinementEnv = refinementScope :: env
+        stats.foreach(scheduler.apply(refinementEnv, _))
+        refinementScope.succeed()
+        tpt.foreach(apply(refinementEnv, sketch, _))
       case TptRepeat(tpt) =>
         apply(env, sketch, tpt)
       case TptWildcard(ubound, lbound) =>
