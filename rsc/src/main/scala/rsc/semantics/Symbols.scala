@@ -47,6 +47,7 @@ trait Symbols {
 
   def SelfSymbol(owner: Symbol): Symbol = {
     // FIXME: https://github.com/twitter/rsc/issues/261
+    // FIXME: https://github.com/scalameta/scalameta/issues/1808
     s"local${owner}=>"
   }
 

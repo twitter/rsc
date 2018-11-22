@@ -88,6 +88,7 @@ trait Prefixes {
         val outline = symtab._outlines.get(qual.id.sym)
         outline match {
           // FIXME: https://github.com/twitter/rsc/issues/261
+          // FIXME: https://github.com/scalameta/scalameta/issues/1808
           case _: Self => qual.id.sym.stripPrefix("local").stripSuffix("=>")
           case _ => qual.id.sym
         }
