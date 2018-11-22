@@ -86,8 +86,20 @@ trait Prefixes {
     val needsPrefix = {
       if (id.sym.owner != qual.id.sym) {
         id.sym.owner.desc match {
-          case d.Term("package") => id.sym.owner.owner != qual.id.sym
-          case _ => true
+          case d.Term("package") =>
+            id.sym.owner.owner != qual.id.sym
+          case _ =>
+            val outline = symtab._outlines.get(id.sym)
+            if (outline != null) {
+              !outline.hasStatic
+            } else {
+              if (symtab._index.contains(id.sym)) {
+                val info = symtab._index(id.sym)
+                !info.isStatic
+              } else {
+                crash(id.sym)
+              }
+            }
         }
       } else {
         false
