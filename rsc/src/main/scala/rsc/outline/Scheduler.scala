@@ -328,14 +328,13 @@ final class Scheduler private (
       case tree: DefnObject =>
         if (tree.hasCase) {
           synthesizer.caseObjectMembers(templateEnv, tree)
-        } else {
-          val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
-          companionClass match {
-            case caseClass: DefnClass if caseClass.hasCase =>
-              synthesizer.caseClassCompanionMembers(templateEnv, caseClass)
-            case _ =>
-              ()
-          }
+        }
+        val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
+        companionClass match {
+          case caseClass: DefnClass if caseClass.hasCase =>
+            synthesizer.caseClassCompanionMembers(templateEnv, caseClass)
+          case _ =>
+            ()
         }
       case _ =>
         ()
