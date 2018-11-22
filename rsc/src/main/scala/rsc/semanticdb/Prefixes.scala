@@ -84,10 +84,19 @@ trait Prefixes {
   // but that sounded overly specific and was incompatible with existing tree fields called qual.
   def prefix(qual: Path, id: Id): s.Type = {
     val needsPrefix = {
-      if (id.sym.owner != qual.id.sym) {
-        id.sym.owner.desc match {
+      val qualSym = {
+        val outline = symtab._outlines.get(qual.id.sym)
+        outline match {
+          // FIXME: https://github.com/twitter/rsc/issues/261
+          case _: Self => qual.id.sym.stripPrefix("local").stripSuffix("=>")
+          case _ => qual.id.sym
+        }
+      }
+      val ownerSym = id.sym.owner
+      if (qualSym != ownerSym) {
+        ownerSym.desc match {
           case d.Term("package") =>
-            id.sym.owner.owner != qual.id.sym
+            qualSym != ownerSym.owner
           case _ =>
             val outline = symtab._outlines.get(id.sym)
             if (outline != null) {
