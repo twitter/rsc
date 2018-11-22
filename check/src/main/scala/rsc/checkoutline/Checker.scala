@@ -163,6 +163,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         ds1 = ds1.filter(_.desc.value != "unapply")
         // FIXME: https://github.com/scalameta/scalameta/issues/1586
         ds1 = ds1.filter(!_.contains("#_$"))
+        // FIXME: https://github.com/scalameta/scalameta/issues/1586
+        ds1 = ds1.filter(!_.contains("._$"))
         val ndecls1 = Some(Scope(ds1))
         val nsig1 = ClassSignature(tps, ps1, self1, ndecls1)
         info1 = info1.update(_.signature := nsig1)
@@ -301,7 +303,10 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   private def lowlevelPatch(s: String): String = {
     var s1 = s
     s1 = s1.replaceAll("symbol: \"local(\\d+)\"", "symbol: \"localNNN\"")
+    // FIXME: https://github.com/scalameta/scalameta/issues/1586
     s1 = s1.replaceAll("symbol: \".*?#_\\$(\\d+)#\"", "symbol: \"localNNN\"")
+    // FIXME: https://github.com/scalameta/scalameta/issues/1586
+    s1 = s1.replaceAll("symbol: \".*?\\._\\$(\\d+)#\"", "symbol: \"localNNN\"")
     // FIXME: https://github.com/scalameta/scalameta/issues/1797
     s1 = s1.replaceAll("symbol: \"(.*)##\"", "symbol: \"$1.\"")
     val rxProperties = "properties: (-?\\d+)".r
@@ -334,7 +339,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   private class IndexOps(index: Index) {
     implicit class SymbolOps(sym: String) {
       def info: SymbolInformation = {
-        if (sym.contains("#_$")) {
+        if (sym.contains("#_$") || sym.contains("._$")) {
           // FIXME: https://github.com/scalameta/scalameta/issues/1586
           SymbolInformation(symbol = sym)
         } else if (sym.desc.isPackage) {
