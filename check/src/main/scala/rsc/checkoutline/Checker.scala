@@ -28,6 +28,9 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
               nscInfo.symbol == "com/twitter/util/StopwatchBenchmark.StopwatchState#elapsed.") {
             // FIXME: https://github.com/scalameta/scalameta/issues/1782
             ()
+          } else if (nscInfo.symbol == "com/twitter/finagle/util/StackRegistry.Entry.unapply().") {
+            // FIXME: https://github.com/twitter/rsc/issues/274
+            ()
           } else {
             val nscInfo1 = highlevelPatch(nscIndex, nscInfo)
             val rscInfo1 = highlevelPatch(rscIndex, rscInfo)
