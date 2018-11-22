@@ -204,15 +204,17 @@ final class Outliner private (
             case Self(_, Some(t)) => appendParent(env, t)
             case _ => ()
           }
-          val self = buf.result.filter(_.scope != scope)
-          val incompleteSelf = self.find(_.scope.status.isIncomplete)
-          incompleteSelf match {
-            case Some(incompleteSelf) =>
-              scope.block(incompleteSelf.scope)
-            case _ =>
-              scope.parents = parents.map(_.scope)
-              scope.self = self.map(_.scope)
-              scope.succeed()
+          if (scope.status.isPending) {
+            val self = buf.result.filter(_.scope != scope)
+            val incompleteSelf = self.find(_.scope.status.isIncomplete)
+            incompleteSelf match {
+              case Some(incompleteSelf) =>
+                scope.block(incompleteSelf.scope)
+              case _ =>
+                scope.parents = parents.map(_.scope)
+                scope.self = self.map(_.scope)
+                scope.succeed()
+            }
           }
       }
     }
