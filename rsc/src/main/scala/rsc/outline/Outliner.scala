@@ -560,7 +560,7 @@ final class Outliner private (
             tpt.id.sym match {
               case NoSymbol =>
                 // FIXME: https://github.com/twitter/rsc/issues/104
-                BlockedResolution(null)
+                BlockedResolution(Unknown())
               case sym =>
                 resolveScope(sym)
             }
