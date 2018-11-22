@@ -97,7 +97,7 @@ trait Prefixes {
                 val info = symtab._index(id.sym)
                 !info.isStatic
               } else {
-                crash(id.sym)
+                false
               }
             }
         }
