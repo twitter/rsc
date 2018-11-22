@@ -562,7 +562,7 @@ final class Outliner private (
                 // FIXME: https://github.com/twitter/rsc/issues/104
                 BlockedResolution(null)
               case sym =>
-                FoundResolution(sym)
+                resolveScope(sym)
             }
           case TptWildcardExistential(_, tpt) =>
             loop(tpt)
