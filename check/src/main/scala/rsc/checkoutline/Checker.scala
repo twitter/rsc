@@ -52,7 +52,9 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
           if (sym.desc.value == "equals" ||
               sym.desc.value == "hashCode" ||
               sym.desc.value == "toString" ||
-              sym.contains("#equals(")) {
+              sym.desc.value == "copy" ||
+              sym.contains("#equals(") ||
+              sym.contains("#copy")) {
             // FIXME: https://github.com/twitter/rsc/issues/98
             ()
           } else {
@@ -146,6 +148,10 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         ds1 = ds1.filter(_.desc.value != "hashCode")
         // FIXME: https://github.com/twitter/rsc/issues/98
         ds1 = ds1.filter(_.desc.value != "toString")
+        // FIXME: https://github.com/twitter/rsc/issues/98
+        ds1 = ds1.filter(_.desc.value != "copy")
+        // FIXME: https://github.com/twitter/rsc/issues/98
+        ds1 = ds1.filter(!_.desc.value.startsWith("copy$default$"))
         // FIXME: https://github.com/scalameta/scalameta/issues/1586
         ds1 = ds1.filter(!_.contains("#_$"))
         val ndecls1 = Some(Scope(ds1))
