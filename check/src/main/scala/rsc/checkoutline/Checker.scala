@@ -53,8 +53,14 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
               sym.desc.value == "hashCode" ||
               sym.desc.value == "toString" ||
               sym.desc.value == "copy" ||
+              sym.desc.value == "canEqual" ||
+              sym.desc.value == "apply" ||
+              sym.desc.value == "unapply" ||
               sym.contains("#equals(") ||
-              sym.contains("#copy")) {
+              sym.contains("#copy") ||
+              sym.contains("#canEqual") ||
+              sym.contains(".apply") ||
+              sym.contains(".unapply")) {
             // FIXME: https://github.com/twitter/rsc/issues/98
             ()
           } else {
@@ -152,6 +158,12 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         ds1 = ds1.filter(_.desc.value != "copy")
         // FIXME: https://github.com/twitter/rsc/issues/98
         ds1 = ds1.filter(!_.desc.value.startsWith("copy$default$"))
+        // FIXME: https://github.com/twitter/rsc/issues/98
+        ds1 = ds1.filter(_.desc.value != "canEqual")
+        // FIXME: https://github.com/twitter/rsc/issues/98
+        ds1 = ds1.filter(_.desc.value != "apply")
+        // FIXME: https://github.com/twitter/rsc/issues/98
+        ds1 = ds1.filter(_.desc.value != "unapply")
         // FIXME: https://github.com/scalameta/scalameta/issues/1586
         ds1 = ds1.filter(!_.contains("#_$"))
         val ndecls1 = Some(Scope(ds1))
