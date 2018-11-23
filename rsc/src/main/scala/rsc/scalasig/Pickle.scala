@@ -25,7 +25,7 @@ import scala.reflect.NameTransformer
 class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: String) {
   private val entries = Entries()
   private val gensym = Gensym()
-  private var owners = Owners()
+  private val owners = Owners()
 
   private def emitName(name: Name): Ref = {
     entries.getOrElseUpdate(NameKey(name))(name)
@@ -101,6 +101,8 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
               emitSym(sowner, RefMode)
             } else if (ssym.isExistential) {
               emitSym(owners.sexistentialOwner, RefMode)
+            } else if (ssym.isStructural) {
+              emitSym(owners.sstructuralOwner, RefMode)
             } else {
               crash(ssym)
             }
@@ -231,6 +233,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
             case RefinedSig(sparents, ssym) =>
               val sym = emitSym(ssym, RefMode)
               val parents = sparents.map(emitTpe)
+              emitScope(ssym.sdecls)
               RefinedType(sym, parents)
             case NullaryMethodSig(stpe) =>
               val ret = emitTpe(stpe)
@@ -284,24 +287,29 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
           val lit = emitLiteral(sconst.value.get)
           ConstantType(lit)
         case stpe @ s.StructuralType(sret, sdecls) =>
-          val srefinement = Transients.srefinement(stpe)
-          mtab(srefinement.symbol) = srefinement
-          val sym = emitEmbeddedSym(srefinement.symbol, RefMode)
-          val parents = {
-            sret match {
-              case s.WithType(sparents) => sparents.toList.map(emitTpe)
-              case sparent => List(emitTpe(sparent))
+          owners.inStructuralType(stpe) {
+            val srefinement = Transients.srefinement(stpe)
+            mtab(srefinement.symbol) = srefinement
+            val sym = emitEmbeddedSym(srefinement.symbol, RefMode)
+            val parents = {
+              sret match {
+                case s.NoType => List(emitTpe(s.TypeRef(s.NoType, AnyRefClass, Nil)))
+                case s.WithType(sparents) => sparents.toList.map(emitTpe)
+                case sparent => List(emitTpe(sparent))
+              }
             }
+            RefinedType(sym, parents)
           }
-          RefinedType(sym, parents)
         case s.AnnotatedType(sannots, sret) =>
           val ret = emitTpe(sret)
           val annots = sannots.toList.map(emitAnnotInfo)
           AnnotatedType(ret, annots)
-        case s.ExistentialType(sret, sdecls) =>
-          val decls = emitScope(sdecls)
-          val ret = emitTpe(sret)
-          ExistentialType(ret, decls)
+        case stpe @ s.ExistentialType(sret, sdecls) =>
+          owners.inExistentialType(stpe) {
+            val decls = emitScope(sdecls)
+            val ret = emitTpe(sret)
+            ExistentialType(ret, decls)
+          }
         case s.ByNameType(sret) =>
           val pre = emitPre(ByNameClass.spre)
           val sym = emitSym(ByNameClass, RefMode)
@@ -422,8 +430,13 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
         mtab.get(ssym) match {
           case Some(sinfo) =>
             if (ssym.isExistential) {
-              // FIXME: https://github.com/twitter/rsc/issues/94
               TypeName(gensym.wildcardExistential())
+            } else if (ssym.isStructural) {
+              sinfo.kind match {
+                case k.METHOD => TermName(sinfo.displayName.encode)
+                case k.TYPE => TypeName(sinfo.displayName.encode)
+                case _ => crash(sinfo.toProtoString)
+              }
             } else {
               sinfo.kind match {
                 case k.LOCAL | k.FIELD | k.METHOD | k.CONSTRUCTOR | k.MACRO | k.PARAMETER |
@@ -545,16 +558,20 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     def isParamAccessor: Boolean = {
       ssym.name match {
         case TermName(value) if ssym.isField || ssym.isAccessor =>
-          val sparamName = TermName(value.stripSuffix(" ").stripSuffix("_$eq"))
-          val speers = ssym.owner.sdecls.symbols
-          val sprimaryCtor = speers.find(_.name == TermName("<init>"))
-          val sprimaryInfo = sprimaryCtor.flatMap(mtab.get).map(_.signature)
-          sprimaryInfo match {
-            case Some(s.MethodSignature(_, sctorParamss, _)) =>
-              val sctorParams = sctorParamss.flatMap(_.symbols)
-              sctorParams.exists(_.name == sparamName)
-            case _ =>
-              false
+          if (ssym.isGlobal) {
+            val sparamName = TermName(value.stripSuffix(" ").stripSuffix("_$eq"))
+            val speers = ssym.owner.sdecls.symbols
+            val sprimaryCtor = speers.find(_.name == TermName("<init>"))
+            val sprimaryInfo = sprimaryCtor.flatMap(mtab.get).map(_.signature)
+            sprimaryInfo match {
+              case Some(s.MethodSignature(_, sctorParamss, _)) =>
+                val sctorParams = sctorParamss.flatMap(_.symbols)
+                sctorParams.exists(_.name == sparamName)
+              case _ =>
+                false
+            }
+          } else {
+            false
           }
         case _ =>
           false
@@ -630,9 +647,10 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       mtab.contains(ssym) && mtab(ssym).displayName == "<refinement>"
     }
     def isExistential: Boolean = {
-      // FIXME: https://github.com/twitter/rsc/issues/94
-      // FIXME: https://github.com/twitter/rsc/issues/95
-      ssym.isLocal
+      owners.shardlinkOwner(ssym).isInstanceOf[s.ExistentialType]
+    }
+    def isStructural: Boolean = {
+      owners.shardlinkOwner(ssym).isInstanceOf[s.StructuralType]
     }
     def isJavaAnnotation: Boolean = {
       sinfo.signature match {
@@ -668,6 +686,12 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     def isScala: Boolean = {
       sinfo.isScala
     }
+    def isOverride: Boolean = {
+      sinfo.isOverride
+    }
+    def isAbsoverride: Boolean = {
+      sinfo.isAbsoverride
+    }
     def flags: Long = {
       var result = 0L
       if (ssym.isImplicit) result |= IMPLICIT
@@ -675,6 +699,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       if (ssym.isPrivate) result |= PRIVATE
       if (ssym.isProtected) result |= PROTECTED
       if (ssym.isSealed) result |= SEALED
+      if (ssym.isOverride) result |= OVERRIDE
       if (ssym.isCase) result |= CASE
       if (ssym.isAbstract) result |= ABSTRACT
       if (ssym.isDeferred) result |= DEFERRED
@@ -686,6 +711,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       if (ssym.isByNameParam) result |= BYNAMEPARAM
       if (ssym.isCovariant) result |= COVARIANT
       if (ssym.isContravariant) result |= CONTRAVARIANT
+      if (ssym.isAbsoverride) result |= ABSOVERRIDE
       if (ssym.isPrivateThis || ssym.isProtectedThis) result |= LOCAL
       if (ssym.isJava) result |= JAVA
       if (ssym.isSynthetic) result |= SYNTHETIC
@@ -817,10 +843,14 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
   }
 
   implicit class PropertyOps(val p: Property.type) {
+    val OVERRIDE = p.Unrecognized(0x20000000)
+    val ABSOVERRIDE = p.Unrecognized(0x40000000)
     val SYNTHETIC = p.Unrecognized(0x80000000)
   }
 
   implicit class SymbolInformationOps(val sinfo: s.SymbolInformation) {
+    def isOverride = (sinfo.properties & p.OVERRIDE.value) != 0
+    def isAbsoverride = (sinfo.properties & p.ABSOVERRIDE.value) != 0
     def isSynthetic = (sinfo.properties & p.SYNTHETIC.value) != 0
   }
 
@@ -832,6 +862,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       val stparamSyms = Some(s.Scope())
       val sparents = {
         stpe.tpe match {
+          case s.NoType => List(s.TypeRef(s.NoType, AnyRefClass, Nil))
           case s.WithType(sparents) => sparents.toList
           case sparent => List(sparent)
         }
@@ -1072,6 +1103,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
   private class Owners {
     private var stack: List[String] = Nil
     private var thisType: Boolean = false
+    private val hardlinks = mutable.Map[String, s.Type]()
 
     def inEmbeddedSym[T](ssym: String)(fn: => T): T = {
       val oldStack = stack
@@ -1089,6 +1121,20 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       thisType = true
       val result = fn
       thisType = oldThisType
+      result
+    }
+
+    def inExistentialType[T](stpe: s.ExistentialType)(fn: => T): T = {
+      val s.ExistentialType(_, Some(sscope)) = stpe
+      sscope.hardlinks.foreach(info => hardlinks(info.symbol) = stpe)
+      val result = fn
+      result
+    }
+
+    def inStructuralType[T](stpe: s.StructuralType)(fn: => T): T = {
+      val s.StructuralType(_, Some(sscope)) = stpe
+      sscope.hardlinks.foreach(info => hardlinks(info.symbol) = stpe)
+      val result = fn
       result
     }
 
@@ -1123,6 +1169,14 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       } else {
         result
       }
+    }
+
+    def sstructuralOwner: String = {
+      stack.find(_.isRefinement).get
+    }
+
+    def shardlinkOwner(ssym: String): s.Type = {
+      hardlinks.get(ssym).getOrElse(s.NoType)
     }
   }
 

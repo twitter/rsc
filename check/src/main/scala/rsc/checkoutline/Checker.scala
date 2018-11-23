@@ -129,6 +129,10 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
       // FIXME: https://github.com/twitter/rsc/issues/212
       info1 = info1.copy(properties = info1.properties & ~p.DEFAULT.value)
     }
+    // FIXME: https://github.com/scalameta/scalameta/issues/1809
+    info1 = info1.copy(properties = info1.properties & ~p.OVERRIDE.value)
+    // FIXME: https://github.com/scalameta/scalameta/issues/1807
+    info1 = info1.copy(properties = info1.properties & ~p.ABSOVERRIDE.value)
     // FIXME: https://github.com/scalameta/scalameta/issues/1492
     // FIXME: https://github.com/twitter/rsc/issues/264
     info1 = info1.copy(properties = info1.properties & ~p.SYNTHETIC.value)
@@ -332,6 +336,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         if (has(p.PRIMARY)) buf += "PRIMARY"
         if (has(p.ENUM)) buf += "ENUM"
         if (has(p.DEFAULT)) buf += "DEFAULT"
+        if (has(p.OVERRIDE)) buf += "OVERRIDE"
+        if (has(p.ABSOVERRIDE)) buf += "ABSOVERRIDE"
         if (has(p.SYNTHETIC)) buf += "SYNTHETIC"
         s"properties: ${buf.result.mkString(" | ")}"
       }
