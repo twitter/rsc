@@ -117,6 +117,8 @@ trait Defns {
         case Param(_, _, _, Some(_)) => set(p.DEFAULT)
         case _ => ()
       }
+      if (outline.hasOverride && !outline.hasAbstract) set(p.OVERRIDE)
+      if (outline.hasOverride && outline.hasAbstract) set(p.ABSOVERRIDE)
       // FIXME: https://github.com/twitter/rsc/issues/98
       if (root.isSynthetic) set(p.SYNTHETIC)
       result

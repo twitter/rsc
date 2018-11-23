@@ -7,6 +7,8 @@ import scala.meta.internal.semanticdb.SymbolInformation._
 
 trait SemanticdbUtil {
   implicit class PropertyOps(val p: Property.type) {
+    val OVERRIDE = p.Unrecognized(0x20000000)
+    val ABSOVERRIDE = p.Unrecognized(0x40000000)
     val SYNTHETIC = p.Unrecognized(0x80000000)
   }
 

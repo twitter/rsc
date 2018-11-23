@@ -668,6 +668,12 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     def isScala: Boolean = {
       sinfo.isScala
     }
+    def isOverride: Boolean = {
+      sinfo.isOverride
+    }
+    def isAbsoverride: Boolean = {
+      sinfo.isAbsoverride
+    }
     def flags: Long = {
       var result = 0L
       if (ssym.isImplicit) result |= IMPLICIT
@@ -675,6 +681,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       if (ssym.isPrivate) result |= PRIVATE
       if (ssym.isProtected) result |= PROTECTED
       if (ssym.isSealed) result |= SEALED
+      if (ssym.isOverride) result |= OVERRIDE
       if (ssym.isCase) result |= CASE
       if (ssym.isAbstract) result |= ABSTRACT
       if (ssym.isDeferred) result |= DEFERRED
@@ -686,6 +693,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       if (ssym.isByNameParam) result |= BYNAMEPARAM
       if (ssym.isCovariant) result |= COVARIANT
       if (ssym.isContravariant) result |= CONTRAVARIANT
+      if (ssym.isAbsoverride) result |= ABSOVERRIDE
       if (ssym.isPrivateThis || ssym.isProtectedThis) result |= LOCAL
       if (ssym.isJava) result |= JAVA
       if (ssym.isSynthetic) result |= SYNTHETIC
@@ -817,10 +825,14 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
   }
 
   implicit class PropertyOps(val p: Property.type) {
+    val OVERRIDE = p.Unrecognized(0x20000000)
+    val ABSOVERRIDE = p.Unrecognized(0x40000000)
     val SYNTHETIC = p.Unrecognized(0x80000000)
   }
 
   implicit class SymbolInformationOps(val sinfo: s.SymbolInformation) {
+    def isOverride = (sinfo.properties & p.OVERRIDE.value) != 0
+    def isAbsoverride = (sinfo.properties & p.ABSOVERRIDE.value) != 0
     def isSynthetic = (sinfo.properties & p.SYNTHETIC.value) != 0
   }
 
