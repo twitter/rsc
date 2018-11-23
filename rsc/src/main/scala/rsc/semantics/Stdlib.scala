@@ -9,6 +9,7 @@ trait Stdlib {
   val AnyValClass: Symbol = "scala/AnyVal#"
   val ArrayClass: Symbol = "scala/Array#"
   val BooleanClass: Symbol = "scala/Boolean#"
+  val DeprecatedClass: Symbol = "scala/deprecated#"
   val EnumClass: Symbol = "java/lang/Enum#"
   def FunctionClass(params: Int): Symbol = "scala/Function" + params + "#"
   val IntClass: Symbol = "scala/Int#"
