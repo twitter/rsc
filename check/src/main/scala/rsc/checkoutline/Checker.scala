@@ -48,6 +48,9 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
           if (sym.contains("#_$")) {
             // FIXME: https://github.com/scalameta/scalameta/issues/1586
             ()
+          } else if (sym.contains("#protected$")) {
+            // FIXME: https://github.com/twitter/rsc/issues/100
+            ()
           } else {
             val header = s"${nscIndex1.anchors(sym)}: $sym"
             problems += MissingRscProblem(header)
@@ -173,6 +176,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         ds1 = ds1.filter(!_.contains("#_$"))
         // FIXME: https://github.com/scalameta/scalameta/issues/1586
         ds1 = ds1.filter(!_.contains("._$"))
+        // FIXME: https://github.com/twitter/rsc/issues/100
+        ds1 = ds1.filter(!_.contains("#protected$"))
         val ndecls1 = Some(Scope(ds1))
         val nsig1 = ClassSignature(tps, ps1, self1, ndecls1)
         info1 = info1.update(_.signature := nsig1)
