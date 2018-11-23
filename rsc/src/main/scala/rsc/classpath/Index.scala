@@ -57,7 +57,9 @@ final class Index private (entries: HashMap[Symbol, Entry]) extends AutoCloseabl
             val documents = s.TextDocuments.parseFrom(stream)
             documents.documents.foreach { document =>
               document.symbols.foreach { info =>
-                infos.put(info.symbol, info)
+                if (info.symbol.isGlobal) {
+                  infos.put(info.symbol, info)
+                }
               }
             }
           } finally {

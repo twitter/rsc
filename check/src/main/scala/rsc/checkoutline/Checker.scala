@@ -28,6 +28,9 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
               nscInfo.symbol == "com/twitter/util/StopwatchBenchmark.StopwatchState#elapsed.") {
             // FIXME: https://github.com/scalameta/scalameta/issues/1782
             ()
+          } else if (nscInfo.symbol == "com/twitter/finagle/util/StackRegistry.Entry.unapply().") {
+            // FIXME: https://github.com/twitter/rsc/issues/274
+            ()
           } else {
             val nscInfo1 = highlevelPatch(nscIndex, nscInfo)
             val rscInfo1 = highlevelPatch(rscIndex, rscInfo)
@@ -52,7 +55,15 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
           if (sym.desc.value == "equals" ||
               sym.desc.value == "hashCode" ||
               sym.desc.value == "toString" ||
-              sym.contains("#equals().(x$1)")) {
+              sym.desc.value == "copy" ||
+              sym.desc.value == "canEqual" ||
+              sym.desc.value == "apply" ||
+              sym.desc.value == "unapply" ||
+              sym.contains("#equals(") ||
+              sym.contains("#copy") ||
+              sym.contains("#canEqual") ||
+              sym.contains(".apply") ||
+              sym.contains(".unapply")) {
             // FIXME: https://github.com/twitter/rsc/issues/98
             ()
           } else {
@@ -115,11 +126,11 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
       info1 = info1.copy(properties = info1.properties & ~p.VAL.value)
       info1 = info1.copy(properties = info1.properties & ~p.VAR.value)
       // FIXME: https://github.com/scalameta/scalameta/issues/1762
-      if (info1.isJava) {
-        info1 = info1.copy(properties = info1.properties & ~p.DEFAULT.value)
-      }
+      // FIXME: https://github.com/twitter/rsc/issues/212
+      info1 = info1.copy(properties = info1.properties & ~p.DEFAULT.value)
     }
     // FIXME: https://github.com/scalameta/scalameta/issues/1492
+    // FIXME: https://github.com/twitter/rsc/issues/264
     info1 = info1.copy(properties = info1.properties & ~p.SYNTHETIC.value)
 
     info1.signature match {
@@ -130,11 +141,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
           case TypeRef(_, SerializableClass, _) => false
           case _ => true
         }
-        var self1 = self
         // FIXME: https://github.com/twitter/rsc/issues/120
-        if (info1.symbol == "com/twitter/util/TimeLike#") {
-          self1 = NoType
-        }
+        val self1 = NoType
         var ds1 = ds.symlinks
         // FIXME: https://github.com/scalameta/scalameta/issues/1548
         ds1 = ds1.sorted
@@ -146,8 +154,20 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         ds1 = ds1.filter(_.desc.value != "hashCode")
         // FIXME: https://github.com/twitter/rsc/issues/98
         ds1 = ds1.filter(_.desc.value != "toString")
+        // FIXME: https://github.com/twitter/rsc/issues/98
+        ds1 = ds1.filter(_.desc.value != "copy")
+        // FIXME: https://github.com/twitter/rsc/issues/98
+        ds1 = ds1.filter(!_.desc.value.startsWith("copy$default$"))
+        // FIXME: https://github.com/twitter/rsc/issues/98
+        ds1 = ds1.filter(_.desc.value != "canEqual")
+        // FIXME: https://github.com/twitter/rsc/issues/98
+        ds1 = ds1.filter(_.desc.value != "apply")
+        // FIXME: https://github.com/twitter/rsc/issues/98
+        ds1 = ds1.filter(_.desc.value != "unapply")
         // FIXME: https://github.com/scalameta/scalameta/issues/1586
         ds1 = ds1.filter(!_.contains("#_$"))
+        // FIXME: https://github.com/scalameta/scalameta/issues/1586
+        ds1 = ds1.filter(!_.contains("._$"))
         val ndecls1 = Some(Scope(ds1))
         val nsig1 = ClassSignature(tps, ps1, self1, ndecls1)
         info1 = info1.update(_.signature := nsig1)
@@ -157,11 +177,14 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
           val pss1 = List(Scope())
           info1 = info1.update(_.signature := MethodSignature(tps, pss1, ret))
         }
+        // FIXME: https://github.com/twitter/rsc/issues/258
+        if (info.symbol.contains("$default$")) {
+          info1 = info1.update(_.signature := NoSignature)
+        }
       case _ =>
         ()
     }
 
-    // NOTE: This is a no-op, provided here for the ease of experimentation.
     info1 = info1.copy(signature = highlevelPatch(info1.signature))
 
     // FIXME: https://github.com/twitter/rsc/issues/93
@@ -256,7 +279,14 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   }
 
   private def highlevelPatch(scope: Scope): Scope = {
-    scope
+    val index = Index(Map(), Map())
+    val symlinks1 = scope.symlinks
+    val hardlinks1 = scope.hardlinks.flatMap { hardlink =>
+      // FIXME: https://github.com/scalameta/scalameta/issues/1806
+      if (hardlink.displayName == "<refinement>") None
+      else Some(highlevelPatch(index, hardlink))
+    }
+    Scope(symlinks1, hardlinks1)
   }
 
   private def highlevelPatch(ann: Annotation): Annotation = {
@@ -276,7 +306,10 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   private def lowlevelPatch(s: String): String = {
     var s1 = s
     s1 = s1.replaceAll("symbol: \"local(\\d+)\"", "symbol: \"localNNN\"")
+    // FIXME: https://github.com/scalameta/scalameta/issues/1586
     s1 = s1.replaceAll("symbol: \".*?#_\\$(\\d+)#\"", "symbol: \"localNNN\"")
+    // FIXME: https://github.com/scalameta/scalameta/issues/1586
+    s1 = s1.replaceAll("symbol: \".*?\\._\\$(\\d+)#\"", "symbol: \"localNNN\"")
     // FIXME: https://github.com/scalameta/scalameta/issues/1797
     s1 = s1.replaceAll("symbol: \"(.*)##\"", "symbol: \"$1.\"")
     val rxProperties = "properties: (-?\\d+)".r
@@ -309,7 +342,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   private class IndexOps(index: Index) {
     implicit class SymbolOps(sym: String) {
       def info: SymbolInformation = {
-        if (sym.contains("#_$")) {
+        if (sym.contains("#_$") || sym.contains("._$")) {
           // FIXME: https://github.com/scalameta/scalameta/issues/1586
           SymbolInformation(symbol = sym)
         } else if (sym.desc.isPackage) {

@@ -100,7 +100,6 @@ final class Scheduler private (
             symtab._envs.put(sym, env)
         }
       case outline =>
-        val gensym = gensyms(outline)
         val sym = {
           if (scope.sym.isGlobal) {
             outline match {
@@ -131,17 +130,19 @@ final class Scheduler private (
               case outline: DefnType =>
                 TypeSymbol(scope.sym, outline.id.value)
               case outline: Param =>
+                val gensym = gensyms(outline)
                 outline.id match {
                   case AnonId() => ParamSymbol(scope.sym, gensym.anon())
                   case id: NamedId => ParamSymbol(scope.sym, id.value)
                 }
               case outline: PatVar =>
+                val gensym = gensyms(outline)
                 outline.id match {
                   case AnonId() => TermSymbol(scope.sym, gensym.anon())
                   case id: NamedId => TermSymbol(scope.sym, id.value)
                 }
               case outline: Self =>
-                LocalSymbol(gensym)
+                SelfSymbol(scope.sym)
               case outline: TypeParam =>
                 outline.id match {
                   case AnonId() => TypeParamSymbol(scope.sym, "_")
@@ -149,12 +150,18 @@ final class Scheduler private (
                 }
             }
           } else {
+            val gensym = gensyms.global
             LocalSymbol(gensym)
           }
         }
         outline.id match {
-          case id: NamedId => scope.enter(id.name, sym)
-          case id: AnonId => ()
+          case id: NamedId =>
+            outline match {
+              case _: DefnPackageObject => scope.enter(TermName("package"), sym)
+              case _ => scope.enter(id.name, sym)
+            }
+          case id: AnonId =>
+            ()
         }
         outline.id.sym = sym
         symtab._outlines.put(sym, outline)
@@ -320,14 +327,13 @@ final class Scheduler private (
       case tree: DefnObject =>
         if (tree.hasCase) {
           synthesizer.caseObjectMembers(templateEnv, tree)
-        } else {
-          val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
-          companionClass match {
-            case caseClass: DefnClass if caseClass.hasCase =>
-              synthesizer.caseClassCompanionMembers(templateEnv, caseClass)
-            case _ =>
-              ()
-          }
+        }
+        val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
+        companionClass match {
+          case caseClass: DefnClass if caseClass.hasCase =>
+            synthesizer.caseClassCompanionMembers(templateEnv, caseClass)
+          case _ =>
+            ()
         }
       case _ =>
         ()

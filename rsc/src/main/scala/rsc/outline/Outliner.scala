@@ -204,15 +204,17 @@ final class Outliner private (
             case Self(_, Some(t)) => appendParent(env, t)
             case _ => ()
           }
-          val self = buf.result.filter(_.scope != scope)
-          val incompleteSelf = self.find(_.scope.status.isIncomplete)
-          incompleteSelf match {
-            case Some(incompleteSelf) =>
-              scope.block(incompleteSelf.scope)
-            case _ =>
-              scope.parents = parents.map(_.scope)
-              scope.self = self.map(_.scope)
-              scope.succeed()
+          if (scope.status.isPending) {
+            val self = buf.result.filter(_.scope != scope)
+            val incompleteSelf = self.find(_.scope.status.isIncomplete)
+            incompleteSelf match {
+              case Some(incompleteSelf) =>
+                scope.block(incompleteSelf.scope)
+              case _ =>
+                scope.parents = parents.map(_.scope)
+                scope.self = self.map(_.scope)
+                scope.succeed()
+            }
           }
       }
     }
@@ -327,9 +329,13 @@ final class Outliner private (
         apply(env, sketch, tpt: Path)
       case tpt: TptPrimitive =>
         ()
-      case TptRefine(tpt, stats) =>
-        // FIXME: https://github.com/twitter/rsc/issues/95
-        tpt.foreach(apply(env, sketch, _))
+      case refinementTpt @ TptRefine(tpt, stats) =>
+        val refinementScope = RefinementScope()
+        symtab._refinements.put(refinementTpt, refinementScope)
+        val refinementEnv = refinementScope :: env
+        stats.foreach(scheduler.apply(refinementEnv, _))
+        refinementScope.succeed()
+        tpt.foreach(apply(refinementEnv, sketch, _))
       case TptRepeat(tpt) =>
         apply(env, sketch, tpt)
       case TptWildcard(ubound, lbound) =>
@@ -554,9 +560,9 @@ final class Outliner private (
             tpt.id.sym match {
               case NoSymbol =>
                 // FIXME: https://github.com/twitter/rsc/issues/104
-                BlockedResolution(null)
+                BlockedResolution(Unknown())
               case sym =>
-                FoundResolution(sym)
+                resolveScope(sym)
             }
           case TptWildcardExistential(_, tpt) =>
             loop(tpt)

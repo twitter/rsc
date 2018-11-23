@@ -20,6 +20,7 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
   val _parents = new HashMap[DefnTemplate, List[Tpt]]
   val _inferred = new HashMap[Symbol, Tpt]
   val _existentials = new HashMap[TptExistential, ExistentialScope]
+  val _refinements = new HashMap[TptRefine, RefinementScope]
   val _infos = new HashMap[Symbol, s.SymbolInformation]
   val _toplevels = new LinkedList[Outline]
   val _statics = new HashSet[Symbol]
@@ -37,7 +38,23 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
         scope
       } else {
         if (_index.contains(sym)) {
-          val scope = ClasspathScope(sym, _index)
+          def loop(tpe: s.Type): Symbol = {
+            tpe match {
+              case s.TypeRef(_, sym, _) => sym
+              case _ => crash(tpe.asMessage.toProtoString)
+            }
+          }
+          val info = _index.apply(sym)
+          val scopeSym = {
+            info.signature match {
+              case s.NoSignature if info.isPackage => sym
+              case _: s.ClassSignature => sym
+              case sig: s.MethodSignature if info.isVal => loop(sig.returnType)
+              case sig: s.TypeSignature => loop(sig.upperBound)
+              case sig => crash(info.toProtoString)
+            }
+          }
+          val scope = ClasspathScope(scopeSym, _index)
           scope.succeed()
           _scopes.put(sym, scope)
           scope

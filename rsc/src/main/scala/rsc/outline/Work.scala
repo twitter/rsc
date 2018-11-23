@@ -10,8 +10,6 @@ abstract class Work extends Pretty {
   var status: Status = PendingStatus
 
   def block(dep: Work): Unit = {
-    // FIXME: https://github.com/twitter/rsc/issues/104
-    if (dep == null) return
     status match {
       case PendingStatus =>
         dep.status match {
@@ -63,12 +61,17 @@ abstract class Work extends Pretty {
   def unblock(): Unit = {
     status match {
       case BlockedStatus(dep) =>
-        dep.status match {
-          case SucceededStatus =>
+        dep match {
+          case Unknown() =>
             status = PendingStatus
-          case other =>
-            status = PendingStatus
-            block(dep)
+          case _ =>
+            dep.status match {
+              case SucceededStatus =>
+                status = PendingStatus
+              case other =>
+                status = PendingStatus
+                block(dep)
+            }
         }
       case _ =>
         ()

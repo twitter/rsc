@@ -7,6 +7,7 @@ import rsc.classpath._
 import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
+import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 
 sealed abstract class Scope(val sym: Symbol) extends Work {
   def enter(name: Name, sym: Symbol): Symbol
@@ -132,7 +133,13 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
         case _ =>
           val existing = _storage.get(name)
           if (existing != null) {
-            val actual = MultiSymbol(existing, sym)
+            val actual = {
+              (existing.desc, sym.desc) match {
+                case (_: d.Package, d.Term("package")) => existing
+                case (d.Term("package"), _: d.Package) => sym
+                case _ => MultiSymbol(existing, sym)
+              }
+            }
             _storage.put(name, actual)
             existing
           } else {
@@ -255,28 +262,26 @@ final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
     crash(this)
   }
 
-  val _mappings: Map[String, String] = new LinkedHashMap[String, String]
-  var _wildcard: Boolean = false
-  tree.importees.foreach {
-    case ImporteeName(AmbigId(value)) =>
-      _mappings.put(value, value)
-    case ImporteeRename(AmbigId(from), AmbigId(to)) =>
-      _mappings.put(to, from)
-    case ImporteeUnimport(AmbigId(value)) =>
-      _mappings.put(value, null)
-    case ImporteeWildcard() =>
-      _wildcard = true
-  }
-
   private def remap(name: Name): Name = {
-    val value1 = {
-      val mapValue = _mappings.get(name.value)
-      if (_wildcard && (mapValue == null)) {
-        name.value
-      } else {
-        mapValue
+    def loop(importees: List[Importee]): String = {
+      importees match {
+        case ImporteeName(AmbigId(value)) :: rest =>
+          if (name.value == value) value
+          else loop(rest)
+        case ImporteeRename(AmbigId(from), AmbigId(to)) :: rest =>
+          if (name.value == from) null
+          else if (name.value == to) from
+          else loop(rest)
+        case ImporteeUnimport(AmbigId(value)) :: rest =>
+          if (name.value == value) null
+          else loop(rest)
+        case ImporteeWildcard() :: rest =>
+          name.value
+        case Nil =>
+          null
       }
     }
+    val value1 = loop(tree.importees)
     if (value1 != null) {
       name match {
         case _: TermName =>
@@ -454,5 +459,13 @@ final class ExistentialScope private () extends SourceScope(NoSymbol)
 object ExistentialScope {
   def apply(): ExistentialScope = {
     new ExistentialScope()
+  }
+}
+
+final class RefinementScope private () extends SourceScope(NoSymbol)
+
+object RefinementScope {
+  def apply(): RefinementScope = {
+    new RefinementScope()
   }
 }
