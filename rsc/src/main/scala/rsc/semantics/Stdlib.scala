@@ -14,7 +14,7 @@ trait Stdlib {
   val IntClass: Symbol = "scala/Int#"
   val IteratorClass: Symbol = "scala/collection/Iterator#"
   val JavaAnnotationClass: Symbol = "java/lang/annotation/Annotation#"
-  val JavaComparableClass: Symbol = "java/io/Comparable#"
+  val JavaComparableClass: Symbol = "java/lang/Comparable#"
   val JavaSerializableClass: Symbol = "java/io/Serializable#"
   val NothingClass: Symbol = "scala/Nothing#"
   val ObjectClass: Symbol = "java/lang/Object#"
