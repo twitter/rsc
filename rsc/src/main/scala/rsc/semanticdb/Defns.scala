@@ -72,9 +72,10 @@ trait Defns {
     def properties: Int = {
       var result = 0
       def set(prop: s.SymbolInformation.Property) = result |= prop.value
-      // FIXME: https://github.com/scalameta/scalameta/issues/1807
-      if ((outline.hasAbstract && !outline.hasOverride) || outline.hasInterface) set(p.ABSTRACT)
       outline match {
+        case outline: DefnClass if outline.hasInterface => set(p.ABSTRACT)
+        case outline: DefnClass if outline.hasTrait => ()
+        case outline: DefnClass if outline.hasAbstract => set(p.ABSTRACT)
         case outline: DefnField if outline.rhs.isEmpty && language != l.JAVA => set(p.ABSTRACT)
         case outline: DefnMethod if outline.rhs.isEmpty => set(p.ABSTRACT)
         case outline: DefnProcedure if outline.rhs.isEmpty => set(p.ABSTRACT)
