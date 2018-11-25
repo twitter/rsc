@@ -41,6 +41,7 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
           def loop(tpe: s.Type): Symbol = {
             tpe match {
               case s.TypeRef(_, sym, _) => sym
+              case s.SingleType(_, sym) => sym
               case _ => crash(tpe.asMessage.toProtoString)
             }
           }
