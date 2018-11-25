@@ -427,7 +427,12 @@ final class Scheduler private (
         val rootEnv = symtab.scopes(RootPackage) :: env
         val javaLangEnv = wildcardImport(TermSelect(TermId("java"), TermId("lang")), rootEnv)
         val scalaEnv = wildcardImport(TermId("scala"), javaLangEnv)
-        wildcardImport(TermSelect(TermId("scala"), TermId("Predef")), scalaEnv)
+        val needsPredef = tree.toplevelImporters.forall {
+          case Importer(_, TermSelect(TermId("scala"), TermId("Predef")), _) => false
+          case _ => true
+        }
+        if (needsPredef) wildcardImport(TermSelect(TermId("scala"), TermId("Predef")), scalaEnv)
+        else scalaEnv
       case JavaLanguage =>
         val rootEnv = symtab.scopes(RootPackage) :: env
         wildcardImport(TermSelect(TermId("java"), TermId("lang")), rootEnv)

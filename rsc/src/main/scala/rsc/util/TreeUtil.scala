@@ -63,4 +63,20 @@ trait TreeUtil {
       Mods(mods.trees.flatMap(fn))
     }
   }
+
+  implicit class TreeUtilSourceOps(source: Source) {
+    def toplevelImporters: List[Importer] = {
+      val buf = List.newBuilder[Importer]
+      def loop(tree: Tree): Unit = {
+        tree match {
+          case Source(stats) => stats.foreach(loop)
+          case DefnPackage(_, _, stats) => stats.foreach(loop)
+          case Import(importers) => buf ++= importers
+          case _ => ()
+        }
+      }
+      loop(source)
+      buf.result
+    }
+  }
 }
