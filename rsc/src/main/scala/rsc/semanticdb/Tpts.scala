@@ -87,7 +87,7 @@ trait Tpts {
                   outline
                 }
               }
-              Some(s.Scope(hardlinks = outlines.map(_.info)))
+              Some(outlines.scope(HardlinkChildren))
             } else {
               crash(existentialTpt)
             }
@@ -124,7 +124,7 @@ trait Tpts {
                   outline
                 }
               }
-              Some(s.Scope(hardlinks = outlines.map(_.info)))
+              Some(outlines.scope(HardlinkChildren))
             } else {
               crash(refinementTpt)
             }

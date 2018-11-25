@@ -17,14 +17,14 @@ trait Defns {
   self: Converter =>
 
   protected implicit class DefnOps(outline: Outline) {
-    def info: s.SymbolInformation = {
+    def info(linkMode: LinkMode): s.SymbolInformation = {
       s.SymbolInformation(
         symbol = outline.symbol,
         language = outline.language,
         kind = outline.kind,
         properties = outline.properties,
         displayName = outline.displayName,
-        signature = outline.signature,
+        signature = outline.signature(linkMode),
         annotations = outline.annotations,
         access = outline.access
       )
@@ -132,23 +132,23 @@ trait Defns {
       }
     }
 
-    def signature: s.Signature = {
+    def signature(linkMode: LinkMode): s.Signature = {
       val isCtor = outline.isInstanceOf[DefnCtor] || outline.isInstanceOf[PrimaryCtor]
       outline match {
         case outline: DefnConstant =>
           val tpe = s.TypeRef(s.NoType, outline.id.sym.owner, Nil)
           s.ValueSignature(tpe)
         case outline: DefnDef =>
-          val tparams = Some(s.Scope(outline.tparams.map(_.id.sym)))
+          val tparams = Some(outline.tparams.scope(linkMode))
           val paramss = {
             def isImplicit(xs: List[Param]) = xs match {
               case Nil => false
               case xs => xs.forall(_.hasImplicit)
             }
             if (isCtor && outline.desugaredParamss.forall(isImplicit)) {
-              s.Scope() +: outline.desugaredParamss.map(ps => s.Scope(ps.map(_.id.sym)))
+              s.Scope() +: outline.desugaredParamss.map(_.scope(linkMode))
             } else {
-              outline.desugaredParamss.map(ps => s.Scope(ps.map(_.id.sym)))
+              outline.desugaredParamss.map(_.scope(linkMode))
             }
           }
           val ret = {
@@ -186,7 +186,7 @@ trait Defns {
         case outline: DefnPackage =>
           s.NoSignature
         case outline: DefnTemplate =>
-          val tparams = Some(s.Scope(outline.tparams.map(_.id.sym)))
+          val tparams = Some(outline.tparams.scope(linkMode))
           val parents = outline.desugaredParents.map(_.tpe)
           val self = outline.self.flatMap(_.tpt).map(_.tpe).getOrElse(s.NoType)
           val decls = {
@@ -194,19 +194,20 @@ trait Defns {
               case scope: TemplateScope =>
                 val maybeMultis = scope._storage.values.asScala.toList
                 val noMultis = maybeMultis.flatMap(_.asMulti)
-                val eligibles = noMultis.filter { sym =>
+                val outlines = noMultis.map { sym =>
                   val outline = symtab._outlines.get(sym)
                   if (outline == null) crash(sym)
-                  outline.isEligible
+                  outline
                 }
-                Some(s.Scope(eligibles))
+                val eligibles = outlines.filter(_.isEligible)
+                Some(eligibles.scope(linkMode))
               case other =>
                 crash(other)
             }
           }
           s.ClassSignature(tparams, parents, self, decls)
         case outline: DefnType =>
-          val tparams = Some(s.Scope(outline.tparams.map(_.id.sym)))
+          val tparams = Some(outline.tparams.scope(linkMode))
           val lbound = outline.desugaredLbound
           val ubound = outline.desugaredUbound
           s.TypeSignature(tparams, lbound, ubound)
@@ -220,7 +221,7 @@ trait Defns {
           val tpe = outline.tpt.map(_.tpe)
           tpe.map(tpe => s.ValueSignature(tpe)).getOrElse(s.NoSignature)
         case outline: TypeParam =>
-          val tparams = Some(s.Scope(outline.tparams.map(_.id.sym)))
+          val tparams = Some(outline.tparams.scope(linkMode))
           val lbound = outline.desugaredLbound
           val ubound = outline.desugaredUbound
           s.TypeSignature(tparams, lbound, ubound)
