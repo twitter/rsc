@@ -153,16 +153,13 @@ final class Synthesizer private (
     val paramss = {
       val paramss = symtab._paramss.get(tree.primaryCtor.get)
       if (paramss != null) {
-        paramss match {
-          case List(List(param)) =>
-            val pos = param.id.pos
-            val id = TermId(param.id.valueopt.get).withPos(pos)
-            val tpt = param.tpt.map(_.dupe)
-            val methParam = Param(Mods(Nil), id, tpt, None)
-            List(List(methParam.withPos(param.pos)))
-          case _ =>
-            Nil
-        }
+        paramss.map(_.map { p =>
+          val mods = p.mods.filter(_.isInstanceOf[ModImplicit])
+          val pos = p.id.pos
+          val id = TermId(p.id.valueopt.get).withPos(pos)
+          val tpt = p.tpt.map(_.dupe)
+          Param(mods, id, tpt, None).withPos(p.pos)
+        })
       } else {
         crash(tree)
       }
