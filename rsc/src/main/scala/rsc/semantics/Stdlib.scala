@@ -8,6 +8,7 @@ trait Stdlib {
   val AnyRefClass: Symbol = "scala/AnyRef#"
   val AnyValClass: Symbol = "scala/AnyVal#"
   val ArrayClass: Symbol = "scala/Array#"
+  val BijectionClass: Symbol = "com/twitter/bijection/Bijection#"
   val BooleanClass: Symbol = "scala/Boolean#"
   val DeprecatedClass: Symbol = "scala/deprecated#"
   val EnumClass: Symbol = "java/lang/Enum#"

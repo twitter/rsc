@@ -175,7 +175,9 @@ trait Defns {
                     }
                     s.ConstantType(const)
                   case _ =>
-                    s.NoType
+                    val inferred = symtab._inferred.get(outline.id.sym)
+                    if (inferred != null) inferred.tpe
+                    else s.NoType
                 }
             }
           }

@@ -189,7 +189,29 @@ final class Scheduler private (
     val tparamEnv = tparams(defEnv, tree)
     synthesizer.paramss(env, tree)
     val paramEnv = paramss(tparamEnv, tree)
-    tree.ret.foreach(todo.add(paramEnv, _))
+    tree.ret match {
+      case Some(ret) =>
+        todo.add(paramEnv, ret)
+      case None =>
+        def infer(tpt: Tpt): Unit = {
+          symtab._inferred.put(tree.id.sym, tpt)
+          todo.add(paramEnv, tpt)
+        }
+        tree match {
+          case DefnMethod(mods, _, _, _, _, Some(rhs)) if mods.hasImplicit =>
+            rhs match {
+              case TermApplyType(TermId("implicitly"), List(tpt)) =>
+                infer(tpt)
+              case TermApplyType(TermSelect(TermId("Bijection"), TermId("connect")), tpts) =>
+                val bijection = TptId("Bijection").withSym(BijectionClass)
+                infer(TptParameterize(bijection, tpts))
+              case _ =>
+                ()
+            }
+          case _ =>
+            ()
+        }
+    }
     env
   }
 
