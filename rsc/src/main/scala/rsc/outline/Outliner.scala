@@ -424,7 +424,7 @@ final class Outliner private (
                   }
               }
             case TermSelect(qual, id) =>
-              reporter.append(IllegalOutline(qual))
+              reporter.append(IllegalOutline(path))
               ErrorResolution
             case TermSuper(qual, mix) =>
               // FIXME: https://github.com/twitter/rsc/issues/96
@@ -449,9 +449,38 @@ final class Outliner private (
                   qual.sym = qualSym
                   resolution
               }
+            case TptProject(qual: Path, id) =>
+              val resolution = loop(env, qual)
+              resolution match {
+                case _: BlockedResolution =>
+                  resolution
+                case _: FailedResolution =>
+                  resolution
+                case FoundResolution(qualSym) =>
+                  // FIXME: https://github.com/twitter/rsc/issues/91
+                  resolveScope(qualSym) match {
+                    case resolution: BlockedResolution =>
+                      resolution
+                    case resolution: FailedResolution =>
+                      resolution
+                    case FoundResolution(scopeSym) =>
+                      val env1 = Env(List(symtab.scopes(scopeSym)), env.lang)
+                      val resolution1 = env1.resolve(id.name)
+                      resolution1 match {
+                        case _: BlockedResolution =>
+                          resolution1
+                        case _: FailedResolution =>
+                          if (env1 == startingEnv) reporter.append(UnboundId(id))
+                          else reporter.append(UnboundMember(env1, id))
+                          resolution1
+                        case FoundResolution(sym) =>
+                          id.sym = sym
+                          resolution1
+                      }
+                  }
+              }
             case TptProject(qual, id) =>
-              // FIXME: https://github.com/twitter/rsc/issues/91
-              reporter.append(IllegalOutline(qual))
+              reporter.append(IllegalOutline(path))
               ErrorResolution
             case TptSelect(qual, id) =>
               val resolution = loop(env, qual)

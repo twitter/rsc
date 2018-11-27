@@ -103,7 +103,9 @@ trait Tpts {
           s.IntersectionType(tpts.map(_.tpe))
         case TptLong() =>
           s.TypeRef(s.NoType, "scala/Long#", Nil)
-        case tpt: TptProject =>
+        case TptProject(qual: Path, id) =>
+          s.TypeRef(prefix(qual, id), id.sym, Nil)
+        case TptProject(qual, id) =>
           // FIXME: https://github.com/twitter/rsc/issues/91
           s.NoType
         case refinementTpt @ TptRefine(tpt, stats) =>
