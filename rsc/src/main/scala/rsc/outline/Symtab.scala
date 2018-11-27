@@ -56,6 +56,7 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
                 case _: s.ClassSignature => sym
                 case sig: s.MethodSignature if info.isVal => loop(sig.returnType)
                 case sig: s.TypeSignature => loop(sig.upperBound)
+                case sig: s.ValueSignature => loop(sig.tpe)
                 case sig => crash(info.toProtoString)
               }
             }
