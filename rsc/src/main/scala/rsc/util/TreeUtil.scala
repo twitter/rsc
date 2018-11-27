@@ -79,4 +79,13 @@ trait TreeUtil {
       buf.result
     }
   }
+
+  implicit class TreeUtilOutlineOps(field: DefnField) {
+    def hasBean: Boolean = {
+      field.mods.trees.exists {
+        case ModAnnotation(Init(TptId("BeanProperty"), Nil)) => true
+        case _ => false
+      }
+    }
+  }
 }

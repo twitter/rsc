@@ -92,6 +92,17 @@ final class Scheduler private (
               ).withPos(outline.pos)
               apply(env, setter)
             }
+            if (outline.hasBean) {
+              // FIXME: https://github.com/twitter/rsc/issues/293
+              val beanGetter = DefnMethod(
+                outline.mods.filter(!_.isInstanceOf[ModVal]),
+                TermId("get" + outline.id.value.capitalize).withPos(outline.id.pos),
+                Nil,
+                List(List()),
+                outline.tpt.map(_.dupe),
+                outline.rhs.map(_.dupe)).withPos(outline.pos)
+              apply(env, beanGetter)
+            }
           case JavaLanguage =>
             val sym = TermSymbol(scope.sym, outline.id.value)
             scope.enter(outline.id.name, sym)
