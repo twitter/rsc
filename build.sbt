@@ -167,6 +167,15 @@ lazy val scalap = project
     mainClass := Some("scala.meta.cli.Scalap")
   )
 
+// TODO: This definition is currently broken, because scala-native support is not enabled here.
+lazy val toolsSie = crossProject(JVMPlatform, NativePlatform)
+  .crossType(CrossType.Pure)
+  .in(file("tools/sie"))
+  .dependsOn(rsc)
+  .settings(commonSettings)
+  .nativeSettings(nativeSettings)
+  .native
+
 lazy val tests = project
   .in(file("tests"))
   .dependsOn(check, rsc, scalap)

@@ -115,7 +115,7 @@ object Build extends AutoPlugin {
       lazy val publishSigned = command(projects.public.map(_ + "/publishSigned"))
       lazy val compile = "tests/test:compile"
       lazy val fastTest = "tests/fast:test"
-      lazy val slowTest = command("tests/slow:test")
+      lazy val slowTest = command("tests/slow:test", "tools/sie:test")
       lazy val scalafixTest = command(
         "scalafixTests/test",
         "scalafixOutput/compile"
