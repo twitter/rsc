@@ -100,7 +100,8 @@ final class Scheduler private (
                 Nil,
                 List(List()),
                 outline.tpt.map(_.dupe),
-                outline.rhs.map(_.dupe)).withPos(outline.pos)
+                outline.rhs.map(_.dupe)
+              ).withPos(outline.pos)
               apply(env, beanGetter)
             }
           case JavaLanguage =>
