@@ -25,7 +25,8 @@ import scala.reflect.NameTransformer
 class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: String) {
   private val entries = Entries()
   private val gensym = Gensym()
-  private val owners = Owners()
+  private val stack = Stack()
+  private val history = History()
 
   private def emitName(name: Name): Ref = {
     entries.getOrElseUpdate(NameKey(name))(name)
@@ -70,7 +71,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
   }
 
   def emitEmbeddedSym(ssym: String, smode: Mode): Ref = {
-    owners.inEmbeddedSym(ssym) {
+    stack.inEmbedded(ssym) { sowner =>
       if (ssym.isNone) {
         entries.getOrElseUpdate(RefKey(ssym))(NoSymbol)
       } else if ((ssym.isObject || ssym.isPackageObject) && smode.emitModules) {
@@ -79,7 +80,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
             case TypeName(value) => emitName(TermName(value))
             case other => crash(other.toString)
           }
-          val owner = emitSym(ssym.owner, RefMode)
+          val owner = emitSym(sowner, RefMode)
           val flags = ssym.flags
           val within = ssym.swithin.map(emitSym(_, RefMode))
           if (ssym.swithin.isEmpty) emitSym(Symbols.None, RefMode)
@@ -91,21 +92,8 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
         entries.getOrElseUpdate(RefKey(ssym)) {
           val name = emitName(ssym.name)
           val owner = {
-            if (ssym.isRefinement && ssym.owner.isRootPackage) {
-              emitSym(sroot1, ModuleRefMode)
-            } else if (ssym.isGlobal) {
-              var sowner = ssym.owner
-              if (ssym.isJava && ssym.isStatic) {
-                sowner = Symbols.Global(sowner.owner, d.Term(sowner.desc.value))
-              }
-              emitSym(sowner, RefMode)
-            } else if (ssym.isExistential) {
-              emitSym(owners.sexistentialOwner, RefMode)
-            } else if (ssym.isStructural) {
-              emitSym(owners.sstructuralOwner, RefMode)
-            } else {
-              crash(ssym)
-            }
+            if (ssym.isRefinement && sowner.isRootPackage) emitSym(sroot1, ModuleRefMode)
+            else emitSym(sowner, RefMode)
           }
           val flags = {
             val result = ssym.flags
@@ -122,7 +110,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
             AliasSymbol(name, owner, flags, within, info)
           } else if (ssym.isObject || ssym.isPackageObject ||
                      ssym.isClass || ssym.isInterface || ssym.isTrait) {
-            val thisType = owners.inThisType(ssym.sself.map(emitTpe))
+            val thisType = stack.inSelf(ssym.sself.map(emitTpe))
             ClassSymbol(name, owner, flags, within, info, thisType)
           } else if (ssym.isDef || ssym.isParam || ssym.isField) {
             // FIXME: https://github.com/twitter/rsc/issues/100
@@ -287,10 +275,8 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
           val lit = emitLiteral(sconst.value.get)
           ConstantType(lit)
         case stpe @ s.StructuralType(sret, sdecls) =>
-          owners.inStructuralType(stpe) {
-            val srefinement = Transients.srefinement(stpe)
-            mtab(srefinement.symbol) = srefinement
-            val sym = emitEmbeddedSym(srefinement.symbol, RefMode)
+          stack.inStructuralType(stpe) { srefinement =>
+            val sym = emitEmbeddedSym(srefinement, RefMode)
             val parents = {
               sret match {
                 case s.NoType => List(emitTpe(s.TypeRef(s.NoType, AnyRefClass, Nil)))
@@ -305,7 +291,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
           val annots = sannots.toList.map(emitAnnotInfo)
           AnnotatedType(ret, annots)
         case stpe @ s.ExistentialType(sret, sdecls) =>
-          owners.inExistentialType(stpe) {
+          stack.inExistentialType(stpe) {
             val decls = emitScope(sdecls)
             val ret = emitTpe(sret)
             ExistentialType(ret, decls)
@@ -431,20 +417,16 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
           case Some(sinfo) =>
             if (ssym.isExistential) {
               TypeName(gensym.wildcardExistential())
-            } else if (ssym.isStructural) {
-              sinfo.kind match {
-                case k.METHOD => TermName(sinfo.displayName.encode)
-                case k.TYPE => TypeName(sinfo.displayName.encode)
-                case _ => crash(sinfo.toProtoString)
-              }
             } else {
               sinfo.kind match {
                 case k.LOCAL | k.FIELD | k.METHOD | k.CONSTRUCTOR | k.MACRO | k.PARAMETER |
                     k.SELF_PARAMETER =>
-                  TermName(ssym.desc.value.encode)
+                  if (ssym.isLocal) TermName(sinfo.displayName.encode)
+                  else TermName(ssym.desc.value.encode)
                 case k.TYPE | k.TYPE_PARAMETER | k.OBJECT | k.PACKAGE_OBJECT | k.CLASS | k.TRAIT |
                     k.INTERFACE =>
-                  TypeName(ssym.desc.value.encode)
+                  if (ssym.isLocal) TermName(sinfo.displayName.encode)
+                  else TypeName(ssym.desc.value.encode)
                 case _ =>
                   crash(sinfo.toProtoString)
               }
@@ -647,10 +629,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       mtab.contains(ssym) && mtab(ssym).displayName == "<refinement>"
     }
     def isExistential: Boolean = {
-      owners.shardlinkOwner(ssym).isInstanceOf[s.ExistentialType]
-    }
-    def isStructural: Boolean = {
-      owners.shardlinkOwner(ssym).isInstanceOf[s.StructuralType]
+      history.isExistential(ssym)
     }
     def isJavaAnnotation: Boolean = {
       sinfo.signature match {
@@ -856,8 +835,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
 
   private val scaseAccessors = mutable.Set[String]()
   object Transients {
-    def srefinement(stpe: s.StructuralType): s.SymbolInformation = {
-      val sowner = owners.srefinementOwner
+    def srefinement(sowner: String, stpe: s.StructuralType): s.SymbolInformation = {
       val ssym = Symbols.Global(sowner, d.Type(gensym.refinement()))
       val stparamSyms = Some(s.Scope())
       val sparents = {
@@ -1100,89 +1078,97 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     }
   }
 
-  private class Owners {
-    private var stack: List[String] = Nil
-    private var thisType: Boolean = false
-    private val hardlinks = mutable.Map[String, s.Type]()
+  private class Stack {
+    private var syms = List.empty[String]
+    private var self = false
 
-    def inEmbeddedSym[T](ssym: String)(fn: => T): T = {
-      val oldStack = stack
-      val oldThisType = thisType
-      stack = ssym :: stack
-      thisType = false
-      val result = fn
-      stack = oldStack
-      thisType = oldThisType
-      result
-    }
-
-    def inThisType[T](fn: => T): T = {
-      val oldThisType = thisType
-      thisType = true
-      val result = fn
-      thisType = oldThisType
+    def inEmbedded[T](ssym: String)(fn: String => T): T = {
+      val oldSyms = syms
+      val oldSelf = self
+      syms = ssym :: syms
+      self = false
+      val sowner = {
+        if (ssym.isGlobal) {
+          val sowner = ssym.owner
+          if (ssym.isJava && ssym.isStatic) Symbols.Global(sowner.owner, d.Term(sowner.desc.value))
+          else sowner
+        } else {
+          oldSyms.head
+        }
+      }
+      val result = fn(sowner)
+      syms = oldSyms
+      self = oldSelf
       result
     }
 
     def inExistentialType[T](stpe: s.ExistentialType)(fn: => T): T = {
       val s.ExistentialType(_, Some(sscope)) = stpe
-      sscope.hardlinks.foreach(info => hardlinks(info.symbol) = stpe)
+      sscope.hardlinks.foreach(history.markExistential)
+      val sowner = {
+        val result = syms.find(!_.isRefinement).get
+        if (result.isGetter) {
+          val info = Transients.svalField(result)
+          mtab(info.symbol) = info
+          info.symbol
+        } else if (result.isSetter) {
+          val info = Transients.svarField(result)
+          mtab(info.symbol) = info
+          info.symbol
+        } else if (result.isParam && result.owner.isSetter) {
+          val info = Transients.svarField(result.owner)
+          mtab(info.symbol) = info
+          info.symbol
+        } else {
+          result
+        }
+      }
+      inEmbedded(sowner)(_ => fn)
+    }
+
+    def inSelf[T](fn: => T): T = {
+      val oldSelf = self
+      self = true
       val result = fn
+      self = oldSelf
       result
     }
 
-    def inStructuralType[T](stpe: s.StructuralType)(fn: => T): T = {
-      val s.StructuralType(_, Some(sscope)) = stpe
-      sscope.hardlinks.foreach(info => hardlinks(info.symbol) = stpe)
-      val result = fn
-      result
-    }
-
-    def srefinementOwner: String = {
-      if (thisType) {
-        Symbols.RootPackage
-      } else {
-        stack.find { ssym =>
-          ssym.ssig match {
-            case PolySig(_, ClassSig(_, _)) => true
-            case ClassSig(_, _) => true
-            case _ => false
-          }
-        }.get
+    def inStructuralType[T](stpe: s.StructuralType)(fn: String => T): T = {
+      val sowner = {
+        if (self) {
+          Symbols.RootPackage
+        } else {
+          syms.find { ssym =>
+            ssym.ssig match {
+              case PolySig(_, ClassSig(_, _)) => true
+              case ClassSig(_, _) => true
+              case _ => false
+            }
+          }.get
+        }
       }
-    }
-
-    def sexistentialOwner: String = {
-      val result = stack.tail.find(!_.isRefinement).get
-      if (result.isGetter) {
-        val info = Transients.svalField(result)
-        mtab(info.symbol) = info
-        info.symbol
-      } else if (result.isSetter) {
-        val info = Transients.svarField(result)
-        mtab(info.symbol) = info
-        info.symbol
-      } else if (result.isParam && result.owner.isSetter) {
-        val info = Transients.svarField(result.owner)
-        mtab(info.symbol) = info
-        info.symbol
-      } else {
-        result
-      }
-    }
-
-    def sstructuralOwner: String = {
-      stack.find(_.isRefinement).get
-    }
-
-    def shardlinkOwner(ssym: String): s.Type = {
-      hardlinks.get(ssym).getOrElse(s.NoType)
+      val srefinement = Transients.srefinement(sowner, stpe)
+      mtab(srefinement.symbol) = srefinement
+      fn(srefinement.symbol)
     }
   }
 
-  private object Owners {
-    def apply(): Owners = {
-      new Owners
+  private object Stack {
+    def apply(): Stack = {
+      new Stack
+    }
+  }
+
+  private class History {
+    private val existentials = mutable.Set[String]()
+    def markExistential(sinfo: s.SymbolInformation): Unit = existentials.add(sinfo.symbol)
+    def isExistential(ssym: String): Boolean = existentials.contains(ssym)
+  }
+
+  private object History {
+    def apply(): History = {
+      new History
     }
   }
 }

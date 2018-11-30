@@ -67,7 +67,10 @@ trait Templates {
           }
         }
         val rscParentSyms = rscParents.map(parentSym)
-        val scalacFirstParentSym = superClass(rscParentSyms)
+        val scalacFirstParentSym = rscParentSyms match {
+          case List(AnyClass) => AnyClass
+          case _ => superClass(rscParentSyms)
+        }
         val rscFirstParentSym = rscParentSyms.headOption.getOrElse(NoSymbol)
         if (scalacFirstParentSym != rscFirstParentSym) {
           val scalacFirstParent = {

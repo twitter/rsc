@@ -92,6 +92,18 @@ final class Scheduler private (
               ).withPos(outline.pos)
               apply(env, setter)
             }
+            if (outline.hasBean) {
+              // FIXME: https://github.com/twitter/rsc/issues/293
+              val beanGetter = DefnMethod(
+                outline.mods.filter(!_.isInstanceOf[ModVal]),
+                TermId("get" + outline.id.value.capitalize).withPos(outline.id.pos),
+                Nil,
+                List(List()),
+                outline.tpt.map(_.dupe),
+                outline.rhs.map(_.dupe)
+              ).withPos(outline.pos)
+              apply(env, beanGetter)
+            }
           case JavaLanguage =>
             val sym = TermSymbol(scope.sym, outline.id.value)
             scope.enter(outline.id.name, sym)
@@ -189,7 +201,29 @@ final class Scheduler private (
     val tparamEnv = tparams(defEnv, tree)
     synthesizer.paramss(env, tree)
     val paramEnv = paramss(tparamEnv, tree)
-    tree.ret.foreach(todo.add(paramEnv, _))
+    tree.ret match {
+      case Some(ret) =>
+        todo.add(paramEnv, ret)
+      case None =>
+        def infer(tpt: Tpt): Unit = {
+          symtab._inferred.put(tree.id.sym, tpt)
+          todo.add(paramEnv, tpt)
+        }
+        tree match {
+          case DefnMethod(mods, _, _, _, _, Some(rhs)) if mods.hasImplicit =>
+            rhs match {
+              case TermApplyType(TermId("implicitly"), List(tpt)) =>
+                infer(tpt)
+              case TermApplyType(TermSelect(TermId("Bijection"), TermId("connect")), tpts) =>
+                val bijection = TptId("Bijection").withSym(BijectionClass)
+                infer(TptParameterize(bijection, tpts))
+              case _ =>
+                ()
+            }
+          case _ =>
+            ()
+        }
+    }
     env
   }
 
@@ -427,7 +461,12 @@ final class Scheduler private (
         val rootEnv = symtab.scopes(RootPackage) :: env
         val javaLangEnv = wildcardImport(TermSelect(TermId("java"), TermId("lang")), rootEnv)
         val scalaEnv = wildcardImport(TermId("scala"), javaLangEnv)
-        wildcardImport(TermSelect(TermId("scala"), TermId("Predef")), scalaEnv)
+        val needsPredef = tree.toplevelImporters.forall {
+          case Importer(_, TermSelect(TermId("scala"), TermId("Predef")), _) => false
+          case _ => true
+        }
+        if (needsPredef) wildcardImport(TermSelect(TermId("scala"), TermId("Predef")), scalaEnv)
+        else scalaEnv
       case JavaLanguage =>
         val rootEnv = symtab.scopes(RootPackage) :: env
         wildcardImport(TermSelect(TermId("java"), TermId("lang")), rootEnv)

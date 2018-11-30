@@ -41,17 +41,24 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
           def loop(tpe: s.Type): Symbol = {
             tpe match {
               case s.TypeRef(_, sym, _) => sym
+              case s.SingleType(_, sym) => sym
               case _ => crash(tpe.asMessage.toProtoString)
             }
           }
           val info = _index.apply(sym)
           val scopeSym = {
-            info.signature match {
-              case s.NoSignature if info.isPackage => sym
-              case _: s.ClassSignature => sym
-              case sig: s.MethodSignature if info.isVal => loop(sig.returnType)
-              case sig: s.TypeSignature => loop(sig.upperBound)
-              case sig => crash(info.toProtoString)
+            if (sym == "scala/collection/convert/package.wrapAsScala.") {
+              // FIXME: https://github.com/twitter/rsc/issues/285
+              "scala/collection/convert/WrapAsScala#"
+            } else {
+              info.signature match {
+                case s.NoSignature if info.isPackage => sym
+                case _: s.ClassSignature => sym
+                case sig: s.MethodSignature if info.isVal => loop(sig.returnType)
+                case sig: s.TypeSignature => loop(sig.upperBound)
+                case sig: s.ValueSignature => loop(sig.tpe)
+                case sig => crash(info.toProtoString)
+              }
             }
           }
           val scope = ClasspathScope(scopeSym, _index)

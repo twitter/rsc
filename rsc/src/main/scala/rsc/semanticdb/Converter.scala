@@ -21,6 +21,7 @@ final class Converter private (
     with Modifiers
     with Params
     with Prefixes
+    with Scopes
     with Templates
     with Tpts {
   def isEligible: Boolean = {
@@ -28,7 +29,7 @@ final class Converter private (
   }
 
   def toSymbolInformation: s.SymbolInformation = {
-    root.info
+    root.info(SymlinkChildren)
   }
 }
 
