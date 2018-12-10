@@ -89,9 +89,6 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
         None
       }
     }
-    if (inputs.isEmpty) {
-      reporter.append(FilesNotFound())
-    }
   }
 
   private def index(): Unit = {
