@@ -45,7 +45,7 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex, config: RscCompatConfig)
             }
             // TODO: If the lookup returns NoSymbol, we can insert an import and skip the prefix.
             // The logic to implement this is left for future work.
-            if (config.better && name.map(env.lookup) == Some(sym)) {
+            if (config.better && name.exists(x => index.symbols.equivalent(env.lookup(x), sym))) {
               ()
             } else {
               val prettyPre = if (pre == s.NoType) sym.trivialPrefix(env) else pre
@@ -64,7 +64,7 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex, config: RscCompatConfig)
             rep("[", args, ", ", "]")(normal)
           }
         case s.SingleType(pre, sym) =>
-          if (config.better && env.lookup(sym.desc.name) == sym) {
+          if (config.better && index.symbols.equivalent(env.lookup(sym.desc.name), sym)) {
             str(sym.desc.value)
           } else {
             val prettyPre = if (pre == s.NoType) sym.trivialPrefix(env) else pre

@@ -55,7 +55,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
           val env1 = predefScope :: scalaScope :: javaLangScope :: rootScope :: env
           stats.foldLeft(env1)(loop)
         case Import(importers) =>
-          importers.foldLeft(env)(loop)
+          return importers.foldLeft(env)(loop)
         case Importer(ref, importees) =>
           return ImporterScope(index.symbols, ref.name.symbol.get.syntax, importees) :: env
         case Pkg(ref, stats) =>

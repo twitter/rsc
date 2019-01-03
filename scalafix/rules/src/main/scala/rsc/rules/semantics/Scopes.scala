@@ -25,7 +25,8 @@ sealed trait Scope {
   }
 }
 
-case class ImporterScope(symtab: Symtab, sym: String, importees: List[Importee]) extends Scope {
+final case class ImporterScope(symtab: Symtab, sym: String, importees: List[Importee])
+    extends Scope {
   private val mappings = mutable.Map[String, Option[String]]()
   private var wildcard = false
   importees.foreach {
@@ -53,7 +54,7 @@ case class ImporterScope(symtab: Symtab, sym: String, importees: List[Importee])
   }
 }
 
-case class PackageScope(symtab: Symtab, sym: String) extends Scope {
+final case class PackageScope(symtab: Symtab, sym: String) extends Scope {
   def lookup(name: n.Name): String = {
     member(symtab, sym, name)
   }
@@ -63,7 +64,7 @@ case class PackageScope(symtab: Symtab, sym: String) extends Scope {
   }
 }
 
-case class TemplateScope(symtab: Symtab, sym: String) extends Scope {
+final case class TemplateScope(symtab: Symtab, sym: String) extends Scope {
   def lookup(name: n.Name): String = {
     val s.ClassSignature(_, parents, self, _) = symtab.info(sym).get.signature
     // TODO: Also lookup in parents and self.
