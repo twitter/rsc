@@ -64,10 +64,13 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex, config: RscCompatConfig)
             rep("[", args, ", ", "]")(normal)
           }
         case s.SingleType(pre, sym) =>
-          // TODO: Also check for config.better.
-          val prettyPre = if (pre == s.NoType) sym.trivialPrefix(env) else pre
-          opt(prettyPre, ".")(prefix)
-          pprint(sym)
+          if (config.better && env.lookup(sym.desc.name) == sym) {
+            str(sym.desc.value)
+          } else {
+            val prettyPre = if (pre == s.NoType) sym.trivialPrefix(env) else pre
+            opt(prettyPre, ".")(prefix)
+            pprint(sym)
+          }
         case s.ThisType(sym) =>
           opt(sym, ".")(pprint)
           str("this")
