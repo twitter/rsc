@@ -140,12 +140,6 @@ final case class FileNotFound(input: Input) extends Message {
   def text = s"file not found"
 }
 
-final case class FilesNotFound() extends Message {
-  def sev = ErrorSeverity
-  def pos = Position(NoInput, NoOffset, NoOffset)
-  def text = s"nothing to compile"
-}
-
 final case class IllegalEllipsis(pos: Position) extends Message {
   def sev = FatalSeverity
   def text = "illegal ellipsis"
