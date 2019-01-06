@@ -5,7 +5,6 @@ package rsc.semanticdb
 import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
-import scala.collection.JavaConverters._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.{Language => l}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
@@ -78,14 +77,10 @@ trait Tpts {
           val decls = {
             val scope = symtab._existentials.get(existentialTpt)
             if (scope != null) {
-              val outlines = {
-                val maybeMultis = scope._storage.values.asScala.toList
-                val noMultis = maybeMultis.flatMap(_.asMulti)
-                noMultis.map { sym =>
-                  val outline = symtab._outlines.get(sym)
-                  if (outline == null) crash(sym)
-                  outline
-                }
+              val outlines = scope.decls.flatMap(_.asMulti).map { sym =>
+                val outline = symtab._outlines.get(sym)
+                if (outline == null) crash(sym)
+                outline
               }
               Some(outlines.scope(HardlinkChildren))
             } else {
@@ -117,14 +112,10 @@ trait Tpts {
           val decls = {
             val scope = symtab._refinements.get(refinementTpt)
             if (scope != null) {
-              val outlines = {
-                val maybeMultis = scope._storage.values.asScala.toList
-                val noMultis = maybeMultis.flatMap(_.asMulti)
-                noMultis.map { sym =>
-                  val outline = symtab._outlines.get(sym)
-                  if (outline == null) crash(sym)
-                  outline
-                }
+              val outlines = scope.decls.flatMap(_.asMulti).map { sym =>
+                val outline = symtab._outlines.get(sym)
+                if (outline == null) crash(sym)
+                outline
               }
               Some(outlines.scope(HardlinkChildren))
             } else {

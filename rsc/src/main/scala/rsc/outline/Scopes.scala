@@ -7,6 +7,7 @@ import rsc.classpath._
 import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
+import scala.collection.JavaConverters._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 
 sealed abstract class Scope(val sym: Symbol) extends Work {
@@ -123,7 +124,11 @@ sealed trait BinaryScope extends Scope {
 }
 
 sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
-  val _storage: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
+  private val impl: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
+
+  def decls: List[Symbol] = {
+    impl.values.asScala.toList
+  }
 
   override def enter(name: Name, sym: Symbol): Symbol = {
     if (status.isPending) {
@@ -131,7 +136,7 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
         case NoSymbol =>
           crash(name)
         case _ =>
-          val existing = _storage.get(name)
+          val existing = impl.get(name)
           if (existing != null) {
             val actual = {
               (existing.desc, sym.desc) match {
@@ -140,10 +145,10 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
                 case _ => MultiSymbol(existing, sym)
               }
             }
-            _storage.put(name, actual)
+            impl.put(name, actual)
             existing
           } else {
-            _storage.put(name, sym)
+            impl.put(name, sym)
             NoSymbol
           }
       }
@@ -154,7 +159,7 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
 
   override def resolve(name: Name): Resolution = {
     if (status.isSucceeded) {
-      val result = _storage.get(name)
+      val result = impl.get(name)
       if (result != null) {
         FoundResolution(result)
       } else {

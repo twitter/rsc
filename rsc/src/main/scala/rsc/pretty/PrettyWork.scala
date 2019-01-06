@@ -4,7 +4,6 @@ package rsc.pretty
 
 import rsc.outline._
 import rsc.util._
-import scala.collection.JavaConverters._
 
 object PrettyWork {
   def abbr(p: Printer, x: Work): Unit = {
@@ -49,11 +48,10 @@ object PrettyWork {
         p.str(" [...]")
       case x: SourceScope =>
         p.str(" [")
-        val storage = x._storage.asScala.toList.sortBy(_._1.str)
         val symbols = {
           x match {
-            case x: PackageScope => storage.map(_._2) :+ "..."
-            case _ => storage.map(_._2)
+            case x: PackageScope => x.decls :+ "..."
+            case _ => x.decls
           }
         }
         p.rep(symbols, ", ")(p.str)
