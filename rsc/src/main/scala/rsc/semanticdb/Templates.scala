@@ -48,10 +48,8 @@ trait Templates {
                     superClass(firstInfo.parents)
                   } else if (firstInfo.isType) {
                     val aliasShallow = firstInfo.signature match {
-                      case s.TypeSignature(_, _, s.TypeRef(_, sym, _)) =>
-                        sym
-                      case other =>
-                        crash(other.asMessage.toProtoString)
+                      case s.TypeSignature(_, _, s.TypeRef(_, sym, _)) => sym
+                      case other => crash(other.asMessage.toProtoString)
                     }
                     val aliasDeep = superClass(List(aliasShallow))
                     if (aliasShallow != aliasDeep) aliasDeep
