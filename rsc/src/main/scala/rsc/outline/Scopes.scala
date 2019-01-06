@@ -31,14 +31,14 @@ sealed abstract class Scope(val sym: Symbol) extends Work {
 sealed trait BinaryScope extends Scope {
   def _index: Index
 
-  val _loaded: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
+  private val loaded: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
   def _load(name: Name): Symbol = {
-    val loadedSym = _loaded.get(name)
+    val loadedSym = loaded.get(name)
     if (loadedSym != null) {
       loadedSym
     } else {
       val loadedSym = loadMember(sym, name)
-      _loaded.put(name, loadedSym)
+      loaded.put(name, loadedSym)
       loadedSym
     }
   }
