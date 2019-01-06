@@ -32,7 +32,7 @@ sealed trait BinaryScope extends Scope {
   def _index: Index
 
   private val loaded: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
-  def _load(name: Name): Symbol = {
+  protected def load(name: Name): Symbol = {
     val loadedSym = loaded.get(name)
     if (loadedSym != null) {
       loadedSym
@@ -176,7 +176,7 @@ final class ClasspathScope private (sym: Symbol, val _index: Index)
   }
 
   override def resolve(name: Name): Resolution = {
-    _load(name) match {
+    load(name) match {
       case NoSymbol =>
         MissingResolution
       case sym =>
@@ -198,7 +198,7 @@ final class PackageScope private (sym: Symbol, val _index: Index)
     super.resolve(name) match {
       case MissingResolution =>
         if (_index.contains(sym)) {
-          val loadedSym = _load(name)
+          val loadedSym = load(name)
           loadedSym match {
             case NoSymbol =>
               MissingResolution
