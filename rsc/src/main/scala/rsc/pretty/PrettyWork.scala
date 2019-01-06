@@ -34,7 +34,7 @@ object PrettyWork {
             p.str(x.parent2.sym)
           }
         case x: ClasspathScope =>
-          val info = x._index(x.sym)
+          val info = x.index(x.sym)
           p.str(" ")
           p.rep(info.parents ++ info.self, " with ")(sym => p.str(sym))
         case x: TemplateScope =>

@@ -29,7 +29,7 @@ sealed abstract class Scope(val sym: Symbol) extends Work {
 // ============ TWO FOUNDATIONAL SCOPES ============
 
 sealed trait BinaryScope extends Scope {
-  def _index: Index
+  def index: Index
 
   private val loaded: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
   protected def load(name: Name): Symbol = {
@@ -49,7 +49,7 @@ sealed trait BinaryScope extends Scope {
       return declSym
     }
 
-    val info = _index(owner)
+    val info = index(owner)
 
     // FIXME: https://github.com/twitter/rsc/issues/229.
     // Utilizing selfs is probably incorrect when doing lookups from Java,
@@ -66,9 +66,9 @@ sealed trait BinaryScope extends Scope {
     // but hopefully we'll rewrite the name resolution logic before this becomes a problem.
     if (info.isPackage) {
       val packageObjectSym = TermSymbol(owner, "package")
-      if (_index.contains(packageObjectSym)) {
+      if (index.contains(packageObjectSym)) {
         val packageObjectMemberSym = loadMember(packageObjectSym, name)
-        if (_index.contains(packageObjectMemberSym)) {
+        if (index.contains(packageObjectMemberSym)) {
           return packageObjectMemberSym
         }
       }
@@ -86,14 +86,14 @@ sealed trait BinaryScope extends Scope {
           TypeSymbol(owner, value)
       }
     }
-    if (_index.contains(declSym)) {
+    if (index.contains(declSym)) {
       return declSym
     }
 
     name match {
       case TermName(value) =>
         val packageSym = PackageSymbol(owner, value)
-        if (_index.contains(packageSym)) {
+        if (index.contains(packageSym)) {
           return packageSym
         }
 
@@ -101,7 +101,7 @@ sealed trait BinaryScope extends Scope {
         // This is accidentally correct when doing lookups from Java,
         // because Java programs don't have TermIds in reference roles.
         val javaDeclSym = TypeSymbol(owner, value)
-        if (_index.contains(javaDeclSym) && _index(javaDeclSym).isJava) {
+        if (index.contains(javaDeclSym) && index(javaDeclSym).isJava) {
           return javaDeclSym
         }
       case _ =>
@@ -111,7 +111,7 @@ sealed trait BinaryScope extends Scope {
     name match {
       case TypeName(value) if value.endsWith("$") =>
         val moduleSym = loadDecl(owner, TermName(value.stripSuffix("$")))
-        if (_index.contains(moduleSym)) {
+        if (index.contains(moduleSym)) {
           return moduleSym
         }
       case _ =>
@@ -168,7 +168,7 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
 
 // ============ BINARY SCOPES ============
 
-final class ClasspathScope private (sym: Symbol, val _index: Index)
+final class ClasspathScope private (sym: Symbol, val index: Index)
     extends Scope(sym)
     with BinaryScope {
   override def enter(name: Name, sym: Symbol): Symbol = {
@@ -191,13 +191,13 @@ object ClasspathScope {
   }
 }
 
-final class PackageScope private (sym: Symbol, val _index: Index)
+final class PackageScope private (sym: Symbol, val index: Index)
     extends SourceScope(sym)
     with BinaryScope {
   override def resolve(name: Name): Resolution = {
     super.resolve(name) match {
       case MissingResolution =>
-        if (_index.contains(sym)) {
+        if (index.contains(sym)) {
           val loadedSym = load(name)
           loadedSym match {
             case NoSymbol =>
