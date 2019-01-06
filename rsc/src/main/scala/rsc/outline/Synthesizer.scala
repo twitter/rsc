@@ -224,7 +224,7 @@ final class Synthesizer private (
       val tparams = {
         tree match {
           case _: DefnCtor | _: PrimaryCtor =>
-            val enclosingClass = env._scopes.collectFirst {
+            val enclosingClass = env.scopes.collectFirst {
               case x: TemplateScope if x.tree.isInstanceOf[DefnClass] => x.tree
             }
             enclosingClass.map(_.tparams).getOrElse(Nil)

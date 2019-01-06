@@ -6,7 +6,7 @@ import rsc.outline._
 
 object PrettyEnv {
   def str(p: Printer, x: Env): Unit = {
-    p.str(x._scopes)
+    p.str(x.scopes)
   }
 
   def repl(p: Printer, x: Env): Unit = {

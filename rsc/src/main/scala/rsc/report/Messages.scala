@@ -228,7 +228,7 @@ final case class AmbiguousMember(env: Env, id: Id, resolution: AmbiguousResoluti
   def sev = ErrorSeverity
   def pos = id.point
   def text = {
-    val qual = env._scopes.head.sym
+    val qual = env.scopes.head.sym
     id match {
       case AmbigId(value) => s"ambiguous: $qual$value (${resolution.syms.mkString(", ")})"
       case AnonId() => crash(id)
@@ -313,7 +313,7 @@ final case class UnboundMember(env: Env, id: Id) extends Message {
   def sev = ErrorSeverity
   def pos = id.point
   def text = {
-    val qual = env._scopes.head.sym
+    val qual = env.scopes.head.sym
     id match {
       case AmbigId(value) => s"unbound: $qual$value"
       case AnonId() => crash(id)

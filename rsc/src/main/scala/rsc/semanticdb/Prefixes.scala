@@ -69,7 +69,7 @@ trait Prefixes {
                     crash(id)
                 }
               }
-              loop(env._scopes)
+              loop(env.scopes)
             case other =>
               crash(other)
           }

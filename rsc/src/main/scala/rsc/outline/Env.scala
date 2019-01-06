@@ -9,33 +9,33 @@ import rsc.syntax._
 import rsc.util._
 import scala.annotation.tailrec
 
-sealed class Env protected (val _scopes: List[Scope], val lang: Language) extends Pretty {
+sealed class Env protected (val scopes: List[Scope], val lang: Language) extends Pretty {
   def owner: SourceScope = {
-    def loop(_scopes: List[Scope]): SourceScope = {
-      _scopes match {
+    def loop(scopes: List[Scope]): SourceScope = {
+      scopes match {
         case (head: SourceScope) :: _ => head
         case head :: tail => loop(tail)
         case Nil => crash(this)
       }
     }
-    loop(_scopes)
+    loop(scopes)
   }
 
   def outer: Env = {
-    _scopes match {
+    scopes match {
       case head :: tail => Env(tail, lang)
       case Nil => crash(this)
     }
   }
 
   def ::(scope: Scope): Env = {
-    Env(scope :: _scopes, lang)
+    Env(scope :: scopes, lang)
   }
 
   // FIXME: https://github.com/twitter/rsc/issues/229
   def resolve(name: Name): Resolution = {
-    @tailrec def loopTemplates(_scopes: List[Scope]): Resolution = {
-      _scopes match {
+    @tailrec def loopTemplates(scopes: List[Scope]): Resolution = {
+      scopes match {
         case (head: TemplateScope) :: tail =>
           head.resolve(name) match {
             case MissingResolution => loopTemplates(tail)
@@ -47,8 +47,8 @@ sealed class Env protected (val _scopes: List[Scope], val lang: Language) extend
           MissingResolution
       }
     }
-    @tailrec def loopPackages(_scopes: List[Scope]): Resolution = {
-      _scopes match {
+    @tailrec def loopPackages(scopes: List[Scope]): Resolution = {
+      scopes match {
         case (head: PackageScope) :: tail =>
           head.resolve(name) match {
             case MissingResolution => loopPackages(tail)
@@ -60,8 +60,8 @@ sealed class Env protected (val _scopes: List[Scope], val lang: Language) extend
           MissingResolution
       }
     }
-    @tailrec def loopOthers(_scopes: List[Scope]): Resolution = {
-      _scopes match {
+    @tailrec def loopOthers(scopes: List[Scope]): Resolution = {
+      scopes match {
         case head :: tail =>
           head.resolve(name) match {
             case MissingResolution => loopOthers(tail)
@@ -71,11 +71,11 @@ sealed class Env protected (val _scopes: List[Scope], val lang: Language) extend
           MissingResolution
       }
     }
-    loopTemplates(_scopes) match {
+    loopTemplates(scopes) match {
       case MissingResolution =>
-        loopPackages(_scopes) match {
+        loopPackages(scopes) match {
           case MissingResolution =>
-            loopOthers(_scopes)
+            loopOthers(scopes)
           case packageResolution =>
             packageResolution
         }
@@ -130,8 +130,8 @@ sealed class Env protected (val _scopes: List[Scope], val lang: Language) extend
   }
 
   def resolveThis(): Resolution = {
-    @tailrec def loop(_scopes: List[Scope]): Resolution = {
-      _scopes match {
+    @tailrec def loop(scopes: List[Scope]): Resolution = {
+      scopes match {
         case (head: TemplateScope) :: tail =>
           FoundResolution(head.sym)
         case _ :: tail =>
@@ -140,12 +140,12 @@ sealed class Env protected (val _scopes: List[Scope], val lang: Language) extend
           MissingResolution
       }
     }
-    loop(_scopes)
+    loop(scopes)
   }
 
   def resolveThis(value: String): Resolution = {
-    @tailrec def loop(_scopes: List[Scope]): Resolution = {
-      _scopes match {
+    @tailrec def loop(scopes: List[Scope]): Resolution = {
+      scopes match {
         case (head: TemplateScope) :: tail =>
           val found = head.tree.id.value == value
           if (found) FoundResolution(head.sym)
@@ -156,12 +156,12 @@ sealed class Env protected (val _scopes: List[Scope], val lang: Language) extend
           MissingResolution
       }
     }
-    loop(_scopes)
+    loop(scopes)
   }
 
   def resolveWithin(value: String): Resolution = {
-    @tailrec def loop(_scopes: List[Scope]): Resolution = {
-      _scopes match {
+    @tailrec def loop(scopes: List[Scope]): Resolution = {
+      scopes match {
         case (head: PackageScope) :: _ =>
           val sym = head.sym.ownerChain.find(_.desc.value == value)
           sym match {
@@ -182,7 +182,7 @@ sealed class Env protected (val _scopes: List[Scope], val lang: Language) extend
           MissingResolution
       }
     }
-    loop(_scopes)
+    loop(scopes)
   }
 
   override def printStr(p: Printer): Unit = {
