@@ -19,7 +19,7 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
   val _paramss = new HashMap[Parameterized, List[List[Param]]]
   val _parents = new HashMap[DefnTemplate, List[Tpt]]
   val _inferred = new HashMap[Symbol, Tpt]
-  val _existentials = new HashMap[TptExistential, ExistentialScope]
+  private val _existentials = new HashMap[TptExistential, ExistentialScope]
   val _refinements = new HashMap[TptRefine, RefinementScope]
   val _infos = new HashMap[Symbol, s.SymbolInformation]
   val _statics = new HashSet[Symbol]
@@ -45,6 +45,12 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
       val scope = get(sym)
       if (scope != null) scope
       else crash(sym)
+    }
+
+    def apply(tpt: TptExistential): ExistentialScope = {
+      val scope = _existentials.get(tpt)
+      if (scope != null) scope
+      else crash(tpt)
     }
 
     def get(sym: Symbol): Scope = {
@@ -94,6 +100,13 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
         case NoSymbol => crash(scope)
         case other => _scopes.put(other, scope)
       }
+    }
+
+    def put(tpt: TptExistential, scope: ExistentialScope): Unit = {
+      if (_existentials.containsKey(tpt)) {
+        crash(tpt)
+      }
+      _existentials.put(tpt, scope)
     }
   }
 

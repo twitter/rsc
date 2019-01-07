@@ -318,7 +318,7 @@ final class Outliner private (
         apply(env, sketch, tpt)
       case existentialTpt @ TptExistential(tpt, stats) =>
         val existentialScope = ExistentialScope()
-        symtab._existentials.put(existentialTpt, existentialScope)
+        symtab.scopes.put(existentialTpt, existentialScope)
         val existentialEnv = existentialScope :: env
         stats.foreach(scheduler.apply(existentialEnv, _))
         existentialScope.succeed()

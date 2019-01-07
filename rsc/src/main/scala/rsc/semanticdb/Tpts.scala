@@ -75,17 +75,13 @@ trait Tpts {
         case existentialTpt @ TptExistential(tpt, stats) =>
           val tpe = tpt.tpe
           val decls = {
-            val scope = symtab._existentials.get(existentialTpt)
-            if (scope != null) {
-              val outlines = scope.decls.flatMap(_.asMulti).map { sym =>
-                val outline = symtab._outlines.get(sym)
-                if (outline == null) crash(sym)
-                outline
-              }
-              Some(outlines.scope(HardlinkChildren))
-            } else {
-              crash(existentialTpt)
+            val scope = symtab.scopes(existentialTpt)
+            val outlines = scope.decls.flatMap(_.asMulti).map { sym =>
+              val outline = symtab._outlines.get(sym)
+              if (outline == null) crash(sym)
+              outline
             }
+            Some(outlines.scope(HardlinkChildren))
           }
           s.ExistentialType(tpe, decls)
         case TptFloat() =>
