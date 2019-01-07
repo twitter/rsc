@@ -8,8 +8,6 @@ import rsc.semantics._
 import rsc.util._
 
 trait Envs {
-  self: Symtab =>
-
   private val _envs = new HashMap[Symbol, Env]
 
   object envs {

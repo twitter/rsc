@@ -11,7 +11,9 @@ import rsc.util._
 import scala.meta.internal.{semanticdb => s}
 
 trait Scopes {
-  self: Symtab =>
+  def classpath: Classpath
+  def _outlines: HashMap[Symbol, Outline]
+  def _inferred: HashMap[Symbol, Tpt]
 
   private val _scopes = new HashMap[Symbol, Scope]
   private val _existentials = new HashMap[TptExistential, ExistentialScope]

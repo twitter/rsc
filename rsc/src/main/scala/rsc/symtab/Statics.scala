@@ -6,8 +6,6 @@ import java.util.HashSet
 import rsc.semantics._
 
 trait Statics {
-  self: Symtab =>
-
   private val _statics = new HashSet[Symbol]
 
   object statics {
