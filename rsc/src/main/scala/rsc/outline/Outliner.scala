@@ -40,49 +40,42 @@ final class Outliner private (
   }
 
   private def apply(env: Env, scope: ImporterScope): Unit = {
-    val qualResolution = resolvePath(env, scope.tree.qual)
-    qualResolution match {
-      case BlockedResolution(dep) =>
+    val qualResult = resolveScope(env, scope.tree.qual)
+    qualResult match {
+      case BlockedResult(dep) =>
         scope.block(dep)
-      case _: FailedResolution =>
+      case _: FailedResult =>
         scope.fail()
-      case FoundResolution(qualSym) =>
-        resolveScope(qualSym) match {
-          case BlockedResolution(dep) =>
-            scope.block(dep)
-          case _: FailedResolution =>
+      case SucceededResult(parentScope1) =>
+        parentScope1.status match {
+          case _: IncompleteStatus =>
+            scope.block(parentScope1)
+          case _: FailedStatus =>
             scope.fail()
-          case FoundResolution(scopeSym) =>
-            val parentScope1 = symtab.scopes(scopeSym)
-            parentScope1.status match {
-              case _: IncompleteStatus =>
-                scope.block(parentScope1)
-              case _: FailedStatus =>
-                scope.fail()
-              case SucceededStatus =>
-                scope.parent1 = parentScope1
-                env.lang match {
-                  case ScalaLanguage | UnknownLanguage =>
-                    scope.succeed()
-                  case JavaLanguage =>
-                    if (qualSym.isPackage) {
-                      scope.succeed()
-                    } else {
-                      val parentScope2 = symtab.scopes.get(scopeSym.companionSymbol)
-                      if (parentScope2 != null) {
-                        parentScope2.status match {
-                          case _: IncompleteStatus =>
-                            scope.block(parentScope2)
-                          case _: FailedStatus =>
-                            scope.fail()
-                          case SucceededStatus =>
-                            scope.parent2 = parentScope2
-                            scope.succeed()
-                        }
-                      } else {
+          case SucceededStatus =>
+            scope.parent1 = parentScope1
+            env.lang match {
+              case ScalaLanguage | UnknownLanguage =>
+                scope.succeed()
+              case JavaLanguage =>
+                val qualSym = parentScope1.sym
+                if (qualSym.isPackage) {
+                  scope.succeed()
+                } else {
+                  val parentScope2 = symtab.scopes.get(qualSym.companionSymbol)
+                  if (parentScope2 != null) {
+                    parentScope2.status match {
+                      case _: IncompleteStatus =>
+                        scope.block(parentScope2)
+                      case _: FailedStatus =>
+                        scope.fail()
+                      case SucceededStatus =>
+                        scope.parent2 = parentScope2
                         scope.succeed()
-                      }
                     }
+                  } else {
+                    scope.succeed()
+                  }
                 }
             }
         }
@@ -94,10 +87,10 @@ final class Outliner private (
     val buf = mutable.ListBuffer[ResolvedParent]()
     def insertParent(env: Env, tpt: Tpt, index: Int): Unit = {
       if (scope.status.isPending) {
-        def loop(tpt: Tpt): Resolution = {
+        def loop(tpt: Tpt): Result[Scope] = {
           tpt match {
             case path: TptPath =>
-              resolvePath(env, path)
+              resolveScope(env, path)
             case TptAnnotate(tpt, mods) =>
               mods.annots.foreach(ann => todo.add(env, ann.init.tpt))
               loop(tpt)
@@ -108,23 +101,16 @@ final class Outliner private (
               loop(tpt)
             case _ =>
               reporter.append(IllegalParent(tpt))
-              ErrorResolution
+              FailedResult()
           }
         }
         loop(tpt) match {
-          case BlockedResolution(dep) =>
+          case BlockedResult(dep) =>
             scope.block(dep)
-          case _: FailedResolution =>
+          case _: FailedResult =>
             scope.fail()
-          case FoundResolution(tptSym) =>
-            resolveScope(tptSym) match {
-              case BlockedResolution(dep) =>
-                scope.block(dep)
-              case _: FailedResolution =>
-                scope.fail()
-              case FoundResolution(scopeSym) =>
-                buf.insert(index, ResolvedParent(tpt, symtab.scopes(scopeSym)))
-            }
+          case SucceededResult(scope) =>
+            buf.insert(index, ResolvedParent(tpt, scope))
         }
       }
     }
@@ -234,14 +220,14 @@ final class Outliner private (
       case TptIntersect(tpts) =>
         tpts.foreach(apply(env, sketch, _))
       case tpt: TptPath =>
-        resolvePath(env, tpt) match {
-          case BlockedResolution(dep) =>
+        resolveSym(env, tpt) match {
+          case BlockedResult(dep) =>
             if (sketch.status.isPending) sketch.block(dep)
             else ()
-          case _: FailedResolution =>
+          case _: FailedResult =>
             if (sketch.status.isPending) sketch.fail()
             else ()
-          case _: FoundResolution =>
+          case _: SucceededResult[_] =>
             ()
         }
       case tpt: TptPrimitive =>
@@ -282,242 +268,215 @@ final class Outliner private (
 
   // ============ LEGACY ============
 
-  private def resolvePath(startingEnv: Env, path: Path): Resolution = {
-    def loop(env: Env, path: Path): Resolution = {
-      path.id.sym match {
-        case NoSymbol =>
-          path match {
-            case id: AmbigId =>
-              val resolution = env.resolve(id.value)
-              resolution match {
-                case resolution: AmbiguousResolution =>
-                  if (env == startingEnv) reporter.append(AmbiguousId(id, resolution))
-                  else reporter.append(AmbiguousMember(env, id, resolution))
-                  resolution
-                case _: BlockedResolution =>
-                  resolution
-                case _: FailedResolution =>
-                  if (env == startingEnv) reporter.append(UnboundId(id))
-                  else reporter.append(UnboundMember(env, id))
-                  resolution
-                case FoundResolution(sym) =>
-                  id.sym = sym
-                  resolution
+  private sealed trait Result[+T]
+  private case class BlockedResult(work: Work) extends Result[Nothing]
+  private case class FailedResult() extends Result[Nothing]
+  private case class SucceededResult[T](x: T) extends Result[T]
+
+  private def resolveSym(env: Env, path: Path): Result[Symbol] = {
+    path.id.sym match {
+      case NoSymbol =>
+        path match {
+          case id: AmbigId =>
+            val resolution = env.resolve(id.value)
+            resolution match {
+              case resolution: AmbiguousResolution =>
+                if (env.isSynthetic) reporter.append(AmbiguousMember(env, id, resolution))
+                else reporter.append(AmbiguousId(id, resolution))
+                FailedResult()
+              case BlockedResolution(dep) =>
+                BlockedResult(dep)
+              case _: FailedResolution =>
+                if (env.isSynthetic) reporter.append(UnboundMember(env, id))
+                else reporter.append(UnboundId(id))
+                FailedResult()
+              case FoundResolution(sym) =>
+                id.sym = sym
+                SucceededResult(sym)
+            }
+          case AmbigSelect(qual, id) =>
+            val result = resolveScope(env, qual)
+            result match {
+              case result: BlockedResult =>
+                result
+              case result: FailedResult =>
+                result
+              case SucceededResult(qualScope) =>
+                val env1 = Env(List(qualScope), env.lang)
+                resolveSym(env1, id)
+            }
+          case id: NamedId =>
+            val resolution = env.resolve(id.name)
+            resolution match {
+              case resolution: AmbiguousResolution =>
+                if (env.isSynthetic) reporter.append(AmbiguousMember(env, id, resolution))
+                else reporter.append(AmbiguousId(id, resolution))
+                FailedResult()
+              case BlockedResolution(dep) =>
+                BlockedResult(dep)
+              case _: FailedResolution =>
+                if (env.isSynthetic) reporter.append(UnboundMember(env, id))
+                else reporter.append(UnboundId(id))
+                FailedResult()
+              case FoundResolution(sym) =>
+                id.sym = sym
+                SucceededResult(sym)
+            }
+          case TermSelect(qual: Path, id) =>
+            val result = resolveScope(env, qual)
+            result match {
+              case result: BlockedResult =>
+                result
+              case result: FailedResult =>
+                result
+              case SucceededResult(qualScope) =>
+                val env1 = Env(List(qualScope), env.lang)
+                resolveSym(env1, id)
+            }
+          case TermSelect(qual, id) =>
+            reporter.append(IllegalOutline(path))
+            FailedResult()
+          case TermSuper(qual, mix) =>
+            // FIXME: https://github.com/twitter/rsc/issues/96
+            reporter.append(IllegalOutline(path))
+            FailedResult()
+          case TermThis(qual) =>
+            val resolution = {
+              qual match {
+                case AmbigId(value) => env.resolveThis(value)
+                case AnonId() => env.resolveThis()
               }
-            case AmbigSelect(qual, id) =>
-              val resolution = loop(env, qual)
-              resolution match {
-                case _: BlockedResolution =>
-                  resolution
-                case _: FailedResolution =>
-                  resolution
-                case FoundResolution(qualSym) =>
-                  resolveScope(qualSym) match {
-                    case resolution: BlockedResolution =>
-                      resolution
-                    case resolution: FailedResolution =>
-                      resolution
-                    case FoundResolution(scopeSym) =>
-                      val env1 = Env(List(symtab.scopes(scopeSym)), env.lang)
-                      loop(env1, id)
-                  }
-              }
-            case id: NamedId =>
-              val resolution = env.resolve(id.name)
-              resolution match {
-                case resolution: AmbiguousResolution =>
-                  if (env == startingEnv) reporter.append(AmbiguousId(id, resolution))
-                  else reporter.append(AmbiguousMember(env, id, resolution))
-                  resolution
-                case _: BlockedResolution =>
-                  resolution
-                case _: FailedResolution =>
-                  if (env == startingEnv) reporter.append(UnboundId(id))
-                  else reporter.append(UnboundMember(env, id))
-                  resolution
-                case FoundResolution(sym) =>
-                  id.sym = sym
-                  resolution
-              }
-            case TermSelect(qual: Path, id) =>
-              val resolution = loop(env, qual)
-              resolution match {
-                case _: BlockedResolution =>
-                  resolution
-                case _: FailedResolution =>
-                  resolution
-                case FoundResolution(qualSym) =>
-                  resolveScope(qualSym) match {
-                    case resolution: BlockedResolution =>
-                      resolution
-                    case resolution: FailedResolution =>
-                      resolution
-                    case FoundResolution(scopeSym) =>
-                      val env1 = Env(List(symtab.scopes(scopeSym)), env.lang)
-                      loop(env1, id)
-                  }
-              }
-            case TermSelect(qual, id) =>
-              reporter.append(IllegalOutline(path))
-              ErrorResolution
-            case TermSuper(qual, mix) =>
-              // FIXME: https://github.com/twitter/rsc/issues/96
-              ???
-            case TermThis(qual) =>
-              val resolution = {
-                qual match {
-                  case AmbigId(value) => env.resolveThis(value)
-                  case AnonId() => env.resolveThis()
-                }
-              }
-              resolution match {
-                case resolution: AmbiguousResolution =>
-                  reporter.append(AmbiguousId(qual, resolution))
-                  resolution
-                case _: BlockedResolution =>
-                  resolution
-                case _: FailedResolution =>
-                  reporter.append(UnboundId(qual))
-                  resolution
-                case FoundResolution(qualSym) =>
-                  qual.sym = qualSym
-                  resolution
-              }
-            case TptProject(qual: Path, id) =>
-              val resolution = loop(env, qual)
-              resolution match {
-                case _: BlockedResolution =>
-                  resolution
-                case _: FailedResolution =>
-                  resolution
-                case FoundResolution(qualSym) =>
-                  // FIXME: https://github.com/twitter/rsc/issues/91
-                  resolveScope(qualSym) match {
-                    case resolution: BlockedResolution =>
-                      resolution
-                    case resolution: FailedResolution =>
-                      resolution
-                    case FoundResolution(scopeSym) =>
-                      val env1 = Env(List(symtab.scopes(scopeSym)), env.lang)
-                      val resolution1 = env1.resolve(id.name)
-                      resolution1 match {
-                        case _: BlockedResolution =>
-                          resolution1
-                        case _: FailedResolution =>
-                          if (env1 == startingEnv) reporter.append(UnboundId(id))
-                          else reporter.append(UnboundMember(env1, id))
-                          resolution1
-                        case FoundResolution(sym) =>
-                          id.sym = sym
-                          resolution1
-                      }
-                  }
-              }
-            case TptProject(qual, id) =>
-              reporter.append(IllegalOutline(path))
-              ErrorResolution
-            case TptSelect(qual, id) =>
-              val resolution = loop(env, qual)
-              resolution match {
-                case _: BlockedResolution =>
-                  resolution
-                case _: FailedResolution =>
-                  resolution
-                case FoundResolution(qualSym) =>
-                  resolveScope(qualSym) match {
-                    case resolution: BlockedResolution =>
-                      resolution
-                    case resolution: FailedResolution =>
-                      resolution
-                    case FoundResolution(scopeSym) =>
-                      val env1 = Env(List(symtab.scopes(scopeSym)), env.lang)
-                      val resolution1 = env1.resolve(id.name)
-                      resolution1 match {
-                        case resolution1: AmbiguousResolution =>
-                          if (env1 == startingEnv) reporter.append(AmbiguousId(id, resolution1))
-                          else reporter.append(AmbiguousMember(env1, id, resolution1))
-                          resolution1
-                        case _: BlockedResolution =>
-                          resolution1
-                        case _: FailedResolution =>
-                          env.lang match {
-                            case ScalaLanguage | UnknownLanguage =>
-                              if (env1 == startingEnv) reporter.append(UnboundId(id))
-                              else reporter.append(UnboundMember(env1, id))
-                              resolution1
-                            case JavaLanguage =>
-                              val scope2 = symtab.scopes.get(scopeSym.companionSymbol)
-                              if (scope2 != null) {
-                                val env2 = Env(List(scope2), env.lang)
-                                val resolution2 = env2.resolve(id.name)
-                                resolution2 match {
-                                  case _: AmbiguousResolution =>
-                                    resolution1
-                                  case _: BlockedResolution =>
-                                    resolution2
-                                  case _: FailedResolution =>
-                                    resolution1
-                                  case FoundResolution(sym) =>
-                                    qual.id.sym = scope2.sym
-                                    id.sym = sym
-                                    resolution2
-                                }
-                              } else {
-                                resolution1
-                              }
+            }
+            resolution match {
+              case resolution: AmbiguousResolution =>
+                reporter.append(AmbiguousId(qual, resolution))
+                FailedResult()
+              case BlockedResolution(dep) =>
+                BlockedResult(dep)
+              case _: FailedResolution =>
+                reporter.append(UnboundId(qual))
+                FailedResult()
+              case FoundResolution(qualSym) =>
+                qual.sym = qualSym
+                SucceededResult(qualSym)
+            }
+          case TptProject(qual: Path, id) =>
+            val result = resolveScope(env, qual)
+            result match {
+              case result: BlockedResult =>
+                result
+              case result: FailedResult =>
+                result
+              case SucceededResult(qualScope) =>
+                // FIXME: https://github.com/twitter/rsc/issues/91
+                val env1 = Env(List(qualScope), env.lang)
+                resolveSym(env1, id)
+            }
+          case TptProject(qual, id) =>
+            // FIXME: https://github.com/twitter/rsc/issues/91
+            reporter.append(IllegalOutline(path))
+            FailedResult()
+          case TptSelect(qual, id) =>
+            val result = resolveScope(env, qual)
+            result match {
+              case result: BlockedResult =>
+                result
+              case result: FailedResult =>
+                result
+              case SucceededResult(qualScope) =>
+                val env1 = Env(List(qualScope), env.lang)
+                val resolution1 = env1.resolve(id.name)
+                resolution1 match {
+                  case resolution1: AmbiguousResolution =>
+                    reporter.append(AmbiguousMember(env1, id, resolution1))
+                    FailedResult()
+                  case BlockedResolution(dep) =>
+                    BlockedResult(dep)
+                  case _: FailedResolution =>
+                    env.lang match {
+                      case ScalaLanguage | UnknownLanguage =>
+                        reporter.append(UnboundMember(env1, id))
+                        FailedResult()
+                      case JavaLanguage =>
+                        val scope2 = symtab.scopes.get(qualScope.sym.companionSymbol)
+                        val resolution3 = {
+                          if (scope2 != null) {
+                            val env2 = Env(List(scope2), env.lang)
+                            env2.resolve(id.name)
+                          } else {
+                            resolution1
                           }
-                        case FoundResolution(sym) =>
-                          id.sym = sym
-                          resolution1
-                      }
-                  }
-              }
-            case TptSingleton(qual) =>
-              loop(env, qual)
-          }
-        case sym =>
-          FoundResolution(sym)
-      }
+                        }
+                        resolution3 match {
+                          case _: AmbiguousResolution =>
+                            FailedResult()
+                          case BlockedResolution(dep) =>
+                            BlockedResult(dep)
+                          case _: FailedResolution =>
+                            FailedResult()
+                          case FoundResolution(sym) =>
+                            qual.id.sym = scope2.sym
+                            id.sym = sym
+                            SucceededResult(sym)
+                        }
+                    }
+                  case FoundResolution(sym) =>
+                    id.sym = sym
+                    SucceededResult(sym)
+                }
+            }
+          case TptSingleton(qual) =>
+            resolveSym(env, qual)
+        }
+      case sym =>
+        SucceededResult(sym)
     }
-    loop(startingEnv, path)
   }
 
-  private def resolveScope(sym: Symbol): Resolution = {
-    var scope = symtab.scopes.get(sym)
-    if (scope != null) {
-      FoundResolution(sym)
-    } else {
-      def loop(tpt: Tpt): Resolution = {
-        tpt match {
-          case TptArray(_) =>
-            loop(TptId("Array").withSym(ArrayClass))
-          case TptApply(fun, _) =>
-            loop(fun)
-          case tpt: TptPath =>
-            tpt.id.sym match {
-              case NoSymbol =>
-                // FIXME: https://github.com/twitter/rsc/issues/104
-                BlockedResolution(Unknown())
-              case sym =>
-                resolveScope(sym)
+  private def resolveScope(env: Env, qual: Path): Result[Scope] = {
+    val result = resolveSym(env, qual)
+    result match {
+      case result: BlockedResult =>
+        result
+      case result: FailedResult =>
+        result
+      case SucceededResult(sym) =>
+        val scope = symtab.scopes.get(sym)
+        if (scope != null) {
+          SucceededResult(scope)
+        } else {
+          def loop(tpt: Tpt): Result[Scope] = {
+            tpt match {
+              case TptArray(_) =>
+                loop(TptId("Array").withSym(ArrayClass))
+              case TptApply(fun, _) =>
+                loop(fun)
+              case tpt: TptPath =>
+                tpt.id.sym match {
+                  case NoSymbol =>
+                    // FIXME: https://github.com/twitter/rsc/issues/104
+                    BlockedResult(Unknown())
+                  case sym =>
+                    resolveScope(env, TptId(sym.desc.value).withSym(sym))
+                }
+              case TptWildcardExistential(_, tpt) =>
+                loop(tpt)
+              case _ =>
+                crash(tpt)
             }
-          case TptWildcardExistential(_, tpt) =>
-            loop(tpt)
-          case _ =>
-            crash(tpt)
+          }
+          val outline = symtab._outlines.get(sym)
+          outline match {
+            case DefnMethod(mods, _, _, _, Some(tpt), _) if mods.hasVal => loop(tpt)
+            case outline: DefnType => loop(outline.desugaredUbound)
+            case outline: TypeParam => loop(outline.desugaredUbound)
+            case Param(_, _, Some(tpt), _) => loop(tpt)
+            case Self(_, Some(tpt)) => loop(tpt)
+            case Self(_, None) => loop(symtab._inferred.get(outline.id.sym))
+            case null => crash(sym)
+            case _ => crash(outline)
+          }
         }
-      }
-      val outline = symtab._outlines.get(sym)
-      outline match {
-        case DefnMethod(mods, _, _, _, Some(tpt), _) if mods.hasVal => loop(tpt)
-        case outline: DefnType => loop(outline.desugaredUbound)
-        case outline: TypeParam => loop(outline.desugaredUbound)
-        case Param(_, _, Some(tpt), _) => loop(tpt)
-        case Self(_, Some(tpt)) => loop(tpt)
-        case Self(_, None) => loop(symtab._inferred.get(outline.id.sym))
-        case null => crash(sym)
-        case _ => crash(outline)
-      }
     }
   }
 
@@ -530,6 +489,10 @@ final class Outliner private (
           bounded.ubound.getOrElse(TptId("Object").withSym(ObjectClass))
       }
     }
+  }
+
+  private implicit class EnvOutlinerOps(env: Env) {
+    def isSynthetic: Boolean = env.scopes.length == 1
   }
 }
 
