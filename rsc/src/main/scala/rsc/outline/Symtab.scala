@@ -14,7 +14,7 @@ import scala.meta.internal.{semanticdb => s}
 
 final class Symtab private (settings: Settings) extends AutoCloseable with Pretty {
   val _index = Index(settings.cp)
-  val _scopes = new HashMap[Symbol, Scope]
+  private val _scopes = new HashMap[Symbol, Scope]
   private val _envs = new HashMap[Symbol, Env]
   val _outlines = new LinkedHashMap[Symbol, Outline]
   val _paramss = new HashMap[Parameterized, List[List[Param]]]
@@ -58,8 +58,23 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
 
     def apply(sym: Symbol): Scope = {
       val scope = _scopes.get(sym)
-      if (scope != null) scope
-      else crash(sym)
+      if (scope != null) {
+        scope
+      } else {
+        if (_index.contains(sym)) {
+          val info = _index.apply(sym)
+          val scope = info.signature match {
+            case s.NoSignature if info.isPackage => PackageScope(sym, _index)
+            case _: s.ClassSignature => ClasspathScope(sym, _index)
+            case _ => crash(sym)
+          }
+          scope.succeed()
+          _scopes.put(sym, scope)
+          scope
+        } else {
+          crash(sym)
+        }
+      }
     }
 
     def apply(tpt: TptExistential): ExistentialScope = {

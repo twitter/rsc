@@ -46,21 +46,9 @@ final class Scheduler private (
           apply(env, parentPackage)
           symtab.scopes(qual.id.sym)
         case DefnPackageObject(_, id, _, _, _, _) =>
-          val packageSym = PackageSymbol(env.owner.sym, id.value)
-          env.owner.enter(id.name, packageSym)
-          val packageScope = {
-            val existingScope = symtab._scopes.get(packageSym)
-            if (existingScope != null) {
-              existingScope
-            } else {
-              val rootScope = symtab.scopes(RootPackage).asInstanceOf[PackageScope]
-              val newScope = PackageScope(packageSym, rootScope.index)
-              symtab.scopes.put(packageSym, newScope)
-              todo.add(env, newScope)
-              newScope
-            }
-          }
-          packageScope
+          val parentPackage = DefnPackage(Mods(Nil), id, Nil).withPos(outline.pos)
+          apply(env, parentPackage)
+          symtab.scopes(id.sym)
         case _ =>
           env.owner
       }
@@ -237,8 +225,12 @@ final class Scheduler private (
   private def defnPackage(env: Env, tree: DefnPackage): Env = {
     assignSym(env, tree)
     val packageScope = {
-      val existingScope = symtab._scopes.get(tree.id.sym)
-      if (existingScope != null) {
+      if (symtab.scopes.contains(tree.id.sym)) {
+        val existingScope = symtab.scopes(tree.id.sym)
+        if (existingScope.status.isSucceeded) {
+          existingScope.status = PendingStatus
+          todo.add(env, existingScope)
+        }
         existingScope
       } else {
         val rootScope = symtab.scopes(RootPackage).asInstanceOf[PackageScope]
@@ -534,7 +526,7 @@ final class Scheduler private (
       val essentialObjectsIt = essentialObjects.iterator
       while (essentialObjectsIt.hasNext) {
         val objectSym = essentialObjectsIt.next()
-        val needsSynthesis = !symtab._scopes.containsKey(objectSym)
+        val needsSynthesis = !symtab.scopes.contains(objectSym)
         if (needsSynthesis) {
           val classSym = objectSym.companionClass
           val classTree = symtab._outlines.get(classSym).asInstanceOf[DefnClass]
