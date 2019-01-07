@@ -3,10 +3,10 @@
 package rsc.scalasig
 
 import java.nio.file._
-import rsc.outline._
 import rsc.output._
 import rsc.report._
 import rsc.settings._
+import rsc.symtab._
 import rsc.syntax._
 import scala.collection.mutable
 import scala.meta.internal.semanticdb.Scala._

@@ -5,8 +5,8 @@ package rsc.scalasig
 import java.util.HashMap
 import java.nio.file._
 import rsc.input._
-import rsc.outline._
 import rsc.semantics._
+import rsc.symtab._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}

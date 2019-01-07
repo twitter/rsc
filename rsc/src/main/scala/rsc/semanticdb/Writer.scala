@@ -6,11 +6,11 @@ import java.nio.file._
 import java.util.HashMap
 import rsc.gensym._
 import rsc.input._
-import rsc.outline._
 import rsc.output._
 import rsc.report._
 import rsc.semantics._
 import rsc.settings._
+import rsc.symtab._
 import rsc.syntax._
 import rsc.util._
 import scala.collection.mutable

@@ -6,6 +6,7 @@ import rsc.input._
 import rsc.report._
 import rsc.semantics._
 import rsc.settings._
+import rsc.symtab._
 import rsc.util._
 
 final class Indexer private (settings: Settings, reporter: Reporter, symtab: Symtab, todo: Todo) {

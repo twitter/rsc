@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.pretty
 
-import rsc.outline._
+import rsc.symtab._
 
 object PrettySymtab {
   def str(p: Printer, x: Symtab): Unit = {
