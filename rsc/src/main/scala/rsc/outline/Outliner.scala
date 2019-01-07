@@ -221,6 +221,8 @@ final class Outliner private (
         apply(existentialEnv, sketch, tpt)
       case TptIntersect(tpts) =>
         tpts.foreach(apply(env, sketch, _))
+      case tpt: TptLit =>
+        ()
       case tpt: TptPath =>
         resolveSym(env, tpt) match {
           case BlockedResolution(dep) =>

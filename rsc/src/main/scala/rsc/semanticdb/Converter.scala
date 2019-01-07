@@ -18,6 +18,7 @@ final class Converter private (
     extends Bounds
     with Defns
     with Eligibility
+    with Lits
     with Modifiers
     with Params
     with Prefixes

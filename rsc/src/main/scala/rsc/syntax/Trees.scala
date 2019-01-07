@@ -569,6 +569,8 @@ final case class TptInt() extends TptPrimitive
 
 final case class TptIntersect(tpts: List[Tpt]) extends Tpt
 
+final case class TptLit(value: Any) extends Tpt
+
 final case class TptLong() extends TptPrimitive
 
 sealed trait TptPath extends Tpt with UnambigPath

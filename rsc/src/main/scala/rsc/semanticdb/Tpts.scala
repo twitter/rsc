@@ -84,6 +84,8 @@ trait Tpts {
           s.TypeRef(s.NoType, "scala/Int#", Nil)
         case TptIntersect(tpts) =>
           s.IntersectionType(tpts.map(_.tpe))
+        case TptLit(value) =>
+          s.ConstantType(value.const)
         case TptLong() =>
           s.TypeRef(s.NoType, "scala/Long#", Nil)
         case TptProject(qual: Path, id) =>

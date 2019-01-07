@@ -198,6 +198,8 @@ final class Scheduler private (
           todo.add(paramEnv, tpt)
         }
         tree match {
+          case DefnMethod(mods, _, _, _, _, Some(TermLit(value))) if mods.hasFinal && mods.hasVal =>
+            infer(TptLit(value))
           case DefnMethod(mods, _, _, _, _, Some(rhs)) if mods.hasImplicit =>
             rhs match {
               case TermApplyType(TermId("implicitly"), List(tpt)) =>
