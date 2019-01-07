@@ -467,10 +467,10 @@ object ExistentialScope {
   }
 }
 
-final class RefinementScope private () extends SourceScope(NoSymbol)
+final class RefineScope private () extends SourceScope(NoSymbol)
 
-object RefinementScope {
-  def apply(): RefinementScope = {
-    new RefinementScope()
+object RefineScope {
+  def apply(): RefineScope = {
+    new RefineScope()
   }
 }

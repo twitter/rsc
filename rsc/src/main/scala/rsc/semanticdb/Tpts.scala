@@ -99,24 +99,20 @@ trait Tpts {
         case TptProject(qual, id) =>
           // FIXME: https://github.com/twitter/rsc/issues/91
           s.NoType
-        case refinementTpt @ TptRefine(tpt, stats) =>
+        case refineTpt @ TptRefine(tpt, stats) =>
           val tpe = tpt match {
             case Some(TptWith(tpts)) => s.WithType(tpts.map(_.tpe))
             case Some(tpt) => s.WithType(List(tpt.tpe))
             case None => s.NoType
           }
           val decls = {
-            val scope = symtab._refinements.get(refinementTpt)
-            if (scope != null) {
-              val outlines = scope.decls.flatMap(_.asMulti).map { sym =>
-                val outline = symtab._outlines.get(sym)
-                if (outline == null) crash(sym)
-                outline
-              }
-              Some(outlines.scope(HardlinkChildren))
-            } else {
-              crash(refinementTpt)
+            val scope = symtab.scopes(refineTpt)
+            val outlines = scope.decls.flatMap(_.asMulti).map { sym =>
+              val outline = symtab._outlines.get(sym)
+              if (outline == null) crash(sym)
+              outline
             }
+            Some(outlines.scope(HardlinkChildren))
           }
           s.StructuralType(tpe, decls)
         case TptRepeat(tpt) =>

@@ -329,13 +329,13 @@ final class Outliner private (
         apply(env, sketch, tpt: Path)
       case tpt: TptPrimitive =>
         ()
-      case refinementTpt @ TptRefine(tpt, stats) =>
-        val refinementScope = RefinementScope()
-        symtab._refinements.put(refinementTpt, refinementScope)
-        val refinementEnv = refinementScope :: env
-        stats.foreach(scheduler.apply(refinementEnv, _))
-        refinementScope.succeed()
-        tpt.foreach(apply(refinementEnv, sketch, _))
+      case refineTpt @ TptRefine(tpt, stats) =>
+        val refineScope = RefineScope()
+        symtab.scopes.put(refineTpt, refineScope)
+        val refineEnv = refineScope :: env
+        stats.foreach(scheduler.apply(refineEnv, _))
+        refineScope.succeed()
+        tpt.foreach(apply(refineEnv, sketch, _))
       case TptRepeat(tpt) =>
         apply(env, sketch, tpt)
       case TptWildcard(ubound, lbound) =>
