@@ -395,16 +395,20 @@ final class Scheduler private (
 
   private def paramss(env: Env, owner: Parameterized): Env = {
     val paramss = symtab._paramss.get(owner)
-    paramss.foldLeft(env) { (env, params) =>
-      if (params.nonEmpty) {
-        val paramScope = ParamScope(owner.id.sym)
-        val paramEnv = paramScope :: env
-        params.foreach(apply(paramEnv, _))
-        paramScope.succeed()
-        paramEnv
-      } else {
-        env
+    if (paramss != null) {
+      paramss.foldLeft(env) { (env, params) =>
+        if (params.nonEmpty) {
+          val paramScope = ParamScope(owner.id.sym)
+          val paramEnv = paramScope :: env
+          params.foreach(apply(paramEnv, _))
+          paramScope.succeed()
+          paramEnv
+        } else {
+          env
+        }
       }
+    } else {
+      crash(owner)
     }
   }
 
