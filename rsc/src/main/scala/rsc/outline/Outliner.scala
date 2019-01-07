@@ -23,32 +23,24 @@ final class Outliner private (
   }
 
   def apply(env: Env, work: Work): Unit = {
+    if (!work.status.isPending) {
+      crash(work)
+    }
     work match {
-      case scope: Scope => apply(env, scope)
-      case sketch: Sketch => apply(env, sketch)
+      case scope: ImporterScope => apply(env, scope)
+      case scope: PackageScope => ()
+      case scope: TemplateScope => apply(env, scope)
+      case sketch @ Sketch(tree: Tpt) => apply(env, sketch, tree)
+      case sketch @ Sketch(tree: ModWithin) => apply(env, sketch, tree)
+      case other => crash(other)
+    }
+    if (work.status.isPending) {
+      work.succeed()
     }
   }
 
-  // ============ SCOPER ============
-
-  private def apply(env: Env, scope: Scope): Unit = {
-    if (!scope.status.isPending) {
-      crash(scope)
-    }
-    scope match {
-      case scope: ImporterScope =>
-        trySucceed(env, scope)
-      case scope: PackageScope =>
-        scope.succeed()
-      case scope: TemplateScope =>
-        trySucceed(env, scope)
-      case _ =>
-        crash(scope)
-    }
-  }
-
-  private def trySucceed(env: Env, scope: ImporterScope): Unit = {
-    val qualResolution = assignSyms(env, scope.tree.qual)
+  private def apply(env: Env, scope: ImporterScope): Unit = {
+    val qualResolution = resolvePath(env, scope.tree.qual)
     qualResolution match {
       case BlockedResolution(dep) =>
         scope.block(dep)
@@ -97,7 +89,7 @@ final class Outliner private (
     }
   }
 
-  private def trySucceed(env: Env, scope: TemplateScope): Unit = {
+  private def apply(env: Env, scope: TemplateScope): Unit = {
     case class ResolvedParent(tpt: Tpt, scope: Scope)
     val buf = mutable.ListBuffer[ResolvedParent]()
     def insertParent(env: Env, tpt: Tpt, index: Int): Unit = {
@@ -105,7 +97,7 @@ final class Outliner private (
         def loop(tpt: Tpt): Resolution = {
           tpt match {
             case path: TptPath =>
-              assignSyms(env, path)
+              resolvePath(env, path)
             case TptAnnotate(tpt, mods) =>
               mods.annots.foreach(ann => todo.add(env, ann.init.tpt))
               loop(tpt)
@@ -220,19 +212,6 @@ final class Outliner private (
     }
   }
 
-  // ============ OUTLINER ============
-
-  private def apply(env: Env, sketch: Sketch): Unit = {
-    sketch.tree match {
-      case tpt: Tpt => apply(env, sketch, tpt)
-      case within: ModWithin => apply(env, sketch, within)
-      case other => crash(other)
-    }
-    if (sketch.status.isPending) {
-      sketch.succeed()
-    }
-  }
-
   private def apply(env: Env, sketch: Sketch, tpt: Tpt): Unit = {
     tpt match {
       case TptApply(fun, targs) =>
@@ -255,7 +234,16 @@ final class Outliner private (
       case TptIntersect(tpts) =>
         tpts.foreach(apply(env, sketch, _))
       case tpt: TptPath =>
-        apply(env, sketch, tpt: Path)
+        resolvePath(env, tpt) match {
+          case BlockedResolution(dep) =>
+            if (sketch.status.isPending) sketch.block(dep)
+            else ()
+          case _: FailedResolution =>
+            if (sketch.status.isPending) sketch.fail()
+            else ()
+          case _: FoundResolution =>
+            ()
+        }
       case tpt: TptPrimitive =>
         ()
       case refineTpt @ TptRefine(tpt, stats) =>
@@ -277,19 +265,6 @@ final class Outliner private (
     }
   }
 
-  private def apply(env: Env, sketch: Sketch, path: Path): Unit = {
-    assignSyms(env, path) match {
-      case BlockedResolution(dep) =>
-        if (sketch.status.isPending) sketch.block(dep)
-        else ()
-      case _: FailedResolution =>
-        if (sketch.status.isPending) sketch.fail()
-        else ()
-      case _: FoundResolution =>
-        ()
-    }
-  }
-
   private def apply(env: Env, sketch: Sketch, within: ModWithin): Unit = {
     val resolution = env.resolveWithin(within.id.value)
     resolution match {
@@ -305,9 +280,9 @@ final class Outliner private (
     }
   }
 
-  // ============ NEXTGEN ============
+  // ============ LEGACY ============
 
-  private def assignSyms(startingEnv: Env, path: Path): Resolution = {
+  private def resolvePath(startingEnv: Env, path: Path): Resolution = {
     def loop(env: Env, path: Path): Resolution = {
       path.id.sym match {
         case NoSymbol =>
@@ -546,7 +521,7 @@ final class Outliner private (
     }
   }
 
-  implicit class BoundedOutlinerOps(bounded: Bounded) {
+  private implicit class BoundedOutlinerOps(bounded: Bounded) {
     def desugaredUbound: Tpt = {
       bounded.lang match {
         case ScalaLanguage | UnknownLanguage =>
