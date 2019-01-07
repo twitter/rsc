@@ -3,8 +3,8 @@
 package rsc.outline
 
 import java.util.{LinkedHashMap, Map}
-import rsc.classpath._
 import rsc.semantics._
+import rsc.symtab._
 import rsc.syntax._
 import rsc.util._
 import scala.collection.JavaConverters._

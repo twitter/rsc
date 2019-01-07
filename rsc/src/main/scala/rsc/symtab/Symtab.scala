@@ -3,7 +3,6 @@
 package rsc.symtab
 
 import java.util.{HashMap, HashSet, LinkedHashMap}
-import rsc.classpath._
 import rsc.input._
 import rsc.outline._
 import rsc.pretty._
