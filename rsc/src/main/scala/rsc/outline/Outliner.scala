@@ -220,77 +220,6 @@ final class Outliner private (
     }
   }
 
-  private def assignSyms(startingEnv: Env, path: Path): Resolution = {
-    def assignSym(env: Env, id: Id, resolver: => Resolution): Resolution = {
-      val cachedSym = id.sym
-      cachedSym match {
-        case NoSymbol =>
-          val resolution = resolver
-          resolution match {
-            case resolution: AmbiguousResolution =>
-              if (env == startingEnv) reporter.append(AmbiguousId(id, resolution))
-              else reporter.append(AmbiguousMember(env, id, resolution))
-              ErrorResolution
-            case BlockedResolution(_) =>
-              resolution
-            case MissingResolution =>
-              if (env == startingEnv) reporter.append(UnboundId(id))
-              else reporter.append(UnboundMember(env, id))
-              ErrorResolution
-            case ErrorResolution =>
-              ErrorResolution
-            case FoundResolution(sym) =>
-              id.sym = sym
-              resolution
-          }
-        case cachedSym =>
-          FoundResolution(cachedSym)
-      }
-    }
-    def loop(env: Env, atoms: List[Atom]): Resolution = {
-      val atom :: rest = atoms
-      val resolution = {
-        atom match {
-          case AmbigAtom(id) =>
-            assignSym(env, id, env.resolve(id.value))
-          case NamedAtom(id) =>
-            assignSym(env, id, env.resolve(id.name))
-          case ThisAtom(id: AmbigId) =>
-            assignSym(env, id, env.resolveThis(id.value))
-          case ThisAtom(id: AnonId) =>
-            assignSym(env, id, env.resolveThis())
-          case SuperAtom(id: AmbigId) =>
-            assignSym(env, id, env.resolveSuper(id.value))
-          case SuperAtom(id: AnonId) =>
-            assignSym(env, id, env.resolveSuper())
-          case atom: UnsupportedAtom =>
-            ErrorResolution
-        }
-      }
-      resolution match {
-        case BlockedResolution(_) =>
-          resolution
-        case _: FailedResolution =>
-          resolution
-        case FoundResolution(sym) =>
-          if (rest.isEmpty) {
-            resolution
-          } else {
-            resolveScope(sym) match {
-              case resolution: BlockedResolution =>
-                resolution
-              case resolution: FailedResolution =>
-                resolution
-              case FoundResolution(scopeSym) =>
-                val env1 = Env(List(symtab.scopes(scopeSym)), env.lang)
-                loop(env1, rest)
-            }
-          }
-      }
-    }
-    loop(startingEnv, path.atoms)
-  }
-
   // ============ OUTLINER ============
 
   private def apply(env: Env, sketch: Sketch): Unit = {
@@ -348,7 +277,37 @@ final class Outliner private (
     }
   }
 
-  private def apply(startingEnv: Env, sketch: Sketch, path: Path): Unit = {
+  private def apply(env: Env, sketch: Sketch, path: Path): Unit = {
+    assignSyms(env, path) match {
+      case BlockedResolution(dep) =>
+        if (sketch.status.isPending) sketch.block(dep)
+        else ()
+      case _: FailedResolution =>
+        if (sketch.status.isPending) sketch.fail()
+        else ()
+      case _: FoundResolution =>
+        ()
+    }
+  }
+
+  private def apply(env: Env, sketch: Sketch, within: ModWithin): Unit = {
+    val resolution = env.resolveWithin(within.id.value)
+    resolution match {
+      case BlockedResolution(dep) =>
+        if (sketch.status.isPending) sketch.block(dep)
+        else ()
+      case _: FailedResolution =>
+        reporter.append(UnboundId(within.id))
+        if (sketch.status.isPending) sketch.fail()
+        else ()
+      case FoundResolution(sym) =>
+        within.id.sym = sym
+    }
+  }
+
+  // ============ NEXTGEN ============
+
+  private def assignSyms(startingEnv: Env, path: Path): Resolution = {
     def loop(env: Env, path: Path): Resolution = {
       path.id.sym match {
         case NoSymbol =>
@@ -545,36 +504,10 @@ final class Outliner private (
           FoundResolution(sym)
       }
     }
-    loop(startingEnv, path) match {
-      case BlockedResolution(dep) =>
-        if (sketch.status.isPending) sketch.block(dep)
-        else ()
-      case _: FailedResolution =>
-        if (sketch.status.isPending) sketch.fail()
-        else ()
-      case _: FoundResolution =>
-        ()
-    }
+    loop(startingEnv, path)
   }
 
-  private def apply(env: Env, sketch: Sketch, within: ModWithin): Unit = {
-    val resolution = env.resolveWithin(within.id.value)
-    resolution match {
-      case BlockedResolution(dep) =>
-        if (sketch.status.isPending) sketch.block(dep)
-        else ()
-      case _: FailedResolution =>
-        reporter.append(UnboundId(within.id))
-        if (sketch.status.isPending) sketch.fail()
-        else ()
-      case FoundResolution(sym) =>
-        within.id.sym = sym
-    }
-  }
-
-  // ============ NEXTGEN ============
-
-  def resolveScope(sym: Symbol): Resolution = {
+  private def resolveScope(sym: Symbol): Resolution = {
     var scope = symtab.scopes.get(sym)
     if (scope != null) {
       FoundResolution(sym)
