@@ -13,6 +13,7 @@ final class Symtab private (val settings: Settings)
     with Desugars
     with Envs
     with Scopes
+    with Scopifies
     with Statics {
   val _outlines = new LinkedHashMap[Symbol, Outline]
   val _infos = new HashMap[Symbol, s.SymbolInformation]

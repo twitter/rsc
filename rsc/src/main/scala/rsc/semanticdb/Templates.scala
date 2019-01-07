@@ -32,7 +32,7 @@ trait Templates {
             case AnyClass :: _ =>
               AnyRefClass
             case firstParentSym :: _ =>
-              val firstResolution = symtab.scopes.resolve(firstParentSym)
+              val firstResolution = symtab.scopify(firstParentSym)
               firstResolution match {
                 case ResolvedScope(firstResolution: TemplateScope) =>
                   firstResolution.tree match {

@@ -7,78 +7,78 @@ import rsc.syntax._
 import rsc.util._
 
 trait Desugars {
-  private val _paramss = new HashMap[Parameterized, List[List[Param]]]
-  private val _parents = new HashMap[DefnTemplate, List[Tpt]]
-  private val _returns = new HashMap[Outline, Tpt]
+  private val _paramssDesugars = new HashMap[Parameterized, List[List[Param]]]
+  private val _parentsDesugars = new HashMap[DefnTemplate, List[Tpt]]
+  private val _returnsDesugars = new HashMap[Outline, Tpt]
 
   object desugars {
     object paramss {
       def apply(outline: Parameterized): List[List[Param]] = {
-        val paramss = _paramss.get(outline)
+        val paramss = _paramssDesugars.get(outline)
         if (paramss == null) crash(outline)
         paramss
       }
 
       def contains(outline: Parameterized): Boolean = {
-        _paramss.containsKey(outline)
+        _paramssDesugars.containsKey(outline)
       }
 
       def put(outline: Parameterized, paramss: List[List[Param]]): Unit = {
-        if (_paramss.containsKey(outline)) {
+        if (_paramssDesugars.containsKey(outline)) {
           crash(outline)
         }
-        _paramss.put(outline, paramss)
+        _paramssDesugars.put(outline, paramss)
       }
     }
 
     object parents {
       def apply(outline: DefnTemplate): List[Tpt] = {
-        val parents = _parents.get(outline)
+        val parents = _parentsDesugars.get(outline)
         if (parents == null) crash(outline)
         parents
       }
 
       def put(outline: DefnTemplate, parents: List[Tpt]): Unit = {
-        if (_parents.containsKey(outline)) {
+        if (_parentsDesugars.containsKey(outline)) {
           crash(outline)
         }
-        _parents.put(outline, parents)
+        _parentsDesugars.put(outline, parents)
       }
     }
 
     object rets {
       def apply(outline: DefnDef): Tpt = {
-        val ret = _returns.get(outline)
+        val ret = _returnsDesugars.get(outline)
         if (ret == null) crash(outline)
         ret
       }
 
       def apply(outline: Self): Tpt = {
-        val ret = _returns.get(outline)
+        val ret = _returnsDesugars.get(outline)
         if (ret == null) crash(outline)
         ret
       }
 
       def contains(outline: DefnDef): Boolean = {
-        _returns.containsKey(outline)
+        _returnsDesugars.containsKey(outline)
       }
 
       def contains(outline: Self): Boolean = {
-        _returns.containsKey(outline)
+        _returnsDesugars.containsKey(outline)
       }
 
       def put(outline: DefnDef, ret: Tpt): Unit = {
-        if (outline.ret.nonEmpty || _returns.containsKey(outline)) {
+        if (outline.ret.nonEmpty || _returnsDesugars.containsKey(outline)) {
           crash(outline)
         }
-        _returns.put(outline, ret)
+        _returnsDesugars.put(outline, ret)
       }
 
       def put(outline: Self, tpt: Tpt): Unit = {
-        if (outline.tpt.nonEmpty || _returns.containsKey(outline)) {
+        if (outline.tpt.nonEmpty || _returnsDesugars.containsKey(outline)) {
           crash(outline)
         }
-        _returns.put(outline, tpt)
+        _returnsDesugars.put(outline, tpt)
       }
     }
   }

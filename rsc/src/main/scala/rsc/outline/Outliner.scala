@@ -439,7 +439,7 @@ final class Outliner private (
       case resolution: FailedResolution =>
         resolution
       case ResolvedSymbol(sym) =>
-        symtab.scopes.resolve(sym)
+        symtab.scopify(sym)
     }
   }
 
