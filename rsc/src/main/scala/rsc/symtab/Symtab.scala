@@ -13,7 +13,7 @@ import rsc.util._
 import scala.meta.internal.{semanticdb => s}
 
 final class Symtab private (settings: Settings) extends AutoCloseable with Pretty {
-  val _index = Index(settings.cp)
+  val _index = Classpath(settings.cp)
   private val _scopes = new HashMap[Symbol, Scope]
   private val _envs = new HashMap[Symbol, Env]
   val _outlines = new LinkedHashMap[Symbol, Outline]

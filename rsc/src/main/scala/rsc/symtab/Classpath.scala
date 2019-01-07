@@ -14,7 +14,7 @@ import scala.meta.internal.semanticdb.{Language => l}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.{semanticidx => i}
 
-final class Index private (entries: HashMap[Symbol, Entry]) extends AutoCloseable {
+final class Classpath private (entries: HashMap[Symbol, Entry]) extends AutoCloseable {
   private val infos = new HashMap[Symbol, s.SymbolInformation]
 
   def contains(sym: Symbol): Boolean = {
@@ -80,8 +80,8 @@ final class Index private (entries: HashMap[Symbol, Entry]) extends AutoCloseabl
   }
 }
 
-object Index {
-  def apply(classpath: List[Path]): Index = {
+object Classpath {
+  def apply(classpath: List[Path]): Classpath = {
     val entries = new HashMap[Symbol, Entry]
     def visit(path: Path): Unit = {
       def fail(): Nothing = {
@@ -162,6 +162,6 @@ object Index {
       }
     }
     classpath.foreach(visit)
-    new Index(entries)
+    new Classpath(entries)
   }
 }
