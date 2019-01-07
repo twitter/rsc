@@ -55,7 +55,7 @@ final class Scheduler private (
             } else {
               val rootScope = symtab.scopes(RootPackage).asInstanceOf[PackageScope]
               val newScope = PackageScope(packageSym, rootScope.index)
-              symtab.scopes(packageSym) = newScope
+              symtab.scopes.put(packageSym, newScope)
               todo.add(env, newScope)
               newScope
             }
@@ -243,7 +243,7 @@ final class Scheduler private (
       } else {
         val rootScope = symtab.scopes(RootPackage).asInstanceOf[PackageScope]
         val newScope = PackageScope(tree.id.sym, rootScope.index)
-        symtab.scopes(tree.id.sym) = newScope
+        symtab.scopes.put(tree.id.sym, newScope)
         todo.add(env, newScope)
         newScope
       }
@@ -309,13 +309,13 @@ final class Scheduler private (
           val packageScope = symtab.scopes(tree.id.sym.owner).asInstanceOf[PackageScope]
           val templateScope = PackageObjectScope(tree, packageScope)
           val templateEnv = templateScope :: packageScope :: selfEnv
-          symtab.scopes(tree.id.sym) = templateScope
+          symtab.scopes.put(tree.id.sym, templateScope)
           todo.add(packageScope :: tparamEnv, templateScope)
           templateEnv
         case tree =>
           val templateScope = TemplateScope(tree)
           val templateEnv = templateScope :: selfEnv
-          symtab.scopes(tree.id.sym) = templateScope
+          symtab.scopes.put(tree.id.sym, templateScope)
           todo.add(tparamEnv, templateScope)
           templateEnv
       }

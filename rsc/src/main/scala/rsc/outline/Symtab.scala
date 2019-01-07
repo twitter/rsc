@@ -86,7 +86,7 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
       }
     }
 
-    def update(sym: Symbol, scope: Scope): Unit = {
+    def put(sym: Symbol, scope: Scope): Unit = {
       if (_scopes.containsKey(sym)) {
         crash(sym)
       }

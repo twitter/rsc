@@ -11,10 +11,10 @@ import rsc.util._
 final class Indexer private (settings: Settings, reporter: Reporter, symtab: Symtab, todo: Todo) {
   def apply(): Unit = {
     val rootScope = PackageScope(RootPackage, symtab._index)
-    symtab.scopes(rootScope.sym) = rootScope
+    symtab.scopes.put(rootScope.sym, rootScope)
     todo.add(Env(Nil, ScalaLanguage), rootScope)
     val emptyScope = PackageScope(EmptyPackage, symtab._index)
-    symtab.scopes(emptyScope.sym) = emptyScope
+    symtab.scopes.put(emptyScope.sym, emptyScope)
     todo.add(Env(Nil, ScalaLanguage), emptyScope)
 
     sanityCheck("java/lang/", JavaLanguage, ScalaLanguage)
