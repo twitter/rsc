@@ -13,7 +13,7 @@ import rsc.util._
 import scala.meta.internal.{semanticdb => s}
 
 final class Symtab private (settings: Settings) extends AutoCloseable with Pretty {
-  val _index = Classpath(settings.cp)
+  val classpath = Classpath(settings.cp)
   private val _scopes = new HashMap[Symbol, Scope]
   private val _envs = new HashMap[Symbol, Env]
   val _outlines = new LinkedHashMap[Symbol, Outline]
@@ -45,7 +45,7 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
 
   object scopes {
     def contains(sym: Symbol): Boolean = {
-      _scopes.containsKey(sym) || _index.contains(sym)
+      _scopes.containsKey(sym) || classpath.contains(sym)
     }
 
     def contains(tpt: TptExistential): Boolean = {
@@ -61,11 +61,11 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
       if (scope != null) {
         scope
       } else {
-        if (_index.contains(sym)) {
-          val info = _index.apply(sym)
+        if (classpath.contains(sym)) {
+          val info = classpath.apply(sym)
           val scope = info.signature match {
-            case s.NoSignature if info.isPackage => PackageScope(sym, _index)
-            case _: s.ClassSignature => ClasspathScope(sym, _index)
+            case s.NoSignature if info.isPackage => PackageScope(sym, classpath)
+            case _: s.ClassSignature => ClasspathScope(sym, classpath)
             case _ => crash(sym)
           }
           scope.succeed()
@@ -151,7 +151,7 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
             case _ => crash(outline)
           }
         } else {
-          if (_index.contains(sym)) {
+          if (classpath.contains(sym)) {
             def loop(tpe: s.Type): Symbol = {
               tpe match {
                 case s.TypeRef(_, sym, _) => sym
@@ -159,7 +159,7 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
                 case _ => crash(tpe.asMessage.toProtoString)
               }
             }
-            val info = _index.apply(sym)
+            val info = classpath.apply(sym)
             val scopeSym = {
               if (sym == "scala/collection/convert/package.wrapAsScala.") {
                 // FIXME: https://github.com/twitter/rsc/issues/285
@@ -175,7 +175,7 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
                 }
               }
             }
-            val scope = ClasspathScope(scopeSym, _index)
+            val scope = ClasspathScope(scopeSym, classpath)
             scope.succeed()
             _scopes.put(sym, scope)
             ResolvedScope(scope)
@@ -199,7 +199,7 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
   }
 
   def close(): Unit = {
-    _index.close()
+    classpath.close()
   }
 
   def printStr(p: Printer): Unit = {

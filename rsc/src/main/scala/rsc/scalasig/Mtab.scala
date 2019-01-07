@@ -51,13 +51,13 @@ class Mtab private (symtab: Symtab) {
     } else {
       val sourceInfo = symtab._infos.get(sym)
       if (sourceInfo != null) sourceInfo
-      else symtab._index(sym)
+      else symtab.classpath(sym)
     }
   }
 
   def contains(sym: String): Boolean = {
     symtab._infos.containsKey(sym) ||
-    symtab._index.contains(sym) ||
+    symtab.classpath.contains(sym) ||
     symtab._statics.contains(sym)
   }
 

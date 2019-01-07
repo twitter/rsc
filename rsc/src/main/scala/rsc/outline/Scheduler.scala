@@ -235,7 +235,7 @@ final class Scheduler private (
         existingScope
       } else {
         val rootScope = symtab.scopes(RootPackage).asInstanceOf[PackageScope]
-        val newScope = PackageScope(tree.id.sym, symtab._index)
+        val newScope = PackageScope(tree.id.sym, symtab.classpath)
         symtab.scopes.put(tree.id.sym, newScope)
         todo.add(env, newScope)
         newScope

@@ -102,8 +102,8 @@ trait Prefixes {
                 if (outline != null) {
                   !outline.hasStatic
                 } else {
-                  if (symtab._index.contains(id.sym)) {
-                    val info = symtab._index(id.sym)
+                  if (symtab.classpath.contains(id.sym)) {
+                    val info = symtab.classpath(id.sym)
                     !info.isStatic
                   } else {
                     false

@@ -43,7 +43,7 @@ trait Templates {
                       crash(tree)
                   }
                 case ResolvedScope(firstResolution: BinaryScope) =>
-                  val firstInfo = symtab._index.apply(firstParentSym)
+                  val firstInfo = symtab.classpath.apply(firstParentSym)
                   if (firstInfo.isTrait || firstInfo.isInterface) {
                     superClass(firstInfo.parents)
                   } else if (firstInfo.isType) {
@@ -82,7 +82,7 @@ trait Templates {
                     val outline = symtab._outlines.get(scalacFirstParentSym)
                     outline.asInstanceOf[Parameterized].tparams.map(_.id.sym)
                   } else {
-                    val sig = symtab._index.apply(scalacFirstParentSym).signature
+                    val sig = symtab.classpath.apply(scalacFirstParentSym).signature
                     sig.asInstanceOf[s.ClassSignature].typeParameters.symbols
                   }
                 }
