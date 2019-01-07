@@ -5,14 +5,14 @@ package rsc.outline
 import rsc.pretty._
 import rsc.semantics._
 
-sealed trait Resolution extends Pretty with Product {
+sealed trait SymbolResolution extends Pretty with Product {
   override def printStr(p: Printer): Unit = PrettyResolution.str(p, this)
   override def printRepl(p: Printer): Unit = PrettyResolution.repl(p, this)
 }
 
-final case class BlockedResolution(work: Work) extends Resolution
-sealed trait FailedResolution extends Resolution
+final case class BlockedResolution(work: Work) extends SymbolResolution
+sealed trait FailedResolution extends SymbolResolution
 case class AmbiguousResolution(syms: List[Symbol]) extends FailedResolution
 case object MissingResolution extends FailedResolution
 case object ErrorResolution extends FailedResolution
-final case class SucceededResolution(sym: Symbol) extends Resolution
+final case class SucceededResolution(sym: Symbol) extends SymbolResolution

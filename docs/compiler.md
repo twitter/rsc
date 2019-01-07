@@ -213,7 +213,7 @@ of eager completers. As a result, our scopes track their own status
 sealed abstract class Scope(val sym: Symbol) {
   def enter(name: Name, sym: Symbol): Symbol
 
-  def resolve(name: Name): Resolution = {
+  def resolve(name: Name): SymbolResolution = {
     status match {
       case PendingStatus =>
         BlockedResolution(this)

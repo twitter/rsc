@@ -33,8 +33,8 @@ sealed class Env protected (val scopes: List[Scope], val lang: Language) extends
   }
 
   // FIXME: https://github.com/twitter/rsc/issues/229
-  def resolve(name: Name): Resolution = {
-    @tailrec def loopTemplates(scopes: List[Scope]): Resolution = {
+  def resolve(name: Name): SymbolResolution = {
+    @tailrec def loopTemplates(scopes: List[Scope]): SymbolResolution = {
       scopes match {
         case (head: TemplateScope) :: tail =>
           head.resolve(name) match {
@@ -47,7 +47,7 @@ sealed class Env protected (val scopes: List[Scope], val lang: Language) extends
           MissingResolution
       }
     }
-    @tailrec def loopPackages(scopes: List[Scope]): Resolution = {
+    @tailrec def loopPackages(scopes: List[Scope]): SymbolResolution = {
       scopes match {
         case (head: PackageScope) :: tail =>
           head.resolve(name) match {
@@ -60,7 +60,7 @@ sealed class Env protected (val scopes: List[Scope], val lang: Language) extends
           MissingResolution
       }
     }
-    @tailrec def loopOthers(scopes: List[Scope]): Resolution = {
+    @tailrec def loopOthers(scopes: List[Scope]): SymbolResolution = {
       scopes match {
         case head :: tail =>
           head.resolve(name) match {
@@ -84,7 +84,7 @@ sealed class Env protected (val scopes: List[Scope], val lang: Language) extends
     }
   }
 
-  def resolve(value: String): Resolution = {
+  def resolve(value: String): SymbolResolution = {
     resolve(TermName(value)) match {
       case blocked: BlockedResolution =>
         blocked
@@ -119,18 +119,18 @@ sealed class Env protected (val scopes: List[Scope], val lang: Language) extends
     }
   }
 
-  def resolveSuper(): Resolution = {
+  def resolveSuper(): SymbolResolution = {
     // FIXME: https://github.com/twitter/rsc/issues/96
     ???
   }
 
-  def resolveSuper(value: String): Resolution = {
+  def resolveSuper(value: String): SymbolResolution = {
     // FIXME: https://github.com/twitter/rsc/issues/96
     ???
   }
 
-  def resolveThis(): Resolution = {
-    @tailrec def loop(scopes: List[Scope]): Resolution = {
+  def resolveThis(): SymbolResolution = {
+    @tailrec def loop(scopes: List[Scope]): SymbolResolution = {
       scopes match {
         case (head: TemplateScope) :: tail =>
           SucceededResolution(head.sym)
@@ -143,8 +143,8 @@ sealed class Env protected (val scopes: List[Scope], val lang: Language) extends
     loop(scopes)
   }
 
-  def resolveThis(value: String): Resolution = {
-    @tailrec def loop(scopes: List[Scope]): Resolution = {
+  def resolveThis(value: String): SymbolResolution = {
+    @tailrec def loop(scopes: List[Scope]): SymbolResolution = {
       scopes match {
         case (head: TemplateScope) :: tail =>
           val succeeded = head.tree.id.value == value
@@ -159,8 +159,8 @@ sealed class Env protected (val scopes: List[Scope], val lang: Language) extends
     loop(scopes)
   }
 
-  def resolveWithin(value: String): Resolution = {
-    @tailrec def loop(scopes: List[Scope]): Resolution = {
+  def resolveWithin(value: String): SymbolResolution = {
+    @tailrec def loop(scopes: List[Scope]): SymbolResolution = {
       scopes match {
         case (head: PackageScope) :: _ =>
           val sym = head.sym.ownerChain.find(_.desc.value == value)

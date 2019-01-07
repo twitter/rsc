@@ -13,7 +13,7 @@ import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 sealed abstract class Scope(val sym: Symbol) extends Work {
   def enter(name: Name, sym: Symbol): Symbol
 
-  def resolve(name: Name): Resolution = {
+  def resolve(name: Name): SymbolResolution = {
     status match {
       case PendingStatus =>
         BlockedResolution(this)
@@ -157,7 +157,7 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
     }
   }
 
-  override def resolve(name: Name): Resolution = {
+  override def resolve(name: Name): SymbolResolution = {
     if (status.isSucceeded) {
       val result = impl.get(name)
       if (result != null) {
@@ -180,7 +180,7 @@ final class ClasspathScope private (sym: Symbol, val index: Index)
     crash(this)
   }
 
-  override def resolve(name: Name): Resolution = {
+  override def resolve(name: Name): SymbolResolution = {
     load(name) match {
       case NoSymbol =>
         MissingResolution
@@ -199,7 +199,7 @@ object ClasspathScope {
 final class PackageScope private (sym: Symbol, val index: Index)
     extends SourceScope(sym)
     with BinaryScope {
-  override def resolve(name: Name): Resolution = {
+  override def resolve(name: Name): SymbolResolution = {
     super.resolve(name) match {
       case MissingResolution =>
         if (index.contains(sym)) {
@@ -299,7 +299,7 @@ final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
     }
   }
 
-  override def resolve(name: Name): Resolution = {
+  override def resolve(name: Name): SymbolResolution = {
     val name1 = remap(name)
     if (name1 != null) {
       status match {
@@ -428,7 +428,7 @@ class TemplateScope protected (sym: Symbol, val tree: DefnTemplate) extends Sour
     }
   }
 
-  override def resolve(name: Name): Resolution = {
+  override def resolve(name: Name): SymbolResolution = {
     super.resolve(name) match {
       case MissingResolution =>
         _env.resolve(name)
