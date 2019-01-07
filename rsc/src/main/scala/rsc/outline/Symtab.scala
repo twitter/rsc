@@ -25,8 +25,10 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
   val _statics = new HashSet[Symbol]
 
   object envs {
-    def get(sym: Symbol): Env = {
-      _envs.get(sym)
+    def apply(sym: Symbol): Env = {
+      val env = _envs.get(sym)
+      if (env == null) crash(sym)
+      env
     }
 
     def put(sym: Symbol, env: Env): Unit = {

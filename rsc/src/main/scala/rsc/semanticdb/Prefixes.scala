@@ -13,9 +13,7 @@ trait Prefixes {
   self: Converter =>
 
   private lazy val env: Env = {
-    val env = symtab.envs.get(root.id.sym)
-    if (env == null) crash(root)
-    env
+    symtab.envs(root.id.sym)
   }
 
   def prefix(id: Id): s.Type = {
