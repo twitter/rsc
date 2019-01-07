@@ -4,6 +4,7 @@ package rsc.outline
 
 import java.util.{HashMap, HashSet, LinkedHashMap}
 import rsc.classpath._
+import rsc.input._
 import rsc.pretty._
 import rsc.semantics._
 import rsc.settings._
@@ -43,8 +44,20 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
   }
 
   object scopes {
+    def contains(sym: Symbol): Boolean = {
+      _scopes.containsKey(sym) || _index.contains(sym)
+    }
+
+    def contains(tpt: TptExistential): Boolean = {
+      _existentials.containsKey(tpt)
+    }
+
+    def contains(tpt: TptRefine): Boolean = {
+      _refines.containsKey(tpt)
+    }
+
     def apply(sym: Symbol): Scope = {
-      val scope = get(sym)
+      val scope = _scopes.get(sym)
       if (scope != null) scope
       else crash(sym)
     }
@@ -59,45 +72,6 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
       val scope = _refines.get(tpt)
       if (scope != null) scope
       else crash(tpt)
-    }
-
-    def get(sym: Symbol): Scope = {
-      val scope = _scopes.get(sym)
-      if (scope != null) {
-        scope
-      } else {
-        if (_index.contains(sym)) {
-          def loop(tpe: s.Type): Symbol = {
-            tpe match {
-              case s.TypeRef(_, sym, _) => sym
-              case s.SingleType(_, sym) => sym
-              case _ => crash(tpe.asMessage.toProtoString)
-            }
-          }
-          val info = _index.apply(sym)
-          val scopeSym = {
-            if (sym == "scala/collection/convert/package.wrapAsScala.") {
-              // FIXME: https://github.com/twitter/rsc/issues/285
-              "scala/collection/convert/WrapAsScala#"
-            } else {
-              info.signature match {
-                case s.NoSignature if info.isPackage => sym
-                case _: s.ClassSignature => sym
-                case sig: s.MethodSignature if info.isVal => loop(sig.returnType)
-                case sig: s.TypeSignature => loop(sig.upperBound)
-                case sig: s.ValueSignature => loop(sig.tpe)
-                case sig => crash(info.toProtoString)
-              }
-            }
-          }
-          val scope = ClasspathScope(scopeSym, _index)
-          scope.succeed()
-          _scopes.put(sym, scope)
-          scope
-        } else {
-          null
-        }
-      }
     }
 
     def put(sym: Symbol, scope: Scope): Unit = {
@@ -122,6 +96,90 @@ final class Symtab private (settings: Settings) extends AutoCloseable with Prett
         crash(tpt)
       }
       _refines.put(tpt, scope)
+    }
+
+    def resolve(sym: Symbol): ScopeResolution = {
+      val scope = _scopes.get(sym)
+      if (scope != null) {
+        ResolvedScope(scope)
+      } else {
+        val outline = _outlines.get(sym)
+        if (outline != null) {
+          def loop(tpt: Tpt): ScopeResolution = {
+            tpt match {
+              case TptArray(_) =>
+                loop(TptId("Array").withSym(ArrayClass))
+              case TptApply(fun, _) =>
+                loop(fun)
+              case tpt: TptPath =>
+                tpt.id.sym match {
+                  case NoSymbol =>
+                    // FIXME: https://github.com/twitter/rsc/issues/104
+                    BlockedResolution(Unknown())
+                  case sym =>
+                    resolve(sym)
+                }
+              case TptWildcardExistential(_, tpt) =>
+                loop(tpt)
+              case _ =>
+                crash(tpt)
+            }
+          }
+          outline match {
+            case DefnMethod(mods, _, _, _, Some(tpt), _) if mods.hasVal => loop(tpt)
+            case outline: DefnType => loop(outline.desugaredUbound)
+            case outline: TypeParam => loop(outline.desugaredUbound)
+            case Param(_, _, Some(tpt), _) => loop(tpt)
+            case Self(_, Some(tpt)) => loop(tpt)
+            case Self(_, None) => loop(_inferred.get(outline.id.sym))
+            case null => crash(sym)
+            case _ => crash(outline)
+          }
+        } else {
+          if (_index.contains(sym)) {
+            def loop(tpe: s.Type): Symbol = {
+              tpe match {
+                case s.TypeRef(_, sym, _) => sym
+                case s.SingleType(_, sym) => sym
+                case _ => crash(tpe.asMessage.toProtoString)
+              }
+            }
+            val info = _index.apply(sym)
+            val scopeSym = {
+              if (sym == "scala/collection/convert/package.wrapAsScala.") {
+                // FIXME: https://github.com/twitter/rsc/issues/285
+                "scala/collection/convert/WrapAsScala#"
+              } else {
+                info.signature match {
+                  case s.NoSignature if info.isPackage => sym
+                  case _: s.ClassSignature => sym
+                  case sig: s.MethodSignature if info.isVal => loop(sig.returnType)
+                  case sig: s.TypeSignature => loop(sig.upperBound)
+                  case sig: s.ValueSignature => loop(sig.tpe)
+                  case sig => crash(info.toProtoString)
+                }
+              }
+            }
+            val scope = ClasspathScope(scopeSym, _index)
+            scope.succeed()
+            _scopes.put(sym, scope)
+            ResolvedScope(scope)
+          } else {
+            MissingResolution
+          }
+        }
+      }
+    }
+
+    private implicit class BoundedSymtabOps(bounded: Bounded) {
+      def desugaredUbound: Tpt = {
+        bounded.lang match {
+          case ScalaLanguage | UnknownLanguage =>
+            bounded.ubound.getOrElse(TptId("Any").withSym(AnyClass))
+          case JavaLanguage =>
+            bounded.ubound.getOrElse(TptId("Object").withSym(ObjectClass))
+        }
+      }
     }
   }
 

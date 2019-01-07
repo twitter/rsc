@@ -32,17 +32,17 @@ trait Templates {
             case AnyClass :: _ =>
               AnyRefClass
             case firstParentSym :: _ =>
-              val firstScope = symtab.scopes(firstParentSym)
-              firstScope match {
-                case firstScope: TemplateScope =>
-                  firstScope.tree match {
+              val firstResolution = symtab.scopes.resolve(firstParentSym)
+              firstResolution match {
+                case ResolvedScope(firstResolution: TemplateScope) =>
+                  firstResolution.tree match {
                     case tree: DefnClass =>
                       if (tree.hasClass) firstParentSym
                       else superClass(tree.desugaredParents.map(parentSym))
                     case tree =>
                       crash(tree)
                   }
-                case firstScope: BinaryScope =>
+                case ResolvedScope(firstResolution: BinaryScope) =>
                   val firstInfo = symtab._index.apply(firstParentSym)
                   if (firstInfo.isTrait || firstInfo.isInterface) {
                     superClass(firstInfo.parents)
@@ -57,8 +57,8 @@ trait Templates {
                   } else {
                     firstParentSym
                   }
-                case firstScope =>
-                  crash(firstScope)
+                case firstResolution =>
+                  crash(firstResolution)
               }
             case Nil =>
               crash(template)

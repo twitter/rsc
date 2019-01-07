@@ -58,12 +58,13 @@ final class Outliner private (
               case ScalaLanguage | UnknownLanguage =>
                 scope.succeed()
               case JavaLanguage =>
-                val qualSym = parentScope1.sym
-                if (qualSym.isPackage) {
+                val qualSym1 = parentScope1.sym
+                if (qualSym1.isPackage) {
                   scope.succeed()
                 } else {
-                  val parentScope2 = symtab.scopes.get(qualSym.companionSymbol)
-                  if (parentScope2 != null) {
+                  val qualSym2 = qualSym1.companionSymbol
+                  if (symtab.scopes.contains(qualSym2)) {
+                    val parentScope2 = symtab.scopes(qualSym2)
                     parentScope2.status match {
                       case _: IncompleteStatus =>
                         scope.block(parentScope2)
@@ -393,9 +394,10 @@ final class Outliner private (
                         reporter.append(UnboundMember(env1, id))
                         resolution1
                       case JavaLanguage =>
-                        val scope2 = symtab.scopes.get(qualScope.sym.companionSymbol)
                         val resolution2 = {
-                          if (scope2 != null) {
+                          val qualSym2 = qualScope.sym.companionSymbol
+                          if (symtab.scopes.contains(qualSym2)) {
+                            val scope2 = symtab.scopes(qualSym2)
                             val env2 = Env(List(scope2), env.lang)
                             env2.resolve(id.name)
                           } else {
@@ -410,7 +412,7 @@ final class Outliner private (
                           case _: FailedResolution =>
                             resolution1
                           case ResolvedSymbol(sym) =>
-                            qual.id.sym = scope2.sym
+                            qual.id.sym = sym
                             id.sym = sym
                             resolution2
                         }
@@ -436,53 +438,7 @@ final class Outliner private (
       case resolution: FailedResolution =>
         resolution
       case ResolvedSymbol(sym) =>
-        val scope = symtab.scopes.get(sym)
-        if (scope != null) {
-          ResolvedScope(scope)
-        } else {
-          def loop(tpt: Tpt): ScopeResolution = {
-            tpt match {
-              case TptArray(_) =>
-                loop(TptId("Array").withSym(ArrayClass))
-              case TptApply(fun, _) =>
-                loop(fun)
-              case tpt: TptPath =>
-                tpt.id.sym match {
-                  case NoSymbol =>
-                    // FIXME: https://github.com/twitter/rsc/issues/104
-                    BlockedResolution(Unknown())
-                  case sym =>
-                    resolveScope(env, TptId(sym.desc.value).withSym(sym))
-                }
-              case TptWildcardExistential(_, tpt) =>
-                loop(tpt)
-              case _ =>
-                crash(tpt)
-            }
-          }
-          val outline = symtab._outlines.get(sym)
-          outline match {
-            case DefnMethod(mods, _, _, _, Some(tpt), _) if mods.hasVal => loop(tpt)
-            case outline: DefnType => loop(outline.desugaredUbound)
-            case outline: TypeParam => loop(outline.desugaredUbound)
-            case Param(_, _, Some(tpt), _) => loop(tpt)
-            case Self(_, Some(tpt)) => loop(tpt)
-            case Self(_, None) => loop(symtab._inferred.get(outline.id.sym))
-            case null => crash(sym)
-            case _ => crash(outline)
-          }
-        }
-    }
-  }
-
-  private implicit class BoundedOutlinerOps(bounded: Bounded) {
-    def desugaredUbound: Tpt = {
-      bounded.lang match {
-        case ScalaLanguage | UnknownLanguage =>
-          bounded.ubound.getOrElse(TptId("Any").withSym(AnyClass))
-        case JavaLanguage =>
-          bounded.ubound.getOrElse(TptId("Object").withSym(ObjectClass))
-      }
+        symtab.scopes.resolve(sym)
     }
   }
 
