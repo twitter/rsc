@@ -74,15 +74,7 @@ trait Tpts {
           s.TypeRef(s.NoType, "scala/Double#", Nil)
         case existentialTpt @ TptExistential(tpt, stats) =>
           val tpe = tpt.tpe
-          val decls = {
-            val scope = symtab.scopes(existentialTpt)
-            val outlines = scope.decls.flatMap(_.asMulti).map { sym =>
-              val outline = symtab._outlines.get(sym)
-              if (outline == null) crash(sym)
-              outline
-            }
-            Some(outlines.scope(HardlinkChildren))
-          }
+          val decls = symtab.scopes(existentialTpt).scope(HardlinkChildren)
           s.ExistentialType(tpe, decls)
         case TptFloat() =>
           s.TypeRef(s.NoType, "scala/Float#", Nil)
@@ -105,15 +97,7 @@ trait Tpts {
             case Some(tpt) => s.WithType(List(tpt.tpe))
             case None => s.NoType
           }
-          val decls = {
-            val scope = symtab.scopes(refineTpt)
-            val outlines = scope.decls.flatMap(_.asMulti).map { sym =>
-              val outline = symtab._outlines.get(sym)
-              if (outline == null) crash(sym)
-              outline
-            }
-            Some(outlines.scope(HardlinkChildren))
-          }
+          val decls = symtab.scopes(refineTpt).scope(HardlinkChildren)
           s.StructuralType(tpe, decls)
         case TptRepeat(tpt) =>
           s.RepeatedType(tpt.tpe)
