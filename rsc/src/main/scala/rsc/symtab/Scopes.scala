@@ -11,9 +11,7 @@ import rsc.util._
 import scala.meta.internal.{semanticdb => s}
 
 trait Scopes {
-  def classpath: Classpath
-  def _outlines: HashMap[Symbol, Outline]
-  def _inferred: HashMap[Symbol, Tpt]
+  self: Symtab =>
 
   private val _scopes = new HashMap[Symbol, Scope]
   private val _existentials = new HashMap[TptExistential, ExistentialScope]
@@ -122,7 +120,7 @@ trait Scopes {
             case outline: TypeParam => loop(outline.desugaredUbound)
             case Param(_, _, Some(tpt), _) => loop(tpt)
             case Self(_, Some(tpt)) => loop(tpt)
-            case Self(_, None) => loop(_inferred.get(outline.id.sym))
+            case outline @ Self(_, None) => loop(desugars.rets(outline))
             case null => crash(sym)
             case _ => crash(outline)
           }

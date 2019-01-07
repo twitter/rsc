@@ -157,18 +157,14 @@ final class Synthesizer private (
       synthesize(tp)
     }
     val paramss = {
-      val paramss = symtab._paramss.get(tree.primaryCtor.get)
-      if (paramss != null) {
-        paramss.map(_.map { p =>
-          val mods = p.mods.filter(_.isInstanceOf[ModImplicit])
-          val pos = p.id.pos
-          val id = TermId(p.id.valueopt.get).withPos(pos)
-          val tpt = p.tpt.map(_.dupe)
-          Param(mods, id, tpt, None).withPos(p.pos)
-        })
-      } else {
-        crash(tree)
-      }
+      val paramss = symtab.desugars.paramss(tree.primaryCtor.get)
+      paramss.map(_.map { p =>
+        val mods = p.mods.filter(_.isInstanceOf[ModImplicit])
+        val pos = p.id.pos
+        val id = TermId(p.id.valueopt.get).withPos(pos)
+        val tpt = p.tpt.map(_.dupe)
+        Param(mods, id, tpt, None).withPos(p.pos)
+      })
     }
     val ret = {
       val core = tree.id
@@ -182,7 +178,7 @@ final class Synthesizer private (
 
   def paramAccessors(env: Env, tree: DefnClass): Unit = {
     tree.primaryCtor.foreach { primaryCtor =>
-      val paramss = symtab._paramss.get(primaryCtor)
+      val paramss = symtab.desugars.paramss(primaryCtor)
       paramss.zipWithIndex.foreach {
         case (params, i) =>
           params.foreach { param =>
@@ -218,8 +214,7 @@ final class Synthesizer private (
   }
 
   def paramss(env: Env, tree: Parameterized): Unit = {
-    val paramss = symtab._paramss.get(tree)
-    if (paramss != null) {
+    if (symtab.desugars.paramss.contains(tree)) {
       ()
     } else {
       val tparams = {
@@ -288,9 +283,9 @@ final class Synthesizer private (
           paramssBuf += evidenceParams
           pendingEvidences = false
         }
-        symtab._paramss.put(tree, paramssBuf.result)
+        symtab.desugars.paramss.put(tree, paramssBuf.result)
       } else {
-        symtab._paramss.put(tree, tree.paramss)
+        symtab.desugars.paramss.put(tree, tree.paramss)
       }
     }
   }

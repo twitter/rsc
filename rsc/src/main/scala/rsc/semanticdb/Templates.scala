@@ -13,7 +13,7 @@ trait Templates {
 
   protected implicit class TemplateOps(template: DefnTemplate) {
     def desugaredParents: List[Tpt] = {
-      val rscParents = symtab._parents.get(template)
+      val rscParents = symtab.desugars.parents(template)
       val scalacFixup = {
         def parentSym(tpt: Tpt): Symbol = {
           tpt match {

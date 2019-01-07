@@ -10,13 +10,11 @@ import scala.meta.internal.{semanticdb => s}
 
 final class Symtab private (val settings: Settings)
     extends Classpaths
+    with Desugars
     with Envs
     with Scopes
     with Statics {
   val _outlines = new LinkedHashMap[Symbol, Outline]
-  val _paramss = new HashMap[Parameterized, List[List[Param]]]
-  val _parents = new HashMap[DefnTemplate, List[Tpt]]
-  val _inferred = new HashMap[Symbol, Tpt]
   val _infos = new HashMap[Symbol, s.SymbolInformation]
 }
 

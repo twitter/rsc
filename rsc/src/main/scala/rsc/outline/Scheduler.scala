@@ -194,7 +194,7 @@ final class Scheduler private (
         todo.add(paramEnv, ret)
       case None =>
         def infer(tpt: Tpt): Unit = {
-          symtab._inferred.put(tree.id.sym, tpt)
+          symtab.desugars.rets.put(tree, tpt)
           todo.add(paramEnv, tpt)
         }
         tree match {
@@ -394,21 +394,17 @@ final class Scheduler private (
   }
 
   private def paramss(env: Env, owner: Parameterized): Env = {
-    val paramss = symtab._paramss.get(owner)
-    if (paramss != null) {
-      paramss.foldLeft(env) { (env, params) =>
-        if (params.nonEmpty) {
-          val paramScope = ParamScope(owner.id.sym)
-          val paramEnv = paramScope :: env
-          params.foreach(apply(paramEnv, _))
-          paramScope.succeed()
-          paramEnv
-        } else {
-          env
-        }
+    val paramss = symtab.desugars.paramss(owner)
+    paramss.foldLeft(env) { (env, params) =>
+      if (params.nonEmpty) {
+        val paramScope = ParamScope(owner.id.sym)
+        val paramEnv = paramScope :: env
+        params.foreach(apply(paramEnv, _))
+        paramScope.succeed()
+        paramEnv
+      } else {
+        env
       }
-    } else {
-      crash(owner)
     }
   }
 
@@ -435,7 +431,7 @@ final class Scheduler private (
               if (owner.tparams.isEmpty) ownerRef
               TptParameterize(ownerRef, tparamRefs)
             }
-            symtab._inferred.put(tree.id.sym, inferredTpt)
+            symtab.desugars.rets.put(tree, inferredTpt)
             todo.add(selfEnv, inferredTpt)
         }
         selfScope.succeed()

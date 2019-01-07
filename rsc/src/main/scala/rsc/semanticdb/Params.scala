@@ -9,7 +9,7 @@ trait Params {
 
   protected implicit class ParamOps(parameterized: Parameterized) {
     def desugaredParamss: List[List[Param]] = {
-      symtab._paramss.get(parameterized)
+      symtab.desugars.paramss(parameterized)
     }
   }
 }

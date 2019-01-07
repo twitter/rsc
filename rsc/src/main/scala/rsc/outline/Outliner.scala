@@ -177,7 +177,6 @@ final class Outliner private (
         case Some(incompleteParent) =>
           scope.block(incompleteParent.scope)
         case _ =>
-          symtab._parents.put(scope.tree, parents.map(_.tpt))
           buf.clear()
           scope.tree.self.foreach {
             case Self(_, Some(TptWith(ts))) => ts.foreach(appendParent(env, _))
@@ -191,6 +190,7 @@ final class Outliner private (
               case Some(incompleteSelf) =>
                 scope.block(incompleteSelf.scope)
               case _ =>
+                symtab.desugars.parents.put(scope.tree, parents.map(_.tpt))
                 scope.parents = parents.map(_.scope)
                 scope.self = self.map(_.scope)
                 scope.succeed()
