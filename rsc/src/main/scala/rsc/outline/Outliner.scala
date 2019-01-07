@@ -40,13 +40,13 @@ final class Outliner private (
   }
 
   private def apply(env: Env, scope: ImporterScope): Unit = {
-    val qualResult = resolveScope(env, scope.tree.qual)
-    qualResult match {
-      case BlockedResult(dep) =>
+    val qualResolution = resolveScope(env, scope.tree.qual)
+    qualResolution match {
+      case BlockedResolution(dep) =>
         scope.block(dep)
-      case _: FailedResult =>
+      case _: FailedResolution =>
         scope.fail()
-      case SucceededResult(parentScope1) =>
+      case ResolvedScope(parentScope1) =>
         parentScope1.status match {
           case _: IncompleteStatus =>
             scope.block(parentScope1)
@@ -87,7 +87,7 @@ final class Outliner private (
     val buf = mutable.ListBuffer[ResolvedParent]()
     def insertParent(env: Env, tpt: Tpt, index: Int): Unit = {
       if (scope.status.isPending) {
-        def loop(tpt: Tpt): Result[Scope] = {
+        def loop(tpt: Tpt): ScopeResolution = {
           tpt match {
             case path: TptPath =>
               resolveScope(env, path)
@@ -101,15 +101,15 @@ final class Outliner private (
               loop(tpt)
             case _ =>
               reporter.append(IllegalParent(tpt))
-              FailedResult()
+              ErrorResolution
           }
         }
         loop(tpt) match {
-          case BlockedResult(dep) =>
+          case BlockedResolution(dep) =>
             scope.block(dep)
-          case _: FailedResult =>
+          case _: FailedResolution =>
             scope.fail()
-          case SucceededResult(scope) =>
+          case ResolvedScope(scope) =>
             buf.insert(index, ResolvedParent(tpt, scope))
         }
       }
@@ -221,13 +221,13 @@ final class Outliner private (
         tpts.foreach(apply(env, sketch, _))
       case tpt: TptPath =>
         resolveSym(env, tpt) match {
-          case BlockedResult(dep) =>
+          case BlockedResolution(dep) =>
             if (sketch.status.isPending) sketch.block(dep)
             else ()
-          case _: FailedResult =>
+          case _: FailedResolution =>
             if (sketch.status.isPending) sketch.fail()
             else ()
-          case _: SucceededResult[_] =>
+          case _: ResolvedSymbol =>
             ()
         }
       case tpt: TptPrimitive =>
@@ -261,19 +261,14 @@ final class Outliner private (
         reporter.append(UnboundId(within.id))
         if (sketch.status.isPending) sketch.fail()
         else ()
-      case SucceededResolution(sym) =>
+      case ResolvedSymbol(sym) =>
         within.id.sym = sym
     }
   }
 
   // ============ LEGACY ============
 
-  private sealed trait Result[+T]
-  private case class BlockedResult(work: Work) extends Result[Nothing]
-  private case class FailedResult() extends Result[Nothing]
-  private case class SucceededResult[T](x: T) extends Result[T]
-
-  private def resolveSym(env: Env, path: Path): Result[Symbol] = {
+  private def resolveSym(env: Env, path: Path): SymbolResolution = {
     path.id.sym match {
       case NoSymbol =>
         path match {
@@ -283,25 +278,25 @@ final class Outliner private (
               case resolution: AmbiguousResolution =>
                 if (env.isSynthetic) reporter.append(AmbiguousMember(env, id, resolution))
                 else reporter.append(AmbiguousId(id, resolution))
-                FailedResult()
-              case BlockedResolution(dep) =>
-                BlockedResult(dep)
+                resolution
+              case _: BlockedResolution =>
+                resolution
               case _: FailedResolution =>
                 if (env.isSynthetic) reporter.append(UnboundMember(env, id))
                 else reporter.append(UnboundId(id))
-                FailedResult()
-              case SucceededResolution(sym) =>
+                resolution
+              case ResolvedSymbol(sym) =>
                 id.sym = sym
-                SucceededResult(sym)
+                resolution
             }
           case AmbigSelect(qual, id) =>
-            val result = resolveScope(env, qual)
-            result match {
-              case result: BlockedResult =>
-                result
-              case result: FailedResult =>
-                result
-              case SucceededResult(qualScope) =>
+            val resolution = resolveScope(env, qual)
+            resolution match {
+              case resolution: BlockedResolution =>
+                resolution
+              case resolution: FailedResolution =>
+                resolution
+              case ResolvedScope(qualScope) =>
                 val env1 = Env(List(qualScope), env.lang)
                 resolveSym(env1, id)
             }
@@ -311,35 +306,35 @@ final class Outliner private (
               case resolution: AmbiguousResolution =>
                 if (env.isSynthetic) reporter.append(AmbiguousMember(env, id, resolution))
                 else reporter.append(AmbiguousId(id, resolution))
-                FailedResult()
-              case BlockedResolution(dep) =>
-                BlockedResult(dep)
+                resolution
+              case _: BlockedResolution =>
+                resolution
               case _: FailedResolution =>
                 if (env.isSynthetic) reporter.append(UnboundMember(env, id))
                 else reporter.append(UnboundId(id))
-                FailedResult()
-              case SucceededResolution(sym) =>
+                resolution
+              case ResolvedSymbol(sym) =>
                 id.sym = sym
-                SucceededResult(sym)
+                resolution
             }
           case TermSelect(qual: Path, id) =>
-            val result = resolveScope(env, qual)
-            result match {
-              case result: BlockedResult =>
-                result
-              case result: FailedResult =>
-                result
-              case SucceededResult(qualScope) =>
+            val resolution = resolveScope(env, qual)
+            resolution match {
+              case resolution: BlockedResolution =>
+                resolution
+              case resolution: FailedResolution =>
+                resolution
+              case ResolvedScope(qualScope) =>
                 val env1 = Env(List(qualScope), env.lang)
                 resolveSym(env1, id)
             }
           case TermSelect(qual, id) =>
             reporter.append(IllegalOutline(path))
-            FailedResult()
+            ErrorResolution
           case TermSuper(qual, mix) =>
             // FIXME: https://github.com/twitter/rsc/issues/96
             reporter.append(IllegalOutline(path))
-            FailedResult()
+            ErrorResolution
           case TermThis(qual) =>
             val resolution = {
               qual match {
@@ -350,24 +345,24 @@ final class Outliner private (
             resolution match {
               case resolution: AmbiguousResolution =>
                 reporter.append(AmbiguousId(qual, resolution))
-                FailedResult()
-              case BlockedResolution(dep) =>
-                BlockedResult(dep)
+                resolution
+              case _: BlockedResolution =>
+                resolution
               case _: FailedResolution =>
                 reporter.append(UnboundId(qual))
-                FailedResult()
-              case SucceededResolution(qualSym) =>
+                resolution
+              case ResolvedSymbol(qualSym) =>
                 qual.sym = qualSym
-                SucceededResult(qualSym)
+                resolution
             }
           case TptProject(qual: Path, id) =>
-            val result = resolveScope(env, qual)
-            result match {
-              case result: BlockedResult =>
-                result
-              case result: FailedResult =>
-                result
-              case SucceededResult(qualScope) =>
+            val resolution = resolveScope(env, qual)
+            resolution match {
+              case resolution: BlockedResolution =>
+                resolution
+              case resolution: FailedResolution =>
+                resolution
+              case ResolvedScope(qualScope) =>
                 // FIXME: https://github.com/twitter/rsc/issues/91
                 val env1 = Env(List(qualScope), env.lang)
                 resolveSym(env1, id)
@@ -375,31 +370,31 @@ final class Outliner private (
           case TptProject(qual, id) =>
             // FIXME: https://github.com/twitter/rsc/issues/91
             reporter.append(IllegalOutline(path))
-            FailedResult()
+            ErrorResolution
           case TptSelect(qual, id) =>
-            val result = resolveScope(env, qual)
-            result match {
-              case result: BlockedResult =>
-                result
-              case result: FailedResult =>
-                result
-              case SucceededResult(qualScope) =>
+            val resolution = resolveScope(env, qual)
+            resolution match {
+              case resolution: BlockedResolution =>
+                resolution
+              case resolution: FailedResolution =>
+                resolution
+              case ResolvedScope(qualScope) =>
                 val env1 = Env(List(qualScope), env.lang)
                 val resolution1 = env1.resolve(id.name)
                 resolution1 match {
                   case resolution1: AmbiguousResolution =>
                     reporter.append(AmbiguousMember(env1, id, resolution1))
-                    FailedResult()
-                  case BlockedResolution(dep) =>
-                    BlockedResult(dep)
+                    resolution1
+                  case _: BlockedResolution =>
+                    resolution1
                   case _: FailedResolution =>
                     env.lang match {
                       case ScalaLanguage | UnknownLanguage =>
                         reporter.append(UnboundMember(env1, id))
-                        FailedResult()
+                        resolution1
                       case JavaLanguage =>
                         val scope2 = symtab.scopes.get(qualScope.sym.companionSymbol)
-                        val resolution3 = {
+                        val resolution2 = {
                           if (scope2 != null) {
                             val env2 = Env(List(scope2), env.lang)
                             env2.resolve(id.name)
@@ -407,45 +402,45 @@ final class Outliner private (
                             resolution1
                           }
                         }
-                        resolution3 match {
+                        resolution2 match {
                           case _: AmbiguousResolution =>
-                            FailedResult()
-                          case BlockedResolution(dep) =>
-                            BlockedResult(dep)
+                            resolution1
+                          case _: BlockedResolution =>
+                            resolution2
                           case _: FailedResolution =>
-                            FailedResult()
-                          case SucceededResolution(sym) =>
+                            resolution1
+                          case ResolvedSymbol(sym) =>
                             qual.id.sym = scope2.sym
                             id.sym = sym
-                            SucceededResult(sym)
+                            resolution2
                         }
                     }
-                  case SucceededResolution(sym) =>
+                  case ResolvedSymbol(sym) =>
                     id.sym = sym
-                    SucceededResult(sym)
+                    resolution1
                 }
             }
           case TptSingleton(qual) =>
             resolveSym(env, qual)
         }
       case sym =>
-        SucceededResult(sym)
+        ResolvedSymbol(sym)
     }
   }
 
-  private def resolveScope(env: Env, qual: Path): Result[Scope] = {
-    val result = resolveSym(env, qual)
-    result match {
-      case result: BlockedResult =>
-        result
-      case result: FailedResult =>
-        result
-      case SucceededResult(sym) =>
+  private def resolveScope(env: Env, qual: Path): ScopeResolution = {
+    val resolution = resolveSym(env, qual)
+    resolution match {
+      case resolution: BlockedResolution =>
+        resolution
+      case resolution: FailedResolution =>
+        resolution
+      case ResolvedSymbol(sym) =>
         val scope = symtab.scopes.get(sym)
         if (scope != null) {
-          SucceededResult(scope)
+          ResolvedScope(scope)
         } else {
-          def loop(tpt: Tpt): Result[Scope] = {
+          def loop(tpt: Tpt): ScopeResolution = {
             tpt match {
               case TptArray(_) =>
                 loop(TptId("Array").withSym(ArrayClass))
@@ -455,7 +450,7 @@ final class Outliner private (
                 tpt.id.sym match {
                   case NoSymbol =>
                     // FIXME: https://github.com/twitter/rsc/issues/104
-                    BlockedResult(Unknown())
+                    BlockedResolution(Unknown())
                   case sym =>
                     resolveScope(env, TptId(sym.desc.value).withSym(sym))
                 }

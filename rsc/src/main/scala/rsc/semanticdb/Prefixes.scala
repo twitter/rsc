@@ -29,7 +29,7 @@ trait Prefixes {
       id.sym.owner.desc match {
         case d.Type(value) =>
           env.resolveThis(value) match {
-            case SucceededResolution(sym) =>
+            case ResolvedSymbol(sym) =>
               s.NoType
             case MissingResolution =>
               // FIXME: https://github.com/twitter/rsc/issues/229
@@ -40,7 +40,7 @@ trait Prefixes {
                       id match {
                         case id: AmbigId =>
                           head.resolve(TermName(id.value)) match {
-                            case succeeded: SucceededResolution => succeeded
+                            case resolved: ResolvedSymbol => resolved
                             case other => head.resolve(TypeName(id.value))
                           }
                         case id: AnonId =>
@@ -50,7 +50,7 @@ trait Prefixes {
                       }
                     }
                     resolution match {
-                      case _: SucceededResolution =>
+                      case _: ResolvedSymbol =>
                         head match {
                           case head: ImporterScope =>
                             prefix(head.tree.qual, id)

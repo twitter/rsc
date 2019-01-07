@@ -5,7 +5,7 @@ package rsc.pretty
 import rsc.outline._
 
 object PrettyResolution {
-  def str(p: Printer, x: SymbolResolution): Unit = {
+  def str(p: Printer, x: Resolution): Unit = {
     x match {
       case BlockedResolution(work) =>
         p.str(s"b:")
@@ -18,12 +18,14 @@ object PrettyResolution {
         p.str(s"m")
       case ErrorResolution =>
         p.str(s"e")
-      case SucceededResolution(sym) =>
+      case ResolvedScope(scope) =>
+        p.str(scope)
+      case ResolvedSymbol(sym) =>
         p.str(sym)
     }
   }
 
-  def repl(p: Printer, x: SymbolResolution): Unit = {
+  def repl(p: Printer, x: Resolution): Unit = {
     new ProductRepl(p).apply(x)
   }
 }

@@ -161,7 +161,7 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
     if (status.isSucceeded) {
       val result = impl.get(name)
       if (result != null) {
-        SucceededResolution(result)
+        ResolvedSymbol(result)
       } else {
         MissingResolution
       }
@@ -185,7 +185,7 @@ final class ClasspathScope private (sym: Symbol, val index: Index)
       case NoSymbol =>
         MissingResolution
       case sym =>
-        SucceededResolution(sym)
+        ResolvedSymbol(sym)
     }
   }
 }
@@ -208,7 +208,7 @@ final class PackageScope private (sym: Symbol, val index: Index)
             case NoSymbol =>
               MissingResolution
             case loadedSym =>
-              SucceededResolution(loadedSym)
+              ResolvedSymbol(loadedSym)
           }
         } else {
           MissingResolution
@@ -320,7 +320,7 @@ final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
               } else {
                 resolution1
               }
-            case _: SucceededResolution =>
+            case _: ResolvedSymbol =>
               resolution1
           }
       }
