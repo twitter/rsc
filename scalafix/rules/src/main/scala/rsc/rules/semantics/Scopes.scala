@@ -25,6 +25,27 @@ sealed trait Scope {
   }
 }
 
+final class AddedImportsScope extends Scope {
+
+  def lookup(name: n.Name): String = addedNames.getOrElse(name, "")
+
+  def addImport(sym: String): Unit = {
+    if (!addedImports.contains(sym)) {
+      sym.init.replace('/', '.').parse[Importer].toOption.foreach { importer =>
+        val name = sym.desc.name
+        addedNames += (name -> sym)
+        addedImports += (sym -> importer)
+      }
+    }
+  }
+
+  def importers: Seq[Importer] = addedImports.values.toSeq
+
+  private var addedNames = mutable.Map.empty[n.Name, String]
+
+  private var addedImports = mutable.Map.empty[String, Importer]
+}
+
 final case class ImporterScope(symtab: Symtab, sym: String, importees: List[Importee])
     extends Scope {
   private val mappings = mutable.Map[String, Option[String]]()

@@ -8,6 +8,7 @@ import metaconfig._
 import rsc.rules.pretty._
 import rsc.rules.semantics._
 import rsc.rules.syntax._
+import rsc.rules.util.GlobalImports
 import scala.meta._
 import scala.meta.contrib._
 import scala.meta.internal.{semanticdb => s}
@@ -30,8 +31,19 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
 
   override def fix(ctx: RuleCtx): Patch = {
     val targets = collectRewriteTargets(ctx)
-    targets.map(ascribeInferredType(ctx, _)).asPatch
+
+    val typeAscriptions = targets.map(ascribeInferredType(ctx, _)).asPatch
+
+    val addedImports = if (config.better) {
+      new GlobalImports(ctx).addGlobalImports(addedImportsScope.importers)
+    } else {
+      Patch.empty
+    }
+
+    typeAscriptions + addedImports
   }
+
+  private val addedImportsScope: AddedImportsScope = new AddedImportsScope
 
   private sealed trait RewriteTarget {
     val name: Name
@@ -166,7 +178,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
                       val details = other.asMessage.toProtoString
                       sys.error(s"unsupported outline: $details")
                   }
-                  val printer = new SemanticdbPrinter(target.env, index, config)
+                  val printer = new SemanticdbPrinter(target.env, addedImportsScope, index, config)
                   printer.pprint(returnType)
                   printer.toString
               }
@@ -174,7 +186,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
             case target: RewriteInit =>
               info.signature match {
                 case s.ClassSignature(_, (parent: s.TypeRef) +: _, _, _) =>
-                  val printer = new SemanticdbPrinter(target.env, index, config)
+                  val printer = new SemanticdbPrinter(target.env, addedImportsScope, index, config)
                   printer.rep("[", parent.typeArguments, ", ", "]")(printer.pprint)
                   printer.toString
               }

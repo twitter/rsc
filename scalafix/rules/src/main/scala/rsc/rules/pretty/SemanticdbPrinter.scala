@@ -14,7 +14,13 @@ import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.internal.semanticdb.Scala.{Names => n}
 import scalafix.internal.v0._
 
-class SemanticdbPrinter(env: Env, index: DocumentIndex, config: RscCompatConfig) extends Printer {
+class SemanticdbPrinter(
+    env: Env,
+    addedImportsScope: AddedImportsScope,
+    index: DocumentIndex,
+    config: RscCompatConfig
+) extends Printer {
+
   def pprint(tpe: s.Type): Unit = {
     def prefix(tpe: s.Type): Unit = {
       tpe match {
@@ -43,11 +49,7 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex, config: RscCompatConfig)
               case d.TypeParameter(value) => Some(n.TypeName(value))
               case other => None
             }
-            // TODO: If the lookup returns NoSymbol, we can insert an import and skip the prefix.
-            // The logic to implement this is left for future work.
-            if (config.better && name.exists(x => index.symbols.equivalent(env.lookup(x), sym))) {
-              ()
-            } else {
+            def printPrettyPrefix: Unit = {
               val prettyPre = if (pre == s.NoType) sym.trivialPrefix(env) else pre
               prettyPre match {
                 case _: s.SingleType | _: s.ThisType | _: s.SuperType =>
@@ -60,11 +62,28 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex, config: RscCompatConfig)
                   str("#")
               }
             }
+            if (config.better && pre == s.NoType) {
+              name.map(fullEnv.lookup) match {
+                case Some(x) if !index.symbols.equivalent(x, sym) =>
+                  if (x.isEmpty) {
+                    addedImportsScope.addImport(sym)
+                  } else {
+                    printPrettyPrefix
+                  }
+                case _ =>
+                  ()
+              }
+            } else {
+              printPrettyPrefix
+            }
             pprint(sym)
             rep("[", args, ", ", "]")(normal)
           }
         case s.SingleType(pre, sym) =>
-          if (config.better && index.symbols.equivalent(env.lookup(sym.desc.name), sym)) {
+          if (config.better && index.symbols.equivalent(fullEnv.lookup(sym.desc.name), sym)) {
+            str(sym.desc.value)
+          } else if (config.better && fullEnv.lookup(sym.desc.name).isEmpty) {
+            addedImportsScope.addImport(sym)
             str(sym.desc.value)
           } else {
             val prettyPre = if (pre == s.NoType) sym.trivialPrefix(env) else pre
@@ -131,6 +150,8 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex, config: RscCompatConfig)
     }
     normal(tpe)
   }
+
+  private val fullEnv = Env(env.scopes :+ addedImportsScope)
 
   private def pprint(sym: String): Unit = {
     val printableName = {
