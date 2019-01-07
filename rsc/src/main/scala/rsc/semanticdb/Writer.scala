@@ -53,9 +53,6 @@ final class Writer private (
           index(sym) = i.ToplevelEntry(uri)
         }
       }
-      if (!sym.desc.isPackage) {
-        symtab._toplevels.add(outline)
-      }
     }
     if (settings.debug) {
       var occBuf = occs.get(input)

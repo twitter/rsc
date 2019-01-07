@@ -13,6 +13,7 @@ import rsc.parse._
 import rsc.pretty._
 import rsc.report._
 import rsc.scan._
+import rsc.semantics._
 import rsc.settings._
 import rsc.syntax._
 import rsc.util._
@@ -152,14 +153,16 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
   private def scalasig(): Unit = {
     if (!settings.artifacts.contains(ArtifactScalasig)) return
     val writer = rsc.scalasig.Writer(settings, reporter, symtab, output)
-    val toplevels = new LinkedList(symtab._toplevels)
-    while (!toplevels.isEmpty) {
-      val outline = toplevels.remove()
-      try {
-        writer.write(outline)
-      } catch {
-        case ex: Throwable =>
-          crash(outline.pos, ex)
+    val outlines = new LinkedList(symtab._outlines.values)
+    while (!outlines.isEmpty) {
+      val outline = outlines.remove()
+      if (outline.id.sym.owner.desc.isPackage && !outline.id.sym.desc.isPackage) {
+        try {
+          writer.write(outline)
+        } catch {
+          case ex: Throwable =>
+            crash(outline.pos, ex)
+        }
       }
     }
   }
