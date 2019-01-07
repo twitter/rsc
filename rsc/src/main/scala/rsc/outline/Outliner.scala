@@ -261,7 +261,7 @@ final class Outliner private (
         reporter.append(UnboundId(within.id))
         if (sketch.status.isPending) sketch.fail()
         else ()
-      case FoundResolution(sym) =>
+      case SucceededResolution(sym) =>
         within.id.sym = sym
     }
   }
@@ -290,7 +290,7 @@ final class Outliner private (
                 if (env.isSynthetic) reporter.append(UnboundMember(env, id))
                 else reporter.append(UnboundId(id))
                 FailedResult()
-              case FoundResolution(sym) =>
+              case SucceededResolution(sym) =>
                 id.sym = sym
                 SucceededResult(sym)
             }
@@ -318,7 +318,7 @@ final class Outliner private (
                 if (env.isSynthetic) reporter.append(UnboundMember(env, id))
                 else reporter.append(UnboundId(id))
                 FailedResult()
-              case FoundResolution(sym) =>
+              case SucceededResolution(sym) =>
                 id.sym = sym
                 SucceededResult(sym)
             }
@@ -356,7 +356,7 @@ final class Outliner private (
               case _: FailedResolution =>
                 reporter.append(UnboundId(qual))
                 FailedResult()
-              case FoundResolution(qualSym) =>
+              case SucceededResolution(qualSym) =>
                 qual.sym = qualSym
                 SucceededResult(qualSym)
             }
@@ -414,13 +414,13 @@ final class Outliner private (
                             BlockedResult(dep)
                           case _: FailedResolution =>
                             FailedResult()
-                          case FoundResolution(sym) =>
+                          case SucceededResolution(sym) =>
                             qual.id.sym = scope2.sym
                             id.sym = sym
                             SucceededResult(sym)
                         }
                     }
-                  case FoundResolution(sym) =>
+                  case SucceededResolution(sym) =>
                     id.sym = sym
                     SucceededResult(sym)
                 }

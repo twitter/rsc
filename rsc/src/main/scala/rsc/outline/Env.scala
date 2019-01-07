@@ -96,22 +96,22 @@ sealed class Env protected (val scopes: List[Scope], val lang: Language) extends
             MissingResolution
           case failed: FailedResolution =>
             failed
-          case found: FoundResolution =>
-            found
+          case succeeded: SucceededResolution =>
+            succeeded
         }
       case failed: FailedResolution =>
         failed
-      case found1 @ FoundResolution(sym1) =>
+      case succeeded1 @ SucceededResolution(sym1) =>
         resolve(TypeName(value)) match {
           case blocked: BlockedResolution =>
             blocked
           case MissingResolution =>
-            found1
+            succeeded1
           case failed: FailedResolution =>
             failed
-          case found2 @ FoundResolution(sym2) =>
+          case succeeded2 @ SucceededResolution(sym2) =>
             if (sym1 == sym2 || !sym1.isPackage) {
-              FoundResolution(sym2)
+              SucceededResolution(sym2)
             } else {
               AmbiguousResolution(List(sym1, sym2))
             }
@@ -133,7 +133,7 @@ sealed class Env protected (val scopes: List[Scope], val lang: Language) extends
     @tailrec def loop(scopes: List[Scope]): Resolution = {
       scopes match {
         case (head: TemplateScope) :: tail =>
-          FoundResolution(head.sym)
+          SucceededResolution(head.sym)
         case _ :: tail =>
           loop(tail)
         case Nil =>
@@ -147,8 +147,8 @@ sealed class Env protected (val scopes: List[Scope], val lang: Language) extends
     @tailrec def loop(scopes: List[Scope]): Resolution = {
       scopes match {
         case (head: TemplateScope) :: tail =>
-          val found = head.tree.id.value == value
-          if (found) FoundResolution(head.sym)
+          val succeeded = head.tree.id.value == value
+          if (succeeded) SucceededResolution(head.sym)
           else loop(tail)
         case _ :: tail =>
           loop(tail)
@@ -165,14 +165,14 @@ sealed class Env protected (val scopes: List[Scope], val lang: Language) extends
         case (head: PackageScope) :: _ =>
           val sym = head.sym.ownerChain.find(_.desc.value == value)
           sym match {
-            case Some(foundSym) => FoundResolution(foundSym)
+            case Some(succeededSym) => SucceededResolution(succeededSym)
             case None => MissingResolution
           }
         case (head: TemplateScope) :: tail =>
-          val found = head.tree.id.value == value
-          if (found) {
+          val succeeded = head.tree.id.value == value
+          if (succeeded) {
             val sym = if (head.tree.isInstanceOf[DefnPackageObject]) head.sym.owner else head.sym
-            FoundResolution(sym)
+            SucceededResolution(sym)
           } else {
             loop(tail)
           }

@@ -15,4 +15,4 @@ sealed trait FailedResolution extends Resolution
 case class AmbiguousResolution(syms: List[Symbol]) extends FailedResolution
 case object MissingResolution extends FailedResolution
 case object ErrorResolution extends FailedResolution
-final case class FoundResolution(sym: Symbol) extends Resolution
+final case class SucceededResolution(sym: Symbol) extends Resolution

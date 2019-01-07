@@ -18,7 +18,7 @@ object PrettyResolution {
         p.str(s"m")
       case ErrorResolution =>
         p.str(s"e")
-      case FoundResolution(sym) =>
+      case SucceededResolution(sym) =>
         p.str(sym)
     }
   }
