@@ -15,7 +15,7 @@ class Mtab private (symtab: Symtab) {
   private val statics = new HashMap[String, s.SymbolInformation]
 
   def apply(sym: String): s.SymbolInformation = {
-    if (symtab._statics.contains(sym)) {
+    if (symtab.statics.contains(sym)) {
       val info = statics.get(sym)
       if (info != null) {
         info
@@ -58,7 +58,7 @@ class Mtab private (symtab: Symtab) {
   def contains(sym: String): Boolean = {
     symtab._infos.containsKey(sym) ||
     symtab.classpath.contains(sym) ||
-    symtab._statics.contains(sym)
+    symtab.statics.contains(sym)
   }
 
   def get(sym: String): Option[s.SymbolInformation] = {
@@ -77,7 +77,7 @@ class Mtab private (symtab: Symtab) {
 
   def anchor(sym: String): Option[String] = {
     val outline = {
-      if (symtab._statics.contains(sym) && sym.desc.isTerm) symtab._outlines.get(sym.companionClass)
+      if (symtab.statics.contains(sym) && sym.desc.isTerm) symtab._outlines.get(sym.companionClass)
       else symtab._outlines.get(sym)
     }
     if (outline != null && outline.pos != NoPosition) {

@@ -18,18 +18,6 @@ trait Scopes {
   private val _refines = new HashMap[TptRefine, RefineScope]
 
   object scopes {
-    def contains(sym: Symbol): Boolean = {
-      _scopes.containsKey(sym) || classpath.contains(sym)
-    }
-
-    def contains(tpt: TptExistential): Boolean = {
-      _existentials.containsKey(tpt)
-    }
-
-    def contains(tpt: TptRefine): Boolean = {
-      _refines.containsKey(tpt)
-    }
-
     def apply(sym: Symbol): Scope = {
       val scope = _scopes.get(sym)
       if (scope != null) {
@@ -61,6 +49,18 @@ trait Scopes {
       val scope = _refines.get(tpt)
       if (scope != null) scope
       else crash(tpt)
+    }
+
+    def contains(sym: Symbol): Boolean = {
+      _scopes.containsKey(sym) || classpath.contains(sym)
+    }
+
+    def contains(tpt: TptExistential): Boolean = {
+      _existentials.containsKey(tpt)
+    }
+
+    def contains(tpt: TptRefine): Boolean = {
+      _refines.containsKey(tpt)
     }
 
     def put(sym: Symbol, scope: Scope): Unit = {
