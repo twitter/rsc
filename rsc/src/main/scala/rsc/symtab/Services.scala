@@ -10,7 +10,7 @@ import rsc.syntax._
 import rsc.util._
 import scala.meta.internal.{semanticdb => s}
 
-trait Scopifies {
+trait Services {
   self: Symtab =>
 
   private val _scopifies = new HashMap[Symbol, Scope]
