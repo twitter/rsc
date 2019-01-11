@@ -30,10 +30,10 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
   var output: Output = Output(settings)
 
   def run(): Unit = {
-    for ((taskName, taskFn) <- tasks) {
+    for ((phaseName, phaseFn) <- phases) {
       val start = System.nanoTime()
       try {
-        taskFn()
+        phaseFn()
       } catch {
         case ex: Throwable =>
           reporter.append(CrashMessage(ex))
@@ -41,20 +41,20 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
       val end = System.nanoTime()
       val ms = (end - start) / 1000000
       if (settings.xprint("timings")) {
-        reporter.append(VerboseMessage(s"Finished $taskName in $ms ms"))
+        reporter.append(VerboseMessage(s"Finished $phaseName in $ms ms"))
       }
-      if (settings.xprint(taskName)) {
+      if (settings.xprint(phaseName)) {
         reporter.append(VerboseMessage(this.str))
       }
-      if (taskName == "parse" && settings.xprint("scan")) {
+      if (phaseName == "parse" && settings.xprint("scan")) {
         val p = new Printer
         PrettyCompiler.xprintScan(p, this)
         reporter.append(VerboseMessage(p.toString))
       }
-      if (settings.ystopAfter(taskName)) {
+      if (settings.ystopAfter(phaseName)) {
         return
       }
-      if (taskName == "parse" && settings.ystopAfter("scan")) {
+      if (phaseName == "parse" && settings.ystopAfter("scan")) {
         return
       }
       if (reporter.problems.nonEmpty) {
@@ -64,7 +64,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
     }
   }
 
-  private def tasks: List[(String, () => Unit)] = List(
+  private def phases: List[(String, () => Unit)] = List(
     "parse" -> (() => parse()),
     "index" -> (() => index()),
     "schedule" -> (() => schedule()),
