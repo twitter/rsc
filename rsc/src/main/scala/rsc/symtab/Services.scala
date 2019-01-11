@@ -13,13 +13,13 @@ import scala.meta.internal.{semanticdb => s}
 trait Services {
   self: Symtab =>
 
-  private val _scopifies = new HashMap[Symbol, Scope]
+  private val scopifies = new HashMap[Symbol, Scope]
 
   def scopify(sym: Symbol): ScopeResolution = {
     if (scopes.contains(sym)) {
       ResolvedScope(scopes(sym))
     } else {
-      val scope = _scopifies.get(sym)
+      val scope = scopifies.get(sym)
       if (scope != null) {
         ResolvedScope(scope)
       } else {
@@ -82,7 +82,7 @@ trait Services {
               }
               val scope = ClasspathScope(scopeSym, classpath)
               scope.succeed()
-              _scopifies.put(sym, scope)
+              scopifies.put(sym, scope)
               ResolvedScope(scope)
             } else {
               MissingResolution
