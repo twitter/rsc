@@ -19,6 +19,7 @@ package com.twitter.conversions
 import scala.language.implicitConversions
 import scala.util.matching.Regex
 
+@deprecated("Use the AnyVal version `com.twitter.conversions.StringOps`", "2018-12-05")
 object string {
   final class RichString(wrapped: String) {
 
@@ -105,7 +106,7 @@ object string {
      *
      * @return an unquoted unicode string
      */
-    def unquoteC(): _root_.scala.Predef.String = {
+    def unquoteC() = {
       regexSub(UNQUOTE_RE) { m =>
         val ch = m.group(1).charAt(0) match {
           // holy crap! this is terrible:

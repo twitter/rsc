@@ -31,12 +31,12 @@ import scala.util.parsing.combinator._
 object Credentials {
   object parser extends RegexParsers {
 
-    override val whiteSpace: _root_.scala.util.matching.Regex = "(?:\\s+|#.*\\r?\\n)+".r
+    override val whiteSpace = "(?:\\s+|#.*\\r?\\n)+".r
 
     private[this] val key = "[\\w-]+".r
     private[this] val value = ".+".r
 
-    def auth: parser.this.Parser[_root_.scala.Tuple2[_root_.scala.Predef.String, _root_.scala.Predef.String]] = key ~ ":" ~ value ^^ { case k ~ ":" ~ v => (k, v) }
+    def auth = key ~ ":" ~ value ^^ { case k ~ ":" ~ v => (k, v) }
     def content: Parser[Map[String, String]] = rep(auth) ^^ { auths =>
       Map(auths: _*)
     }

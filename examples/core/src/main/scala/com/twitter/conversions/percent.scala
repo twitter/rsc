@@ -17,11 +17,12 @@ import scala.language.implicitConversions
  *    -10.percent == -0.1
  * }}}
  */
+@deprecated("Use the AnyVal version `com.twitter.conversions.PercentOps`", "2018-12-05")
 object percent {
 
   private val BigDecimal100 = BigDecimal(100.0)
 
-  class RichDoublePercent private[conversions](val wrapped: Double) extends AnyVal {
+  class RichDoublePercent private[conversions] (val wrapped: Double) extends AnyVal {
     // convert wrapped to BigDecimal to preserve precision when dividing Doubles
     def percent: Double =
       if (wrapped.equals(Double.NaN)

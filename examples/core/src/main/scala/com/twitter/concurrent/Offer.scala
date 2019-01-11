@@ -1,7 +1,6 @@
 package com.twitter.concurrent
 
-import com.twitter.util.{Await, Duration, Future, Promise, Time, Timer}
-import com.twitter.util.Return
+import com.twitter.util._
 import scala.util.Random
 
 /**
@@ -71,7 +70,7 @@ trait Offer[+T] { self =>
   def map[U](f: T => U): Offer[U] = new Offer[U] {
     def prepare(): Future[Tx[U]] = self.prepare().map { tx =>
       new Tx[U] {
-        import Tx.{Commit, Abort}
+        import Tx.{Abort, Commit}
         def ack(): Future[Tx.Result[U]] = tx.ack().map {
           case Commit(t) => Commit(f(t))
           case Abort => Abort
@@ -312,6 +311,6 @@ object Offer {
   }
 
   object LostSynchronization extends Exception {
-    override def fillInStackTrace: _root_.com.twitter.concurrent.Offer.LostSynchronization.type = this
+    override def fillInStackTrace = this
   }
 }

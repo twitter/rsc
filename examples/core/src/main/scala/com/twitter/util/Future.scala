@@ -1,7 +1,7 @@
 package com.twitter.util
 
 import com.twitter.concurrent.{Offer, Tx}
-import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger}
+import java.util.concurrent.atomic.{AtomicBoolean, AtomicInteger, AtomicReference}
 import java.util.concurrent.{CancellationException, TimeUnit, Future => JavaFuture}
 import java.util.{List => JList}
 import scala.collection.mutable
@@ -40,48 +40,39 @@ object Future {
   /** A successfully satisfied constant `Future` of `false` */
   val False: Future[Boolean] = new ConstFuture(Return.False)
 
-  /**
-   * A failed `Future` analogous to `Predef.???`.
-   */
-  val ??? : Future[Nothing] =
-    Future.exception(new NotImplementedError("an implementation is missing"))
-
   private val SomeReturnUnit = Some(Return.Unit)
   private val NotApplied: Future[Nothing] = new NoFuture
   private val AlwaysNotApplied: Any => Future[Nothing] = scala.Function.const(NotApplied)
-  private val toUnit: Try[Any] => Future[Unit] = {
-    case Return(_) => Future.Unit
-    case t => Future.const(t.asInstanceOf[Try[Unit]])
+  private val tryToUnit: Try[Any] => Try[Unit] = {
+    case t: Return[_] => Try.Unit
+    case t => t.asInstanceOf[Try[Unit]]
   }
-  private val toVoid: Try[Any] => Future[Void] = {
-    case Return(_) => Future.Void
-    case t => Future.const(t.asInstanceOf[Try[Void]])
+  private val tryToVoid: Try[Any] => Try[Void] = {
+    case t: Return[_] => Try.Void
+    case t => t.asInstanceOf[Try[Void]]
   }
   private val AlwaysMasked: PartialFunction[Throwable, Boolean] = { case _ => true }
 
   private val toTuple2Instance: (Any, Any) => (Any, Any) = Tuple2.apply
   private def toTuple2[A, B]: (A, B) => (A, B) = toTuple2Instance.asInstanceOf[(A, B) => (A, B)]
-  private val toValueInstance: Any => Future[Any] = Future.value
-  private def toValue[T]: T => Future[T] = toValueInstance.asInstanceOf[T => Future[T]]
+  private val liftToTryInstance: Any => Try[Any] = Return(_)
+  private def liftToTry[T]: T => Try[T] = liftToTryInstance.asInstanceOf[T => Try[T]]
 
-  private val lowerFromTryInstance: Any => Future[Any] = {
-    case t: Try[_] => Future.const(t)
-  }
+  private val flattenTryInstance: Try[Try[Any]] => Try[Any] = _.flatten
+  private def flattenTry[A, T](implicit ev: A => Try[T]): Try[A] => Try[T] =
+    flattenTryInstance.asInstanceOf[Try[A] => Try[T]]
 
-  private def lowerFromTry[A, T]: A => Future[T] =
-    lowerFromTryInstance.asInstanceOf[A => Future[T]]
-
-  private val toTxInstance: Try[Any] => Future[Tx[Try[Any]]] =
+  private val toTxInstance: Try[Any] => Try[Tx[Try[Any]]] =
     res => {
       val tx = new Tx[Try[Any]] {
         def ack(): Future[Tx.Result[Try[Any]]] = Future.value(Tx.Commit(res))
         def nack(): Unit = ()
       }
 
-      Future.value(tx)
+      Return(tx)
     }
-  private def toTx[A]: Try[A] => Future[Tx[Try[A]]] =
-    toTxInstance.asInstanceOf[Try[A] => Future[Tx[Try[A]]]]
+  private def toTx[A]: Try[A] => Try[Tx[Try[A]]] =
+    toTxInstance.asInstanceOf[Try[A] => Try[Tx[Try[A]]]]
 
   private val emptySeqInstance: Future[Seq[Any]] = Future.value(Seq.empty)
   private def emptySeq[A]: Future[Seq[A]] = emptySeqInstance.asInstanceOf[Future[Seq[A]]]
@@ -92,6 +83,12 @@ object Future {
   // Exception used to raise on Futures.
   private[this] val RaiseException = new Exception with NoStackTrace
   @inline private final def raiseException = RaiseException
+
+  /**
+   * A failed `Future` analogous to [[Predef.???]].
+   */
+  def ??? : Future[Nothing] =
+    Future.exception(new NotImplementedError("an implementation is missing"))
 
   /**
    * Creates a satisfied `Future` from a [[Try]].
@@ -1053,7 +1050,7 @@ def join[%s](%s): Future[(%s)] = join(Seq(%s)).map { _ => (%s) }""".format(
    *  {{{
    *    // will return a Future of `Seq(2, 3, 4)`
    *    Future.traverseSequentially(Seq(1, 2, 3)) { i =>
-   *      Future(i + 1)
+   *      Future.value(i + 1)
    *    }
    *  }}}
    *
@@ -1324,13 +1321,12 @@ def join[%s](%s): Future[(%s)] = join(Seq(%s)).map { _ => (%s) }""".format(
   case class NextThrewException(cause: Throwable)
       extends IllegalArgumentException("'next' threw an exception", cause)
 
-  private class Each[A](next: => Future[A], body: A => Unit)
-    extends (Try[A] => Future[Nothing]) {
+  private class Each[A](next: => Future[A], body: A => Unit) extends (Try[A] => Future[Nothing]) {
     def apply(t: Try[A]): Future[Nothing] = t match {
       case Return(a) =>
         body(a)
         go()
-      case t@Throw(_) =>
+      case t @ Throw(_) =>
         Future.const(t.cast[Nothing])
     }
     def go(): Future[Nothing] = {
@@ -1398,8 +1394,7 @@ def join[%s](%s): Future[(%s)] = join(Seq(%s)).map { _ => (%s) }""".format(
     sizeThreshold: Int,
     timeThreshold: Duration = Duration.Top,
     sizePercentile: => Float = 1.0f
-  )(
-    f: Seq[In] => Future[Seq[Out]]
+  )(f: Seq[In] => Future[Seq[Out]]
   )(
     implicit timer: Timer
   ): Batcher[In, Out] = {
@@ -1427,6 +1422,23 @@ def join[%s](%s): Future[(%s)] = join(Seq(%s)).map { _ => (%s) }""".format(
  * @see The [[https://twitter.github.io/finagle/guide/Futures.html user guide]]
  *      on concurrent programming with Futures.
  * @see [[Futures]] for Java-friendly APIs.
+ *
+ * @define callbacks
+ * {{{
+ * import com.twitter.util.Future
+ * def callbacks(result: Future[Int]): Future[Int] =
+ *   result.onSuccess { i =>
+ *     println(i)
+ *   }.onFailure { e =>
+ *     println(e.getMessage)
+ *   }.ensure {
+ *     println("always printed")
+ *   }
+ * }}}
+ *
+ * @define awaitresult
+ * // Await.result blocks the current thread,
+ * // don't use it except for tests.
  */
 abstract class Future[+A] extends Awaitable[A] { self =>
 
@@ -1441,8 +1453,23 @@ abstract class Future[+A] extends Awaitable[A] { self =>
    * libraries). Otherwise, it is a best practice to use one of the
    * alternatives ([[onSuccess]], [[onFailure]], etc.).
    *
-   * @note this should be used for side-effects.
+   * @example
+   * {{{
+   * import com.twitter.util.{Await, Future, Return, Throw}
+   * val f1: Future[Int] = Future.value(1)
+   * val f2: Future[Int] = Future.exception(new Exception("boom!"))
+   * val printing: Future[Int] => Future[Int] = x => x.respond {
+   * 	case Return(_) => println("Here's a Return")
+   * 	case Throw(_) => println("Here's an Exception")
+   * }
+   * Await.result(printing(f1))
+   * // Prints side-effect "Here's a Return" and then returns Future value "1"
+   * Await.result(printing(f2))
+   * // Prints side-effect "Here's an Exception" and then throws java.lang.Exception: boom!
+   * $awaitresult
+   * }}}
    *
+   * @note this should be used for side-effects.
    * @param k the side-effect to apply when the computation completes.
    *          The value of the input to `k` will be the result of the
    *          computation to this future.
@@ -1463,8 +1490,14 @@ abstract class Future[+A] extends Awaitable[A] { self =>
    * The returned `Future` will be satisfied when this,
    * the original future, is done.
    *
-   * @note this should be used for side-effects.
+   * @example
+   * $callbacks
+   * {{{
+   * val a = Future.value(1)
+   * callbacks(a) // prints "1" and then "always printed"
+   * }}}
    *
+   * @note this should be used for side-effects.
    * @param f the side-effect to apply when the computation completes.
    * @see [[respond]] if you need the result of the computation for
    *     usage in the side-effect.
@@ -1561,7 +1594,7 @@ abstract class Future[+A] extends Awaitable[A] { self =>
    *
    * ''Note'': On timeout, the underlying future is interrupted.
    */
-  def raiseWithin(timeout: Duration, exc: Throwable)(implicit timer: Timer): Future[A] =
+  def raiseWithin(timeout: Duration, exc: => Throwable)(implicit timer: Timer): Future[A] =
     raiseWithin(timer, timeout, exc)
 
   /**
@@ -1569,7 +1602,7 @@ abstract class Future[+A] extends Awaitable[A] { self =>
    *
    * ''Note'': On timeout, the underlying future is interrupted.
    */
-  def raiseWithin(timer: Timer, timeout: Duration, exc: Throwable): Future[A] = {
+  def raiseWithin(timer: Timer, timeout: Duration, exc: => Throwable): Future[A] = {
     if (timeout == Duration.Top || isDefined)
       return this
 
@@ -1681,8 +1714,22 @@ abstract class Future[+A] extends Awaitable[A] { self =>
    * When this future completes, run `f` on that completed result
    * whether or not this computation was successful.
    *
-   * The returned `Future` will be satisfied when this,
+   * The returned `Future` will be satisfied when `this`,
    * the original future, and `f` are done.
+   *
+   * @example
+   * {{{
+   * import com.twitter.util.{Await, Future, Return, Throw}
+   * val f1: Future[Int] = Future.value(1)
+   * val f2: Future[Int] = Future.exception(new Exception("boom!"))
+   * val transforming: Future[Int] => Future[String] = x => x.transform {
+   * 	case Return(i) => Future.value(i.toString)
+   * 	case Throw(e) => Future.value(e.getMessage)
+   * }
+   * Await.result(transforming(f1)) // String = 1
+   * Await.result(transforming(f2)) // String = "boom!"
+   * $awaitresult
+   * }}}
    *
    * @see [[respond]] for purely side-effecting callbacks.
    * @see [[map]] and [[flatMap]] for dealing strictly with successful
@@ -1694,12 +1741,55 @@ abstract class Future[+A] extends Awaitable[A] { self =>
   def transform[B](f: Try[A] => Future[B]): Future[B]
 
   /**
+   * When this future completes, run `f` on that completed result
+   * whether or not this computation was successful.
+   *
+   * This method is similar to `transform`, but the transformation is
+   * applied without introducing an intermediate future, which leads
+   * to better performance.
+   *
+   * The returned `Future` will be satisfied when `this`,
+   * the original future, is done.
+   *
+   * @see [[respond]] for purely side-effecting callbacks.
+   * @see [[map]] and [[flatMap]] for dealing strictly with successful
+   *     computations.
+   * @see [[handle]] and [[rescue]] for dealing strictly with exceptional
+   *     computations.
+   * @see [[transformedBy]] for a Java friendly API.
+   * @see [[transform]] for transformations that return `Future`.
+   */
+  protected def transformTry[B](f: Try[A] => Try[B]): Future[B]
+
+  /**
    * If this, the original future, succeeds, run `f` on the result.
    *
    * The returned result is a Future that is satisfied when the original future
    * and the callback, `f`, are done.
+   *
+   * @example
+   * {{{
+   * import com.twitter.util.{Await, Future}
+   * val f: Future[Int] = Future.value(1)
+   * val newf: Future[Int] = f.flatMap { x =>
+   *   Future.value(x + 10)
+   * }
+   * Await.result(newf) // 11
+   * $awaitresult
+   * }}}
+   *
    * If the original future fails, this one will also fail, without executing `f`
-   * and preserving the failed computation of `this`.
+   * and preserving the failed computation of `this`
+   * @example
+   * {{{
+   * import com.twitter.util.{Await, Future}
+   * val f: Future[Int] = Future.exception(new Exception("boom!"))
+   * val newf: Future[Int] = f.flatMap { x =>
+   *   println("I'm being executed") // won't print
+   *   Future.value(x + 10)
+   * }
+   * Await.result(newf) // throws java.lang.Exception: boom!
+   * }}}
    *
    * @see [[map]]
    */
@@ -1729,11 +1819,22 @@ abstract class Future[+A] extends Awaitable[A] { self =>
    *
    * This is the equivalent of [[flatMap]] for failed computations.
    *
+   * @example
+   * {{{
+   * import com.twitter.util.{Await, Future}
+   * val f1: Future[Int] = Future.exception(new Exception("boom1!"))
+   * val f2: Future[Int] = Future.exception(new Exception("boom2!"))
+   * val newf: Future[Int] => Future[Int] = x => x.rescue {
+   * 	case e: Exception if e.getMessage == "boom1!" => Future.value(1)
+   * }
+   * Await.result(newf(f1)) // 1
+   * Await.result(newf(f2)) // throws java.lang.Exception: boom2!
+   * $awaitresult
+   * }}}
+   *
    * @see [[handle]]
    */
-  def rescue[B >: A](
-    rescueException: PartialFunction[Throwable, Future[B]]
-  ): Future[B] =
+  def rescue[B >: A](rescueException: PartialFunction[Throwable, Future[B]]): Future[B] =
     transform {
       case Throw(t) =>
         val result = rescueException.applyOrElse(t, Future.AlwaysNotApplied)
@@ -1754,21 +1855,40 @@ abstract class Future[+A] extends Awaitable[A] { self =>
    *
    * The returned result is a Future that is satisfied when the original future
    * and the callback, `f`, are done.
+   *
+   * @example
+   * {{{
+   * import com.twitter.util.{Await, Future}
+   * val f: Future[Int] = Future.value(1)
+   * val newf: Future[Int] = f.map { x =>
+   *   x + 10
+   * }
+   * Await.result(newf) // 11
+   * $awaitresult
+   * }}}
+   *
    * If the original future fails, this one will also fail, without executing `f`
-   * and preserving the failed computation of `this`.
+   * and preserving the failed computation of `this`
+   *
+   * @example
+   * {{{
+   * import com.twitter.util.{Await, Future}
+   * val f: Future[Int] = Future.exception(new Exception("boom!"))
+   * val newf: Future[Int] = f.map { x =>
+   *   println("I'm being executed") // won't print
+   *   x + 10
+   * }
+   * Await.result(newf) // throws java.lang.Exception: boom!
+   * }}}
    *
    * @see [[flatMap]] for computations that return `Future`s.
    * @see [[onSuccess]] for side-effecting chained computations.
    */
   def map[B](f: A => B): Future[B] =
-    transform {
-      case Return(r) => Future { f(r) }
-      case t: Throw[_] => Future.const[B](t.cast[B])
-    }
+    transformTry(_.map(f))
 
-  def filter(p: A => Boolean): Future[A] = transform { x: Try[A] =>
-    Future.const(x.filter(p))
-  }
+  def filter(p: A => Boolean): Future[A] =
+    transformTry(_.filter(p))
 
   def withFilter(p: A => Boolean): Future[A] = filter(p)
 
@@ -1777,6 +1897,13 @@ abstract class Future[+A] extends Awaitable[A] { self =>
    * successful.  Returns a chained Future as in `respond`.
    *
    * @note this should be used for side-effects.
+   *
+   * @example
+   * $callbacks
+   * {{{
+   * val a = Future.value(1)
+   * callbacks(a) // prints "1" and then "always printed"
+   * }}}
    *
    * @return chained Future
    * @see [[flatMap]] and [[map]] to produce a new `Future` from the result of
@@ -1799,6 +1926,13 @@ abstract class Future[+A] extends Awaitable[A] { self =>
    *       `Monitor`. This will happen if you use a construct such as
    *       `future.onFailure { case NonFatal(e) => ... }` when the Throwable
    *       is "fatal".
+   *
+   * @example
+   * $callbacks
+   * {{{
+   * val b = Future.exception(new Exception("boom!"))
+   * callbacks(b) // prints "boom!" and then "always printed"
+   * }}}
    *
    * @return chained Future
    * @see [[handle]] and [[rescue]] to produce a new `Future` from the result of
@@ -1855,6 +1989,19 @@ abstract class Future[+A] extends Awaitable[A] { self =>
    *
    * This is the equivalent of [[map]] for failed computations.
    *
+   * @example
+   * {{{
+   * import com.twitter.util.{Await, Future}
+   * val f1: Future[Int] = Future.exception(new Exception("boom1!"))
+   * val f2: Future[Int] = Future.exception(new Exception("boom2!"))
+   * val newf: Future[Int] => Future[Int] = x => x.handle {
+   * 	case e: Exception if e.getMessage == "boom1!" => 1
+   * }
+   * Await.result(newf(f1)) // 1
+   * Await.result(newf(f2)) // throws java.lang.Exception: boom2!
+   * $awaitresult
+   * }}}
+   *
    * @see [[rescue]]
    */
   def handle[B >: A](rescueException: PartialFunction[Throwable, B]): Future[B] = rescue {
@@ -1910,14 +2057,28 @@ abstract class Future[+A] extends Awaitable[A] { self =>
    */
   def joinWith[B, C](other: Future[B])(fn: (A, B) => C): Future[C] = {
     val p = Promise.interrupts[C](this, other)
-    this.respond {
-      case Throw(t) => p.update(Throw(t))
-      case Return(a) =>
-        other.respond {
-          case Throw(t) => p.update(Throw(t))
-          case Return(b) => p.update(Return(fn(a, b)))
+    // This is a race between this future and the other to set the atomic
+    // reference. In the Throw case, the winner updates the promise and the
+    // loser does nothing. In the Return case the jobs are flipped: the loser
+    // updates the promise and the winner does nothing. There is one more
+    // consideration: in the Throw case, the loser sets the promise if the
+    // winner was a Return. This guarantees that there can be only one attempt
+    // to call `fn` and also to update the promise.
+    val race = new AtomicReference[Try[_]] with (Try[_] => Unit) {
+      def apply(tx: Try[_]): Unit = {
+        val isFirst = compareAndSet(null, tx)
+        tx match {
+          case Return(_) if !isFirst && get.isReturn =>
+            p.setValue(fn(Await.result(Future.this), Await.result(other)))
+          case t @ Throw(_) if isFirst || get.isReturn =>
+            p.update(t.cast[C])
+          case _ =>
         }
+      }
     }
+
+    this.respond(race)
+    other.respond(race)
     p
   }
 
@@ -1926,14 +2087,14 @@ abstract class Future[+A] extends Awaitable[A] { self =>
    *
    * @note failed futures will remain as is.
    */
-  def unit: Future[Unit] = transform(Future.toUnit)
+  def unit: Future[Unit] = transformTry(Future.tryToUnit)
 
   /**
    * Convert this `Future[A]` to a `Future[Void]` by discarding the result.
    *
    * @note failed futures will remain as is.
    */
-  def voided: Future[Void] = transform(Future.toVoid)
+  def voided: Future[Void] = transformTry(Future.tryToVoid)
 
   /**
    * Send updates from this Future to the other.
@@ -1953,7 +2114,9 @@ abstract class Future[+A] extends Awaitable[A] { self =>
         s"Cannot call proxyTo on an already satisfied Promise: ${Await.result(other.liftToTry)}"
       )
     }
-    respond { res => other.update(res) }
+    respond { res =>
+      other.update(res)
+    }
   }
 
   /**
@@ -1962,7 +2125,7 @@ abstract class Future[+A] extends Awaitable[A] { self =>
    * The offer is activated when the future is satisfied.
    */
   def toOffer: Offer[Try[A]] = new Offer[Try[A]] {
-    def prepare(): Future[Tx[Try[A]]] = transform(Future.toTx)
+    def prepare(): Future[Tx[Try[A]]] = transformTry(Future.toTx)
   }
 
   /**
@@ -2080,14 +2243,38 @@ abstract class Future[+A] extends Awaitable[A] { self =>
 
   /**
    * Returns the result of the computation as a `Future[Try[A]]`.
+   *
+   * @example
+   * {{{
+   * import com.twitter.util.{Await, Future, Try}
+   * val fr: Future[Int] = Future.value(1)
+   * val ft: Future[Int] = Future.exception(new Exception("boom!"))
+   * val r: Future[Try[Int]] = fr.liftToTry
+   * val t: Future[Try[Int]] = ft.liftToTry
+   * Await.result(r) // Return(1)
+   * Await.result(t) // Throw(java.lang.Exception: boom!)
+   * $awaitresult
+   * }}}
    */
-  def liftToTry: Future[Try[A]] = transform(Future.toValue)
+  def liftToTry: Future[Try[A]] = transformTry(Future.liftToTry)
 
   /**
    * Lowers a `Future[Try[T]]` into a `Future[T]`.
+   *
+   * @example
+   * {{{
+   * import com.twitter.util.{Await, Future, Return, Throw, Try}
+   * val fr: Future[Try[Int]] = Future.value(Return(1))
+   * val ft: Future[Try[Int]] = Future.value(Throw(new Exception("boom!")))
+   * val r: Future[Int] = fr.lowerFromTry
+   * val t: Future[Int] = ft.lowerFromTry
+   * Await.result(r) // 1
+   * Await.result(t) // throws java.lang.Exception: boom!
+   * $awaitresult
+   * }}}
    */
   def lowerFromTry[B](implicit ev: A <:< Try[B]): Future[B] =
-    flatMap(Future.lowerFromTry)
+    transformTry(Future.flattenTry)
 
   /**
    * Makes a derivative `Future` which will be satisfied with the result

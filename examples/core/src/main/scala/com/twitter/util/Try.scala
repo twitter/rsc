@@ -12,6 +12,16 @@ import scala.util.{Success, Failure}
 object Try {
   case class PredicateDoesNotObtain() extends Exception()
 
+  /**
+   * A constant `Try` that returns `Unit`.
+   */
+  val Unit: Try[Unit] = Try(())
+
+  /**
+   * A constant `Try` that returns `Void`.
+   */
+  val Void: Try[Void] = Try(null: Void)
+
   def apply[R](r: => R): Try[R] = {
     try { Return(r) } catch {
       case NonFatal(e) => Throw(e)
@@ -118,7 +128,7 @@ sealed abstract class Try[+R] {
   /**
    * Returns the value from this Return or the given argument if this is a Throw.
    */
-  def getOrElse[R2 >: R](default: => R2): R2 = if (isReturn) apply() else default
+  def getOrElse[R2 >: R](default: => R2) = if (isReturn) apply() else default
 
   /**
    * Returns the value from this Return or throws the exception if this is a Throw
@@ -129,7 +139,7 @@ sealed abstract class Try[+R] {
    * Returns the value from this Return or throws the exception if this is a Throw.
    * Alias for apply()
    */
-  def get(): R = apply()
+  def get() = apply()
 
   /**
    * Applies the given function f if this is a Result.
@@ -204,7 +214,7 @@ sealed abstract class Try[+R] {
   /**
    * Returns None if this is a Throw or a Some containing the value if this is a Return
    */
-  def toOption: _root_.scala.Option[R] = if (isReturn) Some(apply()) else None
+  def toOption = if (isReturn) Some(apply()) else None
 
   /**
    * Invokes the given closure when the value is available.  Returns
@@ -226,7 +236,7 @@ sealed abstract class Try[+R] {
    * Returns the given function applied to the value from this Return or returns this if this is a Throw.
    * Alias for flatMap
    */
-  def andThen[R2](f: R => Try[R2]): _root_.com.twitter.util.Try[R2] = flatMap(f)
+  def andThen[R2](f: R => Try[R2]) = flatMap(f)
 
   def flatten[T](implicit ev: R <:< Try[T]): Try[T]
 
@@ -239,10 +249,10 @@ object Throw {
 
 final case class Throw[+R](e: Throwable) extends Try[R] {
   def asScala: scala.util.Try[R] = Failure(e)
-  def isThrow: _root_.scala.Boolean = true
-  def isReturn: _root_.scala.Boolean = false
+  def isThrow = true
+  def isReturn = false
   def throwable: Throwable = e
-  def rescue[R2 >: R](rescueException: PartialFunction[Throwable, Try[R2]]): _root_.com.twitter.util.Try[R2] = {
+  def rescue[R2 >: R](rescueException: PartialFunction[Throwable, Try[R2]]) = {
     try {
       val result = rescueException.applyOrElse(e, Throw.AlwaysNotApplied)
       if (result eq Throw.NotApplied) this else result
@@ -251,16 +261,16 @@ final case class Throw[+R](e: Throwable) extends Try[R] {
     }
   }
   def apply(): R = throw e
-  def flatMap[R2](f: R => Try[R2]): _root_.com.twitter.util.Throw[R2] = this.asInstanceOf[Throw[R2]]
+  def flatMap[R2](f: R => Try[R2]) = this.asInstanceOf[Throw[R2]]
   def flatten[T](implicit ev: R <:< Try[T]): Try[T] = this.asInstanceOf[Throw[T]]
   def map[X](f: R => X): Try[X] = this.asInstanceOf[Throw[X]]
   def cast[X]: Try[X] = this.asInstanceOf[Throw[X]]
-  def exists(p: R => Boolean): _root_.scala.Boolean = false
-  def filter(p: R => Boolean): _root_.com.twitter.util.Throw[R] = this
-  def withFilter(p: R => Boolean): _root_.com.twitter.util.Throw[R] = this
-  def onFailure(rescueException: Throwable => Unit): _root_.com.twitter.util.Throw[R] = { rescueException(e); this }
-  def onSuccess(f: R => Unit): _root_.com.twitter.util.Throw[R] = this
-  def handle[R2 >: R](rescueException: PartialFunction[Throwable, R2]): _root_.com.twitter.util.Try[R2] =
+  def exists(p: R => Boolean) = false
+  def filter(p: R => Boolean) = this
+  def withFilter(p: R => Boolean) = this
+  def onFailure(rescueException: Throwable => Unit) = { rescueException(e); this }
+  def onSuccess(f: R => Unit) = this
+  def handle[R2 >: R](rescueException: PartialFunction[Throwable, R2]) =
     if (rescueException.isDefinedAt(e)) {
       Try(rescueException(e))
     } else {
@@ -269,8 +279,8 @@ final case class Throw[+R](e: Throwable) extends Try[R] {
 }
 
 object Return {
-  val Unit: _root_.com.twitter.util.Return[_root_.scala.Unit] = Return(())
-  val Void: _root_.com.twitter.util.Return[_root_.java.lang.Void] = Return[Void](null)
+  val Unit = Return(())
+  val Void = Return[Void](null)
   val None: Return[Option[Nothing]] = Return(Option.empty)
   val Nil: Return[Seq[Nothing]] = Return(Seq.empty)
   val True: Return[Boolean] = Return(true)

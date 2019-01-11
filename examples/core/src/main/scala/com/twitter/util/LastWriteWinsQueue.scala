@@ -7,22 +7,22 @@ import java.util.concurrent.atomic.AtomicReference
  * When the Queue is full, a push replaces the item.
  */
 class LastWriteWinsQueue[A] extends java.util.Queue[A] {
-  val item: _root_.java.util.concurrent.atomic.AtomicReference[_root_.scala.Option[A]] = new AtomicReference[Option[A]](None)
+  val item = new AtomicReference[Option[A]](None)
 
   def clear(): Unit = {
     item.set(None)
   }
 
-  def retainAll(p1: Collection[_]): _root_.scala.Nothing = throw new UnsupportedOperationException
+  def retainAll(p1: Collection[_]) = throw new UnsupportedOperationException
 
-  def removeAll(p1: Collection[_]): _root_.scala.Nothing = throw new UnsupportedOperationException
+  def removeAll(p1: Collection[_]) = throw new UnsupportedOperationException
 
-  def addAll(p1: Collection[_ <: A]): _root_.scala.Nothing = throw new UnsupportedOperationException
+  def addAll(p1: Collection[_ <: A]) = throw new UnsupportedOperationException
 
-  def containsAll(p1: Collection[_]): _root_.scala.Boolean =
+  def containsAll(p1: Collection[_]) =
     p1.size == 1 && item.get == p1.iterator.next()
 
-  def remove(candidate: AnyRef): _root_.scala.Boolean = {
+  def remove(candidate: AnyRef) = {
     val contained = item.get
     val containsCandidate = contained.map(_ == candidate).getOrElse(false)
     if (containsCandidate) {
@@ -41,30 +41,30 @@ class LastWriteWinsQueue[A] extends java.util.Queue[A] {
     } else Array[Any]().asInstanceOf[Array[T with java.lang.Object]]
   }
 
-  def toArray: _root_.scala.Array[_root_.scala.AnyRef with _root_.java.lang.Object] = toArray(new Array[AnyRef](0))
+  def toArray = toArray(new Array[AnyRef](0))
 
-  def iterator: _root_.scala.Null = null
+  def iterator = null
 
-  def contains(p1: AnyRef): _root_.scala.Boolean = false
+  def contains(p1: AnyRef) = false
 
-  def isEmpty: _root_.scala.Boolean = item.get.isDefined
+  def isEmpty = item.get.isDefined
 
-  def size: _root_.scala.Int = if (item.get.isDefined) 1 else 0
+  def size = if (item.get.isDefined) 1 else 0
 
-  def peek: A = item.get.getOrElse(null.asInstanceOf[A])
+  def peek = item.get.getOrElse(null.asInstanceOf[A])
 
-  def element: A = item.get.getOrElse(throw new NoSuchElementException)
+  def element = item.get.getOrElse(throw new NoSuchElementException)
 
-  def poll: A = item.getAndSet(None).getOrElse(null.asInstanceOf[A])
+  def poll = item.getAndSet(None).getOrElse(null.asInstanceOf[A])
 
-  def remove: A = item.getAndSet(None).getOrElse(throw new NoSuchElementException)
+  def remove = item.getAndSet(None).getOrElse(throw new NoSuchElementException)
 
-  def offer(p1: A): _root_.scala.Boolean = {
+  def offer(p1: A) = {
     item.set(Some(p1))
     true
   }
 
-  def add(p1: A): _root_.scala.Boolean = {
+  def add(p1: A) = {
     item.set(Some(p1))
     true
   }

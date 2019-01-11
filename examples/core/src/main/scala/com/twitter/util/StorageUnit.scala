@@ -31,8 +31,8 @@ object StorageUnit {
   def fromExabytes(exabytes: Long): StorageUnit =
     new StorageUnit(exabytes * 1024 * 1024 * 1024 * 1024 * 1024 * 1024)
 
-  val infinite: _root_.com.twitter.util.StorageUnit = new StorageUnit(Long.MaxValue)
-  val zero: _root_.com.twitter.util.StorageUnit = new StorageUnit(0)
+  val infinite = new StorageUnit(Long.MaxValue)
+  val zero = new StorageUnit(0)
 
   private def factor(s: String): Long = {
     var lower = s.toLowerCase
@@ -73,7 +73,7 @@ object StorageUnit {
  * from `Long` and `Int` to construct instances.
  *
  * {{{
- *   import com.twitter.conversions.storage._
+ *   import com.twitter.conversions.StorageUnitOps._
  *   import com.twitter.util.StorageUnit
  *
  *   val size: StorageUnit = 10.kilobytes

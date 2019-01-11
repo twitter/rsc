@@ -65,7 +65,7 @@ object Tx {
   /**
    * A constant `Tx` with the value of `Unit`.
    */
-  val Unit: _root_.com.twitter.concurrent.Tx[_root_.scala.Unit] = const(())
+  val Unit = const(())
 
   object AlreadyDone extends Exception("Tx is already done")
   object AlreadyAckd extends Exception("Tx was already ackd")

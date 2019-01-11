@@ -1,7 +1,6 @@
 package com.twitter.concurrent
 
-import com.twitter.io.{Buf, Reader}
-import com.twitter.util.{Future, Promise, Return, Throw, Try}
+import com.twitter.util.{Future, Return, Throw, Promise}
 import scala.annotation.varargs
 import scala.collection.mutable
 
@@ -56,7 +55,7 @@ sealed abstract class AsyncStream[+A] {
    */
   def tail: Future[Option[AsyncStream[A]]] = this match {
     case Empty | FromFuture(_) => Future.None
-    case Cons(_, more) => Future.value(Some(more()))
+    case Cons(_, more) => extract(more())
     case Embed(fas) => fas.flatMap(_.tail)
   }
 
@@ -115,17 +114,19 @@ sealed abstract class AsyncStream[+A] {
     }
 
   /**
-   * Map over this stream with the given concurrency. The items will
-   * likely not be processed in order. `concurrencyLevel` specifies an
-   * "eagerness factor", and that many actions will be started when this
-   * method is called. Forcing the stream will yield the results of
-   * completed actions, and will block if none of the actions has yet
-   * completed.
+   * Map over this stream with the given concurrency. The items will likely be
+   * completed out of order, and if so, the stream of results will also be out
+   * of order.
    *
-   * This method is useful for speeding up calculations over a stream
-   * where executing the actions in order is not important. To implement
-   * a concurrent fold, first call `mapConcurrent` and then fold that
-   * stream. Similarly, concurrent `foreachF` can be achieved by
+   * `concurrencyLevel` specifies an "eagerness factor", and that many actions
+   * will be started when this method is called. Forcing the stream will yield
+   * the results of completed actions, returning the results that finished
+   * first, and will block if none of the actions has yet completed.
+   *
+   * This method is useful for speeding up calculations over a stream where
+   * executing the actions (and processing their results) in order is not
+   * important. To implement a concurrent fold, first call `mapConcurrent` and
+   * then fold that stream. Similarly, concurrent `foreachF` can be achieved by
    * applying `mapConcurrent` and then `foreach`.
    *
    * @param concurrencyLevel: How many actions to execute concurrently. This
@@ -133,15 +134,8 @@ sealed abstract class AsyncStream[+A] {
    *   the next item available in the stream.
    */
   def mapConcurrent[B](concurrencyLevel: Int)(f: A => Future[B]): AsyncStream[B] = {
-    if (concurrencyLevel == 1) {
-      mapF(f)
-    } else if (concurrencyLevel < 1) {
-      throw new IllegalArgumentException(
-        s"concurrencyLevel must be at least one. got: $concurrencyLevel"
-      )
-    } else {
-      embed(AsyncStream.mapConcStep(concurrencyLevel, f, Nil, () => this))
-    }
+    require(concurrencyLevel > 0, s"concurrencyLevel must be at least one. got: $concurrencyLevel")
+    merge(fanout(this, concurrencyLevel).map(_.mapF(f)): _*)
   }
 
   /**
@@ -350,12 +344,12 @@ sealed abstract class AsyncStream[+A] {
     }
 
   /**
-    * Helper method used to avoid scanLeft being one behind in case of Embed AsyncStream.
-    *
-    * scanLeftEmbed, unlike scanLeft, does not return the initial value `z` and is there to
-    * prevent the Embed case from returning duplicate initial `z` values for scanLeft.
-    *
-    */
+   * Helper method used to avoid scanLeft being one behind in case of Embed AsyncStream.
+   *
+   * scanLeftEmbed, unlike scanLeft, does not return the initial value `z` and is there to
+   * prevent the Embed case from returning duplicate initial `z` values for scanLeft.
+   *
+   */
   private def scanLeftEmbed[B](z: B)(f: (B, A) => B): AsyncStream[B] =
     this match {
       case Embed(fas) => Embed(fas.map(_.scanLeftEmbed(z)(f)))
@@ -507,7 +501,8 @@ sealed abstract class AsyncStream[+A] {
 
     def fillBuffer(
       sizeRemaining: Int
-    )(s: => AsyncStream[A]): Future[(Seq[A], () => AsyncStream[A])] =
+    )(s: => AsyncStream[A]
+    ): Future[(Seq[A], () => AsyncStream[A])] =
       if (sizeRemaining < 1) Future.value((buffer, () => s))
       else
         s match {
@@ -588,7 +583,7 @@ sealed abstract class AsyncStream[+A] {
    * values.
    */
   def force: Future[Unit] = foreach { _ =>
-    }
+  }
 }
 
 object AsyncStream {
@@ -606,7 +601,7 @@ object AsyncStream {
       new Cons(fa, next)
 
     def unapply[A](as: Cons[A]): Option[(Future[A], () => AsyncStream[A])] =
-      // note: pattern match returns the memoized value
+    // note: pattern match returns the memoized value
       Some((as.fa, () => as.more()))
   }
 
@@ -678,20 +673,17 @@ object AsyncStream {
     }
 
   /**
-   * Transformation (or lift) from [[Reader]] into `AsyncStream[Buf]`, where each [[Buf]]
-   * has size up to `chunkSize`.
-   */
-  def fromReader(r: Reader, chunkSize: Int = Int.MaxValue): AsyncStream[Buf] =
-    fromFuture(r.read(chunkSize)).flatMap {
-      case Some(buf) => buf +:: fromReader(r, chunkSize)
-      case None => AsyncStream.empty[Buf]
-    }
-
-  /**
    * Lift from [[Future]] into `AsyncStream` and then flatten.
    */
   private[concurrent] def embed[A](fas: Future[AsyncStream[A]]): AsyncStream[A] =
     Embed(fas)
+
+  private def extract[A](as: AsyncStream[A]): Future[Option[AsyncStream[A]]] =
+    as match {
+      case Empty => Future.None
+      case Embed(fas) => fas.flatMap(extract)
+      case _ => Future.value(Some(as))
+    }
 
   /**
    * Java friendly [[AsyncStream.flatten]].
@@ -728,65 +720,108 @@ object AsyncStream {
     }
   }
 
-  /**
-   * This must exist here, otherwise scalac will be greedy and hold a reference to the head of the stream
-   */
-  private def mapConcStep[A, B](
-    concurrencyLevel: Int,
-    f: (A => Future[B]),
-    pending: Seq[Future[Option[B]]],
-    inputs: () => AsyncStream[A]
-  ): Future[AsyncStream[B]] = {
-    // We only invoke inputs().uncons if there is space for more work
-    // to be started.
-    val inputReady: Future[Left[Option[(A, () => AsyncStream[A])], Nothing]] =
-      if (pending.size >= concurrencyLevel) Future.never
-      else
-        inputs().uncons.flatMap {
-          case None if pending.nonEmpty => Future.never
-          case other => Future.value(Left(other))
+  // Oneshot turns an AsyncStream into a resource, where each read depletes the
+  // stream of that item. In other words, each item of the stream is observable
+  // only once.
+  //
+  // more must be guarded by synchronization on this.
+  private final class Oneshot[A](var more: () => AsyncStream[A]) {
+    def read(): Future[Option[A]] = {
+      // References to readEmbed args for the Embed case.
+      var fas: Future[AsyncStream[A]] = null
+      var headp: Promise[Option[A]] = null
+      var tailp: Promise[() => AsyncStream[A]] = null
+
+      // Reference to head for the default case.
+      var headf: Future[Option[A]] = null
+
+      synchronized {
+        more() match {
+          case Embed(embedded) =>
+            // The Embed case is special because
+            //
+            //     val head = as.head
+            //     as = as.drop(1)
+            //
+            // reduces to a chain of maps, which can be very long, as many as the
+            // number of times read is called while waiting for the embedded
+            // AsyncStream.
+            //
+            //     val head = fas.map(_.drop(1)).map(_.drop(1))....flatMap(_.head)
+            //     as = Embed(fas.map(_.drop(1)).map(_.drop(1))...)
+            //
+            // In other words, for AsyncStreams with Embed tails, the naive
+            // implementation multiplies the work of each item by the concurrency
+            // level.
+            //
+            // The optimization here is straight forward: create a head and tail
+            // promise and that wait for the embedded AsyncStream. Subsequent
+            // calls to read will create new head and tail promises that wait on
+            // the previous tail promise.
+            fas = embedded
+            headp = new Promise[Option[A]]
+            tailp = new Promise[() => AsyncStream[A]]
+            more = () => AsyncStream.embed(tailp.map(_()))
+            headp
+
+          case as =>
+            headf = as.head
+            more = () => as.drop(1)
         }
+      }
 
-    // The inputReady.isDefined check is an optimization to avoid the
-    // wasted allocation of calling Future.select when we know that
-    // there is more work that is ready to be started.
-    val workDone: Future[Right[Nothing, (Try[Option[B]], Seq[Future[Option[B]]])]] =
-      if (pending.isEmpty || inputReady.isDefined) Future.never
-      else Future.select(pending).map(Right(_))
-
-    // Wait for either the next input to be ready (Left) or for some pending
-    // work to complete (Right).
-    inputReady.or(workDone).flatMap {
-      case Left(None) =>
-        // There is no work pending and we have exhausted the
-        // inputs, so we are done.
-        Future.value(empty)
-
-      case Left(Some((a, tl))) =>
-        // There is available concurrency and a new input is ready,
-        // so start the work and add it to `pending`.
-        mapConcStep(concurrencyLevel, f, f(a).map(Some(_)) +: pending, tl)
-
-      case Right((Throw(t), _)) =>
-        // Some work finished with failure, so terminate the stream.
-        Future.exception(t)
-
-      case Right((Return(None), newPending)) =>
-        // A cons cell was forced, freeing up a spot in `pending`.
-        mapConcStep(concurrencyLevel, f, newPending, inputs)
-
-      case Right((Return(Some(a)), newPending)) =>
-        // Some work finished. Eagerly start the next step, so
-        // that all available inputs have work started on them. In
-        // the next step, we replace the pending Future for the
-        // work that just completed with a Future that will be
-        // satisfied by forcing the next element of the result
-        // stream. Keeping `pending` full is the mechanism that we
-        // use to bound the evaluation depth at `concurrencyLevel`
-        // until the stream is forced.
-        val cellForced = new Promise[Option[B]]
-        val rest = mapConcStep(concurrencyLevel, f, cellForced +: newPending, inputs)
-        Future.value(mk(a, { cellForced.setValue(None); embed(rest) }))
+      // Non-null fas implies Embed case.
+      if (fas != null) {
+        readEmbed(fas, headp, tailp)
+        headp
+      } else {
+        headf
+      }
     }
+
+    private[this] def readEmbed(
+      fas: Future[AsyncStream[A]],
+      headp: Promise[Option[A]],
+      tailp: Promise[() => AsyncStream[A]]
+    ): Unit =
+      fas.respond {
+        case Throw(e) =>
+          headp.setException(e)
+          tailp.setException(e)
+        case Return(v) =>
+          v match {
+            case Empty =>
+              headp.become(Future.None)
+              tailp.setValue(Oneshot.empty)
+            case FromFuture(fa) =>
+              headp.become(fa.map(Some(_)))
+              tailp.setValue(Oneshot.empty)
+            case Cons(fa, more2) =>
+              headp.become(fa.map(Some(_)))
+              tailp.setValue(more2)
+            case Embed(newFas) =>
+              readEmbed(newFas, headp, tailp)
+          }
+      }
+
+    // Recover the AsyncStream interface. We don't return `as` because we want
+    // to deplete the original stream with each read. With this we can create
+    // multiple AsyncStream views of the same Oneshot resource, thus "fanning
+    // out" the original stream into multiple distinct AsyncStreams.
+    def toAsyncStream: AsyncStream[A] =
+      AsyncStream.fromFuture(read()).flatMap {
+        case None => AsyncStream.empty
+        case Some(a) => a +:: toAsyncStream
+      }
+  }
+
+  private object Oneshot {
+    val emptyVal: () => AsyncStream[Nothing] = () => AsyncStream.empty[Nothing]
+    def empty[A]: () => AsyncStream[A] = emptyVal.asInstanceOf[() => AsyncStream[A]]
+  }
+
+  private def fanout[A](as: AsyncStream[A], n: Int): Seq[AsyncStream[A]] = {
+    val reader = new Oneshot(() => as)
+    0.until(n).map(_ => reader.toAsyncStream)
   }
 }

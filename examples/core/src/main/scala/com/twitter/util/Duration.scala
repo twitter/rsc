@@ -5,7 +5,9 @@ import java.util.concurrent.TimeUnit
 
 object Duration extends TimeLikeOps[Duration] {
 
-  def fromNanoseconds(nanoseconds: Long): Duration = new Duration(nanoseconds)
+  def fromNanoseconds(nanoseconds: Long): Duration =
+    if (nanoseconds == 0L) Zero
+    else new Duration(nanoseconds)
 
   // This is needed for Java compatibility.
   override def fromFractionalSeconds(seconds: Double): Duration =
@@ -14,12 +16,12 @@ object Duration extends TimeLikeOps[Duration] {
   override def fromMilliseconds(millis: Long): Duration = super.fromMilliseconds(millis)
   override def fromMicroseconds(micros: Long): Duration = super.fromMicroseconds(micros)
 
-  val NanosPerMicrosecond: _root_.scala.Long = 1000L
-  val NanosPerMillisecond: _root_.scala.Long = NanosPerMicrosecond * 1000L
-  val NanosPerSecond: _root_.scala.Long = NanosPerMillisecond * 1000L
-  val NanosPerMinute: _root_.scala.Long = NanosPerSecond * 60
-  val NanosPerHour: _root_.scala.Long = NanosPerMinute * 60
-  val NanosPerDay: _root_.scala.Long = NanosPerHour * 24
+  val NanosPerMicrosecond: Long = 1000L
+  val NanosPerMillisecond: Long = NanosPerMicrosecond * 1000L
+  val NanosPerSecond: Long = NanosPerMillisecond * 1000L
+  val NanosPerMinute: Long = NanosPerSecond * 60
+  val NanosPerHour: Long = NanosPerMinute * 60
+  val NanosPerDay: Long = NanosPerHour * 24
 
   /**
    * Create a duration from a [[java.util.concurrent.TimeUnit]].
@@ -36,7 +38,7 @@ object Duration extends TimeLikeOps[Duration] {
   }
 
   // This is needed for Java compatibility.
-  override val Zero: Duration = fromNanoseconds(0)
+  override val Zero: Duration = new Duration(0)
 
   /**
    * Duration `Top` is greater than any other duration, except for
@@ -287,7 +289,7 @@ private[util] object DurationBox {
  * using the time conversions:
  *
  * {{{
- * import com.twitter.conversions.time._
+ * import com.twitter.conversions.DurationOps._
  *
  * 3.days+4.nanoseconds
  * }}}
@@ -302,7 +304,7 @@ private[util] object DurationBox {
  * that are truly infinite; for example the absence of a timeout.
  */
 sealed class Duration private[util] (protected val nanos: Long) extends {
-  protected val ops: _root_.com.twitter.util.Duration.type = Duration
+  protected val ops = Duration
 } with TimeLike[Duration] with Serializable {
   import ops._
 

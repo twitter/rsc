@@ -272,8 +272,8 @@ class JavaTimer(isDaemon: Boolean, name: Option[String]) extends Timer {
 class ScheduledThreadPoolTimer(
   poolSize: Int,
   threadFactory: ThreadFactory,
-  rejectedExecutionHandler: Option[RejectedExecutionHandler]
-) extends Timer {
+  rejectedExecutionHandler: Option[RejectedExecutionHandler])
+    extends Timer {
   def this(poolSize: Int, threadFactory: ThreadFactory) =
     this(poolSize, threadFactory, None)
 
@@ -347,7 +347,7 @@ class MockTimer extends Timer {
   // These are weird semantics admittedly, but there may
   // be a bunch of tests that rely on them already.
   case class Task(var when: Time, runner: () => Unit) extends TimerTask {
-    var isCancelled: _root_.scala.Boolean = false
+    var isCancelled = false
 
     def cancel(): Unit = MockTimer.this.synchronized {
       isCancelled = true
@@ -357,9 +357,9 @@ class MockTimer extends Timer {
     }
   }
 
-  var isStopped: _root_.scala.Boolean = false
-  var tasks: _root_.scala.collection.mutable.ArrayBuffer[MockTimer.this.Task] = ArrayBuffer[Task]()
-  var nCancelled: _root_.scala.Int = 0
+  var isStopped = false
+  var tasks = ArrayBuffer[Task]()
+  var nCancelled = 0
 
   def tick(): Unit = synchronized {
     if (isStopped)

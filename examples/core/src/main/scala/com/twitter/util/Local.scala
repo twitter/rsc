@@ -26,9 +26,7 @@ object Local {
       def set(k: Key, v: Some[_]): Context = new Context1(k, v)
     }
 
-    private final class Context1(
-      k1: Key, v1: Some[_]
-    ) extends Context {
+    private final class Context1(k1: Key, v1: Some[_]) extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq k1) v1 else None
@@ -41,10 +39,7 @@ object Local {
         else new Context2(k1, v1, k, v)
     }
 
-    private final class Context2(
-      k1: Key, v1: Some[_],
-      k2: Key, v2: Some[_]
-    ) extends Context {
+    private final class Context2(k1: Key, v1: Some[_], k2: Key, v2: Some[_]) extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq k1) v1
@@ -128,11 +123,8 @@ object Local {
       }
     }
      */
-    private final class Context3(
-      k1: Key, v1: Some[_],
-      k2: Key, v2: Some[_],
-      k3: Key, v3: Some[_]
-    ) extends Context {
+    private final class Context3(k1: Key, v1: Some[_], k2: Key, v2: Some[_], k3: Key, v3: Some[_])
+        extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq k1) v1
@@ -154,11 +146,15 @@ object Local {
     }
 
     private final class Context4(
-      k1: Key, v1: Some[_],
-      k2: Key, v2: Some[_],
-      k3: Key, v3: Some[_],
-      k4: Key, v4: Some[_]
-    ) extends Context {
+      k1: Key,
+      v1: Some[_],
+      k2: Key,
+      v2: Some[_],
+      k3: Key,
+      v3: Some[_],
+      k4: Key,
+      v4: Some[_])
+        extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq k1) v1
@@ -183,12 +179,17 @@ object Local {
     }
 
     private final class Context5(
-      k1: Key, v1: Some[_],
-      k2: Key, v2: Some[_],
-      k3: Key, v3: Some[_],
-      k4: Key, v4: Some[_],
-      k5: Key, v5: Some[_]
-    ) extends Context {
+      k1: Key,
+      v1: Some[_],
+      k2: Key,
+      v2: Some[_],
+      k3: Key,
+      v3: Some[_],
+      k4: Key,
+      v4: Some[_],
+      k5: Key,
+      v5: Some[_])
+        extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq k1) v1
@@ -216,13 +217,19 @@ object Local {
     }
 
     private final class Context6(
-      k1: Key, v1: Some[_],
-      k2: Key, v2: Some[_],
-      k3: Key, v3: Some[_],
-      k4: Key, v4: Some[_],
-      k5: Key, v5: Some[_],
-      k6: Key, v6: Some[_]
-    ) extends Context {
+      k1: Key,
+      v1: Some[_],
+      k2: Key,
+      v2: Some[_],
+      k3: Key,
+      v3: Some[_],
+      k4: Key,
+      v4: Some[_],
+      k5: Key,
+      v5: Some[_],
+      k6: Key,
+      v6: Some[_])
+        extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq k1) v1
@@ -253,14 +260,21 @@ object Local {
     }
 
     private final class Context7(
-      k1: Key, v1: Some[_],
-      k2: Key, v2: Some[_],
-      k3: Key, v3: Some[_],
-      k4: Key, v4: Some[_],
-      k5: Key, v5: Some[_],
-      k6: Key, v6: Some[_],
-      k7: Key, v7: Some[_]
-    ) extends Context {
+      k1: Key,
+      v1: Some[_],
+      k2: Key,
+      v2: Some[_],
+      k3: Key,
+      v3: Some[_],
+      k4: Key,
+      v4: Some[_],
+      k5: Key,
+      v5: Some[_],
+      k6: Key,
+      v6: Some[_],
+      k7: Key,
+      v7: Some[_])
+        extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq k1) v1
@@ -294,15 +308,23 @@ object Local {
     }
 
     private final class Context8(
-      k1: Key, v1: Some[_],
-      k2: Key, v2: Some[_],
-      k3: Key, v3: Some[_],
-      k4: Key, v4: Some[_],
-      k5: Key, v5: Some[_],
-      k6: Key, v6: Some[_],
-      k7: Key, v7: Some[_],
-      k8: Key, v8: Some[_]
-    ) extends Context {
+      k1: Key,
+      v1: Some[_],
+      k2: Key,
+      v2: Some[_],
+      k3: Key,
+      v3: Some[_],
+      k4: Key,
+      v4: Some[_],
+      k5: Key,
+      v5: Some[_],
+      k6: Key,
+      v6: Some[_],
+      k7: Key,
+      v7: Some[_],
+      k8: Key,
+      v8: Some[_])
+        extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq k1) v1
@@ -328,27 +350,43 @@ object Local {
 
       def set(k: Key, v: Some[_]): Context =
         if (k eq k1) new Context8(k1, v, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8)
-        else if (k eq k2) new Context8(k1, v1, k2, v, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8)
-        else if (k eq k3) new Context8(k1, v1, k2, v2, k3, v, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8)
-        else if (k eq k4) new Context8(k1, v1, k2, v2, k3, v3, k4, v, k5, v5, k6, v6, k7, v7, k8, v8)
-        else if (k eq k5) new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v, k6, v6, k7, v7, k8, v8)
-        else if (k eq k6) new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v, k7, v7, k8, v8)
-        else if (k eq k7) new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v, k8, v8)
-        else if (k eq k8) new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v)
+        else if (k eq k2)
+          new Context8(k1, v1, k2, v, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8)
+        else if (k eq k3)
+          new Context8(k1, v1, k2, v2, k3, v, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8)
+        else if (k eq k4)
+          new Context8(k1, v1, k2, v2, k3, v3, k4, v, k5, v5, k6, v6, k7, v7, k8, v8)
+        else if (k eq k5)
+          new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v, k6, v6, k7, v7, k8, v8)
+        else if (k eq k6)
+          new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v, k7, v7, k8, v8)
+        else if (k eq k7)
+          new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v, k8, v8)
+        else if (k eq k8)
+          new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v)
         else new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k, v)
     }
 
     private final class Context9(
-      k1: Key, v1: Some[_],
-      k2: Key, v2: Some[_],
-      k3: Key, v3: Some[_],
-      k4: Key, v4: Some[_],
-      k5: Key, v5: Some[_],
-      k6: Key, v6: Some[_],
-      k7: Key, v7: Some[_],
-      k8: Key, v8: Some[_],
-      k9: Key, v9: Some[_]
-    ) extends Context {
+      k1: Key,
+      v1: Some[_],
+      k2: Key,
+      v2: Some[_],
+      k3: Key,
+      v3: Some[_],
+      k4: Key,
+      v4: Some[_],
+      k5: Key,
+      v5: Some[_],
+      k6: Key,
+      v6: Some[_],
+      k7: Key,
+      v7: Some[_],
+      k8: Key,
+      v8: Some[_],
+      k9: Key,
+      v9: Some[_])
+        extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq k1) v1
@@ -364,41 +402,90 @@ object Local {
 
       def remove(k: Key): Context =
         if (k eq k1) new Context8(k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
-        else if (k eq k2) new Context8(k1, v1, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
-        else if (k eq k3) new Context8(k1, v1, k2, v2, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
-        else if (k eq k4) new Context8(k1, v1, k2, v2, k3, v3, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
-        else if (k eq k5) new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k6, v6, k7, v7, k8, v8, k9, v9)
-        else if (k eq k6) new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k7, v7, k8, v8, k9, v9)
-        else if (k eq k7) new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k8, v8, k9, v9)
-        else if (k eq k8) new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k9, v9)
-        else if (k eq k9) new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8)
+        else if (k eq k2)
+          new Context8(k1, v1, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
+        else if (k eq k3)
+          new Context8(k1, v1, k2, v2, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
+        else if (k eq k4)
+          new Context8(k1, v1, k2, v2, k3, v3, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
+        else if (k eq k5)
+          new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k6, v6, k7, v7, k8, v8, k9, v9)
+        else if (k eq k6)
+          new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k7, v7, k8, v8, k9, v9)
+        else if (k eq k7)
+          new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k8, v8, k9, v9)
+        else if (k eq k8)
+          new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k9, v9)
+        else if (k eq k9)
+          new Context8(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8)
         else this
 
       def set(k: Key, v: Some[_]): Context =
-        if (k eq k1) new Context9(k1, v, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
-        else if (k eq k2) new Context9(k1, v1, k2, v, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
-        else if (k eq k3) new Context9(k1, v1, k2, v2, k3, v, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
-        else if (k eq k4) new Context9(k1, v1, k2, v2, k3, v3, k4, v, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
-        else if (k eq k5) new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v, k6, v6, k7, v7, k8, v8, k9, v9)
-        else if (k eq k6) new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v, k7, v7, k8, v8, k9, v9)
-        else if (k eq k7) new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v, k8, v8, k9, v9)
-        else if (k eq k8) new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v, k9, v9)
-        else if (k eq k9) new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v)
-        else new Context10(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k, v)
+        if (k eq k1)
+          new Context9(k1, v, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
+        else if (k eq k2)
+          new Context9(k1, v1, k2, v, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
+        else if (k eq k3)
+          new Context9(k1, v1, k2, v2, k3, v, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
+        else if (k eq k4)
+          new Context9(k1, v1, k2, v2, k3, v3, k4, v, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
+        else if (k eq k5)
+          new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v, k6, v6, k7, v7, k8, v8, k9, v9)
+        else if (k eq k6)
+          new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v, k7, v7, k8, v8, k9, v9)
+        else if (k eq k7)
+          new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v, k8, v8, k9, v9)
+        else if (k eq k8)
+          new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v, k9, v9)
+        else if (k eq k9)
+          new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v)
+        else
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k,
+            v
+          )
     }
 
     private final class Context10(
-      k1: Key, v1: Some[_],
-      k2: Key, v2: Some[_],
-      k3: Key, v3: Some[_],
-      k4: Key, v4: Some[_],
-      k5: Key, v5: Some[_],
-      k6: Key, v6: Some[_],
-      k7: Key, v7: Some[_],
-      k8: Key, v8: Some[_],
-      k9: Key, v9: Some[_],
-      k10: Key, v10: Some[_]
-    ) extends Context {
+      k1: Key,
+      v1: Some[_],
+      k2: Key,
+      v2: Some[_],
+      k3: Key,
+      v3: Some[_],
+      k4: Key,
+      v4: Some[_],
+      k5: Key,
+      v5: Some[_],
+      k6: Key,
+      v6: Some[_],
+      k7: Key,
+      v7: Some[_],
+      k8: Key,
+      v8: Some[_],
+      k9: Key,
+      v9: Some[_],
+      k10: Key,
+      v10: Some[_])
+        extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq k1) v1
@@ -414,45 +501,310 @@ object Local {
         else None
 
       def remove(k: Key): Context =
-        if (k eq k1) new Context9(k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
-        else if (k eq k2) new Context9(k1, v1, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
-        else if (k eq k3) new Context9(k1, v1, k2, v2, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
-        else if (k eq k4) new Context9(k1, v1, k2, v2, k3, v3, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
-        else if (k eq k5) new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
-        else if (k eq k6) new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k7, v7, k8, v8, k9, v9, k10, v10)
-        else if (k eq k7) new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k8, v8, k9, v9, k10, v10)
-        else if (k eq k8) new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k9, v9, k10, v10)
-        else if (k eq k9) new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k10, v10)
-        else if (k eq k10) new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
+        if (k eq k1)
+          new Context9(k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
+        else if (k eq k2)
+          new Context9(k1, v1, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
+        else if (k eq k3)
+          new Context9(k1, v1, k2, v2, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
+        else if (k eq k4)
+          new Context9(k1, v1, k2, v2, k3, v3, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
+        else if (k eq k5)
+          new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
+        else if (k eq k6)
+          new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k7, v7, k8, v8, k9, v9, k10, v10)
+        else if (k eq k7)
+          new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k8, v8, k9, v9, k10, v10)
+        else if (k eq k8)
+          new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k9, v9, k10, v10)
+        else if (k eq k9)
+          new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k10, v10)
+        else if (k eq k10)
+          new Context9(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9)
         else this
 
       def set(k: Key, v: Some[_]): Context =
-        if (k eq k1) new Context10(k1, v, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
-        else if (k eq k2) new Context10(k1, v1, k2, v, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
-        else if (k eq k3) new Context10(k1, v1, k2, v2, k3, v, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
-        else if (k eq k4) new Context10(k1, v1, k2, v2, k3, v3, k4, v, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
-        else if (k eq k5) new Context10(k1, v1, k2, v2, k3, v3, k4, v4, k5, v, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
-        else if (k eq k6) new Context10(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v, k7, v7, k8, v8, k9, v9, k10, v10)
-        else if (k eq k7) new Context10(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v, k8, v8, k9, v9, k10, v10)
-        else if (k eq k8) new Context10(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v, k9, v9, k10, v10)
-        else if (k eq k9) new Context10(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v, k10, v10)
-        else if (k eq k10) new Context10(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v)
-        else new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k, v)
+        if (k eq k1)
+          new Context10(
+            k1,
+            v,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10
+          )
+        else if (k eq k2)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10
+          )
+        else if (k eq k3)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10
+          )
+        else if (k eq k4)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10
+          )
+        else if (k eq k5)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10
+          )
+        else if (k eq k6)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10
+          )
+        else if (k eq k7)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10
+          )
+        else if (k eq k8)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v,
+            k9,
+            v9,
+            k10,
+            v10
+          )
+        else if (k eq k9)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v,
+            k10,
+            v10
+          )
+        else if (k eq k10)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v
+          )
+        else
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k,
+            v
+          )
     }
 
     private final class Context11(
-      k1: Key, v1: Some[_],
-      k2: Key, v2: Some[_],
-      k3: Key, v3: Some[_],
-      k4: Key, v4: Some[_],
-      k5: Key, v5: Some[_],
-      k6: Key, v6: Some[_],
-      k7: Key, v7: Some[_],
-      k8: Key, v8: Some[_],
-      k9: Key, v9: Some[_],
-      k10: Key, v10: Some[_],
-      k11: Key, v11: Some[_]
-    ) extends Context {
+      k1: Key,
+      v1: Some[_],
+      k2: Key,
+      v2: Some[_],
+      k3: Key,
+      v3: Some[_],
+      k4: Key,
+      v4: Some[_],
+      k5: Key,
+      v5: Some[_],
+      k6: Key,
+      v6: Some[_],
+      k7: Key,
+      v7: Some[_],
+      k8: Key,
+      v8: Some[_],
+      k9: Key,
+      v9: Some[_],
+      k10: Key,
+      v10: Some[_],
+      k11: Key,
+      v11: Some[_])
+        extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq k1) v1
@@ -469,48 +821,592 @@ object Local {
         else None
 
       def remove(k: Key): Context =
-        if (k eq k1) new Context10(k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11)
-        else if (k eq k2) new Context10(k1, v1, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11)
-        else if (k eq k3) new Context10(k1, v1, k2, v2, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11)
-        else if (k eq k4) new Context10(k1, v1, k2, v2, k3, v3, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11)
-        else if (k eq k5) new Context10(k1, v1, k2, v2, k3, v3, k4, v4, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11)
-        else if (k eq k6) new Context10(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11)
-        else if (k eq k7) new Context10(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k8, v8, k9, v9, k10, v10, k11, v11)
-        else if (k eq k8) new Context10(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k9, v9, k10, v10, k11, v11)
-        else if (k eq k9) new Context10(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k10, v10, k11, v11)
-        else if (k eq k10) new Context10(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k11, v11)
-        else if (k eq k11) new Context10(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10)
+        if (k eq k1)
+          new Context10(
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k2)
+          new Context10(
+            k1,
+            v1,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k3)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k4)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k5)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k6)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k7)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k8)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k9)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k10)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k11,
+            v11
+          )
+        else if (k eq k11)
+          new Context10(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10
+          )
         else this
 
       def set(k: Key, v: Some[_]): Context =
-        if (k eq k1) new Context11(k1, v, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11)
-        else if (k eq k2) new Context11(k1, v1, k2, v, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11)
-        else if (k eq k3) new Context11(k1, v1, k2, v2, k3, v, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11)
-        else if (k eq k4) new Context11(k1, v1, k2, v2, k3, v3, k4, v, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11)
-        else if (k eq k5) new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k5, v, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11)
-        else if (k eq k6) new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11)
-        else if (k eq k7) new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v, k8, v8, k9, v9, k10, v10, k11, v11)
-        else if (k eq k8) new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v, k9, v9, k10, v10, k11, v11)
-        else if (k eq k9) new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v, k10, v10, k11, v11)
-        else if (k eq k10) new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v, k11, v11)
-        else if (k eq k11) new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v)
-        else new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k, v)
+        if (k eq k1)
+          new Context11(
+            k1,
+            v,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k2)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k3)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k4)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k5)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k6)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k7)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k8)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k9)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v,
+            k10,
+            v10,
+            k11,
+            v11
+          )
+        else if (k eq k10)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v,
+            k11,
+            v11
+          )
+        else if (k eq k11)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v
+          )
+        else
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k,
+            v
+          )
     }
 
     private final class Context12(
-      k1: Key, v1: Some[_],
-      k2: Key, v2: Some[_],
-      k3: Key, v3: Some[_],
-      k4: Key, v4: Some[_],
-      k5: Key, v5: Some[_],
-      k6: Key, v6: Some[_],
-      k7: Key, v7: Some[_],
-      k8: Key, v8: Some[_],
-      k9: Key, v9: Some[_],
-      k10: Key, v10: Some[_],
-      k11: Key, v11: Some[_],
-      k12: Key, v12: Some[_]
-    ) extends Context {
+      k1: Key,
+      v1: Some[_],
+      k2: Key,
+      v2: Some[_],
+      k3: Key,
+      v3: Some[_],
+      k4: Key,
+      v4: Some[_],
+      k5: Key,
+      v5: Some[_],
+      k6: Key,
+      v6: Some[_],
+      k7: Key,
+      v7: Some[_],
+      k8: Key,
+      v8: Some[_],
+      k9: Key,
+      v9: Some[_],
+      k10: Key,
+      v10: Some[_],
+      k11: Key,
+      v11: Some[_],
+      k12: Key,
+      v12: Some[_])
+        extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq k1) v1
@@ -528,51 +1424,692 @@ object Local {
         else None
 
       def remove(k: Key): Context =
-        if (k eq k1) new Context11(k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k2) new Context11(k1, v1, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k3) new Context11(k1, v1, k2, v2, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k4) new Context11(k1, v1, k2, v2, k3, v3, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k5) new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k6) new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k7) new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k8) new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k9) new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k10, v10, k11, v11, k12, v12)
-        else if (k eq k10) new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k11, v11, k12, v12)
-        else if (k eq k11) new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k12, v12)
-        else if (k eq k12) new Context11(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11)
+        if (k eq k1)
+          new Context11(
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k2)
+          new Context11(
+            k1,
+            v1,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k3)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k4)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k5)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k6)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k7)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k8)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k9)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k10)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k11)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k12,
+            v12
+          )
+        else if (k eq k12)
+          new Context11(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11
+          )
         else this
 
       def set(k: Key, v: Some[_]): Context =
-        if (k eq k1) new Context12(k1, v, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k2) new Context12(k1, v1, k2, v, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k3) new Context12(k1, v1, k2, v2, k3, v, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k4) new Context12(k1, v1, k2, v2, k3, v3, k4, v, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k5) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k6) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k7) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k8) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v, k9, v9, k10, v10, k11, v11, k12, v12)
-        else if (k eq k9) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v, k10, v10, k11, v11, k12, v12)
-        else if (k eq k10) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v, k11, v11, k12, v12)
-        else if (k eq k11) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v, k12, v12)
-        else if (k eq k12) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v)
-        else new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k, v)
+        if (k eq k1)
+          new Context12(
+            k1,
+            v,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k2)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k3)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k4)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k5)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k6)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k7)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k8)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k9)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k10)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v,
+            k11,
+            v11,
+            k12,
+            v12
+          )
+        else if (k eq k11)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v,
+            k12,
+            v12
+          )
+        else if (k eq k12)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v
+          )
+        else
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k,
+            v
+          )
     }
 
     private final class Context13(
-      k1: Key, v1: Some[_],
-      k2: Key, v2: Some[_],
-      k3: Key, v3: Some[_],
-      k4: Key, v4: Some[_],
-      k5: Key, v5: Some[_],
-      k6: Key, v6: Some[_],
-      k7: Key, v7: Some[_],
-      k8: Key, v8: Some[_],
-      k9: Key, v9: Some[_],
-      k10: Key, v10: Some[_],
-      k11: Key, v11: Some[_],
-      k12: Key, v12: Some[_],
-      k13: Key, v13: Some[_]
-    ) extends Context {
+      k1: Key,
+      v1: Some[_],
+      k2: Key,
+      v2: Some[_],
+      k3: Key,
+      v3: Some[_],
+      k4: Key,
+      v4: Some[_],
+      k5: Key,
+      v5: Some[_],
+      k6: Key,
+      v6: Some[_],
+      k7: Key,
+      v7: Some[_],
+      k8: Key,
+      v8: Some[_],
+      k9: Key,
+      v9: Some[_],
+      k10: Key,
+      v10: Some[_],
+      k11: Key,
+      v11: Some[_],
+      k12: Key,
+      v12: Some[_],
+      k13: Key,
+      v13: Some[_])
+        extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq k1) v1
@@ -591,54 +2128,800 @@ object Local {
         else None
 
       def remove(k: Key): Context =
-        if (k eq k1) new Context12(k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k2) new Context12(k1, v1, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k3) new Context12(k1, v1, k2, v2, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k4) new Context12(k1, v1, k2, v2, k3, v3, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k5) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k6) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k7) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k8) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k9) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k10) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k11, v11, k12, v12, k13, v13)
-        else if (k eq k11) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k12, v12, k13, v13)
-        else if (k eq k12) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k13, v13)
-        else if (k eq k13) new Context12(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12)
+        if (k eq k1)
+          new Context12(
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k2)
+          new Context12(
+            k1,
+            v1,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k3)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k4)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k5)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k6)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k7)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k8)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k9)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k10)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k11)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k12)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k13,
+            v13
+          )
+        else if (k eq k13)
+          new Context12(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12
+          )
         else this
 
       def set(k: Key, v: Some[_]): Context =
-        if (k eq k1) new Context13(k1, v, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k2) new Context13(k1, v1, k2, v, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k3) new Context13(k1, v1, k2, v2, k3, v, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k4) new Context13(k1, v1, k2, v2, k3, v3, k4, v, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k5) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k6) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k7) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k8) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k9) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v, k10, v10, k11, v11, k12, v12, k13, v13)
-        else if (k eq k10) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v, k11, v11, k12, v12, k13, v13)
-        else if (k eq k11) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v, k12, v12, k13, v13)
-        else if (k eq k12) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v, k13, v13)
-        else if (k eq k13) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v)
-        else new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k, v)
+        if (k eq k1)
+          new Context13(
+            k1,
+            v,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k2)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k3)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k4)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k5)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k6)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k7)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k8)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k9)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k10)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k11)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v,
+            k12,
+            v12,
+            k13,
+            v13
+          )
+        else if (k eq k12)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v,
+            k13,
+            v13
+          )
+        else if (k eq k13)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v
+          )
+        else
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k,
+            v
+          )
     }
 
     private final class Context14(
-      k1: Key, v1: Some[_],
-      k2: Key, v2: Some[_],
-      k3: Key, v3: Some[_],
-      k4: Key, v4: Some[_],
-      k5: Key, v5: Some[_],
-      k6: Key, v6: Some[_],
-      k7: Key, v7: Some[_],
-      k8: Key, v8: Some[_],
-      k9: Key, v9: Some[_],
-      k10: Key, v10: Some[_],
-      k11: Key, v11: Some[_],
-      k12: Key, v12: Some[_],
-      k13: Key, v13: Some[_],
-      k14: Key, v14: Some[_]
-    ) extends Context {
+      k1: Key,
+      v1: Some[_],
+      k2: Key,
+      v2: Some[_],
+      k3: Key,
+      v3: Some[_],
+      k4: Key,
+      v4: Some[_],
+      k5: Key,
+      v5: Some[_],
+      k6: Key,
+      v6: Some[_],
+      k7: Key,
+      v7: Some[_],
+      k8: Key,
+      v8: Some[_],
+      k9: Key,
+      v9: Some[_],
+      k10: Key,
+      v10: Some[_],
+      k11: Key,
+      v11: Some[_],
+      k12: Key,
+      v12: Some[_],
+      k13: Key,
+      v13: Some[_],
+      k14: Key,
+      v14: Some[_])
+        extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq k1) v1
@@ -658,57 +2941,916 @@ object Local {
         else None
 
       def remove(k: Key): Context =
-        if (k eq k1) new Context13(k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k2) new Context13(k1, v1, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k3) new Context13(k1, v1, k2, v2, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k4) new Context13(k1, v1, k2, v2, k3, v3, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k5) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k6) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k7) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k8) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k9) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k10) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k11) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k12, v12, k13, v13, k14, v14)
-        else if (k eq k12) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k13, v13, k14, v14)
-        else if (k eq k13) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k14, v14)
-        else if (k eq k14) new Context13(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13)
+        if (k eq k1)
+          new Context13(
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k2)
+          new Context13(
+            k1,
+            v1,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k3)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k4)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k5)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k6)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k7)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k8)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k9)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k10)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k11)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k12)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k13)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k14,
+            v14
+          )
+        else if (k eq k14)
+          new Context13(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13
+          )
         else this
 
       def set(k: Key, v: Some[_]): Context =
-        if (k eq k1) new Context14(k1, v, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k2) new Context14(k1, v1, k2, v, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k3) new Context14(k1, v1, k2, v2, k3, v, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k4) new Context14(k1, v1, k2, v2, k3, v3, k4, v, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k5) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k6) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k7) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k8) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k9) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k10) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v, k11, v11, k12, v12, k13, v13, k14, v14)
-        else if (k eq k11) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v, k12, v12, k13, v13, k14, v14)
-        else if (k eq k12) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v, k13, v13, k14, v14)
-        else if (k eq k13) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v, k14, v14)
-        else if (k eq k14) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v)
-        else new Context15(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k, v)
+        if (k eq k1)
+          new Context14(
+            k1,
+            v,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k2)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k3)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k4)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k5)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k6)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k7)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k8)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k9)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k10)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k11)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k12)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v,
+            k13,
+            v13,
+            k14,
+            v14
+          )
+        else if (k eq k13)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v,
+            k14,
+            v14
+          )
+        else if (k eq k14)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v
+          )
+        else
+          new Context15(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k,
+            v
+          )
     }
 
     private final class Context15(
-      k1: Key, v1: Some[_],
-      k2: Key, v2: Some[_],
-      k3: Key, v3: Some[_],
-      k4: Key, v4: Some[_],
-      k5: Key, v5: Some[_],
-      k6: Key, v6: Some[_],
-      k7: Key, v7: Some[_],
-      k8: Key, v8: Some[_],
-      k9: Key, v9: Some[_],
-      k10: Key, v10: Some[_],
-      k11: Key, v11: Some[_],
-      k12: Key, v12: Some[_],
-      k13: Key, v13: Some[_],
-      k14: Key, v14: Some[_],
-      k15: Key, v15: Some[_]
-    ) extends Context {
+      k1: Key,
+      v1: Some[_],
+      k2: Key,
+      v2: Some[_],
+      k3: Key,
+      v3: Some[_],
+      k4: Key,
+      v4: Some[_],
+      k5: Key,
+      v5: Some[_],
+      k6: Key,
+      v6: Some[_],
+      k7: Key,
+      v7: Some[_],
+      k8: Key,
+      v8: Some[_],
+      k9: Key,
+      v9: Some[_],
+      k10: Key,
+      v10: Some[_],
+      k11: Key,
+      v11: Some[_],
+      k12: Key,
+      v12: Some[_],
+      k13: Key,
+      v13: Some[_],
+      k14: Key,
+      v14: Some[_],
+      k15: Key,
+      v15: Some[_])
+        extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq k1) v1
@@ -729,45 +3871,973 @@ object Local {
         else None
 
       def remove(k: Key): Context =
-        if (k eq k1) new Context14(k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k2) new Context14(k1, v1, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k3) new Context14(k1, v1, k2, v2, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k4) new Context14(k1, v1, k2, v2, k3, v3, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k5) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k6) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k7) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k8) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k9) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k10) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k11) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k12) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k13, v13, k14, v14, k15, v15)
-        else if (k eq k13) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k14, v14, k15, v15)
-        else if (k eq k14) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k15, v15)
-        else if (k eq k15) new Context14(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14)
+        if (k eq k1)
+          new Context14(
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k2)
+          new Context14(
+            k1,
+            v1,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k3)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k4)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k5)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k6)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k7)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k8)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k9)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k10)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k11)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k12)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k13)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k14)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k15,
+            v15
+          )
+        else if (k eq k15)
+          new Context14(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14
+          )
         else this
 
       def set(k: Key, v: Some[_]): Context =
-        if (k eq k1) new Context15(k1, v, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k2) new Context15(k1, v1, k2, v, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k3) new Context15(k1, v1, k2, v2, k3, v, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k4) new Context15(k1, v1, k2, v2, k3, v3, k4, v, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k5) new Context15(k1, v1, k2, v2, k3, v3, k4, v4, k5, v, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k6) new Context15(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k7) new Context15(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k8) new Context15(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k9) new Context15(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k10) new Context15(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v, k11, v11, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k11) new Context15(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v, k12, v12, k13, v13, k14, v14, k15, v15)
-        else if (k eq k12) new Context15(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v, k13, v13, k14, v14, k15, v15)
-        else if (k eq k13) new Context15(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v, k14, v14, k15, v15)
-        else if (k eq k14) new Context15(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v, k15, v15)
-        else if (k eq k15) new Context15(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12, v12, k13, v13, k14, v14, k15, v)
+        if (k eq k1)
+          new Context15(
+            k1,
+            v,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k2)
+          new Context15(
+            k1,
+            v1,
+            k2,
+            v,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k3)
+          new Context15(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k4)
+          new Context15(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k5)
+          new Context15(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k6)
+          new Context15(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k7)
+          new Context15(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k8)
+          new Context15(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k9)
+          new Context15(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k10)
+          new Context15(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k11)
+          new Context15(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k12)
+          new Context15(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k13)
+          new Context15(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v,
+            k14,
+            v14,
+            k15,
+            v15
+          )
+        else if (k eq k14)
+          new Context15(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v,
+            k15,
+            v15
+          )
+        else if (k eq k15)
+          new Context15(
+            k1,
+            v1,
+            k2,
+            v2,
+            k3,
+            v3,
+            k4,
+            v4,
+            k5,
+            v5,
+            k6,
+            v6,
+            k7,
+            v7,
+            k8,
+            v8,
+            k9,
+            v9,
+            k10,
+            v10,
+            k11,
+            v11,
+            k12,
+            v12,
+            k13,
+            v13,
+            k14,
+            v14,
+            k15,
+            v
+          )
         else new ContextN(k, v, this)
     }
 
-    private final class ContextN(
-      kN: Key, vN: Some[_], rest: Context
-    ) extends Context {
+    private final class ContextN(kN: Key, vN: Some[_], rest: Context) extends Context {
 
       def get(k: Key): Option[_] =
         if (k eq kN) vN
@@ -796,7 +4866,6 @@ object Local {
    * This should be treated as an opaque value and direct modifications
    * and access are considered verboten.
    */
-
   private[this] val localCtx = new ThreadLocal[Context] {
     override def initialValue(): Context = Context.empty
   }
