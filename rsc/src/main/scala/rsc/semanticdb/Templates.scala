@@ -39,7 +39,7 @@ trait Templates {
                     case tree =>
                       crash(tree)
                   }
-                case ResolvedScope(firstResolution: BinaryScope) =>
+                case ResolvedScope(firstResolution: ClasspathScope) =>
                   val firstInfo = symtab.classpath.apply(firstParentSym)
                   if (firstInfo.isTrait || firstInfo.isInterface) {
                     normalizeFirstParentSym(firstInfo.parents.head)

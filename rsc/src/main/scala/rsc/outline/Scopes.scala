@@ -29,7 +29,7 @@ sealed abstract class Scope(val sym: Symbol) extends Work {
 
 // ============ TWO FOUNDATIONAL SCOPES ============
 
-sealed trait BinaryScope extends Scope {
+sealed trait ClasspathScope extends Scope {
   def classpath: Classpath
 
   private val loaded: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
@@ -171,11 +171,11 @@ sealed abstract class OutlineScope(sym: Symbol) extends Scope(sym) {
   }
 }
 
-// ============ BINARY SCOPES ============
+// ============ CLASSPATH SCOPES ============
 
 final class PackageScope private (sym: Symbol, val classpath: Classpath)
     extends OutlineScope(sym)
-    with BinaryScope {
+    with ClasspathScope {
   override def resolve(name: Name): SymbolResolution = {
     super.resolve(name) match {
       case MissingResolution =>
@@ -204,7 +204,7 @@ object PackageScope {
 
 final class SignatureScope private (sym: Symbol, val classpath: Classpath)
     extends Scope(sym)
-    with BinaryScope {
+    with ClasspathScope {
   override def enter(name: Name, sym: Symbol): Symbol = {
     crash(this)
   }
@@ -220,7 +220,7 @@ final class SignatureScope private (sym: Symbol, val classpath: Classpath)
 }
 
 object SignatureScope {
-  def apply(sym: Symbol, classpath: Classpath): BinaryScope = {
+  def apply(sym: Symbol, classpath: Classpath): ClasspathScope = {
     new SignatureScope(sym, classpath)
   }
 }
