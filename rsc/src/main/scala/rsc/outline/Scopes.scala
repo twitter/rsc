@@ -8,6 +8,7 @@ import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
 import scala.collection.JavaConverters._
+import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 
 sealed abstract class Scope(val sym: Symbol) extends Work {
@@ -30,7 +31,7 @@ sealed abstract class Scope(val sym: Symbol) extends Work {
 // ============ TWO FOUNDATIONAL SCOPES ============
 
 sealed trait ClasspathScope extends Scope {
-  def classpath: Classpath
+  protected def classpath: Classpath
 
   private val loaded: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
   protected def load(name: Name): Symbol = {
@@ -173,7 +174,7 @@ sealed abstract class OutlineScope(sym: Symbol) extends Scope(sym) {
 
 // ============ CLASSPATH SCOPES ============
 
-final class PackageScope private (sym: Symbol, val classpath: Classpath)
+final class PackageScope private (sym: Symbol, protected val classpath: Classpath)
     extends OutlineScope(sym)
     with ClasspathScope {
   override def resolve(name: Name): SymbolResolution = {
@@ -202,9 +203,13 @@ object PackageScope {
   }
 }
 
-final class SignatureScope private (sym: Symbol, val classpath: Classpath)
+final class SignatureScope private (sym: Symbol, protected val classpath: Classpath)
     extends Scope(sym)
     with ClasspathScope {
+  def signature: s.ClassSignature = {
+    classpath(sym).asInstanceOf[s.ClassSignature]
+  }
+
   override def enter(name: Name, sym: Symbol): Symbol = {
     crash(this)
   }

@@ -11,7 +11,7 @@ import rsc.util._
 import scala.meta.internal.{semanticdb => s}
 
 trait Scopes {
-  def classpath: Classpath
+  protected def classpath: Classpath
 
   private val outlineScopes = new HashMap[Symbol, Scope]
   private val classpathScopes = new HashMap[Symbol, Scope]
