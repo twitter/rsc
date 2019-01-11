@@ -23,9 +23,8 @@ trait Services {
       if (scope != null) {
         ResolvedScope(scope)
       } else {
-        val outline = outlines.get(sym)
-        outline match {
-          case Some(outline) =>
+        metadata(sym) match {
+          case OutlineMetadata(outline) =>
             def loop(tpt: Tpt): ScopeResolution = {
               tpt match {
                 case TptArray(_) =>
@@ -55,39 +54,49 @@ trait Services {
               case null => crash(sym)
               case _ => crash(outline)
             }
-          case _ =>
-            if (classpath.contains(sym)) {
-              def loop(tpe: s.Type): Symbol = {
-                tpe match {
-                  case s.TypeRef(_, sym, _) => sym
-                  case s.SingleType(_, sym) => sym
-                  case _ => crash(tpe.asMessage.toProtoString)
-                }
+          case ClasspathMetadata(info) =>
+            def loop(tpe: s.Type): Symbol = {
+              tpe match {
+                case s.TypeRef(_, sym, _) => sym
+                case s.SingleType(_, sym) => sym
+                case _ => crash(tpe.asMessage.toProtoString)
               }
-              val info = classpath.apply(sym)
-              val scopeSym = {
-                if (sym == "scala/collection/convert/package.wrapAsScala.") {
-                  // FIXME: https://github.com/twitter/rsc/issues/285
-                  "scala/collection/convert/WrapAsScala#"
-                } else {
-                  info.signature match {
-                    case s.NoSignature if info.isPackage => sym
-                    case _: s.ClassSignature => sym
-                    case sig: s.MethodSignature if info.isVal => loop(sig.returnType)
-                    case sig: s.TypeSignature => loop(sig.upperBound)
-                    case sig: s.ValueSignature => loop(sig.tpe)
-                    case sig => crash(info.toProtoString)
-                  }
-                }
-              }
-              val scope = SignatureScope(scopeSym, classpath)
-              scope.succeed()
-              scopifies.put(sym, scope)
-              ResolvedScope(scope)
-            } else {
-              MissingResolution
             }
+            val info = classpath.apply(sym)
+            val scopeSym = {
+              if (sym == "scala/collection/convert/package.wrapAsScala.") {
+                // FIXME: https://github.com/twitter/rsc/issues/285
+                "scala/collection/convert/WrapAsScala#"
+              } else {
+                info.signature match {
+                  case s.NoSignature if info.isPackage => sym
+                  case _: s.ClassSignature => sym
+                  case sig: s.MethodSignature if info.isVal => loop(sig.returnType)
+                  case sig: s.TypeSignature => loop(sig.upperBound)
+                  case sig: s.ValueSignature => loop(sig.tpe)
+                  case sig => crash(info.toProtoString)
+                }
+              }
+            }
+            val scope = SignatureScope(scopeSym, classpath)
+            scope.succeed()
+            scopifies.put(sym, scope)
+            ResolvedScope(scope)
+          case NoMetadata =>
+            MissingResolution
         }
+      }
+    }
+  }
+
+  def metadata(sym: Symbol): Metadata = {
+    if (outlines.contains(sym)) {
+      OutlineMetadata(outlines(sym))
+    } else {
+      if (classpath.contains(sym)) {
+        ClasspathMetadata(classpath(sym))
+      } else {
+        NoMetadata
       }
     }
   }

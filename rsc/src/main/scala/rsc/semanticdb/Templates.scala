@@ -70,13 +70,10 @@ trait Templates {
             rscParents match {
               case List(TptParameterize(_, targs), _*) =>
                 val tparams = {
-                  val isOutline = symtab.scopes(scalacFirstParentSym).isInstanceOf[OutlineScope]
-                  if (isOutline) {
-                    val outline = symtab.outlines(scalacFirstParentSym)
-                    outline.asInstanceOf[Parameterized].tparams.map(_.id.sym)
-                  } else {
-                    val sig = symtab.classpath.apply(scalacFirstParentSym).signature
-                    sig.asInstanceOf[s.ClassSignature].typeParameters.symbols
+                  symtab.metadata(scalacFirstParentSym) match {
+                    case OutlineMetadata(outline: Parameterized) => outline.tparams.map(_.id.sym)
+                    case ClasspathMetadata(info) => info.tparams
+                    case _ => crash(scalacFirstParentSym)
                   }
                 }
                 if (tparams.nonEmpty) TptParameterize(id, targs)
