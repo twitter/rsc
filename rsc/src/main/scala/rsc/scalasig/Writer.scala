@@ -13,11 +13,7 @@ import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.scalasig._
 
-final class Writer private (
-    settings: Settings,
-    reporter: Reporter,
-    infos: Infos,
-    output: Output) {
+final class Writer private (settings: Settings, reporter: Reporter, infos: Infos, output: Output) {
   private val mtab = Mtab(infos)
   private val done = mutable.HashSet[String]()
 

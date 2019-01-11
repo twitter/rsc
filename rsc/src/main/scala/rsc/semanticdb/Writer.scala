@@ -97,7 +97,8 @@ final class Writer private (
         uri = cwd.relativize(symbolEntry.getKey.path.toAbsolutePath).toString,
         language = language,
         occurrences = occurrenceBuf,
-        symbols = symbolBuf)
+        symbols = symbolBuf
+      )
       val documents = List(document)
       val semanticdbPath = Paths.get(s"META-INF/semanticdb/${document.uri}.semanticdb")
       val semanticdbPayload = s.TextDocuments(documents = documents)

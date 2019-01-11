@@ -87,7 +87,7 @@ trait Services {
             } else {
               MissingResolution
             }
-          }
+        }
       }
     }
   }
