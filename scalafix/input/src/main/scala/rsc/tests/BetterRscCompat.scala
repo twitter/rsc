@@ -15,6 +15,7 @@ object BetterRscCompat_Test {
     def int = 42
     def map = mutable.Map(1 -> "1")
     def str = "hello"
+    def str2 = s"$str world"
 
     class MyClass
 

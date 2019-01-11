@@ -14,11 +14,12 @@ trait Symtabs {
         .info(sym1)
         .exists { info =>
           info.signature match {
+            case _ if info.symbol == sym2 => true
+
             case s.TypeSignature(_, s.TypeRef(_, loSym, _), s.TypeRef(_, hiSym, _)) =>
               loSym == hiSym && loSym == sym2
 
-            case _ =>
-              info.symbol == sym2
+            case _ => false
           }
         }
     }
