@@ -37,14 +37,14 @@ final class GlobalImports(ctx: RuleCtx) {
   private val globalImports: Seq[Import] = getGlobalImports(ctx.tree)
 
   private def importStr(grouped: Seq[Importer]): String = {
-    val end = if (globalImports.isEmpty) "\n" else ""
+    val end = if (globalImports.isEmpty && grouped.nonEmpty) "\n" else ""
 
     grouped
       .map { importer =>
         val withoutSpaces = importer.syntax.replaceFirst("\\{ ", "{").replaceFirst(" \\}", "}")
-        s"import $withoutSpaces"
+        s"\nimport $withoutSpaces"
       }
-      .mkString("\n", "\n", end)
+      .mkString("", "", end)
   }
 
   @tailrec private def getGlobalImports(ast: Tree): Seq[Import] =
