@@ -62,7 +62,6 @@ trait Services {
                 case _ => crash(tpe.asMessage.toProtoString)
               }
             }
-            val info = classpath.apply(sym)
             val scopeSym = {
               if (sym == "scala/collection/convert/package.wrapAsScala.") {
                 // FIXME: https://github.com/twitter/rsc/issues/285
