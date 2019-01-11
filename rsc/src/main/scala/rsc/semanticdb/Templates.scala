@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.semanticdb
 
-import rsc.outline._
 import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
 import scala.meta.internal.{semanticdb => s}
+import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 
 trait Templates {
   self: Converter =>
@@ -25,39 +25,41 @@ trait Templates {
       val rscFirstParentSym = parentSym(rscFirstParent)
       val scalacFixup = {
         def normalizeFirstParentSym(firstParentSym: Symbol): Symbol = {
-          firstParentSym match {
-            case AnyClass | JavaComparableClass | JavaSerializableClass =>
-              AnyRefClass
-            case firstParentSym =>
-              val firstResolution = symtab.scopify(firstParentSym)
-              firstResolution match {
-                case ResolvedScope(firstResolution: TemplateScope) =>
-                  firstResolution.tree match {
-                    case tree: DefnClass =>
-                      if (tree.hasClass) firstParentSym
-                      else normalizeFirstParentSym(tree.desugaredParents.map(parentSym).head)
-                    case tree =>
-                      crash(tree)
-                  }
-                case ResolvedScope(firstResolution: ClasspathScope) =>
-                  val firstInfo = symtab.classpath.apply(firstParentSym)
-                  if (firstInfo.isTrait || firstInfo.isInterface) {
-                    normalizeFirstParentSym(firstInfo.parents.head)
-                  } else if (firstInfo.isType) {
-                    val aliasShallow = firstInfo.signature match {
-                      case s.TypeSignature(_, _, s.TypeRef(_, sym, _)) => sym
-                      case other => crash(other.asMessage.toProtoString)
+          def loop(sym: Symbol): Symbol = {
+            sym match {
+              case AnyClass | JavaComparableClass | JavaSerializableClass =>
+                AnyRefClass
+              case sym =>
+                symtab.metadata(sym) match {
+                  case OutlineMetadata(outline) =>
+                    outline match {
+                      case outline: DefnClass if outline.hasClass =>
+                        firstParentSym
+                      case outline: DefnClass =>
+                        parentSym(outline.desugaredParents.head)
+                      case DefnType(_, _, _, _, _, Some(rhs)) =>
+                        loop(parentSym(rhs))
+                      case _ =>
+                        crash(outline)
                     }
-                    val aliasDeep = normalizeFirstParentSym(aliasShallow)
-                    if (aliasShallow != aliasDeep) aliasDeep
-                    else firstParentSym
-                  } else {
-                    firstParentSym
-                  }
-                case firstResolution =>
-                  crash(firstResolution)
-              }
+                  case ClasspathMetadata(info) =>
+                    info.kind match {
+                      case k.CLASS =>
+                        firstParentSym
+                      case k.TRAIT | k.INTERFACE =>
+                        normalizeFirstParentSym(info.parents.head)
+                      case k.TYPE =>
+                        val s.TypeSignature(_, _, s.TypeRef(_, hiSym, _)) = info.signature
+                        loop(hiSym)
+                      case _ =>
+                        crash(info.toProtoString)
+                    }
+                  case NoMetadata =>
+                    crash(sym)
+                }
+            }
           }
+          loop(firstParentSym)
         }
         val scalacFirstParentSym = {
           if (rscFirstParentSym == AnyClass) AnyClass
