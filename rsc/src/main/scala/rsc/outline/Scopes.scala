@@ -8,6 +8,7 @@ import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
 import scala.collection.JavaConverters._
+import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 
 sealed abstract class Scope(val sym: Symbol) extends Work {
@@ -29,8 +30,8 @@ sealed abstract class Scope(val sym: Symbol) extends Work {
 
 // ============ TWO FOUNDATIONAL SCOPES ============
 
-sealed trait BinaryScope extends Scope {
-  def classpath: Classpath
+sealed trait ClasspathScope extends Scope {
+  protected def classpath: Classpath
 
   private val loaded: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
   protected def load(name: Name): Symbol = {
@@ -123,7 +124,7 @@ sealed trait BinaryScope extends Scope {
   }
 }
 
-sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
+sealed abstract class OutlineScope(sym: Symbol) extends Scope(sym) {
   private val impl: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
 
   def decls: List[Symbol] = {
@@ -171,34 +172,11 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
   }
 }
 
-// ============ BINARY SCOPES ============
+// ============ CLASSPATH SCOPES ============
 
-final class ClasspathScope private (sym: Symbol, val classpath: Classpath)
-    extends Scope(sym)
-    with BinaryScope {
-  override def enter(name: Name, sym: Symbol): Symbol = {
-    crash(this)
-  }
-
-  override def resolve(name: Name): SymbolResolution = {
-    load(name) match {
-      case NoSymbol =>
-        MissingResolution
-      case sym =>
-        ResolvedSymbol(sym)
-    }
-  }
-}
-
-object ClasspathScope {
-  def apply(sym: Symbol, classpath: Classpath): BinaryScope = {
-    new ClasspathScope(sym, classpath)
-  }
-}
-
-final class PackageScope private (sym: Symbol, val classpath: Classpath)
-    extends SourceScope(sym)
-    with BinaryScope {
+final class PackageScope private (sym: Symbol, protected val classpath: Classpath)
+    extends OutlineScope(sym)
+    with ClasspathScope {
   override def resolve(name: Name): SymbolResolution = {
     super.resolve(name) match {
       case MissingResolution =>
@@ -225,7 +203,34 @@ object PackageScope {
   }
 }
 
-// ============ SOURCE SCOPES ============
+final class SignatureScope private (sym: Symbol, protected val classpath: Classpath)
+    extends Scope(sym)
+    with ClasspathScope {
+  def signature: s.ClassSignature = {
+    classpath(sym).asInstanceOf[s.ClassSignature]
+  }
+
+  override def enter(name: Name, sym: Symbol): Symbol = {
+    crash(this)
+  }
+
+  override def resolve(name: Name): SymbolResolution = {
+    load(name) match {
+      case NoSymbol =>
+        MissingResolution
+      case sym =>
+        ResolvedSymbol(sym)
+    }
+  }
+}
+
+object SignatureScope {
+  def apply(sym: Symbol, classpath: Classpath): ClasspathScope = {
+    new SignatureScope(sym, classpath)
+  }
+}
+
+// ============ OUTLINE SCOPES ============
 
 final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
   var _parent1: Scope = null
@@ -361,7 +366,7 @@ object PackageObjectScope {
   }
 }
 
-final class ParamScope private (owner: Symbol) extends SourceScope(owner)
+final class ParamScope private (owner: Symbol) extends OutlineScope(owner)
 
 object ParamScope {
   def apply(owner: Symbol): ParamScope = {
@@ -369,7 +374,7 @@ object ParamScope {
   }
 }
 
-final class SelfScope private (owner: Symbol) extends SourceScope(owner)
+final class SelfScope private (owner: Symbol) extends OutlineScope(owner)
 
 object SelfScope {
   def apply(owner: Symbol): SelfScope = {
@@ -377,7 +382,7 @@ object SelfScope {
   }
 }
 
-class TemplateScope protected (sym: Symbol, val tree: DefnTemplate) extends SourceScope(sym) {
+class TemplateScope protected (sym: Symbol, val tree: DefnTemplate) extends OutlineScope(sym) {
   var _parents: List[Scope] = null
   var _self: List[Scope] = null
   var _env: Env = null
@@ -451,7 +456,7 @@ object TemplateScope {
   }
 }
 
-final class TypeParamScope private (owner: Symbol) extends SourceScope(owner)
+final class TypeParamScope private (owner: Symbol) extends OutlineScope(owner)
 
 object TypeParamScope {
   def apply(owner: Symbol): TypeParamScope = {
@@ -459,7 +464,7 @@ object TypeParamScope {
   }
 }
 
-final class ExistentialScope private () extends SourceScope(NoSymbol)
+final class ExistentialScope private () extends OutlineScope(NoSymbol)
 
 object ExistentialScope {
   def apply(): ExistentialScope = {
@@ -467,7 +472,7 @@ object ExistentialScope {
   }
 }
 
-final class RefineScope private () extends SourceScope(NoSymbol)
+final class RefineScope private () extends OutlineScope(NoSymbol)
 
 object RefineScope {
   def apply(): RefineScope = {

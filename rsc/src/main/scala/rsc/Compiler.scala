@@ -97,12 +97,12 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
   }
 
   private def index(): Unit = {
-    val indexer = Indexer(settings, reporter, symtab, todo)
+    val indexer = Indexer(settings, reporter, classpath, symtab, todo)
     indexer.apply()
   }
 
   private def schedule(): Unit = {
-    val scheduler = Scheduler(settings, reporter, gensyms, symtab, todo)
+    val scheduler = Scheduler(settings, reporter, gensyms, classpath, symtab, todo)
     trees.foreach { tree =>
       val env = Env(Nil, tree.lang)
       scheduler.apply(env, tree)
@@ -110,7 +110,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
   }
 
   private def outline(): Unit = {
-    val outliner = Outliner(settings, reporter, gensyms, symtab, todo)
+    val outliner = Outliner(settings, reporter, gensyms, classpath, symtab, todo)
     while (!todo.isEmpty) {
       val (env, work) = todo.remove()
       try {
@@ -172,7 +172,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
   }
 
   def close(): Unit = {
-    symtab.close()
+    classpath.close()
     output.close()
   }
 

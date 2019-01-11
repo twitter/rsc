@@ -32,5 +32,13 @@ trait SemanticdbUtil {
       case _ =>
         Nil
     }
+
+    def tparams: List[String] = info.signature match {
+      case sig: ClassSignature => sig.typeParameters.symbols
+      case sig: MethodSignature => sig.typeParameters.symbols
+      case sig: TypeSignature => sig.typeParameters.symbols
+      case sig: ValueSignature => Nil
+      case NoSignature => Nil
+    }
   }
 }

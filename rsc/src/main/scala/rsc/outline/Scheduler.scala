@@ -3,6 +3,7 @@
 package rsc.outline
 
 import java.util.LinkedHashSet
+import rsc.classpath._
 import rsc.gensym._
 import rsc.input._
 import rsc.report._
@@ -17,10 +18,11 @@ final class Scheduler private (
     settings: Settings,
     reporter: Reporter,
     gensyms: Gensyms,
+    classpath: Classpath,
     symtab: Symtab,
     todo: Todo) {
   private lazy val synthesizer: Synthesizer = {
-    Synthesizer(settings, reporter, gensyms, symtab, todo)
+    Synthesizer(settings, reporter, gensyms, classpath, symtab, todo)
   }
 
   def apply(env: Env, tree: Tree): Env = {
@@ -232,8 +234,7 @@ final class Scheduler private (
         }
         existingScope
       } else {
-        val rootScope = symtab.scopes(RootPackage).asInstanceOf[PackageScope]
-        val newScope = PackageScope(tree.id.sym, symtab.classpath)
+        val newScope = PackageScope(tree.id.sym, classpath)
         symtab.scopes.put(tree.id.sym, newScope)
         todo.add(env, newScope)
         newScope
@@ -585,8 +586,9 @@ object Scheduler {
       settings: Settings,
       reporter: Reporter,
       gensyms: Gensyms,
+      classpath: Classpath,
       symtab: Symtab,
       todo: Todo): Scheduler = {
-    new Scheduler(settings, reporter, gensyms, symtab, todo)
+    new Scheduler(settings, reporter, gensyms, classpath, symtab, todo)
   }
 }

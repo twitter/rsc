@@ -4,15 +4,12 @@ package rsc.symtab
 
 import rsc.classpath._
 
-final class Symtab private (val classpath: Classpath)
-    extends AutoCloseable
-    with Desugars
+final class Symtab private (protected val classpath: Classpath)
+    extends Desugars
     with Envs
     with Outlines
     with Scopes
-    with Services {
-  def close(): Unit = classpath.close()
-}
+    with Services
 
 object Symtab {
   def apply(classpath: Classpath): Symtab = {

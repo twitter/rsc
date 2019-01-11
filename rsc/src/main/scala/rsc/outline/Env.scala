@@ -10,10 +10,10 @@ import rsc.util._
 import scala.annotation.tailrec
 
 sealed class Env protected (val scopes: List[Scope], val lang: Language) extends Pretty {
-  def owner: SourceScope = {
-    def loop(scopes: List[Scope]): SourceScope = {
+  def owner: OutlineScope = {
+    def loop(scopes: List[Scope]): OutlineScope = {
       scopes match {
-        case (head: SourceScope) :: _ => head
+        case (head: OutlineScope) :: _ => head
         case head :: tail => loop(tail)
         case Nil => crash(this)
       }

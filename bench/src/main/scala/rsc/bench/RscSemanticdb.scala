@@ -9,8 +9,8 @@ import org.openjdk.jmh.annotations.Mode._
 
 @BenchmarkMode(Array(SampleTime))
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-@Warmup(iterations = 3, time = 10, timeUnit = TimeUnit.SECONDS)
-@Measurement(iterations = 3, time = 10, timeUnit = TimeUnit.SECONDS)
+@Warmup(iterations = 5, time = 10, timeUnit = TimeUnit.SECONDS)
+@Measurement(iterations = 5, time = 10, timeUnit = TimeUnit.SECONDS)
 @Fork(value = 1, jvmArgs = Array("-Xms4G", "-Xmx4G"))
 class RscSemanticdb extends RscBenchmark {
   @Benchmark

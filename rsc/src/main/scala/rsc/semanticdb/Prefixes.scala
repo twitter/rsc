@@ -98,17 +98,10 @@ trait Prefixes {
               case d.Term("package") =>
                 qualSym != ownerSym.owner
               case _ =>
-                val outline = symtab.outlines.get(id.sym)
-                outline match {
-                  case Some(outline) =>
-                    !outline.hasStatic
-                  case _ =>
-                    if (symtab.classpath.contains(id.sym)) {
-                      val info = symtab.classpath(id.sym)
-                      !info.isStatic
-                    } else {
-                      false
-                    }
+                symtab.metadata(id.sym) match {
+                  case OutlineMetadata(outline) => !outline.hasStatic
+                  case ClasspathMetadata(info) => !info.isStatic
+                  case NoMetadata => false
                 }
             }
           } else {

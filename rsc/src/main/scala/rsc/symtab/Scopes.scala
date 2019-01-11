@@ -11,16 +11,16 @@ import rsc.util._
 import scala.meta.internal.{semanticdb => s}
 
 trait Scopes {
-  def classpath: Classpath
+  protected def classpath: Classpath
 
-  private val sourceScopes = new HashMap[Symbol, Scope]
+  private val outlineScopes = new HashMap[Symbol, Scope]
   private val classpathScopes = new HashMap[Symbol, Scope]
   private val existentialScopes = new HashMap[TptExistential, ExistentialScope]
   private val refineScopes = new HashMap[TptRefine, RefineScope]
 
   object scopes {
     def apply(sym: Symbol): Scope = {
-      val scope1 = sourceScopes.get(sym)
+      val scope1 = outlineScopes.get(sym)
       if (scope1 != null) return scope1
       val scope2 = classpathScopes.get(sym)
       if (scope2 != null) return scope2
@@ -42,7 +42,7 @@ trait Scopes {
     }
 
     def contains(sym: Symbol): Boolean = {
-      sourceScopes.containsKey(sym) ||
+      outlineScopes.containsKey(sym) ||
       classpathScopes.containsKey(sym) ||
       tryLoadClasspathScope(sym) != null
     }
@@ -56,12 +56,12 @@ trait Scopes {
     }
 
     def put(sym: Symbol, scope: Scope): Unit = {
-      if (sourceScopes.containsKey(sym)) {
+      if (outlineScopes.containsKey(sym)) {
         crash(sym)
       }
       sym match {
         case NoSymbol => crash(scope)
-        case other => sourceScopes.put(other, scope)
+        case other => outlineScopes.put(other, scope)
       }
     }
 
@@ -84,7 +84,7 @@ trait Scopes {
         val info = classpath.apply(sym)
         val scope = info.signature match {
           case s.NoSignature if info.isPackage => PackageScope(sym, classpath)
-          case _: s.ClassSignature => ClasspathScope(sym, classpath)
+          case _: s.ClassSignature => SignatureScope(sym, classpath)
           case _ => return null
         }
         scope.succeed()
