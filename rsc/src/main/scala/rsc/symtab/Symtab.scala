@@ -4,7 +4,7 @@ package rsc.symtab
 
 import rsc.classpath._
 
-final class Symtab private (val classpath: Classpath)
+final class Symtab private (protected val classpath: Classpath)
     extends AutoCloseable
     with Desugars
     with Envs

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.outline
 
+import rsc.classpath._
 import rsc.gensym._
 import rsc.input._
 import rsc.report._
@@ -16,10 +17,11 @@ final class Outliner private (
     settings: Settings,
     reporter: Reporter,
     gensyms: Gensyms,
+    classpath: Classpath,
     symtab: Symtab,
     todo: Todo) {
   private lazy val scheduler: Scheduler = {
-    Scheduler(settings, reporter, gensyms, symtab, todo)
+    Scheduler(settings, reporter, gensyms, classpath, symtab, todo)
   }
 
   def apply(env: Env, work: Work): Unit = {
@@ -454,8 +456,9 @@ object Outliner {
       settings: Settings,
       reporter: Reporter,
       gensyms: Gensyms,
+      classpath: Classpath,
       symtab: Symtab,
       todo: Todo): Outliner = {
-    new Outliner(settings, reporter, gensyms, symtab, todo)
+    new Outliner(settings, reporter, gensyms, classpath, symtab, todo)
   }
 }

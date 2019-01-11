@@ -5,7 +5,6 @@ package rsc.outline
 import java.util.{LinkedHashMap, Map}
 import rsc.classpath._
 import rsc.semantics._
-import rsc.symtab._
 import rsc.syntax._
 import rsc.util._
 import scala.collection.JavaConverters._
@@ -201,10 +200,6 @@ final class PackageScope private (sym: Symbol, protected val classpath: Classpat
 object PackageScope {
   def apply(sym: Symbol, classpath: Classpath): PackageScope = {
     new PackageScope(sym, classpath)
-  }
-
-  def apply(sym: Symbol, symtab: Symtab): PackageScope = {
-    new PackageScope(sym, symtab.classpath)
   }
 }
 

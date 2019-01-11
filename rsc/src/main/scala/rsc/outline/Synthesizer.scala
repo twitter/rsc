@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.outline
 
+import rsc.classpath._
 import rsc.gensym._
 import rsc.report._
 import rsc.semantics._
@@ -15,10 +16,11 @@ final class Synthesizer private (
     settings: Settings,
     reporter: Reporter,
     gensyms: Gensyms,
+    classpath: Classpath,
     symtab: Symtab,
     todo: Todo) {
   private lazy val scheduler: Scheduler = {
-    Scheduler(settings, reporter, gensyms, symtab, todo)
+    Scheduler(settings, reporter, gensyms, classpath, symtab, todo)
   }
 
   def caseClassMembers(env: Env, tree: DefnClass): Unit = {
@@ -650,8 +652,9 @@ object Synthesizer {
       settings: Settings,
       reporter: Reporter,
       gensyms: Gensyms,
+      classpath: Classpath,
       symtab: Symtab,
       todo: Todo): Synthesizer = {
-    new Synthesizer(settings, reporter, gensyms, symtab, todo)
+    new Synthesizer(settings, reporter, gensyms, classpath, symtab, todo)
   }
 }
