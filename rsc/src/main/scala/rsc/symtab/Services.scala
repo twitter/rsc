@@ -35,7 +35,6 @@ trait Services {
                 case tpt: TptPath =>
                   tpt.id.sym match {
                     case NoSymbol =>
-                      // FIXME: https://github.com/twitter/rsc/issues/104
                       BlockedResolution(Unknown())
                     case sym =>
                       scopify(sym)

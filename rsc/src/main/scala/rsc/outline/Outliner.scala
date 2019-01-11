@@ -12,7 +12,6 @@ import rsc.syntax._
 import rsc.util._
 import scala.collection.mutable
 
-// FIXME: https://github.com/twitter/rsc/issues/104
 final class Outliner private (
     settings: Settings,
     reporter: Reporter,
