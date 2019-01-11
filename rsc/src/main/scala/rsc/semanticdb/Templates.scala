@@ -70,8 +70,8 @@ trait Templates {
             rscParents match {
               case List(TptParameterize(_, targs), _*) =>
                 val tparams = {
-                  val isSource = symtab.scopes(scalacFirstParentSym).isInstanceOf[SourceScope]
-                  if (isSource) {
+                  val isOutline = symtab.scopes(scalacFirstParentSym).isInstanceOf[OutlineScope]
+                  if (isOutline) {
                     val outline = symtab.outlines(scalacFirstParentSym)
                     outline.asInstanceOf[Parameterized].tparams.map(_.id.sym)
                   } else {

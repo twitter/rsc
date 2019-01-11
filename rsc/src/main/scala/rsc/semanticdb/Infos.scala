@@ -10,24 +10,24 @@ import rsc.util._
 import scala.meta.internal.{semanticdb => s}
 
 class Infos private (classpathInfos: Classpath) {
-  private val sourceInfos = new HashMap[Symbol, s.SymbolInformation]
-  private val sourcePositions = new HashMap[Symbol, Position]
+  private val outlineInfos = new HashMap[Symbol, s.SymbolInformation]
+  private val outlinePositions = new HashMap[Symbol, Position]
   val staticOwners = new HashSet[Symbol]
 
   def contains(sym: Symbol): Boolean = {
-    sourceInfos.containsKey(sym) ||
+    outlineInfos.containsKey(sym) ||
     classpathInfos.contains(sym)
   }
 
   def apply(sym: Symbol): s.SymbolInformation = {
-    val sourceInfo = sourceInfos.get(sym)
-    if (sourceInfo != null) sourceInfo
+    val outlineInfo = outlineInfos.get(sym)
+    if (outlineInfo != null) outlineInfo
     else classpathInfos(sym)
   }
 
   def pos(sym: Symbol): Position = {
     if (contains(sym)) {
-      val pos = sourcePositions.get(sym)
+      val pos = outlinePositions.get(sym)
       if (pos != null) pos else NoPosition
     } else {
       crash(sym)
@@ -35,8 +35,8 @@ class Infos private (classpathInfos: Classpath) {
   }
 
   def put(sym: Symbol, info: s.SymbolInformation, pos: Position): Unit = {
-    sourceInfos.put(sym, info)
-    sourcePositions.put(sym, pos)
+    outlineInfos.put(sym, info)
+    outlinePositions.put(sym, pos)
     if (info.isStatic) {
       staticOwners.add(sym.owner)
       staticOwners.add(sym.owner.companionObject)

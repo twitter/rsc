@@ -10,7 +10,7 @@ import scala.meta.internal.{semanticdb => s}
 trait Scopes {
   self: Converter =>
 
-  protected implicit class SourceScopeOps(scope: SourceScope) {
+  protected implicit class OutlineScopeOps(scope: OutlineScope) {
     def scope(linkMode: LinkMode): Some[s.Scope] = {
       val outlines = scope.decls.flatMap(_.asMulti).map(symtab.outlines.apply)
       val eligibles = scope match {
@@ -21,7 +21,7 @@ trait Scopes {
     }
   }
 
-  protected implicit class OutlineScopeOps(outlines: List[Outline]) {
+  protected implicit class PseudoScopeOps(outlines: List[Outline]) {
     def scope(linkMode: LinkMode): Some[s.Scope] = {
       linkMode match {
         case SymlinkChildren => Some(s.Scope(symlinks = outlines.map(_.id.sym)))

@@ -46,7 +46,7 @@ object PrettyWork {
     x match {
       case x: ClasspathScope =>
         p.str(" [...]")
-      case x: SourceScope =>
+      case x: OutlineScope =>
         p.str(" [")
         val symbols = {
           x match {

@@ -123,7 +123,7 @@ sealed trait BinaryScope extends Scope {
   }
 }
 
-sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
+sealed abstract class OutlineScope(sym: Symbol) extends Scope(sym) {
   private val impl: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
 
   def decls: List[Symbol] = {
@@ -197,7 +197,7 @@ object ClasspathScope {
 }
 
 final class PackageScope private (sym: Symbol, val classpath: Classpath)
-    extends SourceScope(sym)
+    extends OutlineScope(sym)
     with BinaryScope {
   override def resolve(name: Name): SymbolResolution = {
     super.resolve(name) match {
@@ -225,7 +225,7 @@ object PackageScope {
   }
 }
 
-// ============ SOURCE SCOPES ============
+// ============ OUTLINE SCOPES ============
 
 final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
   var _parent1: Scope = null
@@ -361,7 +361,7 @@ object PackageObjectScope {
   }
 }
 
-final class ParamScope private (owner: Symbol) extends SourceScope(owner)
+final class ParamScope private (owner: Symbol) extends OutlineScope(owner)
 
 object ParamScope {
   def apply(owner: Symbol): ParamScope = {
@@ -369,7 +369,7 @@ object ParamScope {
   }
 }
 
-final class SelfScope private (owner: Symbol) extends SourceScope(owner)
+final class SelfScope private (owner: Symbol) extends OutlineScope(owner)
 
 object SelfScope {
   def apply(owner: Symbol): SelfScope = {
@@ -377,7 +377,7 @@ object SelfScope {
   }
 }
 
-class TemplateScope protected (sym: Symbol, val tree: DefnTemplate) extends SourceScope(sym) {
+class TemplateScope protected (sym: Symbol, val tree: DefnTemplate) extends OutlineScope(sym) {
   var _parents: List[Scope] = null
   var _self: List[Scope] = null
   var _env: Env = null
@@ -451,7 +451,7 @@ object TemplateScope {
   }
 }
 
-final class TypeParamScope private (owner: Symbol) extends SourceScope(owner)
+final class TypeParamScope private (owner: Symbol) extends OutlineScope(owner)
 
 object TypeParamScope {
   def apply(owner: Symbol): TypeParamScope = {
@@ -459,7 +459,7 @@ object TypeParamScope {
   }
 }
 
-final class ExistentialScope private () extends SourceScope(NoSymbol)
+final class ExistentialScope private () extends OutlineScope(NoSymbol)
 
 object ExistentialScope {
   def apply(): ExistentialScope = {
@@ -467,7 +467,7 @@ object ExistentialScope {
   }
 }
 
-final class RefineScope private () extends SourceScope(NoSymbol)
+final class RefineScope private () extends OutlineScope(NoSymbol)
 
 object RefineScope {
   def apply(): RefineScope = {
