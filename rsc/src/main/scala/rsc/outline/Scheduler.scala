@@ -167,9 +167,6 @@ final class Scheduler private (
         outline.id.sym = sym
         symtab._outlines.put(sym, outline)
         symtab.envs.put(sym, env)
-        if (outline.hasStatic) {
-          symtab.statics.add(outline.id.sym.owner)
-        }
     }
   }
 

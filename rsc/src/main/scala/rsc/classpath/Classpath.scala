@@ -1,6 +1,6 @@
 // Copyright (c) 2017-2019 Twitter, Inc.
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
-package rsc.symtab
+package rsc.classpath
 
 import java.io._
 import java.nio.file._

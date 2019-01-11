@@ -4,6 +4,7 @@ package rsc
 
 import java.nio.file._
 import java.util.LinkedList
+import rsc.classpath._
 import rsc.gensym._
 import rsc.input._
 import rsc.lexis._
@@ -13,6 +14,7 @@ import rsc.parse._
 import rsc.pretty._
 import rsc.report._
 import rsc.scan._
+import rsc.semanticdb._
 import rsc.semantics._
 import rsc.settings._
 import rsc.symtab._
@@ -22,8 +24,10 @@ import rsc.util._
 class Compiler(val settings: Settings, val reporter: Reporter) extends AutoCloseable with Pretty {
   var trees: List[Source] = Nil
   var gensyms: Gensyms = Gensyms()
-  var symtab: Symtab = Symtab(settings)
+  var classpath: Classpath = Classpath(settings.cp)
+  var symtab: Symtab = Symtab(classpath)
   var todo: Todo = Todo()
+  var infos: Infos = Infos(classpath)
   var output: Output = Output(settings)
 
   def run(): Unit = {
@@ -136,7 +140,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
   }
 
   private def semanticdb(): Unit = {
-    val writer = rsc.semanticdb.Writer(settings, reporter, gensyms, symtab, output)
+    val writer = rsc.semanticdb.Writer(settings, reporter, gensyms, symtab, infos, output)
     val outlines = new LinkedList(symtab._outlines.values)
     while (!outlines.isEmpty) {
       val outline = outlines.remove()
@@ -153,7 +157,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
 
   private def scalasig(): Unit = {
     if (!settings.artifacts.contains(ArtifactScalasig)) return
-    val writer = rsc.scalasig.Writer(settings, reporter, symtab, output)
+    val writer = rsc.scalasig.Writer(settings, reporter, infos, output)
     val outlines = new LinkedList(symtab._outlines.values)
     while (!outlines.isEmpty) {
       val outline = outlines.remove()
