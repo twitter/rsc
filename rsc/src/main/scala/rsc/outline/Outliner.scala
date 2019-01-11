@@ -135,9 +135,9 @@ final class Outliner private (
         case tree if tree.hasAnnotationInterface =>
           appendParent(env, TptId("Annotation").withSym(JavaAnnotationClass))
         case tree: DefnObject =>
-          val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
+          val companionClass = symtab.outlines.get(tree.id.sym.companionClass)
           companionClass match {
-            case caseClass: DefnClass if caseClass.hasCase =>
+            case Some(caseClass: DefnClass) if caseClass.hasCase =>
               if (tree.isSynthetic && !caseClass.hasAbstract) {
                 (caseClass.tparams, caseClass.primaryCtor.get.paramss) match {
                   case (Nil, List(params)) if params.length <= 22 =>

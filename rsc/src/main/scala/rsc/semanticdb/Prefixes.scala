@@ -84,11 +84,11 @@ trait Prefixes {
           true
         case _ =>
           val qualSym = {
-            val outline = symtab._outlines.get(qual.id.sym)
+            val outline = symtab.outlines.get(qual.id.sym)
             outline match {
               // FIXME: https://github.com/twitter/rsc/issues/261
               // FIXME: https://github.com/scalameta/scalameta/issues/1808
-              case _: Self => qual.id.sym.stripPrefix("local").stripSuffix("=>")
+              case Some(_: Self) => qual.id.sym.stripPrefix("local").stripSuffix("=>")
               case _ => qual.id.sym
             }
           }
@@ -98,16 +98,17 @@ trait Prefixes {
               case d.Term("package") =>
                 qualSym != ownerSym.owner
               case _ =>
-                val outline = symtab._outlines.get(id.sym)
-                if (outline != null) {
-                  !outline.hasStatic
-                } else {
-                  if (symtab.classpath.contains(id.sym)) {
-                    val info = symtab.classpath(id.sym)
-                    !info.isStatic
-                  } else {
-                    false
-                  }
+                val outline = symtab.outlines.get(id.sym)
+                outline match {
+                  case Some(outline) =>
+                    !outline.hasStatic
+                  case _ =>
+                    if (symtab.classpath.contains(id.sym)) {
+                      val info = symtab.classpath(id.sym)
+                      !info.isStatic
+                    } else {
+                      false
+                    }
                 }
             }
           } else {

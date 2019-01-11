@@ -79,7 +79,7 @@ trait Templates {
                 val tparams = {
                   val isSource = symtab.scopes(scalacFirstParentSym).isInstanceOf[SourceScope]
                   if (isSource) {
-                    val outline = symtab._outlines.get(scalacFirstParentSym)
+                    val outline = symtab.outlines(scalacFirstParentSym)
                     outline.asInstanceOf[Parameterized].tparams.map(_.id.sym)
                   } else {
                     val sig = symtab.classpath.apply(scalacFirstParentSym).signature

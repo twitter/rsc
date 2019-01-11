@@ -5,7 +5,6 @@ package rsc.semanticdb
 import rsc.outline._
 import rsc.semantics._
 import rsc.syntax._
-import rsc.util._
 import scala.meta.internal.{semanticdb => s}
 
 trait Scopes {
@@ -13,11 +12,7 @@ trait Scopes {
 
   protected implicit class SourceScopeOps(scope: SourceScope) {
     def scope(linkMode: LinkMode): Some[s.Scope] = {
-      val outlines = scope.decls.flatMap(_.asMulti).map { sym =>
-        val outline = symtab._outlines.get(sym)
-        if (outline == null) crash(sym)
-        outline
-      }
+      val outlines = scope.decls.flatMap(_.asMulti).map(symtab.outlines.apply)
       val eligibles = scope match {
         case scope: TemplateScope => outlines.filter(_.isEligible)
         case _ => outlines

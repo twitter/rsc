@@ -230,12 +230,13 @@ trait Defns {
                     s.PublicAccess()
                   } else {
                     val ownerSym = outline.id.sym.owner
-                    val owner = symtab._outlines.get(ownerSym)
-                    if (owner != null && (owner.hasInterface || owner.hasAnnotationInterface)) {
-                      s.PublicAccess()
-                    } else {
-                      val within = symbol.ownerChain.reverse.tail.find(_.desc.isPackage).get
-                      s.PrivateWithinAccess(within)
+                    val owner = symtab.outlines.get(ownerSym)
+                    owner match {
+                      case Some(owner) if owner.hasInterface || owner.hasAnnotationInterface =>
+                        s.PublicAccess()
+                      case _ =>
+                        val within = symbol.ownerChain.reverse.tail.find(_.desc.isPackage).get
+                        s.PrivateWithinAccess(within)
                     }
                   }
                 case l.UNKNOWN_LANGUAGE | l.Unrecognized(_) =>

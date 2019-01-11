@@ -400,9 +400,9 @@ final class Synthesizer private (
   }
 
   private def caseClassCompanionToString(env: Env, tree: DefnClass): Unit = {
-    val companionTree = symtab._outlines.get(tree.id.sym.companionObject)
+    val companionTree = symtab.outlines.get(tree.id.sym.companionObject)
     companionTree match {
-      case companionTree: DefnObject if companionTree.isSynthetic =>
+      case Some(companionTree: DefnObject) if companionTree.isSynthetic =>
         val mods = Mods(List(ModFinal()))
         val id = TermId("toString")
         val paramss = List(Nil)

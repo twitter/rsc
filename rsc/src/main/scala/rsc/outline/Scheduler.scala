@@ -97,7 +97,7 @@ final class Scheduler private (
             val sym = TermSymbol(scope.sym, outline.id.value)
             scope.enter(outline.id.name, sym)
             outline.id.sym = sym
-            symtab._outlines.put(sym, outline)
+            symtab.outlines.put(sym, outline)
             symtab.envs.put(sym, env)
         }
       case outline =>
@@ -115,7 +115,7 @@ final class Scheduler private (
                   def loop(attempt: Int): String = {
                     val disambig = if (attempt == 0) s"()" else s"(+$attempt)"
                     val sym = MethodSymbol(scope.sym, outline.id.value, disambig)
-                    if (symtab._outlines.containsKey(sym)) loop(attempt + 1)
+                    if (symtab.outlines.contains(sym)) loop(attempt + 1)
                     else sym
                   }
                   loop(0)
@@ -165,7 +165,7 @@ final class Scheduler private (
             ()
         }
         outline.id.sym = sym
-        symtab._outlines.put(sym, outline)
+        symtab.outlines.put(sym, outline)
         symtab.envs.put(sym, env)
     }
   }
@@ -324,9 +324,9 @@ final class Scheduler private (
             if (!hasCtor && tree.hasClass) synthesizer.defaultConstructor(templateEnv, tree)
         }
       case tree: DefnObject =>
-        val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
+        val companionClass = symtab.outlines.get(tree.id.sym.companionClass)
         companionClass match {
-          case caseClass: DefnClass if caseClass.hasDefaultParams =>
+          case Some(caseClass: DefnClass) if caseClass.hasDefaultParams =>
             synthesizer.defaultGetters(templateEnv, caseClass)
           case _ =>
             ()
@@ -353,9 +353,9 @@ final class Scheduler private (
         if (tree.hasCase) {
           synthesizer.caseObjectMembers(templateEnv, tree)
         }
-        val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
+        val companionClass = symtab.outlines.get(tree.id.sym.companionClass)
         companionClass match {
-          case caseClass: DefnClass if caseClass.hasCase =>
+          case Some(caseClass: DefnClass) if caseClass.hasCase =>
             synthesizer.caseClassCompanionMembers(templateEnv, caseClass)
           case _ =>
             ()
@@ -481,7 +481,7 @@ final class Scheduler private (
         val ownerSym = if (level == SourceLevel) EmptyPackage else env.owner.sym
         val classSym = TypeSymbol(ownerSym, outline.id.value)
         outline.id.sym = classSym
-        symtab._outlines.put(classSym, outline)
+        symtab.outlines.put(classSym, outline)
         essentialObjects.add(classSym.companionObject)
       case _ =>
         ()
@@ -528,7 +528,7 @@ final class Scheduler private (
         val needsSynthesis = !symtab.scopes.contains(objectSym)
         if (needsSynthesis) {
           val classSym = objectSym.companionClass
-          val classTree = symtab._outlines.get(classSym).asInstanceOf[DefnClass]
+          val classTree = symtab.outlines(classSym).asInstanceOf[DefnClass]
           val env = outlineEnv(currEnv, classTree)
           synthesizer.syntheticCompanion(env, classTree)
         }
