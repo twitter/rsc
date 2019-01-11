@@ -10,9 +10,13 @@ sealed trait Resolution extends Pretty with Product {
   override def printRepl(p: Printer): Unit = PrettyResolution.repl(p, this)
 }
 
-final case class BlockedResolution(work: Work) extends Resolution
-sealed trait FailedResolution extends Resolution
+sealed trait SymbolResolution extends Resolution
+sealed trait ScopeResolution extends Resolution
+
+final case class BlockedResolution(work: Work) extends SymbolResolution with ScopeResolution
+sealed trait FailedResolution extends SymbolResolution with ScopeResolution
 case class AmbiguousResolution(syms: List[Symbol]) extends FailedResolution
 case object MissingResolution extends FailedResolution
 case object ErrorResolution extends FailedResolution
-final case class FoundResolution(sym: Symbol) extends Resolution
+final case class ResolvedSymbol(sym: Symbol) extends SymbolResolution
+final case class ResolvedScope(scope: Scope) extends ScopeResolution

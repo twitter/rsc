@@ -441,30 +441,8 @@ class TreeStr(p: Printer, l: KnownLanguage) {
           case other => crash(other.repl)
         }
         printInterpolation(id, sparts, args)
-      case PatLit(value: Unit) =>
-        p.repl(value)
-      case PatLit(value: Char) =>
-        p.repl(value)
-      case PatLit(value: Int) =>
-        p.repl(value)
-      case PatLit(value: Long) =>
-        p.repl(value)
-      case PatLit(value: Float) =>
-        p.repl(value)
-      case PatLit(value: Double) =>
-        p.repl(value)
-      case PatLit(value: String) =>
-        p.repl(value)
-      case PatLit(true) =>
-        p.repl(true)
-      case PatLit(false) =>
-        p.repl(false)
-      case PatLit(null) =>
-        p.repl(null)
-      case PatLit(value: StdlibSymbol) =>
-        p.repl(value)
-      case PatLit(other) =>
-        crash(other.toString)
+      case PatLit(value) =>
+        printLit(value)
       case PatRepeat(pat) =>
         apply(pat, Pat2)
         p.str("*")
@@ -589,30 +567,8 @@ class TreeStr(p: Printer, l: KnownLanguage) {
           case other => crash(other.repl)
         }
         printInterpolation(id, sparts, args)
-      case TermLit(value: Unit) =>
-        p.repl(value)
-      case TermLit(value: Char) =>
-        p.repl(value)
-      case TermLit(value: Int) =>
-        p.repl(value)
-      case TermLit(value: Long) =>
-        p.repl(value)
-      case TermLit(value: Float) =>
-        p.repl(value)
-      case TermLit(value: Double) =>
-        p.repl(value)
-      case TermLit(value: String) =>
-        p.repl(value)
-      case TermLit(true) =>
-        p.repl(true)
-      case TermLit(false) =>
-        p.repl(false)
-      case TermLit(null) =>
-        p.repl(null)
-      case TermLit(value: StdlibSymbol) =>
-        p.repl(value)
-      case TermLit(other) =>
-        crash(other.toString)
+      case TermLit(value) =>
+        printLit(value)
       case TermMatch(term, cases) =>
         apply(term, PostfixExpr)
         p.str(" match ")
@@ -724,6 +680,8 @@ class TreeStr(p: Printer, l: KnownLanguage) {
         p.str("int")
       case TptIntersect(tpts) =>
         apply(tpts, " & ", InfixTyp(TptId("&")))
+      case TptLit(value) =>
+        printLit(value)
       case TptLong() =>
         p.str("long")
       case TptParameterize(fun, targs) =>
@@ -902,6 +860,23 @@ class TreeStr(p: Printer, l: KnownLanguage) {
       if (notLast && !stats(i + 1).isInstanceOf[DefnConstant]) p.str(EOL)
 
       i += 1
+    }
+  }
+
+  private def printLit(value: Any): Unit = {
+    value match {
+      case value: Unit => p.repl(value)
+      case value: Char => p.repl(value)
+      case value: Int => p.repl(value)
+      case value: Long => p.repl(value)
+      case value: Float => p.repl(value)
+      case value: Double => p.repl(value)
+      case value: String => p.repl(value)
+      case true => p.repl(true)
+      case false => p.repl(false)
+      case null => p.repl(null)
+      case value: StdlibSymbol => p.repl(value)
+      case other => crash(other.toString)
     }
   }
 

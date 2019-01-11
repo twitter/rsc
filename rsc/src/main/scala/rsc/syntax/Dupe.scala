@@ -445,6 +445,8 @@ trait Dupe {
         case TptIntersect(tpts) =>
           val tpt1 = tpts.map(_.dupe)
           TptIntersect(tpt1)
+        case TptLit(value) =>
+          TptLit(value)
         case TptLong() =>
           TptLong()
         case TptParameterize(fun, targs) =>

@@ -7,12 +7,13 @@ import rsc.classpath._
 import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
+import scala.collection.JavaConverters._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 
 sealed abstract class Scope(val sym: Symbol) extends Work {
   def enter(name: Name, sym: Symbol): Symbol
 
-  def resolve(name: Name): Resolution = {
+  def resolve(name: Name): SymbolResolution = {
     status match {
       case PendingStatus =>
         BlockedResolution(this)
@@ -29,16 +30,16 @@ sealed abstract class Scope(val sym: Symbol) extends Work {
 // ============ TWO FOUNDATIONAL SCOPES ============
 
 sealed trait BinaryScope extends Scope {
-  def _index: Index
+  def classpath: Classpath
 
-  val _loaded: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
-  def _load(name: Name): Symbol = {
-    val loadedSym = _loaded.get(name)
+  private val loaded: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
+  protected def load(name: Name): Symbol = {
+    val loadedSym = loaded.get(name)
     if (loadedSym != null) {
       loadedSym
     } else {
       val loadedSym = loadMember(sym, name)
-      _loaded.put(name, loadedSym)
+      loaded.put(name, loadedSym)
       loadedSym
     }
   }
@@ -49,7 +50,7 @@ sealed trait BinaryScope extends Scope {
       return declSym
     }
 
-    val info = _index(owner)
+    val info = classpath(owner)
 
     // FIXME: https://github.com/twitter/rsc/issues/229.
     // Utilizing selfs is probably incorrect when doing lookups from Java,
@@ -66,9 +67,9 @@ sealed trait BinaryScope extends Scope {
     // but hopefully we'll rewrite the name resolution logic before this becomes a problem.
     if (info.isPackage) {
       val packageObjectSym = TermSymbol(owner, "package")
-      if (_index.contains(packageObjectSym)) {
+      if (classpath.contains(packageObjectSym)) {
         val packageObjectMemberSym = loadMember(packageObjectSym, name)
-        if (_index.contains(packageObjectMemberSym)) {
+        if (classpath.contains(packageObjectMemberSym)) {
           return packageObjectMemberSym
         }
       }
@@ -86,14 +87,14 @@ sealed trait BinaryScope extends Scope {
           TypeSymbol(owner, value)
       }
     }
-    if (_index.contains(declSym)) {
+    if (classpath.contains(declSym)) {
       return declSym
     }
 
     name match {
       case TermName(value) =>
         val packageSym = PackageSymbol(owner, value)
-        if (_index.contains(packageSym)) {
+        if (classpath.contains(packageSym)) {
           return packageSym
         }
 
@@ -101,7 +102,7 @@ sealed trait BinaryScope extends Scope {
         // This is accidentally correct when doing lookups from Java,
         // because Java programs don't have TermIds in reference roles.
         val javaDeclSym = TypeSymbol(owner, value)
-        if (_index.contains(javaDeclSym) && _index(javaDeclSym).isJava) {
+        if (classpath.contains(javaDeclSym) && classpath(javaDeclSym).isJava) {
           return javaDeclSym
         }
       case _ =>
@@ -111,7 +112,7 @@ sealed trait BinaryScope extends Scope {
     name match {
       case TypeName(value) if value.endsWith("$") =>
         val moduleSym = loadDecl(owner, TermName(value.stripSuffix("$")))
-        if (_index.contains(moduleSym)) {
+        if (classpath.contains(moduleSym)) {
           return moduleSym
         }
       case _ =>
@@ -123,7 +124,11 @@ sealed trait BinaryScope extends Scope {
 }
 
 sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
-  val _storage: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
+  private val impl: Map[Name, Symbol] = new LinkedHashMap[Name, Symbol]
+
+  def decls: List[Symbol] = {
+    impl.values.asScala.toList
+  }
 
   override def enter(name: Name, sym: Symbol): Symbol = {
     if (status.isPending) {
@@ -131,7 +136,7 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
         case NoSymbol =>
           crash(name)
         case _ =>
-          val existing = _storage.get(name)
+          val existing = impl.get(name)
           if (existing != null) {
             val actual = {
               (existing.desc, sym.desc) match {
@@ -140,10 +145,10 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
                 case _ => MultiSymbol(existing, sym)
               }
             }
-            _storage.put(name, actual)
+            impl.put(name, actual)
             existing
           } else {
-            _storage.put(name, sym)
+            impl.put(name, sym)
             NoSymbol
           }
       }
@@ -152,11 +157,11 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
     }
   }
 
-  override def resolve(name: Name): Resolution = {
+  override def resolve(name: Name): SymbolResolution = {
     if (status.isSucceeded) {
-      val result = _storage.get(name)
+      val result = impl.get(name)
       if (result != null) {
-        FoundResolution(result)
+        ResolvedSymbol(result)
       } else {
         MissingResolution
       }
@@ -168,42 +173,42 @@ sealed abstract class SourceScope(sym: Symbol) extends Scope(sym) {
 
 // ============ BINARY SCOPES ============
 
-final class ClasspathScope private (sym: Symbol, val _index: Index)
+final class ClasspathScope private (sym: Symbol, val classpath: Classpath)
     extends Scope(sym)
     with BinaryScope {
   override def enter(name: Name, sym: Symbol): Symbol = {
     crash(this)
   }
 
-  override def resolve(name: Name): Resolution = {
-    _load(name) match {
+  override def resolve(name: Name): SymbolResolution = {
+    load(name) match {
       case NoSymbol =>
         MissingResolution
       case sym =>
-        FoundResolution(sym)
+        ResolvedSymbol(sym)
     }
   }
 }
 
 object ClasspathScope {
-  def apply(sym: Symbol, index: Index): BinaryScope = {
-    new ClasspathScope(sym, index)
+  def apply(sym: Symbol, classpath: Classpath): BinaryScope = {
+    new ClasspathScope(sym, classpath)
   }
 }
 
-final class PackageScope private (sym: Symbol, val _index: Index)
+final class PackageScope private (sym: Symbol, val classpath: Classpath)
     extends SourceScope(sym)
     with BinaryScope {
-  override def resolve(name: Name): Resolution = {
+  override def resolve(name: Name): SymbolResolution = {
     super.resolve(name) match {
       case MissingResolution =>
-        if (_index.contains(sym)) {
-          val loadedSym = _load(name)
+        if (classpath.contains(sym)) {
+          val loadedSym = load(name)
           loadedSym match {
             case NoSymbol =>
               MissingResolution
             case loadedSym =>
-              FoundResolution(loadedSym)
+              ResolvedSymbol(loadedSym)
           }
         } else {
           MissingResolution
@@ -215,8 +220,8 @@ final class PackageScope private (sym: Symbol, val _index: Index)
 }
 
 object PackageScope {
-  def apply(sym: Symbol, index: Index): PackageScope = {
-    new PackageScope(sym, index)
+  def apply(sym: Symbol, classpath: Classpath): PackageScope = {
+    new PackageScope(sym, classpath)
   }
 }
 
@@ -294,7 +299,7 @@ final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
     }
   }
 
-  override def resolve(name: Name): Resolution = {
+  override def resolve(name: Name): SymbolResolution = {
     val name1 = remap(name)
     if (name1 != null) {
       status match {
@@ -315,7 +320,7 @@ final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
               } else {
                 resolution1
               }
-            case _: FoundResolution =>
+            case _: ResolvedSymbol =>
               resolution1
           }
       }
@@ -423,7 +428,7 @@ class TemplateScope protected (sym: Symbol, val tree: DefnTemplate) extends Sour
     }
   }
 
-  override def resolve(name: Name): Resolution = {
+  override def resolve(name: Name): SymbolResolution = {
     super.resolve(name) match {
       case MissingResolution =>
         _env.resolve(name)
@@ -462,10 +467,10 @@ object ExistentialScope {
   }
 }
 
-final class RefinementScope private () extends SourceScope(NoSymbol)
+final class RefineScope private () extends SourceScope(NoSymbol)
 
-object RefinementScope {
-  def apply(): RefinementScope = {
-    new RefinementScope()
+object RefineScope {
+  def apply(): RefineScope = {
+    new RefineScope()
   }
 }

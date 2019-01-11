@@ -13,9 +13,7 @@ trait Prefixes {
   self: Converter =>
 
   private lazy val env: Env = {
-    val env = symtab._envs.get(root.id.sym)
-    if (env == null) crash(root)
-    env
+    symtab.envs(root.id.sym)
   }
 
   def prefix(id: Id): s.Type = {
@@ -29,7 +27,7 @@ trait Prefixes {
       id.sym.owner.desc match {
         case d.Type(value) =>
           env.resolveThis(value) match {
-            case FoundResolution(sym) =>
+            case ResolvedSymbol(sym) =>
               s.NoType
             case MissingResolution =>
               // FIXME: https://github.com/twitter/rsc/issues/229
@@ -40,7 +38,7 @@ trait Prefixes {
                       id match {
                         case id: AmbigId =>
                           head.resolve(TermName(id.value)) match {
-                            case found: FoundResolution => found
+                            case resolved: ResolvedSymbol => resolved
                             case other => head.resolve(TypeName(id.value))
                           }
                         case id: AnonId =>
@@ -50,7 +48,7 @@ trait Prefixes {
                       }
                     }
                     resolution match {
-                      case _: FoundResolution =>
+                      case _: ResolvedSymbol =>
                         head match {
                           case head: ImporterScope =>
                             prefix(head.tree.qual, id)
@@ -69,7 +67,7 @@ trait Prefixes {
                     crash(id)
                 }
               }
-              loop(env._scopes)
+              loop(env.scopes)
             case other =>
               crash(other)
           }
@@ -86,11 +84,11 @@ trait Prefixes {
           true
         case _ =>
           val qualSym = {
-            val outline = symtab._outlines.get(qual.id.sym)
+            val outline = symtab.outlines.get(qual.id.sym)
             outline match {
               // FIXME: https://github.com/twitter/rsc/issues/261
               // FIXME: https://github.com/scalameta/scalameta/issues/1808
-              case _: Self => qual.id.sym.stripPrefix("local").stripSuffix("=>")
+              case Some(_: Self) => qual.id.sym.stripPrefix("local").stripSuffix("=>")
               case _ => qual.id.sym
             }
           }
@@ -100,16 +98,17 @@ trait Prefixes {
               case d.Term("package") =>
                 qualSym != ownerSym.owner
               case _ =>
-                val outline = symtab._outlines.get(id.sym)
-                if (outline != null) {
-                  !outline.hasStatic
-                } else {
-                  if (symtab._index.contains(id.sym)) {
-                    val info = symtab._index(id.sym)
-                    !info.isStatic
-                  } else {
-                    false
-                  }
+                val outline = symtab.outlines.get(id.sym)
+                outline match {
+                  case Some(outline) =>
+                    !outline.hasStatic
+                  case _ =>
+                    if (symtab.classpath.contains(id.sym)) {
+                      val info = symtab.classpath(id.sym)
+                      !info.isStatic
+                    } else {
+                      false
+                    }
                 }
             }
           } else {

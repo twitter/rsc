@@ -18,8 +18,9 @@ object PrettyCompiler {
       p.repl(tree)
       p.newline()
     }
-    p.str(x.symtab)
-    p.str(x.todo)
+    // TODO: Implement me.
+    // p.str(x.symtab)
+    // p.str(x.todo)
   }
 
   def repl(p: Printer, x: Compiler): Unit = {

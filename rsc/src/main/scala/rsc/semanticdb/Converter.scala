@@ -3,9 +3,9 @@
 package rsc.semanticdb
 
 import rsc.gensym._
-import rsc.outline._
 import rsc.report._
 import rsc.settings._
+import rsc.symtab._
 import rsc.syntax._
 import scala.meta.internal.{semanticdb => s}
 
@@ -18,6 +18,7 @@ final class Converter private (
     extends Bounds
     with Defns
     with Eligibility
+    with Lits
     with Modifiers
     with Params
     with Prefixes

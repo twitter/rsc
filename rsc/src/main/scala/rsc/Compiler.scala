@@ -3,7 +3,7 @@
 package rsc
 
 import java.nio.file._
-import java.util.LinkedList
+import rsc.classpath._
 import rsc.gensym._
 import rsc.input._
 import rsc.lexis._
@@ -13,22 +13,27 @@ import rsc.parse._
 import rsc.pretty._
 import rsc.report._
 import rsc.scan._
+import rsc.semanticdb._
+import rsc.semantics._
 import rsc.settings._
+import rsc.symtab._
 import rsc.syntax._
 import rsc.util._
 
 class Compiler(val settings: Settings, val reporter: Reporter) extends AutoCloseable with Pretty {
   var trees: List[Source] = Nil
   var gensyms: Gensyms = Gensyms()
-  var symtab: Symtab = Symtab(settings)
+  var classpath: Classpath = Classpath(settings.cp)
+  var symtab: Symtab = Symtab(classpath)
   var todo: Todo = Todo()
+  var infos: Infos = Infos(classpath)
   var output: Output = Output(settings)
 
   def run(): Unit = {
-    for ((taskName, taskFn) <- tasks) {
+    for ((phaseName, phaseFn) <- phases) {
       val start = System.nanoTime()
       try {
-        taskFn()
+        phaseFn()
       } catch {
         case ex: Throwable =>
           reporter.append(CrashMessage(ex))
@@ -36,20 +41,20 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
       val end = System.nanoTime()
       val ms = (end - start) / 1000000
       if (settings.xprint("timings")) {
-        reporter.append(VerboseMessage(s"Finished $taskName in $ms ms"))
+        reporter.append(VerboseMessage(s"Finished $phaseName in $ms ms"))
       }
-      if (settings.xprint(taskName)) {
+      if (settings.xprint(phaseName)) {
         reporter.append(VerboseMessage(this.str))
       }
-      if (taskName == "parse" && settings.xprint("scan")) {
+      if (phaseName == "parse" && settings.xprint("scan")) {
         val p = new Printer
         PrettyCompiler.xprintScan(p, this)
         reporter.append(VerboseMessage(p.toString))
       }
-      if (settings.ystopAfter(taskName)) {
+      if (settings.ystopAfter(phaseName)) {
         return
       }
-      if (taskName == "parse" && settings.ystopAfter("scan")) {
+      if (phaseName == "parse" && settings.ystopAfter("scan")) {
         return
       }
       if (reporter.problems.nonEmpty) {
@@ -59,7 +64,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
     }
   }
 
-  private def tasks: List[(String, () => Unit)] = List(
+  private def phases: List[(String, () => Unit)] = List(
     "parse" -> (() => parse()),
     "index" -> (() => index()),
     "schedule" -> (() => schedule()),
@@ -134,8 +139,8 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
   }
 
   private def semanticdb(): Unit = {
-    val writer = rsc.semanticdb.Writer(settings, reporter, gensyms, symtab, output)
-    val outlines = new LinkedList(symtab._outlines.values)
+    val writer = rsc.semanticdb.Writer(settings, reporter, gensyms, symtab, infos, output)
+    val outlines = symtab.outlines.result
     while (!outlines.isEmpty) {
       val outline = outlines.remove()
       try {
@@ -151,15 +156,17 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
 
   private def scalasig(): Unit = {
     if (!settings.artifacts.contains(ArtifactScalasig)) return
-    val writer = rsc.scalasig.Writer(settings, reporter, symtab, output)
-    val toplevels = new LinkedList(symtab._toplevels)
-    while (!toplevels.isEmpty) {
-      val outline = toplevels.remove()
-      try {
-        writer.write(outline)
-      } catch {
-        case ex: Throwable =>
-          crash(outline.pos, ex)
+    val writer = rsc.scalasig.Writer(settings, reporter, infos, output)
+    val outlines = symtab.outlines.result
+    while (!outlines.isEmpty) {
+      val outline = outlines.remove()
+      if (outline.id.sym.owner.desc.isPackage && !outline.id.sym.desc.isPackage) {
+        try {
+          writer.write(outline)
+        } catch {
+          case ex: Throwable =>
+            crash(outline.pos, ex)
+        }
       }
     }
   }

@@ -8,6 +8,7 @@ import rsc.input._
 import rsc.report._
 import rsc.semantics._
 import rsc.settings._
+import rsc.symtab._
 import rsc.syntax._
 import rsc.util._
 
@@ -46,21 +47,9 @@ final class Scheduler private (
           apply(env, parentPackage)
           symtab.scopes(qual.id.sym)
         case DefnPackageObject(_, id, _, _, _, _) =>
-          val packageSym = PackageSymbol(env.owner.sym, id.value)
-          env.owner.enter(id.name, packageSym)
-          val packageScope = {
-            val existingScope = symtab._scopes.get(packageSym)
-            if (existingScope != null) {
-              existingScope
-            } else {
-              val rootScope = symtab.scopes(RootPackage).asInstanceOf[PackageScope]
-              val newScope = PackageScope(packageSym, rootScope._index)
-              symtab.scopes(packageSym) = newScope
-              todo.add(env, newScope)
-              newScope
-            }
-          }
-          packageScope
+          val parentPackage = DefnPackage(Mods(Nil), id, Nil).withPos(outline.pos)
+          apply(env, parentPackage)
+          symtab.scopes(id.sym)
         case _ =>
           env.owner
       }
@@ -108,8 +97,8 @@ final class Scheduler private (
             val sym = TermSymbol(scope.sym, outline.id.value)
             scope.enter(outline.id.name, sym)
             outline.id.sym = sym
-            symtab._outlines.put(sym, outline)
-            symtab._envs.put(sym, env)
+            symtab.outlines.put(sym, outline)
+            symtab.envs.put(sym, env)
         }
       case outline =>
         val sym = {
@@ -126,7 +115,7 @@ final class Scheduler private (
                   def loop(attempt: Int): String = {
                     val disambig = if (attempt == 0) s"()" else s"(+$attempt)"
                     val sym = MethodSymbol(scope.sym, outline.id.value, disambig)
-                    if (symtab._outlines.containsKey(sym)) loop(attempt + 1)
+                    if (symtab.outlines.contains(sym)) loop(attempt + 1)
                     else sym
                   }
                   loop(0)
@@ -176,12 +165,8 @@ final class Scheduler private (
             ()
         }
         outline.id.sym = sym
-        symtab._outlines.put(sym, outline)
-        symtab._envs.put(sym, env)
-        if (outline.hasStatic) {
-          symtab._statics.add(sym.owner)
-          symtab._statics.add(sym.owner.companionObject)
-        }
+        symtab.outlines.put(sym, outline)
+        symtab.envs.put(sym, env)
     }
   }
 
@@ -206,10 +191,12 @@ final class Scheduler private (
         todo.add(paramEnv, ret)
       case None =>
         def infer(tpt: Tpt): Unit = {
-          symtab._inferred.put(tree.id.sym, tpt)
+          symtab.desugars.rets.put(tree, tpt)
           todo.add(paramEnv, tpt)
         }
         tree match {
+          case DefnMethod(mods, _, _, _, _, Some(TermLit(value))) if mods.hasFinal && mods.hasVal =>
+            infer(TptLit(value))
           case DefnMethod(mods, _, _, _, _, Some(rhs)) if mods.hasImplicit =>
             rhs match {
               case TermApplyType(TermId("implicitly"), List(tpt)) =>
@@ -237,13 +224,17 @@ final class Scheduler private (
   private def defnPackage(env: Env, tree: DefnPackage): Env = {
     assignSym(env, tree)
     val packageScope = {
-      val existingScope = symtab._scopes.get(tree.id.sym)
-      if (existingScope != null) {
+      if (symtab.scopes.contains(tree.id.sym)) {
+        val existingScope = symtab.scopes(tree.id.sym)
+        if (existingScope.status.isSucceeded) {
+          existingScope.status = PendingStatus
+          todo.add(env, existingScope)
+        }
         existingScope
       } else {
         val rootScope = symtab.scopes(RootPackage).asInstanceOf[PackageScope]
-        val newScope = PackageScope(tree.id.sym, rootScope._index)
-        symtab.scopes(tree.id.sym) = newScope
+        val newScope = PackageScope(tree.id.sym, symtab.classpath)
+        symtab.scopes.put(tree.id.sym, newScope)
         todo.add(env, newScope)
         newScope
       }
@@ -309,13 +300,13 @@ final class Scheduler private (
           val packageScope = symtab.scopes(tree.id.sym.owner).asInstanceOf[PackageScope]
           val templateScope = PackageObjectScope(tree, packageScope)
           val templateEnv = templateScope :: packageScope :: selfEnv
-          symtab.scopes(tree.id.sym) = templateScope
+          symtab.scopes.put(tree.id.sym, templateScope)
           todo.add(packageScope :: tparamEnv, templateScope)
           templateEnv
         case tree =>
           val templateScope = TemplateScope(tree)
           val templateEnv = templateScope :: selfEnv
-          symtab.scopes(tree.id.sym) = templateScope
+          symtab.scopes.put(tree.id.sym, templateScope)
           todo.add(tparamEnv, templateScope)
           templateEnv
       }
@@ -333,9 +324,9 @@ final class Scheduler private (
             if (!hasCtor && tree.hasClass) synthesizer.defaultConstructor(templateEnv, tree)
         }
       case tree: DefnObject =>
-        val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
+        val companionClass = symtab.outlines.get(tree.id.sym.companionClass)
         companionClass match {
-          case caseClass: DefnClass if caseClass.hasDefaultParams =>
+          case Some(caseClass: DefnClass) if caseClass.hasDefaultParams =>
             synthesizer.defaultGetters(templateEnv, caseClass)
           case _ =>
             ()
@@ -362,9 +353,9 @@ final class Scheduler private (
         if (tree.hasCase) {
           synthesizer.caseObjectMembers(templateEnv, tree)
         }
-        val companionClass = symtab._outlines.get(tree.id.sym.companionClass)
+        val companionClass = symtab.outlines.get(tree.id.sym.companionClass)
         companionClass match {
-          case caseClass: DefnClass if caseClass.hasCase =>
+          case Some(caseClass: DefnClass) if caseClass.hasCase =>
             synthesizer.caseClassCompanionMembers(templateEnv, caseClass)
           case _ =>
             ()
@@ -402,7 +393,7 @@ final class Scheduler private (
   }
 
   private def paramss(env: Env, owner: Parameterized): Env = {
-    val paramss = symtab._paramss.get(owner)
+    val paramss = symtab.desugars.paramss(owner)
     paramss.foldLeft(env) { (env, params) =>
       if (params.nonEmpty) {
         val paramScope = ParamScope(owner.id.sym)
@@ -439,7 +430,7 @@ final class Scheduler private (
               if (owner.tparams.isEmpty) ownerRef
               TptParameterize(ownerRef, tparamRefs)
             }
-            symtab._inferred.put(tree.id.sym, inferredTpt)
+            symtab.desugars.rets.put(tree, inferredTpt)
             todo.add(selfEnv, inferredTpt)
         }
         selfScope.succeed()
@@ -490,7 +481,7 @@ final class Scheduler private (
         val ownerSym = if (level == SourceLevel) EmptyPackage else env.owner.sym
         val classSym = TypeSymbol(ownerSym, outline.id.value)
         outline.id.sym = classSym
-        symtab._outlines.put(classSym, outline)
+        symtab.outlines.put(classSym, outline)
         essentialObjects.add(classSym.companionObject)
       case _ =>
         ()
@@ -534,10 +525,10 @@ final class Scheduler private (
       val essentialObjectsIt = essentialObjects.iterator
       while (essentialObjectsIt.hasNext) {
         val objectSym = essentialObjectsIt.next()
-        val needsSynthesis = !symtab._scopes.containsKey(objectSym)
+        val needsSynthesis = !symtab.scopes.contains(objectSym)
         if (needsSynthesis) {
           val classSym = objectSym.companionClass
-          val classTree = symtab._outlines.get(classSym).asInstanceOf[DefnClass]
+          val classTree = symtab.outlines(classSym).asInstanceOf[DefnClass]
           val env = outlineEnv(currEnv, classTree)
           synthesizer.syntheticCompanion(env, classTree)
         }

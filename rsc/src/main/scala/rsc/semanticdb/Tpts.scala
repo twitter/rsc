@@ -5,7 +5,6 @@ package rsc.semanticdb
 import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
-import scala.collection.JavaConverters._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.{Language => l}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
@@ -75,23 +74,7 @@ trait Tpts {
           s.TypeRef(s.NoType, "scala/Double#", Nil)
         case existentialTpt @ TptExistential(tpt, stats) =>
           val tpe = tpt.tpe
-          val decls = {
-            val scope = symtab._existentials.get(existentialTpt)
-            if (scope != null) {
-              val outlines = {
-                val maybeMultis = scope._storage.values.asScala.toList
-                val noMultis = maybeMultis.flatMap(_.asMulti)
-                noMultis.map { sym =>
-                  val outline = symtab._outlines.get(sym)
-                  if (outline == null) crash(sym)
-                  outline
-                }
-              }
-              Some(outlines.scope(HardlinkChildren))
-            } else {
-              crash(existentialTpt)
-            }
-          }
+          val decls = symtab.scopes(existentialTpt).scope(HardlinkChildren)
           s.ExistentialType(tpe, decls)
         case TptFloat() =>
           s.TypeRef(s.NoType, "scala/Float#", Nil)
@@ -101,6 +84,8 @@ trait Tpts {
           s.TypeRef(s.NoType, "scala/Int#", Nil)
         case TptIntersect(tpts) =>
           s.IntersectionType(tpts.map(_.tpe))
+        case TptLit(value) =>
+          s.ConstantType(value.const)
         case TptLong() =>
           s.TypeRef(s.NoType, "scala/Long#", Nil)
         case TptProject(qual: Path, id) =>
@@ -108,29 +93,13 @@ trait Tpts {
         case TptProject(qual, id) =>
           // FIXME: https://github.com/twitter/rsc/issues/91
           s.NoType
-        case refinementTpt @ TptRefine(tpt, stats) =>
+        case refineTpt @ TptRefine(tpt, stats) =>
           val tpe = tpt match {
             case Some(TptWith(tpts)) => s.WithType(tpts.map(_.tpe))
             case Some(tpt) => s.WithType(List(tpt.tpe))
             case None => s.NoType
           }
-          val decls = {
-            val scope = symtab._refinements.get(refinementTpt)
-            if (scope != null) {
-              val outlines = {
-                val maybeMultis = scope._storage.values.asScala.toList
-                val noMultis = maybeMultis.flatMap(_.asMulti)
-                noMultis.map { sym =>
-                  val outline = symtab._outlines.get(sym)
-                  if (outline == null) crash(sym)
-                  outline
-                }
-              }
-              Some(outlines.scope(HardlinkChildren))
-            } else {
-              crash(refinementTpt)
-            }
-          }
+          val decls = symtab.scopes(refineTpt).scope(HardlinkChildren)
           s.StructuralType(tpe, decls)
         case TptRepeat(tpt) =>
           s.RepeatedType(tpt.tpe)

@@ -8,15 +8,15 @@ import rsc.syntax._
 
 final class Gensyms private () {
   val global = Gensym()
-  val _locals = new HashMap[Input, Gensym]
+  private val locals = new HashMap[Input, Gensym]
 
   def apply(input: Input): Gensym = {
-    val gensym = _locals.get(input)
+    val gensym = locals.get(input)
     if (gensym != null) {
       gensym
     } else {
       val gensym = Gensym()
-      _locals.put(input, gensym)
+      locals.put(input, gensym)
       gensym
     }
   }

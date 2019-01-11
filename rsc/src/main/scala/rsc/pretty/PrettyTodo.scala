@@ -3,14 +3,13 @@
 package rsc.pretty
 
 import rsc.outline._
-import scala.collection.JavaConverters._
 
 object PrettyTodo {
   def str(p: Printer, x: Todo): Unit = {
-    val works = x._works.asScala.toList
-    if (!works.isEmpty) {
+    val todo = x.toList
+    if (!todo.isEmpty) {
       p.header("Todo")
-      p.rep(works, "") {
+      p.rep(todo, "") {
         case (_, work) =>
           p.str(work)
           p.newline()

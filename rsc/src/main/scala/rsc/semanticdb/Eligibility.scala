@@ -22,16 +22,17 @@ trait Eligibility {
         } else {
           val owner = {
             val ownerSym = outline.id.sym.owner
-            val owner = symtab._outlines.get(ownerSym)
-            if (owner != null) {
-              owner
-            } else {
-              if (ownerSym.desc.isPackage) {
-                val id = TermId(ownerSym.desc.value).withSym(ownerSym)
-                DefnPackage(Mods(Nil), id, Nil)
-              } else {
-                crash(outline.id.sym)
-              }
+            val owner = symtab.outlines.get(ownerSym)
+            owner match {
+              case Some(owner) =>
+                owner
+              case _ =>
+                if (ownerSym.desc.isPackage) {
+                  val id = TermId(ownerSym.desc.value).withSym(ownerSym)
+                  DefnPackage(Mods(Nil), id, Nil)
+                } else {
+                  crash(outline.id.sym)
+                }
             }
           }
           if (owner.isVisible) {

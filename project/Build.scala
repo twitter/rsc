@@ -127,7 +127,7 @@ object Build extends AutoPlugin {
       lazy val benchSemanticdb = "bench/jmh:run RscSemanticdb"
       lazy val benchScalasig = "bench/jmh:run RscScalasig"
       lazy val benchScalac = "bench/jmh:run ScalacCompile"
-      lazy val rewrite = "core/rewrite"
+      lazy val rewrite = "examplesCore/rewrite"
     }
 
     lazy val isCI = sys.env.contains("CI")

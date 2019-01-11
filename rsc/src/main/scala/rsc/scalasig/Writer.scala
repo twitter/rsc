@@ -3,9 +3,9 @@
 package rsc.scalasig
 
 import java.nio.file._
-import rsc.outline._
 import rsc.output._
 import rsc.report._
+import rsc.semanticdb._
 import rsc.settings._
 import rsc.syntax._
 import scala.collection.mutable
@@ -13,12 +13,8 @@ import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.scalasig._
 
-final class Writer private (
-    settings: Settings,
-    reporter: Reporter,
-    symtab: Symtab,
-    output: Output) {
-  private val mtab = Mtab(symtab)
+final class Writer private (settings: Settings, reporter: Reporter, infos: Infos, output: Output) {
+  private val mtab = Mtab(infos)
   private val done = mutable.HashSet[String]()
 
   def write(outline: Outline): Unit = {
@@ -54,7 +50,7 @@ final class Writer private (
 }
 
 object Writer {
-  def apply(settings: Settings, reporter: Reporter, symtab: Symtab, output: Output): Writer = {
-    new Writer(settings, reporter, symtab, output)
+  def apply(settings: Settings, reporter: Reporter, infos: Infos, output: Output): Writer = {
+    new Writer(settings, reporter, infos, output)
   }
 }

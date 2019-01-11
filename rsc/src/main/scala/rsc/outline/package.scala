@@ -2,4 +2,4 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc
 
-package object outline extends Atoms with Synthetics
+package object outline extends Synthetics

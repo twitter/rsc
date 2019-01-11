@@ -13,7 +13,7 @@ trait Templates {
 
   protected implicit class TemplateOps(template: DefnTemplate) {
     def desugaredParents: List[Tpt] = {
-      val rscParents = symtab._parents.get(template)
+      val rscParents = symtab.desugars.parents(template)
       val scalacFixup = {
         def parentSym(tpt: Tpt): Symbol = {
           tpt match {
@@ -32,26 +32,24 @@ trait Templates {
             case AnyClass :: _ =>
               AnyRefClass
             case firstParentSym :: _ =>
-              val firstScope = symtab.scopes(firstParentSym)
-              firstScope match {
-                case firstScope: TemplateScope =>
-                  firstScope.tree match {
+              val firstResolution = symtab.scopify(firstParentSym)
+              firstResolution match {
+                case ResolvedScope(firstResolution: TemplateScope) =>
+                  firstResolution.tree match {
                     case tree: DefnClass =>
                       if (tree.hasClass) firstParentSym
                       else superClass(tree.desugaredParents.map(parentSym))
                     case tree =>
                       crash(tree)
                   }
-                case firstScope: BinaryScope =>
-                  val firstInfo = symtab._index.apply(firstParentSym)
+                case ResolvedScope(firstResolution: BinaryScope) =>
+                  val firstInfo = symtab.classpath.apply(firstParentSym)
                   if (firstInfo.isTrait || firstInfo.isInterface) {
                     superClass(firstInfo.parents)
                   } else if (firstInfo.isType) {
                     val aliasShallow = firstInfo.signature match {
-                      case s.TypeSignature(_, _, s.TypeRef(_, sym, _)) =>
-                        sym
-                      case other =>
-                        crash(other.asMessage.toProtoString)
+                      case s.TypeSignature(_, _, s.TypeRef(_, sym, _)) => sym
+                      case other => crash(other.asMessage.toProtoString)
                     }
                     val aliasDeep = superClass(List(aliasShallow))
                     if (aliasShallow != aliasDeep) aliasDeep
@@ -59,8 +57,8 @@ trait Templates {
                   } else {
                     firstParentSym
                   }
-                case firstScope =>
-                  crash(firstScope)
+                case firstResolution =>
+                  crash(firstResolution)
               }
             case Nil =>
               crash(template)
@@ -81,10 +79,10 @@ trait Templates {
                 val tparams = {
                   val isSource = symtab.scopes(scalacFirstParentSym).isInstanceOf[SourceScope]
                   if (isSource) {
-                    val outline = symtab._outlines.get(scalacFirstParentSym)
+                    val outline = symtab.outlines(scalacFirstParentSym)
                     outline.asInstanceOf[Parameterized].tparams.map(_.id.sym)
                   } else {
-                    val sig = symtab._index.apply(scalacFirstParentSym).signature
+                    val sig = symtab.classpath.apply(scalacFirstParentSym).signature
                     sig.asInstanceOf[s.ClassSignature].typeParameters.symbols
                   }
                 }

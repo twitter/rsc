@@ -9,16 +9,16 @@ object PrettyResolution {
     x match {
       case BlockedResolution(work) =>
         p.str(s"b:")
-        // FIXME: https://github.com/twitter/rsc/issues/104
-        if (work != null) PrettyWork.abbr(p, work)
-        else p.str("null")
+        PrettyWork.abbr(p, work)
       case AmbiguousResolution(syms) =>
         p.str(s"a:${syms.mkString(", ")}")
       case MissingResolution =>
         p.str(s"m")
       case ErrorResolution =>
         p.str(s"e")
-      case FoundResolution(sym) =>
+      case ResolvedScope(scope) =>
+        p.str(scope)
+      case ResolvedSymbol(sym) =>
         p.str(sym)
     }
   }

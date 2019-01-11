@@ -198,21 +198,7 @@ You can see that, unlike in trees, here we avoid options and use null objects
 instead. If you're expecting us to back up this design decision with
 benchmarks, then you're absolutely right, but we don't have the numbers just yet.
 
-Meanings of symbols are stored in symbol tables, with members represented
-in `Symtab.scopes` and signatures represented in `Symtab.outlines`.
-Additionally, we store synthetic signatures in `Symtab.paramss` (for synthetic
-evidence parameters) and `Symtab.parents` (for synthetic parents such as
-`Product` and `Serializable`).
-
-```scala
-final class Symtab private (settings: Settings) extends AutoCloseable with Pretty {
-  val _scopes = new HashMap[Symbol, Scope]
-  val _outlines = new HashMap[Symbol, Outline]
-  val _paramss = new HashMap[Parameterized, List[List[Param]]]
-  val _parents = new HashMap[DefnTemplate, List[Tpt]]
-  ...
-}
-```
+## Scopes
 
 Scopes are collections of symbols that support entering symbols under simple names
 and looking up symbols using simple names. Following the language specification,
@@ -227,7 +213,7 @@ of eager completers. As a result, our scopes track their own status
 sealed abstract class Scope(val sym: Symbol) {
   def enter(name: Name, sym: Symbol): Symbol
 
-  def resolve(name: Name): Resolution = {
+  def resolve(name: Name): SymbolResolution = {
     status match {
       case PendingStatus =>
         BlockedResolution(this)
@@ -244,10 +230,18 @@ sealed abstract class Scope(val sym: Symbol) {
 }
 ```
 
-Finally, we represent dependencies in a classpath index, which maps symbols
-to signatures in the SemanticDB format. Check out
-[the SemanticDB specification](https://github.com/scalameta/scalameta/blob/master/semanticdb/semanticdb3/semanticdb3.md)
-to learn more about supported languages and their metadata.
+Every package symbol and template symbol has an associated scope. This association
+is stored in `Symtab.scopes`.
+
+## Signatures
+
+Signatures of source symbols are represented by associated outlines. This association
+is stored in `Symtab.outlines`.
+
+Signatures of classpath symbols are represented by SemanticDB data structures.
+Check out [the SemanticDB specification](https://github.com/scalameta/scalameta/blob/master/semanticdb/semanticdb3/semanticdb3.md)
+to learn more about supported languages and their metadata. SemanticDB payloads can be loaded
+from classpath via `Symtab.index`.
 
 ```scala
 final class Index private (entries: HashMap[Symbol, Entry]) extends AutoCloseable {

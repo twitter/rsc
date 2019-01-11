@@ -98,6 +98,7 @@ trait Weights {
         case _: TptId => SimpleTyp
         case _: TptInt => SimpleTyp
         case _: TptIntersect => InfixTyp(TptId("&"))
+        case _: TptLit => SimpleTyp
         case _: TptLong => SimpleTyp
         case _: TptParameterize => SimpleTyp
         case tree: TptParameterizeInfix => InfixTyp(tree.op)

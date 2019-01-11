@@ -7,7 +7,6 @@ import rsc.outline._
 import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
-import scala.collection.JavaConverters._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.{Language => l}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
@@ -139,16 +138,16 @@ trait Defns {
           val tpe = s.TypeRef(s.NoType, outline.id.sym.owner, Nil)
           s.ValueSignature(tpe)
         case outline: DefnDef =>
-          val tparams = Some(outline.tparams.scope(linkMode))
+          val tparams = outline.tparams.scope(linkMode)
           val paramss = {
             def isImplicit(xs: List[Param]) = xs match {
               case Nil => false
               case xs => xs.forall(_.hasImplicit)
             }
             if (isCtor && outline.desugaredParamss.forall(isImplicit)) {
-              s.Scope() +: outline.desugaredParamss.map(_.scope(linkMode))
+              s.Scope() +: outline.desugaredParamss.flatMap(_.scope(linkMode))
             } else {
-              outline.desugaredParamss.map(_.scope(linkMode))
+              outline.desugaredParamss.flatMap(_.scope(linkMode))
             }
           }
           val ret = {
@@ -157,28 +156,8 @@ trait Defns {
                 if (isCtor) s.NoType
                 else tpt.tpe
               case None =>
-                outline match {
-                  case DefnMethod(mods, _, _, _, _, Some(TermLit(value)))
-                      if mods.hasFinal && mods.hasVal =>
-                    val const = value match {
-                      case () => s.UnitConstant()
-                      case value: Boolean => s.BooleanConstant(value)
-                      case value: Byte => s.ByteConstant(value)
-                      case value: Short => s.ShortConstant(value)
-                      case value: Char => s.CharConstant(value)
-                      case value: Int => s.IntConstant(value)
-                      case value: Long => s.LongConstant(value)
-                      case value: Float => s.FloatConstant(value)
-                      case value: Double => s.DoubleConstant(value)
-                      case value: String => s.StringConstant(value)
-                      case null => s.NullConstant()
-                    }
-                    s.ConstantType(const)
-                  case _ =>
-                    val inferred = symtab._inferred.get(outline.id.sym)
-                    if (inferred != null) inferred.tpe
-                    else s.NoType
-                }
+                if (symtab.desugars.rets.contains(outline)) symtab.desugars.rets(outline).tpe
+                else s.NoType
             }
           }
           s.MethodSignature(tparams, paramss, ret)
@@ -188,28 +167,13 @@ trait Defns {
         case outline: DefnPackage =>
           s.NoSignature
         case outline: DefnTemplate =>
-          val tparams = Some(outline.tparams.scope(linkMode))
+          val tparams = outline.tparams.scope(linkMode)
           val parents = outline.desugaredParents.map(_.tpe)
           val self = outline.self.flatMap(_.tpt).map(_.tpe).getOrElse(s.NoType)
-          val decls = {
-            symtab.scopes(outline.id.sym) match {
-              case scope: TemplateScope =>
-                val maybeMultis = scope._storage.values.asScala.toList
-                val noMultis = maybeMultis.flatMap(_.asMulti)
-                val outlines = noMultis.map { sym =>
-                  val outline = symtab._outlines.get(sym)
-                  if (outline == null) crash(sym)
-                  outline
-                }
-                val eligibles = outlines.filter(_.isEligible)
-                Some(eligibles.scope(linkMode))
-              case other =>
-                crash(other)
-            }
-          }
+          val decls = symtab.scopes(outline.id.sym).asInstanceOf[TemplateScope].scope(linkMode)
           s.ClassSignature(tparams, parents, self, decls)
         case outline: DefnType =>
-          val tparams = Some(outline.tparams.scope(linkMode))
+          val tparams = outline.tparams.scope(linkMode)
           val lbound = outline.desugaredLbound
           val ubound = outline.desugaredUbound
           s.TypeSignature(tparams, lbound, ubound)
@@ -223,7 +187,7 @@ trait Defns {
           val tpe = outline.tpt.map(_.tpe)
           tpe.map(tpe => s.ValueSignature(tpe)).getOrElse(s.NoSignature)
         case outline: TypeParam =>
-          val tparams = Some(outline.tparams.scope(linkMode))
+          val tparams = outline.tparams.scope(linkMode)
           val lbound = outline.desugaredLbound
           val ubound = outline.desugaredUbound
           s.TypeSignature(tparams, lbound, ubound)
@@ -266,12 +230,13 @@ trait Defns {
                     s.PublicAccess()
                   } else {
                     val ownerSym = outline.id.sym.owner
-                    val owner = symtab._outlines.get(ownerSym)
-                    if (owner != null && (owner.hasInterface || owner.hasAnnotationInterface)) {
-                      s.PublicAccess()
-                    } else {
-                      val within = symbol.ownerChain.reverse.tail.find(_.desc.isPackage).get
-                      s.PrivateWithinAccess(within)
+                    val owner = symtab.outlines.get(ownerSym)
+                    owner match {
+                      case Some(owner) if owner.hasInterface || owner.hasAnnotationInterface =>
+                        s.PublicAccess()
+                      case _ =>
+                        val within = symbol.ownerChain.reverse.tail.find(_.desc.isPackage).get
+                        s.PrivateWithinAccess(within)
                     }
                   }
                 case l.UNKNOWN_LANGUAGE | l.Unrecognized(_) =>
