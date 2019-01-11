@@ -13,45 +13,42 @@ trait Templates {
 
   protected implicit class TemplateOps(template: DefnTemplate) {
     def desugaredParents: List[Tpt] = {
-      val rscParents = symtab.desugars.parents(template)
-      val scalacFixup = {
-        def parentSym(tpt: Tpt): Symbol = {
-          tpt match {
-            case path: TptPath => path.id.sym
-            case TptAnnotate(tpt, _) => parentSym(tpt)
-            case TptApply(tpt, _) => parentSym(tpt)
-            case _ => NoSymbol
-          }
+      def parentSym(tpt: Tpt): Symbol = {
+        tpt match {
+          case path: TptPath => path.id.sym
+          case TptAnnotate(tpt, _) => parentSym(tpt)
+          case TptApply(tpt, _) => parentSym(tpt)
+          case _ => NoSymbol
         }
-        def superClass(parentSyms: List[Symbol]): Symbol = {
-          parentSyms match {
-            case JavaComparableClass :: _ =>
+      }
+      val rscParents @ (rscFirstParent :: _) = symtab.desugars.parents(template)
+      val rscFirstParentSym = parentSym(rscFirstParent)
+      val scalacFixup = {
+        def normalizeFirstParentSym(firstParentSym: Symbol): Symbol = {
+          firstParentSym match {
+            case AnyClass | JavaComparableClass | JavaSerializableClass =>
               AnyRefClass
-            case JavaSerializableClass :: _ =>
-              AnyRefClass
-            case AnyClass :: _ =>
-              AnyRefClass
-            case firstParentSym :: _ =>
+            case firstParentSym =>
               val firstResolution = symtab.scopify(firstParentSym)
               firstResolution match {
                 case ResolvedScope(firstResolution: TemplateScope) =>
                   firstResolution.tree match {
                     case tree: DefnClass =>
                       if (tree.hasClass) firstParentSym
-                      else superClass(tree.desugaredParents.map(parentSym))
+                      else normalizeFirstParentSym(tree.desugaredParents.map(parentSym).head)
                     case tree =>
                       crash(tree)
                   }
                 case ResolvedScope(firstResolution: BinaryScope) =>
                   val firstInfo = symtab.classpath.apply(firstParentSym)
                   if (firstInfo.isTrait || firstInfo.isInterface) {
-                    superClass(firstInfo.parents)
+                    normalizeFirstParentSym(firstInfo.parents.head)
                   } else if (firstInfo.isType) {
                     val aliasShallow = firstInfo.signature match {
                       case s.TypeSignature(_, _, s.TypeRef(_, sym, _)) => sym
                       case other => crash(other.asMessage.toProtoString)
                     }
-                    val aliasDeep = superClass(List(aliasShallow))
+                    val aliasDeep = normalizeFirstParentSym(aliasShallow)
                     if (aliasShallow != aliasDeep) aliasDeep
                     else firstParentSym
                   } else {
@@ -60,17 +57,13 @@ trait Templates {
                 case firstResolution =>
                   crash(firstResolution)
               }
-            case Nil =>
-              crash(template)
           }
         }
-        val rscParentSyms = rscParents.map(parentSym)
-        val scalacFirstParentSym = rscParentSyms match {
-          case List(AnyClass) => AnyClass
-          case _ => superClass(rscParentSyms)
+        val scalacFirstParentSym = {
+          if (rscFirstParentSym == AnyClass) AnyClass
+          else normalizeFirstParentSym(rscFirstParentSym)
         }
-        val rscFirstParentSym = rscParentSyms.headOption.getOrElse(NoSymbol)
-        if (scalacFirstParentSym != rscFirstParentSym) {
+        if (rscFirstParentSym != scalacFirstParentSym) {
           val scalacFirstParent = {
             // FIXME: https://github.com/twitter/rsc/issues/224
             val id = TptId(scalacFirstParentSym.desc.value).withSym(scalacFirstParentSym)
