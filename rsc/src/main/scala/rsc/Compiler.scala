@@ -172,7 +172,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
   }
 
   def close(): Unit = {
-    symtab.close()
+    classpath.close()
     output.close()
   }
 

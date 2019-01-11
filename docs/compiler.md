@@ -241,10 +241,10 @@ is stored in `Symtab.outlines`.
 Signatures of classpath symbols are represented by SemanticDB data structures.
 Check out [the SemanticDB specification](https://github.com/scalameta/scalameta/blob/master/semanticdb/semanticdb3/semanticdb3.md)
 to learn more about supported languages and their metadata. SemanticDB payloads can be loaded
-from classpath via `Symtab.index`.
+from classpath via `Classpath.apply`.
 
 ```scala
-final class Index private (entries: HashMap[Symbol, Entry]) extends AutoCloseable {
+final class Classpath private (entries: HashMap[Symbol, Entry]) extends AutoCloseable {
   private val infos = new HashMap[Symbol, s.SymbolInformation]
 
   def contains(sym: Symbol): Boolean = {
