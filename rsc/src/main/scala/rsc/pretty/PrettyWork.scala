@@ -32,7 +32,7 @@ object PrettyWork {
             p.str(" and ")
             p.str(x.parent2.sym)
           }
-        case x: ClasspathScope =>
+        case x: SignatureScope =>
           val info = x.classpath(x.sym)
           p.str(" ")
           p.rep(info.parents ++ info.self, " with ")(sym => p.str(sym))
@@ -44,8 +44,6 @@ object PrettyWork {
       }
     }
     x match {
-      case x: ClasspathScope =>
-        p.str(" [...]")
       case x: OutlineScope =>
         p.str(" [")
         val symbols = {
@@ -56,6 +54,8 @@ object PrettyWork {
         }
         p.rep(symbols, ", ")(p.str)
         p.str("]")
+      case x: SignatureScope =>
+        p.str(" [...]")
       case _ =>
         ()
     }

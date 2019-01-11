@@ -173,29 +173,6 @@ sealed abstract class OutlineScope(sym: Symbol) extends Scope(sym) {
 
 // ============ BINARY SCOPES ============
 
-final class ClasspathScope private (sym: Symbol, val classpath: Classpath)
-    extends Scope(sym)
-    with BinaryScope {
-  override def enter(name: Name, sym: Symbol): Symbol = {
-    crash(this)
-  }
-
-  override def resolve(name: Name): SymbolResolution = {
-    load(name) match {
-      case NoSymbol =>
-        MissingResolution
-      case sym =>
-        ResolvedSymbol(sym)
-    }
-  }
-}
-
-object ClasspathScope {
-  def apply(sym: Symbol, classpath: Classpath): BinaryScope = {
-    new ClasspathScope(sym, classpath)
-  }
-}
-
 final class PackageScope private (sym: Symbol, val classpath: Classpath)
     extends OutlineScope(sym)
     with BinaryScope {
@@ -222,6 +199,29 @@ final class PackageScope private (sym: Symbol, val classpath: Classpath)
 object PackageScope {
   def apply(sym: Symbol, classpath: Classpath): PackageScope = {
     new PackageScope(sym, classpath)
+  }
+}
+
+final class SignatureScope private (sym: Symbol, val classpath: Classpath)
+    extends Scope(sym)
+    with BinaryScope {
+  override def enter(name: Name, sym: Symbol): Symbol = {
+    crash(this)
+  }
+
+  override def resolve(name: Name): SymbolResolution = {
+    load(name) match {
+      case NoSymbol =>
+        MissingResolution
+      case sym =>
+        ResolvedSymbol(sym)
+    }
+  }
+}
+
+object SignatureScope {
+  def apply(sym: Symbol, classpath: Classpath): BinaryScope = {
+    new SignatureScope(sym, classpath)
   }
 }
 

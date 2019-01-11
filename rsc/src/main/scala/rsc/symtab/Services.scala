@@ -80,7 +80,7 @@ trait Services {
                   }
                 }
               }
-              val scope = ClasspathScope(scopeSym, classpath)
+              val scope = SignatureScope(scopeSym, classpath)
               scope.succeed()
               scopifies.put(sym, scope)
               ResolvedScope(scope)

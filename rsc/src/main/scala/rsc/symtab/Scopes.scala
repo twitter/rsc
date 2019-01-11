@@ -84,7 +84,7 @@ trait Scopes {
         val info = classpath.apply(sym)
         val scope = info.signature match {
           case s.NoSignature if info.isPackage => PackageScope(sym, classpath)
-          case _: s.ClassSignature => ClasspathScope(sym, classpath)
+          case _: s.ClassSignature => SignatureScope(sym, classpath)
           case _ => return null
         }
         scope.succeed()
