@@ -12,6 +12,7 @@ import rsc.symtab._
 import rsc.syntax._
 import rsc.util._
 import scala.collection.mutable
+import scala.meta.internal.{semanticdb => s}
 
 final class Outliner private (
     settings: Settings,
@@ -442,12 +443,90 @@ final class Outliner private (
       case resolution: FailedResolution =>
         resolution
       case ResolvedSymbol(sym) =>
-        symtab.scopify(sym)
+        scopify(sym)
+    }
+  }
+
+  private def scopify(sym: Symbol): ScopeResolution = {
+    if (symtab.scopes.contains(sym)) {
+      ResolvedScope(symtab.scopes(sym))
+    } else {
+      symtab.metadata(sym) match {
+        case OutlineMetadata(outline) =>
+          def loop(tpt: Tpt): ScopeResolution = {
+            tpt match {
+              case TptArray(_) =>
+                loop(TptId("Array").withSym(ArrayClass))
+              case TptApply(fun, _) =>
+                loop(fun)
+              case tpt: TptPath =>
+                tpt.id.sym match {
+                  case NoSymbol =>
+                    BlockedResolution(Unknown())
+                  case sym =>
+                    scopify(sym)
+                }
+              case TptWildcardExistential(_, tpt) =>
+                loop(tpt)
+              case _ =>
+                crash(tpt)
+            }
+          }
+          outline match {
+            case DefnMethod(mods, _, _, _, Some(tpt), _) if mods.hasVal => loop(tpt)
+            case outline: DefnType => loop(outline.desugaredUbound)
+            case outline: TypeParam => loop(outline.desugaredUbound)
+            case Param(_, _, Some(tpt), _) => loop(tpt)
+            case Self(_, Some(tpt)) => loop(tpt)
+            case outline @ Self(_, None) => loop(symtab.desugars.rets(outline))
+            case null => crash(sym)
+            case _ => crash(outline)
+          }
+        case ClasspathMetadata(info) =>
+          def loop(tpe: s.Type): Symbol = {
+            tpe match {
+              case s.TypeRef(_, sym, _) => sym
+              case s.SingleType(_, sym) => sym
+              case _ => crash(tpe.asMessage.toProtoString)
+            }
+          }
+          val scopeSym = {
+            if (sym == "scala/collection/convert/package.wrapAsScala.") {
+              // FIXME: https://github.com/twitter/rsc/issues/285
+              "scala/collection/convert/WrapAsScala#"
+            } else {
+              info.signature match {
+                case s.NoSignature if info.isPackage => sym
+                case _: s.ClassSignature => sym
+                case sig: s.MethodSignature if info.isVal => loop(sig.returnType)
+                case sig: s.TypeSignature => loop(sig.upperBound)
+                case sig: s.ValueSignature => loop(sig.tpe)
+                case sig => crash(info.toProtoString)
+              }
+            }
+          }
+          val scope = SignatureScope(scopeSym, classpath)
+          scope.succeed()
+          ResolvedScope(scope)
+        case NoMetadata =>
+          MissingResolution
+      }
     }
   }
 
   private implicit class EnvOutlinerOps(env: Env) {
     def isSynthetic: Boolean = env.scopes.length == 1
+  }
+
+  private implicit class BoundedScopifyOps(bounded: Bounded) {
+    def desugaredUbound: Tpt = {
+      bounded.lang match {
+        case ScalaLanguage | UnknownLanguage =>
+          bounded.ubound.getOrElse(TptId("Any").withSym(AnyClass))
+        case JavaLanguage =>
+          bounded.ubound.getOrElse(TptId("Object").withSym(ObjectClass))
+      }
+    }
   }
 }
 
