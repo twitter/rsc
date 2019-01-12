@@ -55,6 +55,9 @@ trait Prefixes {
                           case head: TemplateScope =>
                             val thisId = AmbigId(head.tree.id.value).withSym(head.tree.id.sym)
                             prefix(TermThis(thisId), id)
+                          case head: SelfScope =>
+                            val thisId = AmbigId(head.owner.id.value).withSym(head.owner.id.sym)
+                            prefix(TermThis(thisId), id)
                           case other =>
                             crash(other)
                         }

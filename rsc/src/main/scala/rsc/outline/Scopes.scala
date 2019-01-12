@@ -346,11 +346,8 @@ object ImporterScope {
   }
 }
 
-final class PackageObjectScope private (
-    sym: Symbol,
-    tree: DefnPackageObject,
-    packageScope: PackageScope)
-    extends TemplateScope(sym, tree) {
+final class PackageObjectScope private (tree: DefnPackageObject, packageScope: PackageScope)
+    extends TemplateScope(tree) {
   override def enter(name: Name, sym: Symbol): Symbol = {
     val existingSym = super.enter(name, sym)
     packageScope.enter(name, sym)
@@ -360,7 +357,7 @@ final class PackageObjectScope private (
 
 object PackageObjectScope {
   def apply(tree: DefnPackageObject, packageScope: PackageScope): PackageObjectScope = {
-    new PackageObjectScope(tree.id.sym, tree, packageScope)
+    new PackageObjectScope(tree, packageScope)
   }
 }
 
@@ -372,7 +369,8 @@ object ParamScope {
   }
 }
 
-final class SelfScope private (owner: Symbol, val tree: Self) extends OutlineScope(owner) {
+final class SelfScope private (val owner: DefnTemplate) extends OutlineScope(owner.id.sym) {
+  val tree: Self = owner.self.get
   var _parent: Scope = null
 
   def parent: Scope = {
@@ -411,11 +409,11 @@ final class SelfScope private (owner: Symbol, val tree: Self) extends OutlineSco
 
 object SelfScope {
   def apply(owner: DefnTemplate): SelfScope = {
-    new SelfScope(owner.id.sym, owner.self.get)
+    new SelfScope(owner)
   }
 }
 
-class TemplateScope protected (sym: Symbol, val tree: DefnTemplate) extends OutlineScope(sym) {
+class TemplateScope protected (val tree: DefnTemplate) extends OutlineScope(tree.id.sym) {
   var _parents: List[Scope] = null
   var _env: Env = null
 
@@ -455,7 +453,7 @@ class TemplateScope protected (sym: Symbol, val tree: DefnTemplate) extends Outl
 
 object TemplateScope {
   def apply(tree: DefnTemplate): TemplateScope = {
-    new TemplateScope(tree.id.sym, tree)
+    new TemplateScope(tree)
   }
 }
 
