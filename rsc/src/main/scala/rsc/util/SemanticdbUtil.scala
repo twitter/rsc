@@ -19,20 +19,6 @@ trait SemanticdbUtil {
       case _ => List()
     }
 
-    def self: List[String] = info.signature match {
-      case sig: ClassSignature =>
-        def loop(tpe: Type): List[String] = {
-          tpe match {
-            case TypeRef(_, sym, _) => List(sym)
-            case WithType(tpes) => tpes.flatMap(loop).toList
-            case _ => Nil
-          }
-        }
-        loop(sig.self)
-      case _ =>
-        Nil
-    }
-
     def tparams: List[String] = info.signature match {
       case sig: ClassSignature => sig.typeParameters.symbols
       case sig: MethodSignature => sig.typeParameters.symbols

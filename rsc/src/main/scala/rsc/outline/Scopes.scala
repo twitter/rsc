@@ -53,10 +53,7 @@ sealed trait ClasspathScope extends Scope {
 
     val info = classpath(owner)
 
-    // FIXME: https://github.com/twitter/rsc/issues/229.
-    // Utilizing selfs is probably incorrect when doing lookups from Java,
-    // but hopefully we'll rewrite the name resolution logic before this becomes a problem.
-    (info.parents ++ info.self).foreach { parent =>
+    info.parents.foreach { parent =>
       val memberSym = loadMember(parent, name)
       if (memberSym != NoSymbol) {
         return memberSym

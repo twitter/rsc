@@ -34,14 +34,10 @@ object PrettyWork {
           }
         case x: SignatureScope =>
           val buf = List.newBuilder[String]
-          def loop(tpe: s.Type): Unit = {
-            tpe match {
-              case s.TypeRef(_, sym, _) => buf += sym
-              case s.WithType(tpes) => tpes.foreach(loop)
-              case _ => Nil
-            }
+          x.signature.parents.foreach {
+            case s.TypeRef(_, sym, _) => buf += sym
+            case _ => buf += "<?>"
           }
-          (x.signature.parents :+ x.signature.self).foreach(loop)
           p.str(" ")
           p.rep(buf.result, " with ")(sym => p.str(sym))
         case x: TemplateScope =>
