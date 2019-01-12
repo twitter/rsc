@@ -346,9 +346,7 @@ object ImporterScope {
   }
 }
 
-final class PackageObjectScope private (
-    tree: DefnPackageObject,
-    packageScope: PackageScope)
+final class PackageObjectScope private (tree: DefnPackageObject, packageScope: PackageScope)
     extends TemplateScope(tree) {
   override def enter(name: Name, sym: Symbol): Symbol = {
     val existingSym = super.enter(name, sym)
