@@ -411,30 +411,31 @@ final class Scheduler private (
   private def self(env: Env, owner: DefnTemplate): Env = {
     owner.self match {
       case Some(tree) =>
-        val selfScope = SelfScope(owner.id.sym)
+        val selfScope = SelfScope(owner)
         val selfEnv = selfScope :: env
         assignSym(selfEnv, tree)
-        tree.tpt match {
-          case Some(tpt) =>
-            todo.add(selfEnv, tpt)
-          case None =>
-            val inferredTpt = {
-              val ownerRef = owner.id match {
-                case id: TermId => TptSingleton(id)
-                case id: TptId => id
-                case other => crash(other)
-              }
-              val tparamRefs = owner.tparams.map(_.id).map {
-                case id: TptId => id
-                case other => crash(other)
-              }
-              if (owner.tparams.isEmpty) ownerRef
-              TptParameterize(ownerRef, tparamRefs)
+        val selfTpt = {
+          val ownerTpt = {
+            val ownerRef = owner.id match {
+              case id: TermId => TptSingleton(id)
+              case id: TptId => id
+              case other => crash(other)
             }
-            symtab.desugars.rets.put(tree, inferredTpt)
-            todo.add(selfEnv, inferredTpt)
+            val tparamRefs = owner.tparams.map(_.id).map {
+              case id: TptId => id
+              case other => crash(other)
+            }
+            if (owner.tparams.isEmpty) ownerRef
+            TptParameterize(ownerRef, tparamRefs)
+          }
+          tree.tpt match {
+            case Some(tpt) => TptWith(List(ownerTpt, tpt))
+            case None => ownerTpt
+          }
         }
-        selfScope.succeed()
+        symtab.desugars.rets.put(tree, selfTpt)
+        todo.add(env, selfTpt)
+        todo.add(env, selfScope)
         selfEnv
       case None =>
         env

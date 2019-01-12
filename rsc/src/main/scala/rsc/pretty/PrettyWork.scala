@@ -3,6 +3,7 @@
 package rsc.pretty
 
 import rsc.outline._
+import rsc.util._
 import scala.meta.internal.{semanticdb => s}
 
 object PrettyWork {
@@ -34,19 +35,22 @@ object PrettyWork {
           }
         case x: SignatureScope =>
           val buf = List.newBuilder[String]
-          def loop(tpe: s.Type): Unit = {
-            tpe match {
-              case s.TypeRef(_, sym, _) => buf += sym
-              case s.WithType(tpes) => tpes.foreach(loop)
-              case _ => Nil
-            }
+          x.signature.parents.foreach {
+            case s.TypeRef(_, sym, _) => buf += sym
+            case _ => buf += "<?>"
           }
-          (x.signature.parents :+ x.signature.self).foreach(loop)
           p.str(" ")
           p.rep(buf.result, " with ")(sym => p.str(sym))
+        case x: SelfScope =>
+          p.str(" ")
+          p.str(x.tree.id.valueopt.getOrElse("self"))
+          p.rep(": ", x.tree.tpt, "")(tpt => p.str(tpt))
         case x: TemplateScope =>
           p.str(" ")
-          p.rep(x.parents ++ x.self, " with ")(scope => p.str(scope.sym))
+          p.rep(x.parents, " with ")(scope => p.str(scope.sym))
+        case x: WithScope =>
+          p.str(" ")
+          p.rep(x.parents, " with ")(scope => p.str(scope))
         case _ =>
           ()
       }

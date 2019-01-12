@@ -18,6 +18,7 @@ trait Templates {
           case path: TptPath => path.id.sym
           case TptAnnotate(tpt, _) => parentSym(tpt)
           case TptApply(tpt, _) => parentSym(tpt)
+          case TptWildcardExistential(_, tpt) => parentSym(tpt)
           case _ => NoSymbol
         }
       }

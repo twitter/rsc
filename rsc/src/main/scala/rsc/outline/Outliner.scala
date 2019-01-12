@@ -32,6 +32,7 @@ final class Outliner private (
     work match {
       case scope: ImporterScope => apply(env, scope)
       case scope: PackageScope => ()
+      case scope: SelfScope => apply(env, scope)
       case scope: TemplateScope => apply(env, scope)
       case sketch @ Sketch(tree: Tpt) => apply(env, sketch, tree)
       case sketch @ Sketch(tree: ModWithin) => apply(env, sketch, tree)
@@ -83,6 +84,27 @@ final class Outliner private (
                 }
             }
         }
+    }
+  }
+
+  private def apply(env: Env, scope: SelfScope): Unit = {
+    scope.tree.tpt match {
+      case Some(tpt) =>
+        scopify(tpt) match {
+          case BlockedResolution(dep) =>
+            scope.block(dep)
+          case _: FailedResolution =>
+            scope.fail()
+          case ResolvedScope(parent) =>
+            if (parent.status.isIncomplete) {
+              scope.block(parent)
+            } else {
+              scope.parent = parent
+              scope.succeed()
+            }
+        }
+      case None =>
+        scope.succeed()
     }
   }
 
@@ -179,25 +201,9 @@ final class Outliner private (
         case Some(incompleteParent) =>
           scope.block(incompleteParent.scope)
         case _ =>
-          buf.clear()
-          scope.tree.self.foreach {
-            case Self(_, Some(TptWith(ts))) => ts.foreach(appendParent(env, _))
-            case Self(_, Some(t)) => appendParent(env, t)
-            case _ => ()
-          }
-          if (scope.status.isPending) {
-            val self = buf.result.filter(_.scope != scope)
-            val incompleteSelf = self.find(_.scope.status.isIncomplete)
-            incompleteSelf match {
-              case Some(incompleteSelf) =>
-                scope.block(incompleteSelf.scope)
-              case _ =>
-                symtab.desugars.parents.put(scope.tree, parents.map(_.tpt))
-                scope.parents = parents.map(_.scope)
-                scope.self = self.map(_.scope)
-                scope.succeed()
-            }
-          }
+          symtab.desugars.parents.put(scope.tree, parents.map(_.tpt))
+          scope.parents = parents.map(_.scope)
+          scope.succeed()
       }
     }
   }
@@ -453,64 +459,93 @@ final class Outliner private (
     } else {
       symtab.metadata(sym) match {
         case OutlineMetadata(outline) =>
-          def loop(tpt: Tpt): ScopeResolution = {
-            tpt match {
-              case TptArray(_) =>
-                loop(TptId("Array").withSym(ArrayClass))
-              case TptApply(fun, _) =>
-                loop(fun)
-              case tpt: TptPath =>
-                tpt.id.sym match {
-                  case NoSymbol =>
-                    BlockedResolution(Unknown())
-                  case sym =>
-                    scopify(sym)
-                }
-              case TptWildcardExistential(_, tpt) =>
-                loop(tpt)
-              case _ =>
-                crash(tpt)
-            }
-          }
           outline match {
-            case DefnMethod(mods, _, _, _, Some(tpt), _) if mods.hasVal => loop(tpt)
-            case outline: DefnType => loop(outline.desugaredUbound)
-            case outline: TypeParam => loop(outline.desugaredUbound)
-            case Param(_, _, Some(tpt), _) => loop(tpt)
-            case Self(_, Some(tpt)) => loop(tpt)
-            case outline @ Self(_, None) => loop(symtab.desugars.rets(outline))
-            case null => crash(sym)
+            case DefnMethod(mods, _, _, _, Some(tpt), _) if mods.hasVal => scopify(tpt)
+            case outline: DefnType => scopify(outline.desugaredUbound)
+            case outline: TypeParam => scopify(outline.desugaredUbound)
+            case Param(_, _, Some(tpt), _) => scopify(tpt)
+            case outline: Self => scopify(symtab.desugars.rets(outline))
             case _ => crash(outline)
           }
         case ClasspathMetadata(info) =>
-          def loop(tpe: s.Type): Symbol = {
-            tpe match {
-              case s.TypeRef(_, sym, _) => sym
-              case s.SingleType(_, sym) => sym
-              case _ => crash(tpe.asMessage.toProtoString)
-            }
+          info.signature match {
+            case sig: s.MethodSignature if info.isVal => scopify(sig.returnType)
+            case sig: s.TypeSignature => scopify(sig.upperBound)
+            case sig: s.ValueSignature => scopify(sig.tpe)
+            case sig => crash(info.toProtoString)
           }
-          val scopeSym = {
-            if (sym == "scala/collection/convert/package.wrapAsScala.") {
-              // FIXME: https://github.com/twitter/rsc/issues/285
-              "scala/collection/convert/WrapAsScala#"
-            } else {
-              info.signature match {
-                case s.NoSignature if info.isPackage => sym
-                case _: s.ClassSignature => sym
-                case sig: s.MethodSignature if info.isVal => loop(sig.returnType)
-                case sig: s.TypeSignature => loop(sig.upperBound)
-                case sig: s.ValueSignature => loop(sig.tpe)
-                case sig => crash(info.toProtoString)
-              }
-            }
-          }
-          val scope = SignatureScope(scopeSym, classpath)
-          scope.succeed()
-          ResolvedScope(scope)
         case NoMetadata =>
           MissingResolution
       }
+    }
+  }
+
+  private def scopify(tpt: Tpt): ScopeResolution = {
+    tpt match {
+      case TptAnnotate(tpt, _) =>
+        scopify(tpt)
+      case TptArray(_) =>
+        scopify(ArrayClass)
+      case TptByName(tpt) =>
+        scopify(tpt)
+      case TptApply(fun, _) =>
+        scopify(fun)
+      case TptExistential(tpt, _) =>
+        scopify(tpt)
+      case TptIntersect(_) =>
+        crash(tpt)
+      case TptLit(_) =>
+        crash(tpt)
+      case tpt: TptPath =>
+        tpt.id.sym match {
+          case NoSymbol => BlockedResolution(Unknown())
+          case sym => scopify(sym)
+        }
+      case tpt: TptPrimitive =>
+        crash(tpt)
+      case tpt: TptRefine =>
+        crash(tpt)
+      case TptRepeat(tpt) =>
+        scopify(SeqClass)
+      case tpt: TptWildcard =>
+        scopify(tpt.desugaredUbound)
+      case TptWildcardExistential(_, tpt) =>
+        scopify(tpt)
+      case TptWith(tpts) =>
+        val buf = List.newBuilder[Scope]
+        tpts.foreach { tpt =>
+          scopify(tpt) match {
+            case ResolvedScope(scope) => buf += scope
+            case other => return other
+          }
+        }
+        val scope = WithScope(buf.result)
+        scope.succeed()
+        ResolvedScope(scope)
+    }
+  }
+
+  private def scopify(tpe: s.Type): ScopeResolution = {
+    tpe match {
+      case s.TypeRef(_, sym, _) =>
+        scopify(sym)
+      case s.SingleType(_, sym) =>
+        scopify(sym)
+      case s.StructuralType(tpe, Some(decls)) if decls.symbols.isEmpty =>
+        scopify(tpe)
+      case s.WithType(tpes) =>
+        val buf = List.newBuilder[Scope]
+        tpes.foreach { tpe =>
+          scopify(tpe) match {
+            case ResolvedScope(scope) => buf += scope
+            case other => return other
+          }
+        }
+        val scope = WithScope(buf.result)
+        scope.succeed()
+        ResolvedScope(scope)
+      case _ =>
+        crash(tpe.asMessage.toProtoString)
     }
   }
 
