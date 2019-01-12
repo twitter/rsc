@@ -468,31 +468,12 @@ final class Outliner private (
             case _ => crash(outline)
           }
         case ClasspathMetadata(info) =>
-          def loop(tpe: s.Type): Symbol = {
-            tpe match {
-              case s.TypeRef(_, sym, _) => sym
-              case s.SingleType(_, sym) => sym
-              case _ => crash(tpe.asMessage.toProtoString)
-            }
+          info.signature match {
+            case sig: s.MethodSignature if info.isVal => scopify(sig.returnType)
+            case sig: s.TypeSignature => scopify(sig.upperBound)
+            case sig: s.ValueSignature => scopify(sig.tpe)
+            case sig => crash(info.toProtoString)
           }
-          val scopeSym = {
-            if (sym == "scala/collection/convert/package.wrapAsScala.") {
-              // FIXME: https://github.com/twitter/rsc/issues/285
-              "scala/collection/convert/WrapAsScala#"
-            } else {
-              info.signature match {
-                case s.NoSignature if info.isPackage => sym
-                case _: s.ClassSignature => sym
-                case sig: s.MethodSignature if info.isVal => loop(sig.returnType)
-                case sig: s.TypeSignature => loop(sig.upperBound)
-                case sig: s.ValueSignature => loop(sig.tpe)
-                case sig => crash(info.toProtoString)
-              }
-            }
-          }
-          val scope = SignatureScope(scopeSym, classpath)
-          scope.succeed()
-          ResolvedScope(scope)
         case NoMetadata =>
           MissingResolution
       }
@@ -517,10 +498,8 @@ final class Outliner private (
         crash(tpt)
       case tpt: TptPath =>
         tpt.id.sym match {
-          case NoSymbol =>
-            BlockedResolution(Unknown())
-          case sym =>
-            scopify(sym)
+          case NoSymbol => BlockedResolution(Unknown())
+          case sym => scopify(sym)
         }
       case tpt: TptPrimitive =>
         crash(tpt)
@@ -540,7 +519,33 @@ final class Outliner private (
             case other => return other
           }
         }
-        ResolvedScope(WithScope(buf.result))
+        val scope = WithScope(buf.result)
+        scope.succeed()
+        ResolvedScope(scope)
+    }
+  }
+
+  private def scopify(tpe: s.Type): ScopeResolution = {
+    tpe match {
+      case s.TypeRef(_, sym, _) =>
+        scopify(sym)
+      case s.SingleType(_, sym) =>
+        scopify(sym)
+      case s.StructuralType(tpe, Some(decls)) if decls.symbols.isEmpty =>
+        scopify(tpe)
+      case s.WithType(tpes) =>
+        val buf = List.newBuilder[Scope]
+        tpes.foreach { tpe =>
+          scopify(tpe) match {
+            case ResolvedScope(scope) => buf += scope
+            case other => return other
+          }
+        }
+        val scope = WithScope(buf.result)
+        scope.succeed()
+        ResolvedScope(scope)
+      case _ =>
+        crash(tpe.asMessage.toProtoString)
     }
   }
 
