@@ -75,7 +75,7 @@ trait Desugars {
       }
 
       def put(outline: Self, tpt: Tpt): Unit = {
-        if (outline.tpt.nonEmpty || returnsDesugars.containsKey(outline)) {
+        if (returnsDesugars.containsKey(outline)) {
           crash(outline)
         }
         returnsDesugars.put(outline, tpt)

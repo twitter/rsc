@@ -3,6 +3,7 @@
 package rsc.pretty
 
 import rsc.outline._
+import rsc.util._
 import scala.meta.internal.{semanticdb => s}
 
 object PrettyWork {
@@ -40,9 +41,16 @@ object PrettyWork {
           }
           p.str(" ")
           p.rep(buf.result, " with ")(sym => p.str(sym))
+        case x: SelfScope =>
+          p.str(" ")
+          p.str(x.tree.id.valueopt.getOrElse("self"))
+          p.rep(": ", x.tree.tpt, "")(tpt => p.str(tpt))
         case x: TemplateScope =>
           p.str(" ")
-          p.rep(x.parents ++ x.self, " with ")(scope => p.str(scope.sym))
+          p.rep(x.parents, " with ")(scope => p.str(scope.sym))
+        case x: WithScope =>
+          p.str(" ")
+          p.rep(x.parents, " with ")(scope => p.str(scope))
         case _ =>
           ()
       }

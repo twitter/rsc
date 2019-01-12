@@ -4,6 +4,7 @@ package rsc.outline
 
 import java.util.{LinkedHashMap, Map}
 import rsc.classpath._
+import rsc.input._
 import rsc.semantics._
 import rsc.syntax._
 import rsc.util._
@@ -371,17 +372,51 @@ object ParamScope {
   }
 }
 
-final class SelfScope private (owner: Symbol) extends OutlineScope(owner)
+final class SelfScope private (owner: Symbol, val tree: Self) extends OutlineScope(owner) {
+  var _parent: Scope = null
+
+  def parent: Scope = {
+    if (status.isSucceeded) {
+      _parent
+    } else {
+      crash(this)
+    }
+  }
+
+  def parent_=(parent: Scope): Unit = {
+    if (status.isPending) {
+      _parent = parent
+    } else {
+      crash(this)
+    }
+  }
+
+  override def resolve(name: Name): SymbolResolution = {
+    super.resolve(name) match {
+      case MissingResolution =>
+        if (_parent != null) {
+          _parent.resolve(name)
+        } else {
+          MissingResolution
+        }
+      case resolution =>
+        resolution
+    }
+  }
+
+  override def succeed(): Unit = {
+    super.succeed()
+  }
+}
 
 object SelfScope {
-  def apply(owner: Symbol): SelfScope = {
-    new SelfScope(owner)
+  def apply(owner: DefnTemplate): SelfScope = {
+    new SelfScope(owner.id.sym, owner.self.get)
   }
 }
 
 class TemplateScope protected (sym: Symbol, val tree: DefnTemplate) extends OutlineScope(sym) {
   var _parents: List[Scope] = null
-  var _self: List[Scope] = null
   var _env: Env = null
 
   def parents: List[Scope] = {
@@ -395,38 +430,9 @@ class TemplateScope protected (sym: Symbol, val tree: DefnTemplate) extends Outl
   def parents_=(parents: List[Scope]): Unit = {
     if (status.isPending) {
       _parents = parents
-      recomputeEnv()
-    } else {
-      crash(this)
-    }
-  }
-
-  def self: List[Scope] = {
-    if (status.isSucceeded) {
-      _self
-    } else {
-      crash(this)
-    }
-  }
-
-  def self_=(self: List[Scope]): Unit = {
-    if (status.isPending) {
-      _self = self
-      recomputeEnv()
-    } else {
-      crash(this)
-    }
-  }
-
-  private def recomputeEnv(): Unit = {
-    if (_parents != null && _self != null) {
-      _env = Env(_self ++ _parents, tree.lang)
-    } else if (_parents != null && _self == null) {
       _env = Env(_parents, tree.lang)
-    } else if (_parents == null && _self != null) {
-      _env = Env(_self, tree.lang)
     } else {
-      _env = Env(Nil, tree.lang)
+      crash(this)
     }
   }
 
@@ -474,5 +480,27 @@ final class RefineScope private () extends OutlineScope(NoSymbol)
 object RefineScope {
   def apply(): RefineScope = {
     new RefineScope()
+  }
+}
+
+final class WithScope private (val parents: List[Scope]) extends Scope(NoSymbol) {
+  var _env: Env = Env(parents, ScalaLanguage)
+
+  override def enter(name: Name, sym: Symbol): Symbol = {
+    crash(this)
+  }
+
+  override def resolve(name: Name): SymbolResolution = {
+    if (status.isSucceeded) {
+      _env.resolve(name)
+    } else {
+      super.resolve(name)
+    }
+  }
+}
+
+object WithScope {
+  def apply(scopes: List[Scope]): WithScope = {
+    new WithScope(scopes)
   }
 }
