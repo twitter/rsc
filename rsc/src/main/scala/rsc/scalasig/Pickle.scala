@@ -914,6 +914,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       val sfieldSig = {
         sgetterSym.ssig match {
           case NullaryMethodSig(stpe) => s.ValueSignature(stpe)
+          case MethodSig(params, stpe) if params.symbols.isEmpty => s.ValueSignature(stpe)
           case sother => crash(sother.toString)
         }
       }

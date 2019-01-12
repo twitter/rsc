@@ -4,7 +4,7 @@ package rsc.symtab
 
 import rsc.semantics._
 
-trait Services {
+trait Metadatas {
   self: Symtab =>
 
   def metadata(sym: Symbol): Metadata = {

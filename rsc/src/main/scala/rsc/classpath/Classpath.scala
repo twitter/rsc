@@ -58,7 +58,26 @@ final class Classpath private (entries: HashMap[Symbol, Entry]) extends AutoClos
             documents.documents.foreach { document =>
               document.symbols.foreach { info =>
                 if (info.symbol.isGlobal) {
-                  infos.put(info.symbol, info)
+                  val desc = info.symbol.desc
+                  if (desc.isMethod) {
+                    info.signature match {
+                      case s.MethodSignature(_, paramss, _) =>
+                        val isNullaryOrCompatible = paramss match {
+                          case Seq() => true
+                          case Seq(params) => params.symbols.isEmpty
+                          case _ => false
+                        }
+                        if (isNullaryOrCompatible) {
+                          val symbol1 = MethodSymbol(info.symbol.owner, desc.value, "()")
+                          val info1 = info.copy(symbol = symbol1)
+                          infos.put(info1.symbol, info1)
+                        }
+                      case _ =>
+                        ()
+                    }
+                  } else {
+                    infos.put(info.symbol, info)
+                  }
                 }
               }
             }

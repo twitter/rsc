@@ -594,12 +594,19 @@ final class Synthesizer private (
   }
 
   private def caseToString(env: Env, tree: DefnTemplate): Unit = {
-    val id = TermId("toString")
-    val paramss = List(Nil)
-    val ret = Some(TptId("String").withSym(StringClass))
-    val rhs = Some(TermStub())
-    val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
-    scheduler(env, method.withPos(tree.pos))
+    // FIXME: https://github.com/twitter/rsc/issues/98
+    val alreadyDefinesToString = tree.stats.exists {
+      case DefnMethod(_, TermId("toString"), _, _, _, _) => true
+      case _ => false
+    }
+    if (!alreadyDefinesToString) {
+      val id = TermId("toString")
+      val paramss = List(Nil)
+      val ret = Some(TptId("String").withSym(StringClass))
+      val rhs = Some(TermStub())
+      val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
+      scheduler(env, method.withPos(tree.pos))
+    }
   }
 
   private def enumValueOf(env: Env, tree: DefnClass): Unit = {
