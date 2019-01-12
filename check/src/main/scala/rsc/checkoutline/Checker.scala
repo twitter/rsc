@@ -382,7 +382,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
             val isOwnerVisible = owner.isVisible
             if (isOwnerVisible) {
               if (info.isPrivate) owner.isPackage
-              else if (info.isPrivateThis) false
+              else if (info.isPrivateThis) owner.isPackage
               else true
             } else {
               false

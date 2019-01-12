@@ -45,7 +45,7 @@ trait Eligibility {
             } else {
               outline.mods.trees.forall {
                 case ModPrivate() => owner.isInstanceOf[DefnPackage]
-                case ModPrivateThis() => false
+                case ModPrivateThis() => owner.isInstanceOf[DefnPackage]
                 case _ => true
               }
             }
