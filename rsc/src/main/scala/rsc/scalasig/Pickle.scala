@@ -993,9 +993,13 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       val _ +: scmethodSyms = scdecls.dropWhile(_.desc.value != "<init>")
       scmethodSyms.foreach { smethodSym =>
         val smethod = mtab(smethodSym)
-        val xmethodName = smethodSym.desc.value + "$extension"
-        val d.Method(_, xmethodDisambig) = smethodSym.desc
-        val xmethodDesc = d.Method(xmethodName, xmethodDisambig)
+        val xmethodDisambig = {
+          val smethodOverloads = scmethodSyms.filter(_.desc.value == smethodSym.desc.value)
+          if (smethodOverloads.length == 1) ""
+          else smethodOverloads.indexOf(smethodSym).toString
+        }
+        val xmethodName = smethodSym.desc.value + "$extension" + xmethodDisambig
+        val xmethodDesc = d.Method(xmethodName, "()")
         val xmethodSym = Symbols.Global(sobjectSym, xmethodDesc)
         val xmethodSig = {
           val s.MethodSignature(stparamSyms, sparamSymss, sret) =
