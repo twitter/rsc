@@ -88,4 +88,13 @@ trait TreeUtil {
       }
     }
   }
+
+  implicit class TreeUtilParamsOps(params: List[Param]) {
+    def isImplicit: Boolean = {
+      params match {
+        case Nil => false
+        case xs => xs.forall(_.hasImplicit)
+      }
+    }
+  }
 }

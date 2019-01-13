@@ -219,6 +219,11 @@ final class Synthesizer private (
     if (symtab.desugars.paramss.contains(tree)) {
       ()
     } else {
+      val paramssBuf = List.newBuilder[List[Param]]
+      val isCtor = tree.isInstanceOf[DefnCtor] || tree.isInstanceOf[PrimaryCtor]
+      if (isCtor && (tree.paramss.isEmpty || tree.paramss.forall(_.isImplicit))) {
+        paramssBuf += List()
+      }
       val tparams = {
         tree match {
           case _: DefnCtor | _: PrimaryCtor =>
@@ -230,9 +235,7 @@ final class Synthesizer private (
             tree.tparams
         }
       }
-      var pendingEvidences = {
-        tparams.exists(tp => tp.vbounds.nonEmpty || tp.cbounds.nonEmpty)
-      }
+      var pendingEvidences = tparams.exists(tp => tp.vbounds.nonEmpty || tp.cbounds.nonEmpty)
       if (pendingEvidences) {
         def evidenceParams: List[Param] = {
           val gensym = gensyms(tree)
@@ -269,7 +272,6 @@ final class Synthesizer private (
           }
           paramsBuf.result
         }
-        val paramssBuf = List.newBuilder[List[Param]]
         tree.paramss.foreach { params =>
           val paramsBuf = List.newBuilder[Param]
           params.foreach { param =>
@@ -285,10 +287,10 @@ final class Synthesizer private (
           paramssBuf += evidenceParams
           pendingEvidences = false
         }
-        symtab.desugars.paramss.put(tree, paramssBuf.result)
       } else {
-        symtab.desugars.paramss.put(tree, tree.paramss)
+        paramssBuf ++= tree.paramss
       }
+      symtab.desugars.paramss.put(tree, paramssBuf.result)
     }
   }
 
@@ -592,12 +594,19 @@ final class Synthesizer private (
   }
 
   private def caseToString(env: Env, tree: DefnTemplate): Unit = {
-    val id = TermId("toString")
-    val paramss = List(Nil)
-    val ret = Some(TptId("String").withSym(StringClass))
-    val rhs = Some(TermStub())
-    val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
-    scheduler(env, method.withPos(tree.pos))
+    // FIXME: https://github.com/twitter/rsc/issues/98
+    val alreadyDefinesToString = tree.stats.exists {
+      case DefnMethod(_, TermId("toString"), _, _, _, _) => true
+      case _ => false
+    }
+    if (!alreadyDefinesToString) {
+      val id = TermId("toString")
+      val paramss = List(Nil)
+      val ret = Some(TptId("String").withSym(StringClass))
+      val rhs = Some(TermStub())
+      val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
+      scheduler(env, method.withPos(tree.pos))
+    }
   }
 
   private def enumValueOf(env: Env, tree: DefnClass): Unit = {

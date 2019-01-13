@@ -132,34 +132,14 @@ trait Defns {
     }
 
     def signature(linkMode: LinkMode): s.Signature = {
-      val isCtor = outline.isInstanceOf[DefnCtor] || outline.isInstanceOf[PrimaryCtor]
       outline match {
         case outline: DefnConstant =>
           val tpe = s.TypeRef(s.NoType, outline.id.sym.owner, Nil)
           s.ValueSignature(tpe)
         case outline: DefnDef =>
           val tparams = outline.tparams.scope(linkMode)
-          val paramss = {
-            def isImplicit(xs: List[Param]) = xs match {
-              case Nil => false
-              case xs => xs.forall(_.hasImplicit)
-            }
-            if (isCtor && outline.desugaredParamss.forall(isImplicit)) {
-              s.Scope() +: outline.desugaredParamss.flatMap(_.scope(linkMode))
-            } else {
-              outline.desugaredParamss.flatMap(_.scope(linkMode))
-            }
-          }
-          val ret = {
-            outline.ret match {
-              case Some(tpt) =>
-                if (isCtor) s.NoType
-                else tpt.tpe
-              case None =>
-                if (symtab.desugars.rets.contains(outline)) symtab.desugars.rets(outline).tpe
-                else s.NoType
-            }
-          }
+          val paramss = outline.desugaredParamss.flatMap(_.scope(linkMode))
+          val ret = outline.desugaredRet.map(_.tpe).getOrElse(s.NoType)
           s.MethodSignature(tparams, paramss, ret)
         case outline: DefnField =>
           val tpe = outline.tpt.map(_.tpe)
@@ -244,6 +224,13 @@ trait Defns {
               }
           }
       }
+    }
+  }
+
+  protected implicit class RetOps(outline: DefnDef) {
+    def desugaredRet: Option[Tpt] = {
+      if (symtab.desugars.rets.contains(outline)) Some(symtab.desugars.rets(outline))
+      else outline.ret
     }
   }
 }

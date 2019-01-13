@@ -12,7 +12,6 @@ import rsc.symtab._
 import rsc.syntax._
 import rsc.util._
 import scala.collection.mutable
-import scala.meta.internal.{semanticdb => s}
 
 final class Outliner private (
     settings: Settings,
@@ -90,7 +89,7 @@ final class Outliner private (
   private def apply(env: Env, scope: SelfScope): Unit = {
     scope.tree.tpt match {
       case Some(tpt) =>
-        scopify(tpt) match {
+        symtab.scopify(tpt) match {
           case BlockedResolution(dep) =>
             scope.block(dep)
           case _: FailedResolution =>
@@ -449,119 +448,12 @@ final class Outliner private (
       case resolution: FailedResolution =>
         resolution
       case ResolvedSymbol(sym) =>
-        scopify(sym)
-    }
-  }
-
-  private def scopify(sym: Symbol): ScopeResolution = {
-    if (symtab.scopes.contains(sym)) {
-      ResolvedScope(symtab.scopes(sym))
-    } else {
-      symtab.metadata(sym) match {
-        case OutlineMetadata(outline) =>
-          outline match {
-            case DefnMethod(mods, _, _, _, Some(tpt), _) if mods.hasVal => scopify(tpt)
-            case outline: DefnType => scopify(outline.desugaredUbound)
-            case outline: TypeParam => scopify(outline.desugaredUbound)
-            case Param(_, _, Some(tpt), _) => scopify(tpt)
-            case outline: Self => scopify(symtab.desugars.rets(outline))
-            case _ => crash(outline)
-          }
-        case ClasspathMetadata(info) =>
-          info.signature match {
-            case sig: s.MethodSignature if info.isVal => scopify(sig.returnType)
-            case sig: s.TypeSignature => scopify(sig.upperBound)
-            case sig: s.ValueSignature => scopify(sig.tpe)
-            case sig => crash(info.toProtoString)
-          }
-        case NoMetadata =>
-          MissingResolution
-      }
-    }
-  }
-
-  private def scopify(tpt: Tpt): ScopeResolution = {
-    tpt match {
-      case TptAnnotate(tpt, _) =>
-        scopify(tpt)
-      case TptArray(_) =>
-        scopify(ArrayClass)
-      case TptByName(tpt) =>
-        scopify(tpt)
-      case TptApply(fun, _) =>
-        scopify(fun)
-      case TptExistential(tpt, _) =>
-        scopify(tpt)
-      case TptIntersect(_) =>
-        crash(tpt)
-      case TptLit(_) =>
-        crash(tpt)
-      case tpt: TptPath =>
-        tpt.id.sym match {
-          case NoSymbol => BlockedResolution(Unknown())
-          case sym => scopify(sym)
-        }
-      case tpt: TptPrimitive =>
-        crash(tpt)
-      case tpt: TptRefine =>
-        crash(tpt)
-      case TptRepeat(tpt) =>
-        scopify(SeqClass)
-      case tpt: TptWildcard =>
-        scopify(tpt.desugaredUbound)
-      case TptWildcardExistential(_, tpt) =>
-        scopify(tpt)
-      case TptWith(tpts) =>
-        val buf = List.newBuilder[Scope]
-        tpts.foreach { tpt =>
-          scopify(tpt) match {
-            case ResolvedScope(scope) => buf += scope
-            case other => return other
-          }
-        }
-        val scope = WithScope(buf.result)
-        scope.succeed()
-        ResolvedScope(scope)
-    }
-  }
-
-  private def scopify(tpe: s.Type): ScopeResolution = {
-    tpe match {
-      case s.TypeRef(_, sym, _) =>
-        scopify(sym)
-      case s.SingleType(_, sym) =>
-        scopify(sym)
-      case s.StructuralType(tpe, Some(decls)) if decls.symbols.isEmpty =>
-        scopify(tpe)
-      case s.WithType(tpes) =>
-        val buf = List.newBuilder[Scope]
-        tpes.foreach { tpe =>
-          scopify(tpe) match {
-            case ResolvedScope(scope) => buf += scope
-            case other => return other
-          }
-        }
-        val scope = WithScope(buf.result)
-        scope.succeed()
-        ResolvedScope(scope)
-      case _ =>
-        crash(tpe.asMessage.toProtoString)
+        symtab.scopify(sym)
     }
   }
 
   private implicit class EnvOutlinerOps(env: Env) {
     def isSynthetic: Boolean = env.scopes.length == 1
-  }
-
-  private implicit class BoundedScopifyOps(bounded: Bounded) {
-    def desugaredUbound: Tpt = {
-      bounded.lang match {
-        case ScalaLanguage | UnknownLanguage =>
-          bounded.ubound.getOrElse(TptId("Any").withSym(AnyClass))
-        case JavaLanguage =>
-          bounded.ubound.getOrElse(TptId("Object").withSym(ObjectClass))
-      }
-    }
   }
 }
 

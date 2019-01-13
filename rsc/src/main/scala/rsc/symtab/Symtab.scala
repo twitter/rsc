@@ -7,9 +7,10 @@ import rsc.classpath._
 final class Symtab private (protected val classpath: Classpath)
     extends Desugars
     with Envs
+    with Metadatas
     with Outlines
     with Scopes
-    with Services
+    with Scopifies
 
 object Symtab {
   def apply(classpath: Classpath): Symtab = {

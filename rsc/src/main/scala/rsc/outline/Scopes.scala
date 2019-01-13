@@ -98,6 +98,13 @@ sealed trait ClasspathScope extends Scope {
         }
 
         // FIXME: https://github.com/twitter/rsc/issues/229.
+        // This is quite incorrect, but quite convenient.
+        val methodSym = MethodSymbol(owner, value, "()")
+        if (classpath.contains(methodSym)) {
+          return methodSym
+        }
+
+        // FIXME: https://github.com/twitter/rsc/issues/229.
         // This is accidentally correct when doing lookups from Java,
         // because Java programs don't have TermIds in reference roles.
         val javaDeclSym = TypeSymbol(owner, value)
