@@ -37,7 +37,9 @@ trait Templates {
                       case outline: DefnClass if outline.hasClass =>
                         firstParentSym
                       case outline: DefnClass =>
-                        parentSym(outline.desugaredParents.head)
+                        val result = parentSym(outline.desugaredParents.head)
+                        if (result == AnyClass) AnyRefClass
+                        else result
                       case DefnType(_, _, _, _, _, Some(rhs)) =>
                         loop(parentSym(rhs))
                       case _ =>

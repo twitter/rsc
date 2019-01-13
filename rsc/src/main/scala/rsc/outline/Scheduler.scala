@@ -527,7 +527,7 @@ final class Scheduler private (
       val essentialObjectsIt = essentialObjects.iterator
       while (essentialObjectsIt.hasNext) {
         val objectSym = essentialObjectsIt.next()
-        val needsSynthesis = !symtab.scopes.contains(objectSym)
+        val needsSynthesis = !symtab.outlines.contains(objectSym)
         if (needsSynthesis) {
           val classSym = objectSym.companionClass
           val classTree = symtab.outlines(classSym).asInstanceOf[DefnClass]
