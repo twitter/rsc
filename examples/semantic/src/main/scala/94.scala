@@ -1,3 +1,4 @@
+// FIXME: https://github.com/twitter/rsc/issues/306
 // package ticket94
 //
 // class C {
