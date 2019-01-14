@@ -62,10 +62,10 @@ class SemanticdbPrinter(
                   str("#")
               }
             }
-            if (config.better && pre == s.NoType) {
+            if (config.better) {
               name.map(fullEnv.lookup) match {
                 case Some(x) if !index.symbols.equivalent(x, sym) =>
-                  if (x.isEmpty) {
+                  if (x.isEmpty && pre == s.NoType) {
                     addedImportsScope.addImport(sym)
                   } else {
                     printPrettyPrefix

@@ -87,12 +87,35 @@ final case class PackageScope(symtab: Symtab, sym: String) extends Scope {
 
 final case class TemplateScope(symtab: Symtab, sym: String) extends Scope {
   def lookup(name: n.Name): String = {
-    val s.ClassSignature(_, parents, self, _) = symtab.info(sym).get.signature
-    // TODO: Also lookup in parents and self.
-    member(symtab, sym, name)
+    linearization.foldLeft("") { (acc, symbol) =>
+      if (acc.isEmpty) member(symtab, symbol, name) else acc
+    }
   }
 
   override def toString: String = {
     s"template $sym"
   }
+
+  private val linearization = linearize(sym)
+
+  private def linearize(symbol: String): List[String] = {
+    def replaceAndConcat(xs: List[String], ys: List[String]) = xs.filterNot(ys.contains) ++ ys
+
+    // FIXME: https://github.com/twitter/rsc/issues/318
+    val parents = classSignature(symbol).parents
+
+    val parentSymbols = parents.collect { case s.TypeRef(_, symbol, _) => symbol }
+
+    parentSymbols.foldRight(List(symbol)) { (parent, acc) =>
+      replaceAndConcat(acc, linearize(parent))
+    }
+  }
+
+  private def classSignature(symbol: String): s.ClassSignature =
+    symtab.info(symbol).get.signature match {
+      case x: s.ClassSignature => x
+
+      case s.TypeSignature(_, s.TypeRef(_, lo, _), s.TypeRef(_, hi, _)) if lo == hi =>
+        classSignature(lo)
+    }
 }
