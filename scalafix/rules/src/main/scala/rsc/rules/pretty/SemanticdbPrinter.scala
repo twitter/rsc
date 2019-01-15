@@ -94,7 +94,19 @@ class SemanticdbPrinter(
           opt(sym, ".")(pprint)
           str("this")
         case s.WithType(types) =>
-          rep(types, " with ") { tpe =>
+          val filteredTypes = if (config.better) {
+            types.filter {
+              case s.TypeRef(_, "scala/AnyRef#", _) | s.TypeRef(_, "java/lang/Object#", _) => false
+              case _ => true
+            } match {
+              case Nil => types
+              case ts => ts
+            }
+          } else {
+            types
+          }
+
+          rep(filteredTypes, " with ") { tpe =>
             // FIXME: https://github.com/twitter/rsc/issues/142
             val needsParens = tpe.isInstanceOf[s.ExistentialType]
             if (needsParens) str("(")

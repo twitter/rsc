@@ -66,7 +66,7 @@ trait Disposable[+T] {
 }
 
 object Disposable {
-  def const[T](t: T): AnyRef with Disposable[T] = new Disposable[T] {
+  def const[T](t: T): Disposable[T] = new Disposable[T] {
     def get = t
     def dispose(deadline: Time) = Future.value(())
   }
@@ -131,8 +131,8 @@ trait Managed[+T] { selfT =>
 }
 
 object Managed {
-  def singleton[T](t: Disposable[T]): AnyRef with Managed[T] = new Managed[T] { def make() = t }
-  def const[T](t: T): AnyRef with Managed[T] = singleton(Disposable.const(t))
+  def singleton[T](t: Disposable[T]): Managed[T] = new Managed[T] { def make() = t }
+  def const[T](t: T): Managed[T] = singleton(Disposable.const(t))
 }
 
 class DoubleTrouble(cause1: Throwable, cause2: Throwable) extends Exception {

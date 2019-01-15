@@ -3,7 +3,7 @@ package rsc.tests
 import rsc.tests.BetterRscCompat_Test.AutoImport.oa.ob.od
 import rsc.tests.BetterRscCompat_Test.AutoImport.oa.{MyClass, oc}
 import rsc.tests.BetterRscCompat_Test.AutoImport.oa.oe.MyClass2
-import scala.collection.mutable
+import scala.collection.{Seq, mutable}
 
 object BetterRscCompat_Test {
 
@@ -112,6 +112,44 @@ object BetterRscCompat_Test {
 
     object myError extends Exception {
       def foo: Int = 1
+    }
+  }
+
+  object AnyrefWithTrait {
+
+    trait Trait1 {
+      def foo: Int
+    }
+    trait Trait2 {
+      val bar: Int
+    }
+
+    val t1: Trait1 = new Trait1 {
+      def foo: Int = 1
+    }
+
+    val t2: Trait1 with Trait2 = new Trait1 with Trait2 {
+      def foo: Int = 1
+      val bar: Int = 1
+    }
+
+    val t3: Trait2 { def foo: Int } = new Trait2 {
+      def foo: Int = 1
+      val bar: Int = 1
+    }
+
+    val tSeq: Seq[Trait1] = Seq(new Trait1 { def foo = 1 })
+
+    val anonObj: AnyRef = new {}
+
+    val anonObj2: Trait2 = new {} with Trait2 {
+      val bar = 2
+    }
+
+    val anonObj3: Trait2 = new { val bar: Int = 3 } with Trait2
+
+    def order[T]: Ordering[T] = new Ordering[T] {
+      override def compare(x: T, y: T): Int = 0
     }
   }
 }

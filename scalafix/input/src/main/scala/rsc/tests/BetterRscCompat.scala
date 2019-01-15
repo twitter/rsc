@@ -115,4 +115,42 @@ object BetterRscCompat_Test {
       def foo = 1
     }
   }
+
+  object AnyrefWithTrait {
+
+    trait Trait1 {
+      def foo: Int
+    }
+    trait Trait2 {
+      val bar: Int
+    }
+
+    val t1 = new Trait1 {
+      def foo: Int = 1
+    }
+
+    val t2 = new Trait1 with Trait2 {
+      def foo: Int = 1
+      val bar: Int = 1
+    }
+
+    val t3 = new Trait2 {
+      def foo: Int = 1
+      val bar: Int = 1
+    }
+
+    val tSeq = Seq(new Trait1 { def foo = 1 })
+
+    val anonObj = new {}
+
+    val anonObj2 = new {} with Trait2 {
+      val bar = 2
+    }
+
+    val anonObj3 = new { val bar: Int = 3 } with Trait2
+
+    def order[T] = new Ordering[T] {
+      override def compare(x: T, y: T): Int = 0
+    }
+  }
 }

@@ -84,7 +84,7 @@ class BoundedStack[A: ClassTag](val maxSize: Int) extends Seq[A] {
     }
   }
 
-  override def iterator: AnyRef with Iterator[A] = new Iterator[A] {
+  override def iterator: Iterator[A] = new Iterator[A] {
     var idx = 0
     def hasNext = idx != count_
     def next = {
