@@ -271,6 +271,11 @@ lazy val publishableSettings = Seq(
         <name>Max Ovsiankin</name>
         <url>https://github.com/maxov</url>
       </developer>
+      <developer>
+        <id>WiWa</id>
+        <name>Win Wang</name>
+        <url>https://github.com/WiWa</url>
+      </developer>
     </developers>
   )
 )
