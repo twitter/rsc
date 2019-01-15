@@ -159,7 +159,7 @@ object Var {
   }
 
   private[util] object Observer {
-    def apply[T](k: T => Unit): _root_.com.twitter.util.Var.Observer[T] = new Observer(k)
+    def apply[T](k: T => Unit): Observer[T] = new Observer(k)
   }
 
   /**
@@ -226,18 +226,20 @@ object Var {
     v
   }
 
-  private case class Value[T](v: T) extends Var[T] {
+  private case class Value[T](v: T) extends Var[T] with Extractable[T] {
     protected def observe(depth: Int, obs: Observer[T]): Closable = {
       obs.claim(this)
       obs.publish(this, v, 0)
       Closable.nop
     }
+
+    def apply(): T = v
   }
 
   /**
    * Create a new, constant, v-valued Var.
    */
-  def value[T](v: T): Var[T] = Value(v)
+  def value[T](v: T): Var[T] with Extractable[T] = Value(v)
 
   /**
    * Collect a collection of Vars into a Var of collection.
@@ -263,7 +265,9 @@ object Var {
    */
   def collect[T: ClassTag, CC[X] <: Traversable[X]](
     vars: CC[Var[T]]
-  )(implicit newBuilder: CanBuildFrom[CC[T], T, CC[T]]): Var[CC[T]] = {
+  )(
+    implicit newBuilder: CanBuildFrom[CC[T], T, CC[T]]
+  ): Var[CC[T]] = {
     val vs = vars.toArray
 
     def tree(begin: Int, end: Int): Var[Seq[T]] =
@@ -429,16 +433,16 @@ private object UpdatableVar {
   import Var.Observer
 
   case class Party[T](obs: Observer[T], depth: Int, n: Long) {
-    @volatile var active: _root_.scala.Boolean = true
+    @volatile var active: Boolean = true
   }
 
   case class State[T](value: T, version: Long, parties: immutable.SortedSet[Party[T]]) {
-    def -(p: Party[T]): _root_.com.twitter.util.UpdatableVar.State[T] = copy(parties = parties - p)
-    def +(p: Party[T]): _root_.com.twitter.util.UpdatableVar.State[T] = copy(parties = parties + p)
-    def :=(newv: T): _root_.com.twitter.util.UpdatableVar.State[T] = copy(value = newv, version = version + 1)
+    def -(p: Party[T]): State[T] = copy(parties = parties - p)
+    def +(p: Party[T]): State[T] = copy(parties = parties + p)
+    def :=(newv: T): State[T] = copy(value = newv, version = version + 1)
   }
 
-  implicit def order[T]: _root_.java.lang.Object with _root_.scala.`package`.Ordering[_root_.com.twitter.util.UpdatableVar.Party[T]] = new Ordering[Party[T]] {
+  implicit def order[T]: Object with Ordering[Party[T]] = new Ordering[Party[T]] {
     // This is safe because observers are compared
     // only from the same counter.
     def compare(a: Party[T], b: Party[T]): Int = {
@@ -491,7 +495,7 @@ private[util] class UpdatableVar[T](init: T) extends Var[T] with Updatable[T] wi
     }
   }
 
-  override def toString: _root_.java.lang.String = "Var(" + state.get.value + ")@" + hashCode
+  override def toString: String = "Var(" + state.get.value + ")@" + hashCode
 }
 
 /**

@@ -7,22 +7,22 @@ import java.util.concurrent.atomic.AtomicReference
  * When the Queue is full, a push replaces the item.
  */
 class LastWriteWinsQueue[A] extends java.util.Queue[A] {
-  val item: _root_.java.util.concurrent.atomic.AtomicReference[_root_.scala.Option[A]] = new AtomicReference[Option[A]](None)
+  val item: AtomicReference[Option[A]] = new AtomicReference[Option[A]](None)
 
   def clear(): Unit = {
     item.set(None)
   }
 
-  def retainAll(p1: Collection[_]): _root_.scala.Nothing = throw new UnsupportedOperationException
+  def retainAll(p1: Collection[_]): Nothing = throw new UnsupportedOperationException
 
-  def removeAll(p1: Collection[_]): _root_.scala.Nothing = throw new UnsupportedOperationException
+  def removeAll(p1: Collection[_]): Nothing = throw new UnsupportedOperationException
 
-  def addAll(p1: Collection[_ <: A]): _root_.scala.Nothing = throw new UnsupportedOperationException
+  def addAll(p1: Collection[_ <: A]): Nothing = throw new UnsupportedOperationException
 
-  def containsAll(p1: Collection[_]): _root_.scala.Boolean =
+  def containsAll(p1: Collection[_]): Boolean =
     p1.size == 1 && item.get == p1.iterator.next()
 
-  def remove(candidate: AnyRef): _root_.scala.Boolean = {
+  def remove(candidate: AnyRef): Boolean = {
     val contained = item.get
     val containsCandidate = contained.map(_ == candidate).getOrElse(false)
     if (containsCandidate) {
@@ -41,15 +41,15 @@ class LastWriteWinsQueue[A] extends java.util.Queue[A] {
     } else Array[Any]().asInstanceOf[Array[T with java.lang.Object]]
   }
 
-  def toArray: _root_.scala.Array[_root_.scala.AnyRef with _root_.java.lang.Object] = toArray(new Array[AnyRef](0))
+  def toArray: Array[AnyRef with Object] = toArray(new Array[AnyRef](0))
 
-  def iterator: _root_.scala.Null = null
+  def iterator: Null = null
 
-  def contains(p1: AnyRef): _root_.scala.Boolean = false
+  def contains(p1: AnyRef): Boolean = false
 
-  def isEmpty: _root_.scala.Boolean = item.get.isDefined
+  def isEmpty: Boolean = item.get.isDefined
 
-  def size: _root_.scala.Int = if (item.get.isDefined) 1 else 0
+  def size: Int = if (item.get.isDefined) 1 else 0
 
   def peek: A = item.get.getOrElse(null.asInstanceOf[A])
 
@@ -59,12 +59,12 @@ class LastWriteWinsQueue[A] extends java.util.Queue[A] {
 
   def remove: A = item.getAndSet(None).getOrElse(throw new NoSuchElementException)
 
-  def offer(p1: A): _root_.scala.Boolean = {
+  def offer(p1: A): Boolean = {
     item.set(Some(p1))
     true
   }
 
-  def add(p1: A): _root_.scala.Boolean = {
+  def add(p1: A): Boolean = {
     item.set(Some(p1))
     true
   }

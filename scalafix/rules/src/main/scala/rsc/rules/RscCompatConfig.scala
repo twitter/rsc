@@ -5,12 +5,10 @@ package rsc.rules
 import metaconfig._
 import metaconfig.generic._
 
-case class RscCompatConfig(hardcoded: Map[String, String])
+case class RscCompatConfig(better: Boolean, hardcoded: Map[String, String])
 
 object RscCompatConfig {
-  lazy val default = RscCompatConfig(Map())
-  implicit val surface: Surface[RscCompatConfig] =
-    deriveSurface[RscCompatConfig]
-  implicit val decoder: ConfDecoder[RscCompatConfig] =
-    deriveDecoder[RscCompatConfig](default)
+  lazy val default = RscCompatConfig(better = false, hardcoded = Map())
+  implicit val surface: Surface[RscCompatConfig] = deriveSurface[RscCompatConfig]
+  implicit val decoder: ConfDecoder[RscCompatConfig] = deriveDecoder[RscCompatConfig](default)
 }

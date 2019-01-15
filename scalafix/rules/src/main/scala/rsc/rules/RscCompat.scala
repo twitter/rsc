@@ -8,12 +8,11 @@ import metaconfig._
 import rsc.rules.pretty._
 import rsc.rules.semantics._
 import rsc.rules.syntax._
+import rsc.rules.util.GlobalImports
 import scala.meta._
 import scala.meta.contrib._
 import scala.meta.internal.{semanticdb => s}
-import scalafix.internal.util._
 import scalafix.internal.v0._
-import scalafix.rule._
 import scalafix.syntax._
 import scalafix.util.TokenOps
 import scalafix.v0._
@@ -32,39 +31,83 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
 
   override def fix(ctx: RuleCtx): Patch = {
     val targets = collectRewriteTargets(ctx)
-    targets.map(ascribeReturnType(ctx, _)).asPatch
+
+    val typeAscriptions = targets.map(ascribeInferredType(ctx, _)).asPatch
+
+    val addedImports = if (config.better) {
+      new GlobalImports(ctx).addGlobalImports(addedImportsScope.importers)
+    } else {
+      Patch.empty
+    }
+
+    typeAscriptions + addedImports
   }
 
-  private case class RewriteTarget(
+  private val addedImportsScope: AddedImportsScope = new AddedImportsScope
+
+  private sealed trait RewriteTarget {
+    val name: Name
+  }
+
+  private final case class RewriteDefn(
       env: Env,
       before: Token,
       name: Name,
       after: Token,
       body: Term,
-      parens: Boolean)
+      parens: Boolean
+  ) extends RewriteTarget
+
+  private final case class RewriteInit(
+      env: Env,
+      name: Name,
+      parentCtor: Token
+  ) extends RewriteTarget
 
   private def collectRewriteTargets(ctx: RuleCtx): List[RewriteTarget] = {
     val buf = List.newBuilder[RewriteTarget]
-    def loop(env: Env, tree: Tree): Unit = {
+    def loop(env: Env, tree: Tree): Env = {
       tree match {
         case Source(stats) =>
-          stats.foreach(loop(env, _))
-        case Pkg(_, stats) =>
-          stats.foreach(loop(env, _))
+          val rootScope = PackageScope(index.symbols, "_root_/")
+          val javaLangScope = ImporterScope(index.symbols, "java/lang/", List(Importee.Wildcard()))
+          val scalaScope = ImporterScope(index.symbols, "scala/", List(Importee.Wildcard()))
+          val predefScope = ImporterScope(index.symbols, "scala/Predef.", List(Importee.Wildcard()))
+          val env1 = predefScope :: scalaScope :: javaLangScope :: rootScope :: env
+          stats.foldLeft(env1)(loop)
+        case Import(importers) =>
+          return importers.foldLeft(env)(loop)
+        case Importer(ref, importees) =>
+          return ImporterScope(index.symbols, ref.name.symbol.get.syntax, importees) :: env
+        case Pkg(ref, stats) =>
+          val env1 = PackageScope(index.symbols, ref.name.symbol.get.syntax) :: env
+          stats.foldLeft(env1)(loop)
         case Pkg.Object(_, name, templ) =>
-          loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
+          val env1 = TemplateScope(index.symbols, name.symbol.get.syntax) :: env
+          loop(env1, templ)
         case defn @ Defn.Class(_, name, _, _, templ) if defn.isVisible =>
-          loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
+          val env1 = TemplateScope(index.symbols, name.symbol.get.syntax) :: env
+
+          templ.inits.headOption.foreach { init =>
+            val tokens = init.tpe.tokens
+            // If type params of init may be inferred
+            if (!tokens.exists(_.is[Token.LeftBracket])) {
+              buf += RewriteInit(env, name, tokens.last)
+            }
+          }
+          loop(env1, templ)
         case defn @ Defn.Trait(_, name, _, _, templ) if defn.isVisible =>
-          loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
+          val env1 = TemplateScope(index.symbols, name.symbol.get.syntax) :: env
+          loop(env1, templ)
         case defn @ Defn.Object(_, name, templ) if defn.isVisible =>
-          loop(TemplateScope(name.symbol.get.syntax) :: env, templ)
+          val env1 = TemplateScope(index.symbols, name.symbol.get.syntax) :: env
+          loop(env1, templ)
         case Template(early, _, _, stats) =>
-          (early ++ stats).foreach(loop(env, _))
+          (early ++ stats).foldLeft(env)(loop)
         case defn @ InferredDefnField(name, body) if defn.isVisible =>
           val before = name.tokens.head
           val after = name.tokens.last
-          buf += RewriteTarget(env, before, name, after, body, parens = false)
+          buf += RewriteDefn(env, before, name, after, body, parens = false)
         case defn @ InferredDefnPat(fnames, pnames, body) if defn.isVisible =>
           if (fnames.nonEmpty) {
             val name = fnames.head
@@ -77,13 +120,13 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
                 .find(x => !x.is[Token.Equals] && !x.is[Trivia])
                 .get
             }
-            buf += RewriteTarget(env, before, name, after, body, parens = false)
+            buf += RewriteDefn(env, before, name, after, body, parens = false)
           }
           pnames.foreach { name =>
             val before = name.tokens.head
             val after = name.tokens.last
             // FIXME: https://github.com/twitter/rsc/issues/142
-            buf += RewriteTarget(env, before, name, after, body, parens = true)
+            buf += RewriteDefn(env, before, name, after, body, parens = true)
           }
         case defn @ InferredDefnDef(name, body) if defn.isVisible =>
           val before = name.tokens.head
@@ -95,64 +138,81 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
               .find(x => !x.is[Token.Equals] && !x.is[Trivia])
               .get
           }
-          buf += RewriteTarget(env, before, name, after, body, parens = false)
+          buf += RewriteDefn(env, before, name, after, body, parens = false)
         case _ =>
           ()
       }
+      env
     }
     loop(Env(Nil), ctx.tree)
     buf.result
   }
 
-  private def ascribeReturnType(ctx: RuleCtx, target: RewriteTarget): Patch = {
+  private def ascribeInferredType(ctx: RuleCtx, target: RewriteTarget): Patch = {
     try {
-      val returnTypeString = {
-        val symbol = target.name.symbol.get.syntax
-        config.hardcoded.get(symbol) match {
-          case Some(returnTypeString) =>
-            returnTypeString
-          case _ =>
-            val info = index.symbols(symbol)
-            target.body match {
-              case Term.ApplyType(Term.Name("implicitly"), _) if info.isImplicit =>
-                return Patch.empty
-              case Term.ApplyType(Term.Select(Term.Name("Bijection"), Term.Name("connect")), _)
-                  if info.isImplicit =>
-                return Patch.empty
-              case _ =>
-                val returnType = info.signature match {
-                  case s.MethodSignature(_, _, _: s.ConstantType) =>
-                    return Patch.empty
-                  case s.MethodSignature(_, _, returnType) =>
-                    returnType
-                  case s.ValueSignature(tpe) =>
-                    // FIXME: https://github.com/scalameta/scalameta/issues/1725
-                    tpe
-                  case other =>
-                    val details = other.asMessage.toProtoString
-                    sys.error(s"unsupported outline: $details")
-                }
-                val printer = new SemanticdbPrinter(target.env, index)
-                printer.pprint(returnType)
-                printer.toString
-            }
-        }
-      }
-      if (returnTypeString.nonEmpty) {
-        val before = {
-          val lparenOpt = if (target.parens) "(" else ""
-          ctx.addLeft(target.before, lparenOpt)
-        }
-        val after = {
-          val whitespaceOpt = {
-            if (TokenOps.needsLeadingSpaceBeforeColon(target.after)) " "
-            else ""
+      val symbol = target.name.symbol.get.syntax
+      val typeString = config.hardcoded.get(symbol) match {
+        case Some(typeString) =>
+          typeString
+
+        case _ =>
+          val info = index.symbols(symbol)
+          target match {
+            case target: RewriteDefn =>
+              target.body match {
+                case Term.ApplyType(Term.Name("implicitly"), _) if info.isImplicit =>
+                  return Patch.empty
+                case Term.ApplyType(Term.Select(Term.Name("Bijection"), Term.Name("connect")), _)
+                    if info.isImplicit =>
+                  return Patch.empty
+                case _ =>
+                  val returnType = info.signature match {
+                    case s.MethodSignature(_, _, _: s.ConstantType) =>
+                      return Patch.empty
+                    case s.MethodSignature(_, _, returnType) =>
+                      returnType
+                    case s.ValueSignature(tpe) =>
+                      // FIXME: https://github.com/scalameta/scalameta/issues/1725
+                      tpe
+                    case other =>
+                      val details = other.asMessage.toProtoString
+                      sys.error(s"unsupported outline: $details")
+                  }
+                  val printer = new SemanticdbPrinter(target.env, addedImportsScope, index, config)
+                  printer.pprint(returnType)
+                  printer.toString
+              }
+
+            case target: RewriteInit =>
+              info.signature match {
+                case s.ClassSignature(_, (parent: s.TypeRef) +: _, _, _) =>
+                  val printer = new SemanticdbPrinter(target.env, addedImportsScope, index, config)
+                  printer.rep("[", parent.typeArguments, ", ", "]")(printer.pprint)
+                  printer.toString
+              }
           }
-          val ascription = s": $returnTypeString"
-          val rparenOpt = if (target.parens) ")" else ""
-          ctx.addRight(target.after, whitespaceOpt + ascription + rparenOpt)
+      }
+      if (typeString.nonEmpty) {
+        target match {
+          case target: RewriteDefn =>
+            val before = {
+              val lparenOpt = if (target.parens) "(" else ""
+              ctx.addLeft(target.before, lparenOpt)
+            }
+            val after = {
+              val whitespaceOpt = {
+                if (TokenOps.needsLeadingSpaceBeforeColon(target.after)) " "
+                else ""
+              }
+              val ascription = s": $typeString"
+              val rparenOpt = if (target.parens) ")" else ""
+              ctx.addRight(target.after, whitespaceOpt + ascription + rparenOpt)
+            }
+            before + after
+
+          case target: RewriteInit =>
+            ctx.addRight(target.parentCtor, typeString)
         }
-        before + after
       } else {
         Patch.empty
       }

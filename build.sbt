@@ -142,9 +142,13 @@ lazy val scalafixRules = project
 lazy val scalafixTests = project
   .in(file("scalafix/tests"))
   .dependsOn(scalafixInput, scalafixRules)
+  .enablePlugins(ScalafixTestkitPlugin)
   .settings(
     commonSettings,
-    libraryDependencies += "ch.epfl.scala" % "scalafix-testkit" % V.scalafix % Test cross CrossVersion.full
+    libraryDependencies += "ch.epfl.scala" % "scalafix-testkit" % V.scalafix % Test cross CrossVersion.full,
+    scalafixTestkitOutputSourceDirectories := sourceDirectories.in(scalafixOutput, Compile).value,
+    scalafixTestkitInputSourceDirectories := sourceDirectories.in(scalafixInput, Compile).value,
+    scalafixTestkitInputClasspath := fullClasspath.in(scalafixInput, Compile).value
   )
 
 lazy val scalasig = project

@@ -4,6 +4,7 @@ import java.util.concurrent.CancellationException
 import java.util.logging.Logger
 
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * A "batcher" that takes a function `Seq[In] => Future[Seq[Out]]` and
@@ -31,13 +32,13 @@ private[util] class BatchExecutor[In, Out](
   sizePercentile: => Float = 1.0f,
   f: Seq[In] => Future[Seq[Out]]
 )(
-  implicit timer: Timer
-) extends Function1[In, Future[Out]] { batcher =>
+  implicit timer: Timer)
+    extends Function1[In, Future[Out]] { batcher =>
   import java.util.logging.Level.WARNING
 
   class ScheduledFlush(after: Duration, timer: Timer) {
-    @volatile var cancelled: _root_.scala.Boolean = false
-    val task: _root_.com.twitter.util.TimerTask = timer.schedule(after.fromNow) { flush() }
+    @volatile var cancelled: Boolean = false
+    val task: TimerTask = timer.schedule(after.fromNow) { flush() }
 
     def cancel(): Unit = {
       cancelled = true
@@ -55,14 +56,14 @@ private[util] class BatchExecutor[In, Out](
     }
   }
 
-  val log: _root_.java.util.logging.Logger = Logger.getLogger("Future.batched")
+  val log: Logger = Logger.getLogger("Future.batched")
 
   // operations on these are synchronized on `this`.
-  val buf: _root_.scala.collection.mutable.ArrayBuffer[_root_.scala.Tuple2[In, _root_.com.twitter.util.Promise[Out]]] = new mutable.ArrayBuffer[(In, Promise[Out])](sizeThreshold)
+  val buf: ArrayBuffer[Tuple2[In, Promise[Out]]] = new mutable.ArrayBuffer[(In, Promise[Out])](sizeThreshold)
   var scheduled: Option[ScheduledFlush] = scala.None
-  var currentBufThreshold: _root_.scala.Int = newBufThreshold
+  var currentBufThreshold: Int = newBufThreshold
 
-  def currentBufPercentile: _root_.scala.Float = sizePercentile match {
+  def currentBufPercentile: Float = sizePercentile match {
     case tooHigh if tooHigh > 1.0f =>
       log.log(WARNING, "value returned for sizePercentile (%f) was > 1.0f, using 1.0", tooHigh)
       1.0f
@@ -74,7 +75,7 @@ private[util] class BatchExecutor[In, Out](
     case p => p
   }
 
-  def newBufThreshold: _root_.scala.Int =
+  def newBufThreshold: Int =
     math.round(currentBufPercentile * sizeThreshold) match {
       case tooLow if tooLow < 1 => 1
       case size => math.min(size, sizeThreshold)

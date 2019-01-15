@@ -117,7 +117,8 @@ object RscCompat_Test {
     val compoundType6: _root_.scala.AnyRef with _root_.rsc.tests.RscCompat_Test.TypesHelpers.A with _root_.rsc.tests.RscCompat_Test.TypesHelpers.B { def k: _root_.scala.Int } = new A with B { def k: Int = ??? }
     val compoundType7: _root_.rsc.tests.RscCompat_Test.TypesHelpers.A with (_root_.scala.collection.immutable.List[T] forSome { type T }) with _root_.rsc.tests.RscCompat_Test.TypesHelpers.B = ??? : A with (List[T] forSome { type T }) with B
 
-    val annType1: _root_.rsc.tests.RscCompat_Test.TypesHelpers.C @_root_.rsc.tests.RscCompat_Test.TypesHelpers.ann = ??? : C @ann
+    // FIXME: https://github.com/twitter/rsc/issues/317
+    // val annType1 = ??? : C @ann
 
     val existentialType1: _root_.scala.Any = ??? : T forSome { type T }
     val existentialType2: _root_.scala.collection.immutable.List[_root_.scala.Any] = ??? : List[_]

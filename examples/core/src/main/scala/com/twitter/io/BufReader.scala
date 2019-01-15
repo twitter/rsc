@@ -1,32 +1,55 @@
 package com.twitter.io
 
-import com.twitter.util.{Future, Return, Try, Throw}
+import com.twitter.util.{Future, Return, Try, Throw, ConstFuture, Promise}
 
 /**
- * Construct a Reader from a Buf.
+ * Construct a [[Reader]] from a [[Buf]].
  */
-private[io] class BufReader(buf: Buf) extends Reader {
-  @volatile private[this] var state: Try[Buf] = Return(buf)
+private[io] final class BufReader(buf: Buf, chunkSize: Int) extends Reader[Buf] {
+  private[this] var state: Try[Buf] = Return(buf)
+  private[this] val closep = Promise[StreamTermination]()
 
-  def read(n: Int): _root_.com.twitter.util.Future[_root_.scala.Option[_root_.com.twitter.io.Buf]] = synchronized {
-    state match {
-      case Return(buf) =>
-        if (buf.isEmpty) Future.None
-        else {
-          val f = Future.value(Some(buf.slice(0, n)))
-          state = Return(buf.slice(n, Int.MaxValue))
-          f
-        }
-      case Throw(exc) => Future.exception(exc)
+  def read(): Future[Option[Buf]] = {
+    val result: Future[Option[Buf]] = synchronized {
+      state match {
+        case Return(Buf.Empty) => Future.None
+        case Return(b) =>
+          state = Return(b.slice(chunkSize, Int.MaxValue))
+          Future.value(Some(b.slice(0, chunkSize)))
+
+        case t: Throw[_] =>
+          new ConstFuture[Option[Buf]](t.cast[Option[Buf]])
+      }
     }
+    if (result eq Future.None) {
+      closep.updateIfEmpty(StreamTermination.FullyRead.Return)
+    }
+    result
   }
 
-  def discard(): _root_.scala.Unit = synchronized {
-    state = Throw(new Reader.ReaderDiscarded)
+  def discard(): Unit = {
+    synchronized {
+      state = Throw(new ReaderDiscardedException)
+    }
+    closep.updateIfEmpty(StreamTermination.Discarded.Return)
   }
+
+  def onClose: Future[StreamTermination] = closep
 }
 
 object BufReader {
-  def apply(buf: Buf): Reader =
-    if (buf.isEmpty) Reader.Null else new BufReader(buf)
+
+  /**
+   * Creates a [[BufReader]] out of a given `buf`. The resulting [[Reader]] emits chunks of at
+   * most `Int.MaxValue` bytes.
+   */
+  def apply(buf: Buf): Reader[Buf] =
+    apply(buf, Int.MaxValue)
+
+  /**
+   * Creates a [[BufReader]] out of a given `buf`. The result [[Reader]] emits chunks of at most
+   * `chunkSize`.
+   */
+  def apply(buf: Buf, chunkSize: Int): Reader[Buf] =
+    if (buf.isEmpty) Reader.empty[Buf] else new BufReader(buf, chunkSize)
 }

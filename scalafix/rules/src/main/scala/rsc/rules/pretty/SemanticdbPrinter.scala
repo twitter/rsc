@@ -5,79 +5,21 @@ package rsc.rules.pretty
 
 import rsc.lexis.scala._
 import rsc.pretty._
+import rsc.rules._
 import rsc.rules.semantics._
 import scala.collection.mutable
-import scala.meta._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
+import scala.meta.internal.semanticdb.Scala.{Names => n}
 import scalafix.internal.v0._
 
-class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
-  def pprint(tree: s.Tree): Unit = tree match {
-    case s.OriginalTree(range) =>
-      str(index.substring(range).get)
-    case s.ApplyTree(fn, args) =>
-      pprint(fn)
-      rep("(", args, ", ", ")")(pprint)
-    case s.TypeApplyTree(fn, targs) =>
-      pprint(fn)
-      rep("[", targs, ", ", "]")(pprint)
-    case s.SelectTree(qual, id) =>
-      // FIXME: https://github.com/twitter/rsc/issues/142
-      val needsParens = qual match {
-        case s.OriginalTree(range) =>
-          val originalTerm = index.substring(range).get.parse[Term].get
-          originalTerm match {
-            case _: Term.ApplyInfix => true
-            case _ => false
-          }
-        case _ => false
-      }
-      if (needsParens) str("(")
-      pprint(qual)
-      if (needsParens) str(")")
-      str(".")
-      pprint(id.get.symbol)
-    case s.IdTree(sym) =>
-      sym.owner.desc match {
-        case d.None =>
-          pprint(sym)
-        case _: d.Package | _: d.Term =>
-          pprint(s.SelectTree(s.IdTree(sym.owner), Some(s.IdTree(sym))))
-        case d.Type(name) =>
-          if (env.lookupThis(name) == sym.owner) {
-            pprint(sym.owner)
-            str(".this.")
-            pprint(sym)
-          } else {
-            // TODO: This looks incorrect.
-            // str(".")
-            ???
-          }
-        case desc => sys.error(s"unsupported desc $desc")
-      }
-    case s.FunctionTree(params, term) =>
-      str("{")
-      params match {
-        case Seq() => str("() => ")
-        case Seq(id) =>
-          pprint(id.symbol)
-          str(" => ")
-        case _ =>
-          rep("(", params, ", ", ") => ")(id => pprint(id.symbol))
-      }
-      pprint(term)
-      str("}")
-    case s.MacroExpansionTree(expandee, _) =>
-      expandee match {
-        case s.ApplyTree(s.IdTree("scala/reflect/package.materializeClassTag()."), Nil) =>
-          str("_root_.scala.reflect.`package`.classTag")
-        case _ =>
-          pprint(expandee)
-      }
-    case _ => sys.error(s"unsupported tree $tree")
-  }
+class SemanticdbPrinter(
+    env: Env,
+    addedImportsScope: AddedImportsScope,
+    index: DocumentIndex,
+    config: RscCompatConfig
+) extends Printer {
 
   def pprint(tpe: s.Type): Unit = {
     def prefix(tpe: s.Type): Unit = {
@@ -97,24 +39,57 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
             str(" => ")
             normal(ret)
           } else {
-            val prettyPre = if (pre == s.NoType) sym.trivialPrefix(env) else pre
-            prettyPre match {
-              case _: s.SingleType | _: s.ThisType | _: s.SuperType =>
-                prefix(prettyPre)
-                str(".")
-              case s.NoType =>
-                ()
-              case _ =>
-                prefix(prettyPre)
-                str("#")
+            // TODO: At the moment, we return None for local symbols, since they don't have a desc.
+            // The logic to improve on this is left for future work.
+            val name = sym.desc match {
+              case d.Term(value) => Some(n.TermName(value))
+              case d.Type(value) => Some(n.TypeName(value))
+              case d.Package(value) => Some(n.TermName(value))
+              case d.Parameter(value) => Some(n.TermName(value))
+              case d.TypeParameter(value) => Some(n.TypeName(value))
+              case other => None
+            }
+            def printPrettyPrefix: Unit = {
+              val prettyPre = if (pre == s.NoType) sym.trivialPrefix(env) else pre
+              prettyPre match {
+                case _: s.SingleType | _: s.ThisType | _: s.SuperType =>
+                  prefix(prettyPre)
+                  str(".")
+                case s.NoType =>
+                  ()
+                case _ =>
+                  prefix(prettyPre)
+                  str("#")
+              }
+            }
+            if (config.better) {
+              name.map(fullEnv.lookup) match {
+                case Some(x) if !index.symbols.equivalent(x, sym) =>
+                  if (x.isEmpty && pre == s.NoType) {
+                    addedImportsScope.addImport(sym)
+                  } else {
+                    printPrettyPrefix
+                  }
+                case _ =>
+                  ()
+              }
+            } else {
+              printPrettyPrefix
             }
             pprint(sym)
             rep("[", args, ", ", "]")(normal)
           }
         case s.SingleType(pre, sym) =>
-          val prettyPre = if (pre == s.NoType) sym.trivialPrefix(env) else pre
-          opt(prettyPre, ".")(prefix)
-          pprint(sym)
+          if (config.better && index.symbols.equivalent(fullEnv.lookup(sym.desc.name), sym)) {
+            str(sym.desc.value)
+          } else if (config.better && fullEnv.lookup(sym.desc.name).isEmpty) {
+            addedImportsScope.addImport(sym)
+            str(sym.desc.value)
+          } else {
+            val prettyPre = if (pre == s.NoType) sym.trivialPrefix(env) else pre
+            opt(prettyPre, ".")(prefix)
+            pprint(sym)
+          }
         case s.ThisType(sym) =>
           opt(sym, ".")(pprint)
           str("this")
@@ -175,6 +150,8 @@ class SemanticdbPrinter(env: Env, index: DocumentIndex) extends Printer {
     }
     normal(tpe)
   }
+
+  private val fullEnv = Env(env.scopes :+ addedImportsScope)
 
   private def pprint(sym: String): Unit = {
     val printableName = {

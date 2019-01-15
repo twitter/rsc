@@ -8,8 +8,6 @@ abstract class SemanticdbRule(legacyIndex: SemanticdbIndex, name: String)
     extends SemanticRule(legacyIndex, name) {
 
   lazy val index: DocumentIndex = {
-    val scalafixDoc = legacyIndex.asInstanceOf[LegacySemanticdbIndex].doc
-    val semanticdbDoc = scalafixDoc.internal.textDocument
-    new DocumentIndex(semanticdbDoc)
+    new DocumentIndex(legacyIndex.asInstanceOf[LegacySemanticdbIndex])
   }
 }

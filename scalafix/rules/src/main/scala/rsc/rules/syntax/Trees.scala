@@ -117,4 +117,14 @@ trait Trees {
       }
     }
   }
+
+  implicit class RefOps(ref: Ref) {
+    def name: Name = {
+      ref match {
+        case name: Term.Name => name
+        case ref: Term.Select => ref.name
+        case other => sys.error(other.toString)
+      }
+    }
+  }
 }

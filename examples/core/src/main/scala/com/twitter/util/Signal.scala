@@ -21,7 +21,7 @@ import java.lang.reflect.{InvocationHandler, Method, Proxy}
 import scala.collection.{Map, Set, mutable}
 
 object SignalHandlerFactory {
-  def apply(): _root_.scala.Option[_root_.com.twitter.util.SunSignalHandler] = {
+  def apply(): Option[SunSignalHandler] = {
     // only one actual implementation for now
     SunSignalHandler.instantiate
   }
@@ -32,7 +32,7 @@ trait SignalHandler {
 }
 
 object SunSignalHandler {
-  def instantiate(): _root_.scala.Option[_root_.com.twitter.util.SunSignalHandler] = {
+  def instantiate(): Option[SunSignalHandler] = {
     try {
       Class.forName("sun.misc.Signal")
       Some(new SunSignalHandler())

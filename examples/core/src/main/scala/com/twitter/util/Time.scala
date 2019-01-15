@@ -156,20 +156,17 @@ trait TimeLike[This <: TimeLike[This]] extends Ordered[This] { self: This =>
   def inMillis: Long = inMilliseconds // (Backwards compatibility)
 
   /**
-   * Returns a value/`TimeUnit` pair; attempting to return coarser
-   * grained values if possible (specifically: `TimeUnit.SECONDS` or
-   * `TimeUnit.MILLISECONDS`) before resorting to the default
+   * Returns a value/`TimeUnit` pair; attempting to return coarser grained
+   * values if possible (specifically: `TimeUnit.MINUTES`, `TimeUnit.SECONDS`
+   * or `TimeUnit.MILLISECONDS`) before resorting to the default
    * `TimeUnit.NANOSECONDS`.
    */
-  def inTimeUnit: (Long, TimeUnit) = {
+  def inTimeUnit: (Long, TimeUnit) = inNanoseconds match {
     // allow for APIs that may treat TimeUnit differently if measured in very tiny units.
-    if (inNanoseconds % Duration.NanosPerSecond == 0) {
-      (inSeconds, TimeUnit.SECONDS)
-    } else if (inNanoseconds % Duration.NanosPerMillisecond == 0) {
-      (inMilliseconds, TimeUnit.MILLISECONDS)
-    } else {
-      (inNanoseconds, TimeUnit.NANOSECONDS)
-    }
+    case ns if ns % Duration.NanosPerMinute == 0 => (inMinutes, TimeUnit.MINUTES)
+    case ns if ns % Duration.NanosPerSecond == 0 => (inSeconds, TimeUnit.SECONDS)
+    case ns if ns % Duration.NanosPerMillisecond == 0 => (inMilliseconds, TimeUnit.MILLISECONDS)
+    case ns => (ns, TimeUnit.NANOSECONDS)
   }
 
   /**
@@ -225,7 +222,8 @@ trait TimeLike[This <: TimeLike[This]] extends Ordered[This] { self: This =>
   def floor(increment: Duration): This = (this, increment) match {
     case (num, ns) if num.isZero && ns.isZero => Undefined
     case (num, ns) if num.isFinite && ns.isZero => if (num.inNanoseconds < 0) Bottom else Top
-    case (num, denom) if num.isFinite && denom.isFinite =>  fromNanoseconds((num.inNanoseconds / denom.inNanoseconds) * denom.inNanoseconds)
+    case (num, denom) if num.isFinite && denom.isFinite =>
+      fromNanoseconds((num.inNanoseconds / denom.inNanoseconds) * denom.inNanoseconds)
     case (self, n) if n.isFinite => self
     case (_, _) => Undefined
   }
@@ -403,8 +401,8 @@ object Time extends TimeLikeOps[Time] {
   /**
    * Note, this should only ever be updated by methods used for testing.
    */
-  private[util] val localGetTime: _root_.com.twitter.util.Local[_root_.scala.Function0[_root_.com.twitter.util.Time]] = new Local[() => Time]
-  private[util] val localGetTimer: _root_.com.twitter.util.Local[_root_.com.twitter.util.MockTimer] = new Local[MockTimer]
+  private[util] val localGetTime: Local[scala.Function0[Time]] = new Local[() => Time]
+  private[util] val localGetTimer: Local[MockTimer] = new Local[MockTimer]
 
   /**
    * Creates a [[Time]] instance of the given [[Date]].
@@ -507,8 +505,7 @@ trait TimeControl {
 class TimeFormat(
   pattern: String,
   locale: Option[Locale],
-  timezone: TimeZone = TimeZone.getTimeZone("UTC")
-) {
+  timezone: TimeZone = TimeZone.getTimeZone("UTC")) {
 
   // jdk6 and jdk7 pick up the default locale differently in SimpleDateFormat,
   // so we can't rely on Locale.getDefault here.
@@ -553,7 +550,7 @@ class TimeFormat(
  * @see [[TimeFormat]] for converting to and from `String` representations.
  */
 sealed class Time private[util] (protected val nanos: Long) extends {
-  protected val ops: _root_.com.twitter.util.Time.type = Time
+  protected val ops: Time.type = Time
 } with TimeLike[Time] with Serializable {
   import ops._
 

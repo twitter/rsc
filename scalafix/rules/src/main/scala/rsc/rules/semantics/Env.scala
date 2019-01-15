@@ -3,19 +3,18 @@
 package rsc.rules.semantics
 
 import scala.meta.internal.semanticdb.Scala._
-
-// FIXME: https://github.com/twitter/rsc/issues/141
+import scala.meta.internal.semanticdb.Scala.{Names => n}
 
 case class Env(scopes: List[Scope]) {
   def ::(scope: Scope): Env = {
     Env(scope :: scopes)
   }
 
-  def lookupThis(name: String): String = {
+  def lookup(name: n.Name): String = {
     def loop(scopes: List[Scope]): String = {
       scopes match {
         case head :: tail =>
-          val sym = head.lookupThis(name)
+          val sym = head.lookup(name)
           if (sym.isNone) loop(tail)
           else sym
         case Nil =>
@@ -23,5 +22,24 @@ case class Env(scopes: List[Scope]) {
       }
     }
     loop(scopes)
+  }
+
+  def lookupThis(value: String): String = {
+    def loop(scopes: List[Scope]): String = {
+      scopes match {
+        case TemplateScope(_, sym) :: tail =>
+          if (sym.desc.value == value) sym
+          else loop(tail)
+        case _ :: tail =>
+          loop(tail)
+        case Nil =>
+          Symbols.None
+      }
+    }
+    loop(scopes)
+  }
+
+  override def toString: String = {
+    scopes.reverse.mkString(", ")
   }
 }

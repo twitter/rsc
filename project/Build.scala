@@ -159,12 +159,13 @@ object Build extends AutoPlugin {
       args += "--tool-classpath"
       args += toolClasspath.map(_.data.absolutePath).mkString(pathSeparator)
       args += "--classpath"
-      args +=
-        products.in(Compile).value.map(_.absolutePath).mkString(pathSeparator)
+      args += fullClasspath.in(Compile).value.map(_.data.absolutePath).mkString(pathSeparator)
       args += "--sourceroot"
       args += buildRoot.absolutePath
       args += "--rules"
       args += "scala:rsc.rules.RscCompat"
+      args += "--config"
+      args += s"${buildRoot.absolutePath}/.scalafix.conf"
       args += baseDirectory.value.absolutePath
       scalafix(args.result, baseDirectory.value)
     }

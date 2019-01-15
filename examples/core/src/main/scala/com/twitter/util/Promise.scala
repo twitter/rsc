@@ -54,7 +54,7 @@ object Promise {
   /**
    * A persistent queue of continuations (i.e., `K`).
    */
-  private[util] sealed trait WaitQueue[-A] {
+  private[util] sealed abstract class WaitQueue[-A] {
     def first: K[A]
     def rest: WaitQueue[A]
 
@@ -124,9 +124,10 @@ object Promise {
    *       it will make "Linked" and "Waiting" state cases ambiguous. This, however,
    *       may change following the further performance improvements.
    */
-  private[util] trait K[-A] extends (Try[A] => Unit) with WaitQueue[A] {
+  private[util] abstract class K[-A] extends WaitQueue[A] {
     final def first: K[A] = this
     final def rest: WaitQueue[A] = WaitQueue.empty
+    def apply(r: Try[A]): Unit
   }
 
   /**
@@ -172,16 +173,12 @@ object Promise {
       with Detachable
       with (Try[A] => Unit) {
 
-    private[this] var detached: Boolean = false
+    // 0 represents not yet detached, 1 represents detached.
+    @volatile
+    private[this] var alreadyDetached: Int = 0
 
-    def detach(): Boolean = synchronized {
-      if (detached) {
-        false
-      } else {
-        detached = true
-        true
-      }
-    }
+    def detach(): Boolean =
+      unsafe.compareAndSwapInt(this, detachedFutureOffset, 0, 1)
 
     def apply(result: Try[A]): Unit = if (detach()) update(result)
 
@@ -196,13 +193,31 @@ object Promise {
    * @param k the closure to invoke in the saved context, with the
    * provided result
    */
-  private class Monitored[A](saved: Local.Context, k: Try[A] => Unit) extends K[A] {
+  private final class Monitored[A](saved: Local.Context, k: Try[A] => Unit) extends K[A] {
     def apply(result: Try[A]): Unit = {
       val current = Local.save()
-      Local.restore(saved)
+      if (current ne saved)
+        Local.restore(saved)
       try k(result)
       catch Monitor.catcher
       finally Local.restore(current)
+    }
+  }
+
+  private abstract class Transformer[A, B](saved: Local.Context) extends K[A] {
+
+    protected[this] def k(r: Try[A]): Unit
+
+    final def apply(result: Try[A]): Unit = {
+      val current = Local.save()
+      if (current ne saved)
+        Local.restore(saved)
+      try k(result)
+      catch {
+        case t: Throwable =>
+          Monitor.handle(t)
+          throw t
+      } finally Local.restore(current)
     }
   }
 
@@ -210,16 +225,17 @@ object Promise {
    * A transforming continuation.
    *
    * @param saved The saved local context of the invocation site
-   * @param promise The Promise for the transformed value
    * @param f The closure to invoke to produce the Future of the transformed value.
+   * @param promise The Promise for the transformed value
    */
-  private class Transformer[A, B](
+  private final class FutureTransformer[A, B](
     saved: Local.Context,
-    promise: Promise[B],
-    f: Try[A] => Future[B]
-  ) extends K[A] {
+    f: Try[A] => Future[B],
+    promise: Promise[B])
+      extends Transformer[A, B](saved) {
 
-    private[this] def k(r: Try[A]): Unit = {
+    protected[this] def k(r: Try[A]): Unit =
+      // The promise can be fulfilled only by the transformer, so it's safe to use `become` here
       promise.become(
         try f(r)
         catch {
@@ -227,17 +243,23 @@ object Promise {
           case NonFatal(e) => Future.exception(e)
         }
       )
-    }
+  }
 
-    def apply(result: Try[A]): Unit = {
-      val current = Local.save()
-      Local.restore(saved)
-      try k(result)
-      catch {
-        case t: Throwable =>
-          Monitor.handle(t)
-          throw t
-      } finally Local.restore(current)
+  private final class TryTransformer[A, B](
+    saved: Local.Context,
+    f: Try[A] => Try[B],
+    promise: Promise[B])
+      extends Transformer[A, B](saved) {
+
+    protected[this] def k(r: Try[A]): Unit = {
+      // The promise can be fulfilled only by the transformer, so it's safe to use `update` here
+      promise.update(
+        try f(r)
+        catch {
+          case e: NonLocalReturnControl[_] => Throw(new FutureNonLocalReturnControl(e))
+          case NonFatal(e) => Throw(e)
+        }
+      )
     }
   }
 
@@ -257,8 +279,7 @@ object Promise {
    */
   private class Interruptible[A](
     val waitq: WaitQueue[A],
-    val handler: PartialFunction[Throwable, Unit]
-  )
+    val handler: PartialFunction[Throwable, Unit])
 
   /**
    * An unsatisfied [[Promise]] which forwards interrupts to `other`.
@@ -277,6 +298,10 @@ object Promise {
   private val unsafe: sun.misc.Unsafe = Unsafe()
   private val stateOff: Long =
     unsafe.objectFieldOffset(classOf[Promise[_]].getDeclaredField("state"))
+
+  private val detachedFutureOffset: Long =
+    unsafe.objectFieldOffset(classOf[DetachableFuture[_]].getDeclaredField("alreadyDetached"))
+
   private val AlwaysUnit: Any => Unit = _ => ()
 
   sealed trait Responder[A] { this: Future[A] =>
@@ -304,7 +329,15 @@ object Promise {
     def transform[B](f: Try[A] => Future[B]): Future[B] = {
       val promise = interrupts[B](this)
 
-      continue(new Transformer(Local.save(), promise, f))
+      continue(new FutureTransformer(Local.save(), f, promise))
+
+      promise
+    }
+
+    protected def transformTry[B](f: Try[A] => Try[B]): Future[B] = {
+      val promise = interrupts[B](this)
+
+      continue(new TryTransformer(Local.save(), f, promise))
 
       promise
     }
@@ -327,9 +360,7 @@ object Promise {
    * @see [[interrupts(Future, Future)]]
    * @see [[interrupts(Future*)]]
    */
-  def interrupts[A](f: Future[_]): Promise[A] = new Promise[A] {
-    forwardInterruptsTo(f)
-  }
+  def interrupts[A](f: Future[_]): Promise[A] = new Promise[A](f)
 
   /**
    * Create a promise that interrupts `a` and `b` futures. In particular:
@@ -427,6 +458,11 @@ class Promise[A] extends Future[A] with Promise.Responder[A] with Updatable[Try[
   // - Promise[A]
   @volatile private[this] var state: Any = WaitQueue.empty[A]
   private def theState(): Any = state
+
+  private[util] def this(forwardInterrupts: Future[_]) {
+    this()
+    this.state = new Transforming[A](WaitQueue.empty, forwardInterrupts)
+  }
 
   def this(handleInterrupt: PartialFunction[Throwable, Unit]) {
     this()
@@ -785,7 +821,7 @@ class Promise[A] extends Future[A] with Promise.Responder[A] with Updatable[Try[
       val target = p.compress()
       // due to the assumptions stated above regarding when this can be called,
       // there should never be a `cas` fail.
-      cas(p, target)
+      state = target
       target
 
     case _ => this
