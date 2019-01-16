@@ -5,7 +5,7 @@
 
 package scala.tools.jardiff
 
-import java.io.{File, OutputStream}
+import java.io.{IOException, File, OutputStream}
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 
@@ -25,7 +25,30 @@ final class JarDiff(files: List[List[Path]], config: JarDiff.Config, renderers: 
       Git.init.setDirectory(targetBase.toFile).call
 
     def renderAndCommit(fs: List[Path]): RevCommit = {
-      git.rm().setCached(true).addFilepattern(".")
+      // FIXME: https://github.com/twitter/rsc/issues/323
+      // git.rm().addFilepattern(".").call()
+      val rm = git.rm()
+      var actionable = false
+      Files.walkFileTree(targetBase, new SimpleFileVisitor[Path] {
+        override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = {
+          if (dir.getFileName.toString == ".git") FileVisitResult.SKIP_SUBTREE
+          else super.preVisitDirectory(dir, attrs)
+        }
+        override def postVisitDirectory(dir: Path, ex: IOException): FileVisitResult = {
+          if (dir != targetBase) {
+            Files.delete(dir)
+            rm.addFilepattern(targetBase.relativize(dir).toString)
+          }
+          super.postVisitDirectory(dir, ex)
+        }
+        override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+          Files.delete(file)
+          actionable = true
+          rm.addFilepattern(targetBase.relativize(file).toString)
+          super.visitFile(file, attrs)
+        }
+      })
+      if (actionable) rm.call()
 
       for (f <- fs) {
         val root = IOUtil.rootPath(f)
