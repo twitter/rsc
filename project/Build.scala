@@ -55,6 +55,7 @@ object Build extends AutoPlugin {
       "bench",
       "check",
       "examplesCore",
+      "examplesOriginalCore",
       "examplesDependencies",
       "examplesFunction",
       "examplesSemantic",
