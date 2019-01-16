@@ -1,6 +1,5 @@
 /*
 rules = "scala:rsc.rules.RscCompat"
-RscCompat.better = true
  */
 package rsc.tests
 
