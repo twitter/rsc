@@ -442,7 +442,7 @@ private object UpdatableVar {
     def :=(newv: T): State[T] = copy(value = newv, version = version + 1)
   }
 
-  implicit def order[T]: Object with Ordering[Party[T]] = new Ordering[Party[T]] {
+  implicit def order[T]: Ordering[Party[T]] = new Ordering[Party[T]] {
     // This is safe because observers are compared
     // only from the same counter.
     def compare(a: Party[T], b: Party[T]): Int = {

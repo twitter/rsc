@@ -8,7 +8,7 @@ import metaconfig.generic._
 case class RscCompatConfig(better: Boolean, hardcoded: Map[String, String])
 
 object RscCompatConfig {
-  lazy val default = RscCompatConfig(better = false, hardcoded = Map())
+  lazy val default = RscCompatConfig(better = true, hardcoded = Map())
   implicit val surface: Surface[RscCompatConfig] = deriveSurface[RscCompatConfig]
   implicit val decoder: ConfDecoder[RscCompatConfig] = deriveDecoder[RscCompatConfig](default)
 }

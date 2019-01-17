@@ -96,6 +96,16 @@ lazy val examplesFunction = project
   .in(file("examples/function"))
   .settings(commonSettings)
 
+lazy val examplesOriginalCore = project
+  .in(file("examples/original/core"))
+  .dependsOn(examplesFunction)
+  .settings(
+    commonSettings,
+    semanticdbSettings,
+    libraryDependencies += "org.scala-lang" % "scala-reflect" % V.scala,
+    libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
+  )
+
 lazy val examplesSemantic = project
   .in(file("examples/semantic"))
   .dependsOn(examplesDependencies)
@@ -146,9 +156,15 @@ lazy val scalafixTests = project
   .settings(
     commonSettings,
     libraryDependencies += "ch.epfl.scala" % "scalafix-testkit" % V.scalafix % Test cross CrossVersion.full,
-    scalafixTestkitOutputSourceDirectories := sourceDirectories.in(scalafixOutput, Compile).value,
-    scalafixTestkitInputSourceDirectories := sourceDirectories.in(scalafixInput, Compile).value,
-    scalafixTestkitInputClasspath := fullClasspath.in(scalafixInput, Compile).value
+    scalafixTestkitOutputSourceDirectories :=
+      sourceDirectories.in(scalafixOutput, Compile).value ++
+        sourceDirectories.in(examplesCore, Compile).value,
+    scalafixTestkitInputSourceDirectories :=
+      sourceDirectories.in(scalafixInput, Compile).value ++
+        sourceDirectories.in(examplesOriginalCore, Compile).value,
+    scalafixTestkitInputClasspath :=
+      fullClasspath.in(scalafixInput, Compile).value ++
+        fullClasspath.in(examplesOriginalCore, Compile).value
   )
 
 lazy val scalasig = project
