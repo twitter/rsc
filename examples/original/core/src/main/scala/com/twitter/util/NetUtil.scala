@@ -1,3 +1,6 @@
+/*
+rules = "scala:rsc.rules.RscCompat"
+ */
 package com.twitter.util
 
 import java.net.{Inet4Address, InetAddress, UnknownHostException}

@@ -1,3 +1,6 @@
+/*
+rules = "scala:rsc.rules.RscCompat"
+ */
 package com.twitter.io
 
 import java.io.{ByteArrayOutputStream, InputStream, OutputStream}

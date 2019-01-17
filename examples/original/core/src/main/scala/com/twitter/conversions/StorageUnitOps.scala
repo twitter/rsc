@@ -1,3 +1,6 @@
+/*
+rules = "scala:rsc.rules.RscCompat"
+ */
 package com.twitter.conversions
 
 import com.twitter.util.StorageUnit

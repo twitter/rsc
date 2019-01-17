@@ -1,3 +1,6 @@
+/*
+rules = "scala:rsc.rules.RscCompat"
+ */
 package com.twitter.util
 
 object StateMachine {

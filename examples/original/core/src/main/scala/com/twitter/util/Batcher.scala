@@ -1,3 +1,6 @@
+/*
+rules = "scala:rsc.rules.RscCompat"
+ */
 package com.twitter.util
 
 /** Provides an interface for working with a batched [[com.twitter.util.Future]] */

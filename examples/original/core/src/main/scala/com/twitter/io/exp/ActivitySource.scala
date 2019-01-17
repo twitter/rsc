@@ -1,3 +1,6 @@
+/*
+rules = "scala:rsc.rules.RscCompat"
+ */
 package com.twitter.io.exp
 
 import com.twitter.io.{InputStreamReader, Buf, Reader}

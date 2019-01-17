@@ -1,3 +1,6 @@
+/*
+rules = "scala:rsc.rules.RscCompat"
+ */
 package com.twitter.io
 
 import com.twitter.util.{Future, Return, Try, Throw, ConstFuture, Promise}

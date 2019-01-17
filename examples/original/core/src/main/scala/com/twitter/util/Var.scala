@@ -1,3 +1,6 @@
+/*
+rules = "scala:rsc.rules.RscCompat"
+ */
 package com.twitter.util
 
 import java.util.concurrent.atomic.{AtomicLong, AtomicReference, AtomicReferenceArray}

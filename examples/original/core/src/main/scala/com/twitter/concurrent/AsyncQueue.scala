@@ -1,3 +1,6 @@
+/*
+rules = "scala:rsc.rules.RscCompat"
+ */
 package com.twitter.concurrent
 
 import com.twitter.util.{Future, Promise, Return, Throw, Try}

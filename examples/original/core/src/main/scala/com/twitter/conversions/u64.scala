@@ -1,3 +1,6 @@
+/*
+rules = "scala:rsc.rules.RscCompat"
+ */
 package com.twitter.conversions
 
 @deprecated("Use `com.twitter.conversions.U64Ops`", "2018-12-05")
