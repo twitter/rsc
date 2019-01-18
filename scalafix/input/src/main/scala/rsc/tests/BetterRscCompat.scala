@@ -152,4 +152,31 @@ object BetterRscCompat_Test {
       override def compare(x: T, y: T): Int = 0
     }
   }
+
+  object TypeAliases {
+
+    object scope1 {
+      class MyClass
+
+      def foo: MyClass = null
+    }
+
+    object scope2 {
+      type MyClass = scope1.MyClass
+
+      def foo: MyClass = null
+    }
+
+    object right2left {
+      import scope1.MyClass
+
+      val bar = scope2.foo
+    }
+
+    object left2right {
+      import scope2.MyClass
+
+      val bar = scope1.foo
+    }
+  }
 }

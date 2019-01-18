@@ -10,18 +10,15 @@ trait Symtabs {
   implicit class SymtabOps(symtab: Symtab) {
 
     def equivalent(sym1: String, sym2: String): Boolean = {
-      symtab
-        .info(sym1)
-        .exists { info =>
-          info.signature match {
-            case _ if info.symbol == sym2 => true
+      def aliased(aSym: String, bSym: String): Boolean =
+        symtab.info(aSym).map(_.signature).exists {
+          case s.TypeSignature(_, s.TypeRef(_, loSym, _), s.TypeRef(_, hiSym, _)) =>
+            loSym == hiSym && loSym == bSym
 
-            case s.TypeSignature(_, s.TypeRef(_, loSym, _), s.TypeRef(_, hiSym, _)) =>
-              loSym == hiSym && loSym == sym2
-
-            case _ => false
-          }
+          case _ => false
         }
+
+      sym1 == sym2 || aliased(sym1, sym2) || aliased(sym2, sym1)
     }
   }
 }
