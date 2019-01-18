@@ -4,6 +4,7 @@ rules = "scala:rsc.rules.RscCompat"
 package rsc.tests
 
 import rsc.tests.BetterRscCompat_Test.AutoImport.oa.ob.od
+import testpkg._
 
 object BetterRscCompat_Test {
 
@@ -178,5 +179,11 @@ object BetterRscCompat_Test {
 
       val bar = scope1.foo
     }
+  }
+
+  object PackageObjects {
+    val o2c = O1.foo
+
+    val poc = new PkgObjClass
   }
 }

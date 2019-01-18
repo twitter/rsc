@@ -13,13 +13,14 @@ sealed trait Scope {
   def lookup(name: n.Name): String
 
   protected def member(symtab: Symtab, sym: String, name: n.Name): String = {
+    def getInfo(desc: Descriptor): Option[s.SymbolInformation] =
+      symtab
+        .info(Symbols.Global(sym, desc))
+        .orElse(symtab.info(Symbols.Global(s"${sym}package.", desc)))
+
     val info = name match {
-      case n.TermName(value) =>
-        val packageMember = symtab.info(Symbols.Global(sym, d.Package(value)))
-        val termMember = symtab.info(Symbols.Global(sym, d.Term(value)))
-        packageMember.orElse(termMember)
-      case n.TypeName(value) =>
-        symtab.info(Symbols.Global(sym, d.Type(value)))
+      case n.TermName(value) => getInfo(d.Package(value)).orElse(getInfo(d.Term(value)))
+      case n.TypeName(value) => getInfo(d.Type(value))
     }
     info.map(_.symbol).getOrElse(Symbols.None)
   }
@@ -31,7 +32,9 @@ final class AddedImportsScope extends Scope {
 
   def addImport(sym: String): Unit = {
     if (!addedImports.contains(sym)) {
-      sym.init.replace('/', '.').parse[Importer].toOption.foreach { importer =>
+      val fqn = sym.init.replace('/', '.').replace("package.", "")
+
+      fqn.parse[Importer].toOption.foreach { importer =>
         val name = sym.desc.name
         addedNames += (name -> sym)
         addedImports += (sym -> importer)

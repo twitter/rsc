@@ -1,9 +1,11 @@
 package rsc.tests
 
 import rsc.tests.BetterRscCompat_Test.AutoImport.oa.ob.od
+import testpkg._
 import rsc.tests.BetterRscCompat_Test.AutoImport.oa.{MyClass, oc}
 import rsc.tests.BetterRscCompat_Test.AutoImport.oa.oe.MyClass2
-import scala.collection.{Seq, mutable}
+import rsc.tests.testpkg.O2.C2
+import scala.collection.mutable
 
 object BetterRscCompat_Test {
 
@@ -178,5 +180,11 @@ object BetterRscCompat_Test {
 
       val bar: MyClass = scope1.foo
     }
+  }
+
+  object PackageObjects {
+    val o2c: C2 = O1.foo
+
+    val poc: PkgObjClass = new PkgObjClass
   }
 }
