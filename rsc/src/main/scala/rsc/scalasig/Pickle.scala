@@ -45,10 +45,15 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     }
     entries.getOrElseUpdate(key) {
       val name = {
-        ssym.name match {
-          case name: TermName => emitName(name)
-          case TypeName(v) if isModule => emitName(TermName(v))
-          case name: TypeName => emitName(name)
+        // FIXME: https://github.com/twitter/rsc/issues/100
+        if (ssym.desc.isMethod) {
+          emitName(TermName(ssym.desc.value))
+        } else {
+          ssym.name match {
+            case name: TermName => emitName(name)
+            case TypeName(v) if isModule => emitName(TermName(v))
+            case name: TypeName => emitName(name)
+          }
         }
       }
       val owner = {
@@ -114,7 +119,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
             ClassSymbol(name, owner, flags, within, info, thisType)
           } else if (ssym.isDef || ssym.isParam || ssym.isField) {
             // FIXME: https://github.com/twitter/rsc/issues/100
-            val alias = None
+            val alias = ssym.salias.map(emitSym(_, RefMode))
             ValSymbol(name, owner, flags, within, info, alias)
           } else {
             val sdefault = s.SymbolInformation(symbol = ssym)
@@ -504,6 +509,9 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     def isAccessor: Boolean = {
       sinfo.isMethod && (sinfo.isVal || sinfo.isVar)
     }
+    def isSuperAccessor: Boolean = {
+      sinfo.displayName.startsWith("super$")
+    }
     def isGetter: Boolean = {
       ssym.isAccessor && !ssym.desc.value.endsWith("_=")
     }
@@ -631,6 +639,9 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     def isExistential: Boolean = {
       history.isExistential(ssym)
     }
+    def isArtifact: Boolean = {
+      sinfo.displayName.startsWith("super$")
+    }
     def isJavaAnnotation: Boolean = {
       sinfo.signature match {
         case s.ClassSignature(_, parents, _, _) =>
@@ -700,9 +711,11 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       if (ssym.isDefaultParam) result |= DEFAULTPARAM
       if (ssym.isTrait) result |= TRAIT
       if (ssym.isAccessor) result |= ACCESSOR
+      if (ssym.isSuperAccessor) result |= SUPERACCESSOR
       if (ssym.isParamAccessor) result |= PARAMACCESSOR
       if (ssym.isLazy) result |= LAZY
       if (ssym.isExistential) result |= EXISTENTIAL
+      if (ssym.isArtifact) result |= ARTIFACT
       if (ssym.isJavaAnnotation) result |= JAVA_ANNOTATION
       result
     }
@@ -725,7 +738,9 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
             else ClassSig(sparents.toList, ssym)
           }
           maybePolySig(stparamSyms, ssig)
-        case s.MethodSignature(stparamSyms, sparamSymss, sretopt) =>
+        case s.MethodSignature(stparamSyms, sparamSymss0, sretopt) =>
+          // FIXME: https://github.com/twitter/rsc/issues/100
+          val sparamSymss = if (isSuperAccessor) sparamSymss0.tail else sparamSymss0
           val sret = if (ssym.isCtor) ssym.owner.stpe else sretopt
           val ssig = {
             if (sparamSymss.isEmpty) {
@@ -805,6 +820,18 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
         case _ => Nil
       }
       s.TypeRef(s.NoType, ssym, stargs)
+    }
+    def salias: Option[String] = {
+      if (isSuperAccessor) {
+        // FIXME: https://github.com/twitter/rsc/issues/100
+        val s.MethodSignature(_, List(sselfParams, _*), _) = sinfo.signature
+        val List(sselfParam) = sselfParams.symbols
+        val s.ValueSignature(s.TypeRef(_, sparent, _)) = mtab.get(sselfParam).get.signature
+        val svalue = ssym.desc.value.stripPrefix("super$")
+        Some(Symbols.Global(sparent, d.Method(svalue, "()")))
+      } else {
+        None
+      }
     }
   }
 
