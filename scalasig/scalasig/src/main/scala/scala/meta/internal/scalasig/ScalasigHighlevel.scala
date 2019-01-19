@@ -194,15 +194,343 @@ class ScalasigHighlevel(lscalasig: l.Scalasig) {
           case l.AnnotArgArray(lvalues) =>
             val hvalues = lvalues.map(_.resolve[h.JavaAnnotValue])
             h.AnnotArgArray(hvalues)
-          case l.Tree(lpayload) =>
-            // FIXME: https://github.com/twitter/rsc/issues/93
-            val hpayload = lpayload
-            h.Tree(hpayload)
+          case l.EmptyTree =>
+            h.EmptyTree
+          case l.PackageDefTree(ltpe, lsym, lpid, lstats) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hpid = lpid.resolve[h.Tree]
+            val hstats = lstats.map(_.resolve[h.Tree])
+            val htree = h.PackageDefTree(hpid, hstats)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.ClassDefTree(ltpe, lsym, lmods, lname, ltparams, limpl) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hmods = lmods.resolve[h.Modifiers]
+            val hname = lname.resolve[h.TypeName]
+            val htparams = ltparams.map(_.resolve[h.TypeDefTree])
+            val himpl = limpl.resolve[h.TemplateTree]
+            val htree = h.ClassDefTree(hmods, hname, htparams, himpl)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.ModuleDefTree(ltpe, lsym, lmods, lname, limpl) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hmods = lmods.resolve[h.Modifiers]
+            val hname = lname.resolve[h.TermName]
+            val himpl = limpl.resolve[h.TemplateTree]
+            val htree = h.ModuleDefTree(hmods, hname, himpl)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.ValDefTree(ltpe, lsym, lmods, lname, ltpt, lrhs) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hmods = lmods.resolve[h.Modifiers]
+            val hname = lname.resolve[h.TermName]
+            val htpt = ltpt.resolve[h.Tree]
+            val hrhs = lrhs.resolve[h.Tree]
+            val htree = h.ValDefTree(hmods, hname, htpt, hrhs)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.DefDefTree(ltpe, lsym, lmods, lname, ltparams, lparamss, lret, lrhs) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hmods = lmods.resolve[h.Modifiers]
+            val hname = lname.resolve[h.TermName]
+            val htparams = ltparams.map(_.resolve[h.TypeDefTree])
+            val hparamss = lparamss.map(_.map(_.resolve[h.ValDefTree]))
+            val hret = lret.resolve[h.Tree]
+            val hrhs = lrhs.resolve[h.Tree]
+            val htree = h.DefDefTree(hmods, hname, htparams, hparamss, hret, hrhs)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.TypeDefTree(ltpe, lsym, lmods, lname, ltparams, ltpt) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hmods = lmods.resolve[h.Modifiers]
+            val hname = lname.resolve[h.TypeName]
+            val htparams = ltparams.map(_.resolve[h.TypeDefTree])
+            val htpt = ltpt.resolve[h.Tree]
+            val htree = h.TypeDefTree(hmods, hname, htparams, htpt)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.LabelDefTree(ltpe, lsym, lname, lparams, lrhs) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hname = lname.resolve[h.TermName]
+            val hparams = lparams.map(_.resolve[h.IdentTree])
+            val hrhs = lrhs.resolve[h.Tree]
+            val htree = h.LabelDefTree(hname, hparams, hrhs)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.ImportTree(ltpe, lsym, lqual, lselectors) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hqual = lqual.resolve[h.Tree]
+            val hselectors = lselectors.map(_.resolve[h.ImportSelector])
+            val htree = h.ImportTree(hqual, hselectors)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.TemplateTree(ltpe, lsym, lparents, lself, lstats) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hparents = lparents.map(_.resolve[h.Tree])
+            val hself = lself.resolve[h.ValDefTree]
+            val hstats = lstats.map(_.resolve[h.Tree])
+            val htree = h.TemplateTree(hparents, hself, hstats)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.BlockTree(ltpe, lstats) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hstats = lstats.map(_.resolve[h.Tree])
+            val htree = h.BlockTree(hstats)
+            htree.tpe = htpe
+            htree
+          case l.CaseTree(ltpe, lpat, lguard, lbody) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hpat = lpat.resolve[h.Tree]
+            val hguard = lguard.resolve[h.Tree]
+            val hbody = lbody.resolve[h.Tree]
+            val htree = h.CaseTree(hpat, hguard, hbody)
+            htree.tpe = htpe
+            htree
+          case l.AlternativeTree(ltpe, ltrees) =>
+            val htpe = ltpe.resolve[h.Type]
+            val htrees = ltrees.map(_.resolve[h.AlternativeTree])
+            val htree = h.AlternativeTree(htrees)
+            htree.tpe = htpe
+            htree
+          case l.StarTree(ltpe, lelem) =>
+            val htpe = ltpe.resolve[h.Type]
+            val helem = lelem.resolve[h.Tree]
+            val htree = h.StarTree(helem)
+            htree.tpe = htpe
+            htree
+          case l.BindTree(ltpe, lsym, lname, lbody) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hname = lname.resolve[h.Name]
+            val hbody = lbody.resolve[h.Tree]
+            val htree = h.BindTree(hname, hbody)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.UnapplyTree(ltpe, lfun, largs) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hfun = lfun.resolve[h.Tree]
+            val hargs = largs.map(_.resolve[h.Tree])
+            val htree = h.UnapplyTree(hfun, hargs)
+            htree.tpe = htpe
+            htree
+          case l.ArrayValueTree(ltpe, lelemtpt, lelems) =>
+            val htpe = ltpe.resolve[h.Type]
+            val helemtpt = lelemtpt.resolve[h.Tree]
+            val helems = lelems.map(_.resolve[h.Tree])
+            val htree = h.ArrayValueTree(helemtpt, helems)
+            htree.tpe = htpe
+            htree
+          case l.FunctionTree(ltpe, lsym, lparams, lbody) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hparams = lparams.map(_.resolve[h.ValDefTree])
+            val hbody = lbody.resolve[h.Tree]
+            val htree = h.FunctionTree(hparams, hbody)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.AssignTree(ltpe, llhs, lrhs) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hlhs = llhs.resolve[h.Tree]
+            val hrhs = lrhs.resolve[h.Tree]
+            val htree = h.AssignTree(hlhs, hrhs)
+            htree.tpe = htpe
+            htree
+          case l.IfTree(ltpe, lcond, lthenp, lelsep) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hcond = lcond.resolve[h.Tree]
+            val hthenp = lthenp.resolve[h.Tree]
+            val helsep = lelsep.resolve[h.Tree]
+            val htree = h.IfTree(hcond, hthenp, helsep)
+            htree.tpe = htpe
+            htree
+          case l.MatchTree(ltpe, lscrut, lcases) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hscrut = lscrut.resolve[h.Tree]
+            val hcases = lcases.map(_.resolve[h.CaseTree])
+            val htree = h.MatchTree(hscrut, hcases)
+            htree.tpe = htpe
+            htree
+          case l.ReturnTree(ltpe, lsym, lexpr) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hexpr = lexpr.resolve[h.Tree]
+            val htree = h.ReturnTree(hexpr)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.TryTree(ltpe, lexpr, lcases, lfin) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hexpr = lexpr.resolve[h.Tree]
+            val hcases = lcases.map(_.resolve[h.CaseTree])
+            val hfin = lfin.resolve[h.Tree]
+            val htree = h.TryTree(hexpr, hcases, hfin)
+            htree.tpe = htpe
+            htree
+          case l.ThrowTree(ltpe, lexpr) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hexpr = lexpr.resolve[h.Tree]
+            val htree = h.ThrowTree(hexpr)
+            htree.tpe = htpe
+            htree
+          case l.NewTree(ltpe, ltpt) =>
+            val htpe = ltpe.resolve[h.Type]
+            val htpt = ltpt.resolve[h.Tree]
+            val htree = h.NewTree(htpt)
+            htree.tpe = htpe
+            htree
+          case l.TypedTree(ltpe, lexpr, ltpt) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hexpr = lexpr.resolve[h.Tree]
+            val htpt = ltpt.resolve[h.Tree]
+            val htree = h.TypedTree(hexpr, htpt)
+            htree.tpe = htpe
+            htree
+          case l.TypeApplyTree(ltpe, lfun, ltargs) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hfun = lfun.resolve[h.Tree]
+            val htargs = ltargs.map(_.resolve[h.Tree])
+            val htree = h.TypeApplyTree(hfun, htargs)
+            htree.tpe = htpe
+            htree
+          case l.ApplyTree(ltpe, lfun, largs) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hfun = lfun.resolve[h.Tree]
+            val hargs = largs.map(_.resolve[h.Tree])
+            val htree = h.ApplyTree(hfun, hargs)
+            htree.tpe = htpe
+            htree
+          case l.ApplyDynamicTree(ltpe, lsym, lfun, largs) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = ltpe.resolve[h.Symbol]
+            val hfun = lfun.resolve[h.Tree]
+            val hargs = largs.map(_.resolve[h.Tree])
+            val htree = h.ApplyDynamicTree(hfun, hargs)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.SuperTree(ltpe, lsym, lqual, lmix) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hqual = lqual.resolve[h.Tree]
+            val hmix = lmix.resolve[h.TypeName]
+            val htree = h.SuperTree(hqual, hmix)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.ThisTree(ltpe, lsym, lqual) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hqual = lqual.resolve[h.TypeName]
+            val htree = h.ThisTree(hqual)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.SelectTree(ltpe, lsym, lqual, lname) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hqual = lqual.resolve[h.Tree]
+            val hname = lname.resolve[h.Name]
+            val htree = h.SelectTree(hqual, hname)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.IdentTree(ltpe, lsym, lname) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hsym = lsym.resolve[h.Symbol]
+            val hname = lname.resolve[h.Name]
+            val htree = h.IdentTree(hname)
+            htree.tpe = htpe
+            htree.sym = hsym
+            htree
+          case l.LiteralTree(ltpe, llit) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hlit = llit.resolve[h.Lit]
+            val htree = h.LiteralTree(hlit)
+            htree.tpe = htpe
+            htree
+          case l.TypeTree(ltpe) =>
+            val htpe = ltpe.resolve[h.Type]
+            val htree = h.TypeTree()
+            htree.tpe = htpe
+            htree
+          case l.AnnotatedTree(ltpe, lannot, larg) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hannot = lannot.resolve[h.Tree]
+            val harg = larg.resolve[h.Tree]
+            val htree = h.AnnotatedTree(hannot, harg)
+            htree.tpe = htpe
+            htree
+          case l.SingletonTypeTree(ltpe, lref) =>
+            val htpe = ltpe.resolve[h.Type]
+            val href = lref.resolve[h.Tree]
+            val htree = h.SingletonTypeTree(href)
+            htree.tpe = htpe
+            htree
+          case l.SelectFromTypeTree(ltpe, lqual, lname) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hqual = lqual.resolve[h.Tree]
+            val hname = lname.resolve[h.TypeName]
+            val htree = h.SelectFromTypeTree(hqual, hname)
+            htree.tpe = htpe
+            htree
+          case l.CompoundTypeTree(ltpe, limpl) =>
+            val htpe = ltpe.resolve[h.Type]
+            val himpl = limpl.resolve[h.TemplateTree]
+            val htree = h.CompoundTypeTree(himpl)
+            htree.tpe = htpe
+            htree
+          case l.AppliedTypeTree(ltpe, lfun, ltargs) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hfun = lfun.resolve[h.Tree]
+            val htargs = ltargs.map(_.resolve[h.Tree])
+            val htree = h.AppliedTypeTree(hfun, htargs)
+            htree.tpe = htpe
+            htree
+          case l.TypeBoundsTree(ltpe, llo, lhi) =>
+            val htpe = ltpe.resolve[h.Type]
+            val hlo = llo.resolve[h.Tree]
+            val hhi = lhi.resolve[h.Tree]
+            val htree = h.TypeBoundsTree(hlo, hhi)
+            htree.tpe = htpe
+            htree
+          case l.ExistentialTypeTree(ltpe, ltpt, ldecls) =>
+            val htpe = ltpe.resolve[h.Type]
+            val htpt = ltpt.resolve[h.Tree]
+            val hdecls = ldecls.map(_.resolve[h.Tree])
+            val htree = h.ExistentialTypeTree(htpt, hdecls)
+            htree.tpe = htpe
+            htree
+          case l.ImportSelector(lname, lrename) =>
+            val hname = lname.resolve[h.Name]
+            val hrename = lrename.resolve[h.Name]
+            h.ImportSelector(hname, hrename)
+          case l.Modifiers(lflags, lwithin) =>
+            val hflags = lflags
+            val hwithin = lwithin.resolve[h.Symbol]
+            h.Modifiers(hflags, hwithin)
           case _: l.Children =>
             sys.error(s"unexpected: $lentity")
           case _: l.SymAnnot =>
-            sys.error(s"unexpected: $lentity")
-          case _: l.Modifiers =>
             sys.error(s"unexpected: $lentity")
         }
         lentityToHentity(lentity) = hentity

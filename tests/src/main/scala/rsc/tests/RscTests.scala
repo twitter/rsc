@@ -15,8 +15,8 @@ trait RscTests extends FunSuite with FileFixtures with DiffUtil with ToolUtil {
   }
 
   def assertEquals(h1: String, s1: String, h2: String, s2: String): Unit = {
-    val s1x = s1.split("\n").map(_.trim).mkString("\n")
-    val s2x = s2.split("\n").map(_.trim).mkString("\n")
+    val s1x = s1.split("\n").map(_.replaceAll("\\s+$", "")).mkString("\n")
+    val s2x = s2.split("\n").map(_.replaceAll("\\s+$", "")).mkString("\n")
     if (s1x != s2x) {
       val problem = s"different $h1 (-) vs $h2 (+)"
       val compare = s"compare ${s1x.dump()} ${s2x.dump()}"
