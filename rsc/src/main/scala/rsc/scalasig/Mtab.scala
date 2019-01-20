@@ -85,6 +85,12 @@ class Mtab private (infos: Infos) {
       None
     }
   }
+
+  def macroImpl(sym: String): Option[s.SymbolInformation] = {
+    val impl = infos.macroImpls.get(sym)
+    if (impl != null) get(impl)
+    else None
+  }
 }
 
 object Mtab {

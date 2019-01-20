@@ -15,6 +15,7 @@ case object NoPreKey extends Key
 case class LiteralKey(value: Any) extends Key
 case class AnnotInfoKey(sann: s.Annotation) extends Key
 case class SymAnnotKey(ssym: String, sann: s.Annotation) extends Key
+case class MacroImplKey(simpl: String) extends Key
 
 object TypeKey {
   def apply(stpe: s.Type): TypeKey = {

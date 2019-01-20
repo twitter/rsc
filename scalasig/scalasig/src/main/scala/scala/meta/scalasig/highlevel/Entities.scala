@@ -73,5 +73,52 @@ case class JavaAnnotArg(name: Name, value: JavaAnnotValue) extends AnnotArg
 sealed trait ScalaAnnotValue extends Entity
 sealed trait JavaAnnotValue extends Entity
 case class AnnotArgArray(values: List[JavaAnnotValue]) extends JavaAnnotValue
-case class Tree(payload: List[Byte]) extends ScalaAnnotValue
-// FIXME: https://github.com/twitter/rsc/issues/93
+
+sealed trait Tree extends ScalaAnnotValue {
+  var tpe: Type = null
+  var sym: Symbol = null
+}
+case object EmptyTree extends Tree
+case class PackageDefTree(pid: Tree, stats: List[Tree]) extends Tree
+case class ClassDefTree(mods: Modifiers, name: TypeName, tparams: List[TypeDefTree], impl: TemplateTree) extends Tree
+case class ModuleDefTree(mods: Modifiers, name: TermName, impl: TemplateTree) extends Tree
+case class ValDefTree(mods: Modifiers, name: TermName, tpt: Tree, rhs: Tree) extends Tree
+case class DefDefTree(mods: Modifiers, name: TermName, tparams: List[TypeDefTree], paramss: List[List[ValDefTree]], ret: Tree, rhs: Tree) extends Tree
+case class TypeDefTree(mods: Modifiers, name: TypeName, tparams: List[TypeDefTree], tpt: Tree) extends Tree
+case class LabelDefTree(name: TermName, params: List[IdentTree], rhs: Tree) extends Tree
+case class ImportTree(qual: Tree, selectors: List[ImportSelector]) extends Tree
+case class TemplateTree(parents: List[Tree], self: ValDefTree, stats: List[Tree]) extends Tree
+case class BlockTree(stats: List[Tree]) extends Tree
+case class CaseTree(pat: Tree, guard: Tree, body: Tree) extends Tree
+case class AlternativeTree(trees: List[Tree]) extends Tree
+case class StarTree(elem: Tree) extends Tree
+case class BindTree(name: Name, body: Tree) extends Tree
+case class UnapplyTree(fun: Tree, args: List[Tree]) extends Tree
+case class ArrayValueTree(elemtpt: Tree, elems: List[Tree]) extends Tree
+case class FunctionTree(params: List[ValDefTree], body: Tree) extends Tree
+case class AssignTree(lhs: Tree, rhs: Tree) extends Tree
+case class IfTree(cond: Tree, thenp: Tree, elsep: Tree) extends Tree
+case class MatchTree(scrut: Tree, cases: List[CaseTree]) extends Tree
+case class ReturnTree(expr: Tree) extends Tree
+case class TryTree(expr: Tree, cases: List[CaseTree], fin: Tree) extends Tree
+case class ThrowTree(expr: Tree) extends Tree
+case class NewTree(tpt: Tree) extends Tree
+case class TypedTree(expr: Tree, tpt: Tree) extends Tree
+case class TypeApplyTree(fun: Tree, targs: List[Tree]) extends Tree
+case class ApplyTree(fun: Tree, args: List[Tree]) extends Tree
+case class ApplyDynamicTree(fun: Tree, args: List[Tree]) extends Tree
+case class SuperTree(qual: Tree, mix: TypeName) extends Tree
+case class ThisTree(qual: TypeName) extends Tree
+case class SelectTree(qual: Tree, name: Name) extends Tree
+case class IdentTree(name: Name) extends Tree
+case class LiteralTree(lit: Lit) extends Tree
+case class TypeTree() extends Tree
+case class AnnotatedTree(annot: Tree, arg: Tree) extends Tree
+case class SingletonTypeTree(tree: Tree) extends Tree
+case class SelectFromTypeTree(qual: Tree, name: TypeName) extends Tree
+case class CompoundTypeTree(impl: TemplateTree) extends Tree
+case class AppliedTypeTree(fun: Tree, targs: List[Tree]) extends Tree
+case class TypeBoundsTree(lo: Tree, hi: Tree) extends Tree
+case class ExistentialTypeTree(tpt: Tree, decls: List[Tree]) extends Tree
+case class ImportSelector(name: Name, rename: Name) extends Entity
+case class Modifiers(flags: Long, within: Symbol) extends Entity

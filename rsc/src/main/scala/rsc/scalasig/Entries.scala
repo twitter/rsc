@@ -11,7 +11,7 @@ class Entries private () {
   private var offset = 0
   private val cache = new mutable.HashMap[Key, Ref]
 
-  def getOrElseUpdate[T <: Entry](key: Key)(fn: => T): Ref = {
+  def getOrElseUpdate(key: Key)(fn: => Entry): Ref = {
     if (cache.contains(key)) {
       cache(key)
     } else {
@@ -28,6 +28,20 @@ class Entries private () {
       entries(ref) = entry
       ref
     }
+  }
+
+  def update(fn: => Entry): Ref = {
+    val requestedLen = offset + 1
+    if (requestedLen > entries.length) {
+      val entries1 = new Array[Entry](requestedLen * 2)
+      Array.copy(entries, 0, entries1, 0, offset)
+      entries = entries1
+    }
+    val ref = offset
+    offset += 1
+    val entry = fn
+    entries(ref) = entry
+    ref
   }
 
   def toArray: Array[Entry] = {

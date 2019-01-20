@@ -13,6 +13,7 @@ class Infos private (classpathInfos: Classpath) {
   private val outlineInfos = new HashMap[Symbol, s.SymbolInformation]
   private val outlinePositions = new HashMap[Symbol, Position]
   val staticOwners = new HashSet[Symbol]
+  val macroImpls = new HashMap[Symbol, Symbol]
 
   def contains(sym: Symbol): Boolean = {
     outlineInfos.containsKey(sym) ||

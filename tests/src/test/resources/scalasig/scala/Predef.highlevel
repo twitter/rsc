@@ -498,12 +498,14 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "Use `scala.reflect.ClassTag` instead"
         }
       }
       args {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "2.10.0"
         }
       }
     }
@@ -521,6 +523,7 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "No ClassManifest available for ${T}."
         }
       }
     }
@@ -634,6 +637,7 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "No Manifest available for ${T}."
         }
       }
     }
@@ -691,12 +695,14 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "Use `scala.reflect.ClassTag` instead"
         }
       }
       args {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "2.10.0"
         }
       }
     }
@@ -901,12 +907,14 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "Use scala.reflect.classTag[T] instead"
         }
       }
       args {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "2.10.0"
         }
       }
     }
@@ -1247,12 +1255,14 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "Use `sys.error(message)` instead"
         }
       }
       args {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "2.9.0"
         }
       }
     }
@@ -1682,12 +1692,14 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "Use built-in tuple syntax or Tuple2 instead"
         }
       }
       args {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "2.11.0"
         }
       }
     }
@@ -1766,12 +1778,14 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "Use built-in tuple syntax or Tuple2 instead"
         }
       }
       args {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "2.11.0"
         }
       }
     }
@@ -1806,12 +1820,14 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "Use built-in tuple syntax or Tuple2 instead"
         }
       }
       args {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "2.11.0"
         }
       }
     }
@@ -2113,12 +2129,14 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "Use built-in tuple syntax or Tuple3 instead"
         }
       }
       args {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "2.11.0"
         }
       }
     }
@@ -2221,12 +2239,14 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "Use built-in tuple syntax or Tuple3 instead"
         }
       }
       args {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "2.11.0"
         }
       }
     }
@@ -2261,12 +2281,14 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "Use built-in tuple syntax or Tuple3 instead"
         }
       }
       args {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "2.11.0"
         }
       }
     }
@@ -4222,12 +4244,14 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "Use Throwable#getStackTrace"
         }
       }
       args {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "2.11.0"
         }
       }
     }
@@ -6491,6 +6515,7 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "Cannot prove that ${From} <:< ${To}."
         }
       }
     }
@@ -6739,12 +6764,14 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "Use `implicitly[T <:< U]` or `identity` instead."
         }
       }
       args {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "2.11.0"
         }
       }
     }
@@ -6838,6 +6865,7 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "Cannot prove that ${From} =:= ${To}."
         }
       }
     }
@@ -7284,12 +7312,14 @@ scalasig {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "Use Throwable#getStackTrace"
         }
       }
       args {
         tag: ANNOTARG
         value {
           tag: LITERALstring
+          name: "2.11.0"
         }
       }
     }

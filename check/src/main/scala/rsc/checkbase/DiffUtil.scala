@@ -12,8 +12,8 @@ trait DiffUtil {
       actualContent: String,
       expectTitle: String,
       expectContent: String): Option[String] = {
-    val actualLines = actualContent.trim.split(EOL).toList.asJava
-    val expectLines = expectContent.trim.split(EOL).toList.asJava
+    val actualLines = actualContent.replaceAll("\\s+$", "").split(EOL).toList.asJava
+    val expectLines = expectContent.replaceAll("\\s+$", "").split(EOL).toList.asJava
     val diff = DiffUtils.diff(actualLines, expectLines)
     if (!diff.getDeltas.isEmpty) {
       val prettyDiff = DiffUtils
