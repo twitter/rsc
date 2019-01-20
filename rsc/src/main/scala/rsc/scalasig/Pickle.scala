@@ -333,6 +333,93 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
   }
 
   private def emitSymAnnots(ssym: String, smode: Mode): Unit = {
+    if (ssym.isMacro) {
+      mtab.macroImpl(ssym).foreach { simplInfo =>
+        val simpl = simplInfo.symbol
+        entries.getOrElseUpdate(MacroImplKey(simpl)) {
+          val sym = emitEmbeddedSym(ssym, smode)
+          val tpe = emitTpe(s.TypeRef(s.NoType, MacroImplClass, Nil))
+          val args = {
+            val noTpe = emitTpe(s.NoType)
+            val noSym = emitSym(Symbols.None, RefMode)
+            val listSym = emitSym(ListObject, ModuleRefMode)
+            val abiFun = emitTree(IdentTree(noTpe, noSym, emitName(TermName("macro"))))
+            val abiArgs = {
+              val macroEngine = "v7.0 (implemented in Scala 2.11.0-M8)"
+              val s.MethodSignature(_, sparamss, _) = simplInfo.signature
+              val sparamTpess = sparamss.toList.map { sparams =>
+                sparams.symbols.map { sparam =>
+                  val s.ValueSignature(stpe) = mtab(sparam).signature
+                  stpe
+                }
+              }
+              val isBundle = simpl.owner.desc.isType
+              val isBlackbox = sparamTpess.flatten.exists {
+                case s.TypeRef(_, BlackboxContextClass, _) => true
+                case _ => false
+              }
+              val clsName = simpl.owner.replace("_empty_/", "").replace(".", "$").replace("/", ".")
+              val d.Method(methName, _) = simpl.desc
+              val signature = sparamTpess.map(_.map {
+                case s.TypeRef(_, MacroExprType, _) => -2
+                case s.TypeRef(_, MacroTreeType, _) => -3
+                case s.TypeRef(_, MacroTypeTagType | MacroWeakTypeTagType, _) => 0
+                case _ => -1
+              })
+
+              sealed trait AbiArg
+              case class BooleanArg(value: Boolean) extends AbiArg
+              case class SignatureArg(value: List[List[Int]]) extends AbiArg
+              case class StringArg(value: String) extends AbiArg
+              val abi = mutable.LinkedHashMap[String, AbiArg]()
+              abi("macroEngine") = StringArg(macroEngine)
+              abi("isBundle") = BooleanArg(isBundle)
+              abi("isBlackbox") = BooleanArg(isBlackbox)
+              abi("className") = StringArg(clsName)
+              abi("methodName") = StringArg(methName)
+              abi("signature") = SignatureArg(signature)
+
+              abi.toList.map {
+                case (abiKey, abiArg) =>
+                  val lhs = {
+                    val keyTpe = emitTpe(s.ConstantType(s.StringConstant(abiKey)))
+                    val keyLit = emitLiteral(abiKey)
+                    emitTree(LiteralTree(keyTpe, keyLit))
+                  }
+                  val rhs = {
+                    abiArg match {
+                      case BooleanArg(bool) =>
+                        val argTpe = emitTpe(s.ConstantType(s.BooleanConstant(bool)))
+                        val argLit = emitLiteral(bool)
+                        emitTree(LiteralTree(argTpe, argLit))
+                      case StringArg(string) =>
+                        val argTpe = emitTpe(s.ConstantType(s.StringConstant(string)))
+                        val argLit = emitLiteral(string)
+                        emitTree(LiteralTree(argTpe, argLit))
+                      case SignatureArg(intss) =>
+                        val applyFun = emitTree(IdentTree(noTpe, listSym, emitName(TermName("List"))))
+                        val applyArgs = intss.map { ints =>
+                          val fun = emitTree(IdentTree(noTpe, listSym, emitName(TermName("List"))))
+                          val args = ints.map { int =>
+                            val argTpe = emitTpe(s.ConstantType(s.IntConstant(int)))
+                            val argLit = emitLiteral(int)
+                            emitTree(LiteralTree(argTpe, argLit))
+                          }
+                          emitTree(ApplyTree(noTpe, fun, args))
+                        }
+                        emitTree(ApplyTree(noTpe, applyFun, applyArgs))
+                    }
+                  }
+                  emitTree(AssignTree(noTpe, lhs, rhs))
+              }
+            }
+            val annotArg = emitTree(ApplyTree(noTpe, abiFun, abiArgs))
+            List(ScalaAnnotArg(annotArg))
+          }
+          SymAnnot(sym, tpe, args)
+        }
+      }
+    }
     ssym.sannots.foreach { sannot =>
       entries.getOrElseUpdate(SymAnnotKey(ssym, sannot)) {
         // FIXME: https://github.com/twitter/rsc/issues/93
@@ -376,6 +463,10 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
           crash(other.toString)
       }
     }
+  }
+
+  private def emitTree(tree: Tree): Ref = {
+    entries.update(tree)
   }
 
   def toScalasig: Scalasig = {
@@ -604,6 +695,9 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     def isCaseGetter: Boolean = {
       ssym.isParamAccessor && ssym.isGetter && ssym.owner.isCase
     }
+    def isMacro: Boolean = {
+      sinfo.isMacro
+    }
     def isByNameParam: Boolean = {
       ssym.ssig match {
         case ValueSig(stpe) => stpe.isInstanceOf[s.ByNameType]
@@ -698,6 +792,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       if (ssym.isInterface && !ssym.isJavaAnnotation) result |= INTERFACE
       if (ssym.isMutable) result |= MUTABLE
       if (ssym.isParam || ssym.isTypeParam) result |= PARAM
+      if (ssym.isMacro) result |= MACRO
       if (ssym.isByNameParam) result |= BYNAMEPARAM
       if (ssym.isCovariant) result |= COVARIANT
       if (ssym.isContravariant) result |= CONTRAVARIANT

@@ -45,6 +45,10 @@ final class Writer private (
     val info = converter.toSymbolInformation
     symbolBuf += info
     infos.put(sym, info, outline.pos)
+    if (info.isMacro) {
+      // FIXME: https://github.com/twitter/rsc/issues/292
+      infos.macroImpls.put(info.symbol, "_empty_/C.impl().")
+    }
     if (sym.owner.desc.isPackage) {
       sym.ownerChain.foreach { sym =>
         if (sym.desc.isPackage) {
