@@ -123,11 +123,16 @@ final class Synthesizer private (
                 case TptByName(tpt) => tpt
                 case tpt => tpt
               }
-              paramTpt.map { paramTpt =>
+              val rhsTpt = param.rhs match {
+                case Some(TermAscribe(_, tpt)) => Some(tpt)
+                case _ => None
+              }
+              val tpt = rhsTpt.orElse(paramTpt)
+              tpt.map { tpt =>
                 val annotSym = UncheckedVarianceClass
                 val annotTpt = TptId("uncheckedVariance").withSym(annotSym)
                 val annot = ModAnnotation(Init(annotTpt, Nil))
-                TptAnnotate(paramTpt, Mods(List(annot)))
+                TptAnnotate(tpt, Mods(List(annot)))
               }
             }
             val rhs = Some(TermStub())
