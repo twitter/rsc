@@ -320,6 +320,9 @@ final class Scheduler private (
             tree.primaryCtor.foreach(synthesizer.paramss(templateEnv, _))
             synthesizer.paramAccessors(templateEnv, tree)
             tree.primaryCtor.foreach(apply(templateEnv, _))
+            if (tree.mods.hasTrait && tree.stats.exists(_.isInstanceOf[Term])) {
+              synthesizer.traitConstructor(templateEnv, tree)
+            }
           case JavaLanguage =>
             val hasCtor = tree.stats.exists(_.isInstanceOf[DefnCtor])
             if (!hasCtor && tree.hasClass) synthesizer.defaultConstructor(templateEnv, tree)

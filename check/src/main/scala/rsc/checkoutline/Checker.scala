@@ -70,6 +70,9 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
               sym.contains(".unapply")) {
             // FIXME: https://github.com/twitter/rsc/issues/98
             ()
+          } else if (sym.desc.value == "$init$") {
+            // FIXME: https://github.com/scalameta/scalameta/issues/1819
+            ()
           } else {
             val header = s"${rscIndex1.anchors(sym)}: $sym"
             problems += MissingNscProblem(header)
@@ -172,6 +175,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         ds1 = ds1.filter(_.desc.value != "apply")
         // FIXME: https://github.com/twitter/rsc/issues/98
         ds1 = ds1.filter(_.desc.value != "unapply")
+        // FIXME: https://github.com/scalameta/scalameta/issues/1819
+        ds1 = ds1.filter(_.desc.value != "$init$")
         // FIXME: https://github.com/scalameta/scalameta/issues/1586
         ds1 = ds1.filter(!_.contains("#_$"))
         // FIXME: https://github.com/scalameta/scalameta/issues/1586
