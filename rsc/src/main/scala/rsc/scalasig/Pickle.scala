@@ -397,7 +397,8 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
                         val argLit = emitLiteral(string)
                         emitTree(LiteralTree(argTpe, argLit))
                       case SignatureArg(intss) =>
-                        val applyFun = emitTree(IdentTree(noTpe, listSym, emitName(TermName("List"))))
+                        val applyFun =
+                          emitTree(IdentTree(noTpe, listSym, emitName(TermName("List"))))
                         val applyArgs = intss.map { ints =>
                           val fun = emitTree(IdentTree(noTpe, listSym, emitName(TermName("List"))))
                           val args = ints.map { int =>
