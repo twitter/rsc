@@ -11,6 +11,7 @@ trait Stdlib {
   val AnyValClass: String = "scala/AnyVal#"
   val BlackboxContextClass: String = "scala/reflect/macros/blackbox/Context#"
   val ByNameClass: String = "scala/`<byname>`#"
+  val DeprecatedClass: String = "scala/deprecated#"
   val JavaAnnotationClass: String = "java/lang/annotation/Annotation#"
   val ListObject: String = "scala/collection/immutable/List."
   val MacroExprType = "scala/reflect/macros/Aliases#Expr#"

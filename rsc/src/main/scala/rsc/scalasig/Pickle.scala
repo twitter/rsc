@@ -1041,6 +1041,13 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
           case sother => crash(sother.toString)
         }
       }
+      val sfieldAnnots = {
+        // FIXME: https://github.com/twitter/rsc/issues/93
+        sgetterSym.sannots.filter {
+          case s.Annotation(s.TypeRef(_, DeprecatedClass, _)) => false
+          case _ => true
+        }
+      }
       s.SymbolInformation(
         symbol = sfieldSym,
         language = l.SCALA,
@@ -1048,8 +1055,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
         properties = sfieldProps,
         displayName = sfieldName,
         signature = sfieldSig,
-        // FIXME: https://github.com/twitter/rsc/issues/93
-        annotations = sgetterSym.sannots,
+        annotations = sfieldAnnots,
         access = s.PrivateThisAccess()
       )
     }
@@ -1074,6 +1080,13 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
             crash(sother.toString)
         }
       }
+      val sfieldAnnots = {
+        // FIXME: https://github.com/twitter/rsc/issues/93
+        ssetterSym.sannots.filter {
+          case s.Annotation(s.TypeRef(_, DeprecatedClass, _)) => false
+          case _ => true
+        }
+      }
       s.SymbolInformation(
         symbol = sfieldSym,
         language = l.SCALA,
@@ -1081,8 +1094,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
         properties = sfieldProps,
         displayName = sfieldName,
         signature = sfieldSig,
-        // FIXME: https://github.com/twitter/rsc/issues/93
-        annotations = ssetterSym.sannots,
+        annotations = sfieldAnnots,
         access = s.PrivateThisAccess()
       )
     }
