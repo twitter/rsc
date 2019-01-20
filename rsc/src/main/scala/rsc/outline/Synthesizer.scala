@@ -301,6 +301,15 @@ final class Synthesizer private (
     scheduler(env, companion.withPos(tree.pos))
   }
 
+  def traitConstructor(env: Env, tree: DefnClass): Unit = {
+    val id = TermId("$init$")
+    val paramss = List(Nil)
+    val ret = Some(TptId("Unit").withSym(UnitClass))
+    val rhs = Some(TermStub())
+    val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
+    scheduler(env, method.withPos(tree.pos))
+  }
+
   def valueClassMembers(env: Env, tree: DefnClass): Unit = {
     valueClassEquals(env, tree)
     valueClassHashCode(env, tree)
