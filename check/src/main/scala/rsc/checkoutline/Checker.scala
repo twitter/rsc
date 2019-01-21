@@ -28,7 +28,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
               nscInfo.symbol == "com/twitter/util/StopwatchBenchmark.StopwatchState#elapsed.") {
             // FIXME: https://github.com/scalameta/scalameta/issues/1782
             ()
-          } else if (nscInfo.displayName == "unapply" &&
+          } else if ((nscInfo.displayName.contains("$default$") ||
+                     nscInfo.displayName == "unapply") &&
                      nscInfo.signature.asMessage.toProtoString.contains("existential_type")) {
             // FIXME: https://github.com/twitter/rsc/issues/274
             ()
