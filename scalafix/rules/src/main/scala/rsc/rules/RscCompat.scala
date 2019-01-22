@@ -18,7 +18,7 @@ import scalafix.util.TokenOps
 import scalafix.v0._
 
 case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
-    extends SemanticdbRule(legacyIndex, "RscCompat") {
+    extends SemanticdbRule(legacyIndex, "RscCompat", config.better) {
   def this(legacyIndex: SemanticdbIndex) = {
     this(legacyIndex, RscCompatConfig.default)
   }
@@ -69,24 +69,24 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
     def loop(env: Env, tree: Tree): Env = {
       tree match {
         case Source(stats) =>
-          val rootScope = PackageScope(index.symbols, "_root_/")
-          val javaLangScope = ImporterScope(index.symbols, "java/lang/", List(Importee.Wildcard()))
-          val scalaScope = ImporterScope(index.symbols, "scala/", List(Importee.Wildcard()))
-          val predefScope = ImporterScope(index.symbols, "scala/Predef.", List(Importee.Wildcard()))
+          val rootScope = PackageScope(symbols, "_root_/")
+          val javaLangScope = ImporterScope(symbols, "java/lang/", List(Importee.Wildcard()))
+          val scalaScope = ImporterScope(symbols, "scala/", List(Importee.Wildcard()))
+          val predefScope = ImporterScope(symbols, "scala/Predef.", List(Importee.Wildcard()))
           val env1 = predefScope :: scalaScope :: javaLangScope :: rootScope :: env
           stats.foldLeft(env1)(loop)
         case Import(importers) =>
           return importers.foldLeft(env)(loop)
         case Importer(ref, importees) =>
-          return ImporterScope(index.symbols, ref.name.symbol.get.syntax, importees) :: env
+          return ImporterScope(symbols, ref.name.symbol.get.syntax, importees) :: env
         case Pkg(ref, stats) =>
-          val env1 = PackageScope(index.symbols, ref.name.symbol.get.syntax) :: env
+          val env1 = PackageScope(symbols, ref.name.symbol.get.syntax) :: env
           stats.foldLeft(env1)(loop)
         case Pkg.Object(_, name, templ) =>
-          val env1 = TemplateScope(index.symbols, name.symbol.get.syntax) :: env
+          val env1 = TemplateScope(symbols, name.symbol.get.syntax) :: env
           loop(env1, templ)
         case defn @ Defn.Class(_, name, _, _, templ) if defn.isVisible =>
-          val env1 = TemplateScope(index.symbols, name.symbol.get.syntax) :: env
+          val env1 = TemplateScope(symbols, name.symbol.get.syntax) :: env
 
           templ.inits.headOption.foreach { init =>
             val tokens = init.tpe.tokens
@@ -97,10 +97,10 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
           }
           loop(env1, templ)
         case defn @ Defn.Trait(_, name, _, _, templ) if defn.isVisible =>
-          val env1 = TemplateScope(index.symbols, name.symbol.get.syntax) :: env
+          val env1 = TemplateScope(symbols, name.symbol.get.syntax) :: env
           loop(env1, templ)
         case defn @ Defn.Object(_, name, templ) if defn.isVisible =>
-          val env1 = TemplateScope(index.symbols, name.symbol.get.syntax) :: env
+          val env1 = TemplateScope(symbols, name.symbol.get.syntax) :: env
           loop(env1, templ)
         case Template(early, _, _, stats) =>
           (early ++ stats).foldLeft(env)(loop)
@@ -156,7 +156,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
           typeString
 
         case _ =>
-          val info = index.symbols(symbol)
+          val info = symbols(symbol)
           target match {
             case target: RewriteDefn =>
               target.body match {
@@ -178,7 +178,8 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
                       val details = other.asMessage.toProtoString
                       sys.error(s"unsupported outline: $details")
                   }
-                  val printer = new SemanticdbPrinter(target.env, addedImportsScope, index, config)
+                  val printer =
+                    new SemanticdbPrinter(target.env, addedImportsScope, symbols, config)
                   printer.pprint(returnType)
                   printer.toString
               }
@@ -186,7 +187,8 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
             case target: RewriteInit =>
               info.signature match {
                 case s.ClassSignature(_, (parent: s.TypeRef) +: _, _, _) =>
-                  val printer = new SemanticdbPrinter(target.env, addedImportsScope, index, config)
+                  val printer =
+                    new SemanticdbPrinter(target.env, addedImportsScope, symbols, config)
                   printer.rep("[", parent.typeArguments, ", ", "]")(printer.pprint)
                   printer.toString
               }

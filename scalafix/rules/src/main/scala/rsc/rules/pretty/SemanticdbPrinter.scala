@@ -17,7 +17,7 @@ import scalafix.internal.v0._
 class SemanticdbPrinter(
     env: Env,
     addedImportsScope: AddedImportsScope,
-    index: DocumentIndex,
+    symbols: DocumentSymbols,
     config: RscCompatConfig
 ) extends Printer {
 
@@ -64,7 +64,7 @@ class SemanticdbPrinter(
             }
             if (config.better) {
               name.map(fullEnv.lookup) match {
-                case Some(x) if !index.symbols.equivalent(x, sym) =>
+                case Some(x) if !symbols.equivalent(x, sym) =>
                   if (x.isEmpty && pre == s.NoType) {
                     addedImportsScope.addImport(sym)
                   } else {
@@ -80,7 +80,7 @@ class SemanticdbPrinter(
             rep("[", args, ", ", "]")(normal)
           }
         case s.SingleType(pre, sym) =>
-          if (config.better && index.symbols.equivalent(fullEnv.lookup(sym.desc.name), sym)) {
+          if (config.better && symbols.equivalent(fullEnv.lookup(sym.desc.name), sym)) {
             str(sym.desc.value)
           } else if (config.better && fullEnv.lookup(sym.desc.name).isEmpty) {
             addedImportsScope.addImport(sym)
@@ -114,7 +114,7 @@ class SemanticdbPrinter(
             if (needsParens) str(")")
           }
         case s.StructuralType(utpe, decls) =>
-          decls.infos.foreach(index.symbols.append)
+          decls.infos.foreach(symbols.append)
           opt(utpe)(normal)
           if (decls.infos.nonEmpty) {
             rep(" { ", decls.infos, "; ", " }")(pprint)
@@ -129,13 +129,13 @@ class SemanticdbPrinter(
           str(" ")
           rep(anns, " ", "")(pprint)
         case s.ExistentialType(utpe, decls) =>
-          decls.infos.foreach(index.symbols.append)
+          decls.infos.foreach(symbols.append)
           opt(utpe)(normal)
           rep(" forSome { ", decls.infos, "; ", " }")(pprint)
         case s.UniversalType(tparams, utpe) =>
           // FIXME: https://github.com/twitter/rsc/issues/150
           str("({ type λ")
-          tparams.infos.foreach(index.symbols.append)
+          tparams.infos.foreach(symbols.append)
           rep("[", tparams.infos, ", ", "] = ")(pprint)
           opt(utpe)(normal)
           str(" })#λ")
@@ -167,7 +167,7 @@ class SemanticdbPrinter(
 
   private def pprint(sym: String): Unit = {
     val printableName = {
-      val info = index.symbols.get(sym)
+      val info = symbols.get(sym)
       info match {
         case Some(info) =>
           if (info.isPackageObject) {
@@ -194,7 +194,7 @@ class SemanticdbPrinter(
 
   private def pprint(info: s.SymbolInformation): Unit = {
     if (info.isMethod && info.displayName.endsWith("_=")) return
-    index.symbols.append(info)
+    symbols.append(info)
     rep(info.annotations, " ", " ")(pprint)
     if (info.isCovariant) str("+")
     if (info.isContravariant) str("-")

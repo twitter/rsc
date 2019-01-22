@@ -96,7 +96,7 @@ final case class TemplateScope(symtab: Symtab, sym: String) extends Scope {
     s"template $sym"
   }
 
-  private val linearization = linearize(sym)
+  private lazy val linearization = linearize(sym)
 
   private def linearize(symbol: String): List[String] = {
     def replaceAndConcat(xs: List[String], ys: List[String]) = xs.filterNot(ys.contains) ++ ys
