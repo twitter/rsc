@@ -37,13 +37,11 @@ sealed class Env protected (val root: Root, val scopes: List[Scope]) extends Pre
   }
 
   // FIXME: https://github.com/twitter/rsc/issues/229
-  // This algorithm is now pretty close to the spec, but it still doesn't handle ambiguities.
+  // This algorithm is now pretty close to Scalac, but it still doesn't handle ambiguities.
   def resolve(name: Name): SymbolResolution = {
     type Priority = Int
-    val InsidePriority = 4
-    val ExplicitPriority = 3
-    val WildcardPriority = 2
-    val OutsidePriority = 1
+    val ExplicitPriority = 2
+    val WildcardPriority = 1
 
     var currentScopes: List[Scope] = scopes
     var currentResolution: SymbolResolution = MissingResolution
@@ -60,22 +58,24 @@ sealed class Env protected (val root: Root, val scopes: List[Scope]) extends Pre
           val priority = {
             scope match {
               case _: TemplateScope | _: SelfScope | _: WithScope | _: SignatureScope |
-                  _: ParamScope | _: TypeParamScope | _: ExistentialScope | _: RefineScope =>
+                  _: ParamScope | _: TypeParamScope | _: ExistentialScope | _: RefineScope |
+                  _: PackageScope =>
                 return resolution
               case scope: ImporterScope =>
                 resolution match {
                   case _: ExplicitSymbol => ExplicitPriority
                   case _: WildcardSymbol => WildcardPriority
                 }
-              case scope: PackageScope =>
-                if (root.contains(sym) && !sym.desc.isPackage) return resolution
-                else OutsidePriority
             }
           }
           if (priority > currentPriority) {
             currentResolution = resolution
             currentPriority = priority
           }
+      }
+      scope match {
+        case _: TemplateScope | _: PackageScope if currentPriority != -1 => return currentResolution
+        case _ => ()
       }
       currentScopes = currentScopes.tail
     }

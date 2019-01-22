@@ -99,7 +99,6 @@ final class Scheduler private (
             val sym = TermSymbol(scope.sym, outline.id.value)
             scope.enter(outline.id.name, sym)
             outline.id.sym = sym
-            env.root.add(sym)
             symtab.outlines.put(sym, outline)
             symtab.envs.put(sym, env)
         }
@@ -168,7 +167,6 @@ final class Scheduler private (
             ()
         }
         outline.id.sym = sym
-        env.root.add(sym)
         symtab.outlines.put(sym, outline)
         symtab.envs.put(sym, env)
     }
@@ -488,7 +486,6 @@ final class Scheduler private (
         val ownerSym = if (level == SourceLevel) EmptyPackage else env.owner.sym
         val classSym = TypeSymbol(ownerSym, outline.id.value)
         outline.id.sym = classSym
-        env.root.add(classSym)
         symtab.outlines.put(classSym, outline)
         essentialObjects.add(classSym.companionObject)
       case _ =>
