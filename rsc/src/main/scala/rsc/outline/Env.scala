@@ -37,16 +37,11 @@ sealed class Env protected (val root: Root, val scopes: List[Scope]) extends Pre
   }
 
   // FIXME: https://github.com/twitter/rsc/issues/229
-  // This algorithm is now pretty close to Scalac, but it still doesn't handle ambiguities.
+  // This algorithm is pretty close to Scalac, except that it doesn't handle invalid code correctly.
   def resolve(name: Name): SymbolResolution = {
-    type Priority = Int
-    val ExplicitPriority = 2
-    val WildcardPriority = 1
-
     var currentScopes: List[Scope] = scopes
     var currentResolution: SymbolResolution = MissingResolution
-    var currentPriority: Priority = -1
-
+    var currentPriority: Int = -1
     while (currentScopes.nonEmpty) {
       val scope = currentScopes.head
       scope.resolve(name) match {
@@ -55,22 +50,18 @@ sealed class Env protected (val root: Root, val scopes: List[Scope]) extends Pre
         case MissingResolution =>
           ()
         case resolution @ ResolvedSymbol(sym) =>
-          val priority = {
-            scope match {
-              case _: TemplateScope | _: SelfScope | _: WithScope | _: SignatureScope |
-                  _: ParamScope | _: TypeParamScope | _: ExistentialScope | _: RefineScope |
-                  _: PackageScope =>
-                return resolution
-              case scope: ImporterScope =>
-                resolution match {
-                  case _: ExplicitSymbol => ExplicitPriority
-                  case _: WildcardSymbol => WildcardPriority
-                }
-            }
-          }
-          if (priority > currentPriority) {
-            currentResolution = resolution
-            currentPriority = priority
+          scope match {
+            case scope: ImporterScope =>
+              val priority = resolution match {
+                case _: ExplicitSymbol => 1
+                case _: WildcardSymbol => 0
+              }
+              if (priority > currentPriority) {
+                currentResolution = resolution
+                currentPriority = priority
+              }
+            case _ =>
+              return resolution
           }
       }
       scope match {
@@ -79,7 +70,6 @@ sealed class Env protected (val root: Root, val scopes: List[Scope]) extends Pre
       }
       currentScopes = currentScopes.tail
     }
-
     currentResolution
   }
 
