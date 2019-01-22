@@ -165,8 +165,6 @@ object Build extends AutoPlugin {
       args += buildRoot.absolutePath
       args += "--rules"
       args += "scala:rsc.rules.RscCompat"
-      args += "--config"
-      args += s"${buildRoot.absolutePath}/.scalafix.conf"
       args += baseDirectory.value.absolutePath
       scalafix(args.result, baseDirectory.value)
     }

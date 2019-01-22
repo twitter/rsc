@@ -4,10 +4,17 @@ package scalafix.internal.v0
 
 import scalafix.v0._
 
-abstract class SemanticdbRule(legacyIndex: SemanticdbIndex, name: String)
+abstract class SemanticdbRule(legacyIndex: SemanticdbIndex, name: String, better: Boolean)
     extends SemanticRule(legacyIndex, name) {
 
-  lazy val index: DocumentIndex = {
-    new DocumentIndex(legacyIndex.asInstanceOf[LegacySemanticdbIndex])
+  lazy val symbols: DocumentSymbols = {
+    val scalafixIndex = legacyIndex.asInstanceOf[LegacySemanticdbIndex]
+    if (better) {
+      BetterDocumentSymbols(scalafixIndex)
+    } else {
+      val scalafixDoc = scalafixIndex.doc
+      val semanticdbDoc = scalafixDoc.internal.textDocument
+      RegularDocumentSymbols(semanticdbDoc)
+    }
   }
 }
