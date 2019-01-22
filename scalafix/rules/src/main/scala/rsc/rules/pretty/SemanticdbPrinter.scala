@@ -167,7 +167,7 @@ class SemanticdbPrinter(
 
   private def pprint(sym: String): Unit = {
     val printableName = {
-      val info = symbols.get(sym)
+      val info = symbols.info(sym)
       info match {
         case Some(info) =>
           if (info.isPackageObject) {
