@@ -308,7 +308,7 @@ final class Outliner private (
               case resolution: FailedResolution =>
                 resolution
               case ResolvedScope(qualScope) =>
-                val env1 = Env(List(qualScope), env.lang)
+                val env1 = Env(env.root, List(qualScope))
                 resolveSym(env1, id)
             }
           case id: NamedId =>
@@ -336,7 +336,7 @@ final class Outliner private (
               case resolution: FailedResolution =>
                 resolution
               case ResolvedScope(qualScope) =>
-                val env1 = Env(List(qualScope), env.lang)
+                val env1 = Env(env.root, List(qualScope))
                 resolveSym(env1, id)
             }
           case TermSelect(qual, id) =>
@@ -375,7 +375,7 @@ final class Outliner private (
                 resolution
               case ResolvedScope(qualScope) =>
                 // FIXME: https://github.com/twitter/rsc/issues/91
-                val env1 = Env(List(qualScope), env.lang)
+                val env1 = Env(env.root, List(qualScope))
                 resolveSym(env1, id)
             }
           case TptProject(qual, id) =>
@@ -390,7 +390,7 @@ final class Outliner private (
               case resolution: FailedResolution =>
                 resolution
               case ResolvedScope(qualScope) =>
-                val env1 = Env(List(qualScope), env.lang)
+                val env1 = Env(env.root, List(qualScope))
                 val resolution1 = env1.resolve(id.name)
                 resolution1 match {
                   case resolution1: AmbiguousResolution =>
@@ -408,7 +408,7 @@ final class Outliner private (
                           val qualSym2 = qualScope.sym.companionSymbol
                           if (symtab.scopes.contains(qualSym2)) {
                             val scope2 = symtab.scopes(qualSym2)
-                            val env2 = Env(List(scope2), env.lang)
+                            val env2 = Env(env.root, List(scope2))
                             env2.resolve(id.name)
                           } else {
                             resolution1

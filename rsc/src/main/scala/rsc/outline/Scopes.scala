@@ -277,7 +277,8 @@ final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
     crash(this)
   }
 
-  private def remap(name: Name): Name = {
+  private def remap(name: Name): (Name, Boolean) = {
+    var wildcard = false
     def loop(importees: List[Importee]): String = {
       importees match {
         case ImporteeName(AmbigId(value)) :: rest =>
@@ -291,26 +292,30 @@ final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
           if (name.value == value) null
           else loop(rest)
         case ImporteeWildcard() :: rest =>
+          wildcard = true
           name.value
         case Nil =>
           null
       }
     }
     val value1 = loop(tree.importees)
-    if (value1 != null) {
-      name match {
-        case _: TermName =>
-          TermName(value1)
-        case _: TypeName =>
-          TypeName(value1)
+    val name1 = {
+      if (value1 != null) {
+        name match {
+          case _: TermName =>
+            TermName(value1)
+          case _: TypeName =>
+            TypeName(value1)
+        }
+      } else {
+        null
       }
-    } else {
-      null
     }
+    (name1, wildcard)
   }
 
   override def resolve(name: Name): SymbolResolution = {
-    val name1 = remap(name)
+    val (name1, wildcard) = remap(name)
     if (name1 != null) {
       status match {
         case PendingStatus =>
@@ -330,8 +335,12 @@ final class ImporterScope private (val tree: Importer) extends Scope(NoSymbol) {
               } else {
                 resolution1
               }
-            case _: ResolvedSymbol =>
-              resolution1
+            case ResolvedSymbol(sym) =>
+              if (wildcard) {
+                WildcardSymbol(sym)
+              } else {
+                ExplicitSymbol(sym)
+              }
           }
       }
     } else {
@@ -421,6 +430,8 @@ object SelfScope {
 }
 
 class TemplateScope protected (val tree: DefnTemplate) extends OutlineScope(tree.id.sym) {
+  // FIXME: https://github.com/twitter/rsc/issues/229
+  // This shouldn't be modelled as Env since Env.resolve and linearization are two different things.
   var _parents: List[Scope] = null
   var _env: Env = null
 
@@ -435,7 +446,7 @@ class TemplateScope protected (val tree: DefnTemplate) extends OutlineScope(tree
   def parents_=(parents: List[Scope]): Unit = {
     if (status.isPending) {
       _parents = parents
-      _env = Env(_parents, tree.lang)
+      _env = Env(Root(tree.lang), _parents)
     } else {
       crash(this)
     }
@@ -489,7 +500,9 @@ object RefineScope {
 }
 
 final class WithScope private (val parents: List[Scope]) extends Scope(NoSymbol) {
-  var _env: Env = Env(parents, ScalaLanguage)
+  // FIXME: https://github.com/twitter/rsc/issues/229
+  // This shouldn't be modelled as Env since Env.resolve and linearization are two different things.
+  var _env: Env = Env(Root(ScalaLanguage), parents)
 
   override def enter(name: Name, sym: Symbol): Symbol = {
     crash(this)
