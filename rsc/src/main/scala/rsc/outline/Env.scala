@@ -9,7 +9,11 @@ import rsc.syntax._
 import rsc.util._
 import scala.annotation.tailrec
 
-sealed class Env protected (val scopes: List[Scope], val lang: Language) extends Pretty {
+sealed class Env protected (val root: Root, val scopes: List[Scope]) extends Pretty {
+  def lang: Language = {
+    root.lang
+  }
+
   def owner: OutlineScope = {
     def loop(scopes: List[Scope]): OutlineScope = {
       scopes match {
@@ -23,65 +27,60 @@ sealed class Env protected (val scopes: List[Scope], val lang: Language) extends
 
   def outer: Env = {
     scopes match {
-      case head :: tail => Env(tail, lang)
+      case head :: tail => Env(root, tail)
       case Nil => crash(this)
     }
   }
 
   def ::(scope: Scope): Env = {
-    Env(scope :: scopes, lang)
+    Env(root, scope :: scopes)
   }
 
   // FIXME: https://github.com/twitter/rsc/issues/229
+  // This algorithm is now pretty close to the spec, but it still doesn't handle ambiguities.
   def resolve(name: Name): SymbolResolution = {
-    @tailrec def loopTemplates(scopes: List[Scope]): SymbolResolution = {
-      scopes match {
-        case (head: TemplateScope) :: tail =>
-          head.resolve(name) match {
-            case MissingResolution => loopTemplates(tail)
-            case other => other
+    type Priority = Int
+    val InsidePriority = 4
+    val ExplicitPriority = 3
+    val WildcardPriority = 2
+    val OutsidePriority = 1
+
+    var currentScopes: List[Scope] = scopes
+    var currentResolution: SymbolResolution = MissingResolution
+    var currentPriority: Priority = -1
+
+    while (currentScopes.nonEmpty) {
+      val scope = currentScopes.head
+      scope.resolve(name) match {
+        case resolution @ (_: BlockedResolution | _: AmbiguousResolution | ErrorResolution) =>
+          return resolution
+        case MissingResolution =>
+          ()
+        case resolution @ ResolvedSymbol(sym) =>
+          val priority = {
+            scope match {
+              case _: TemplateScope | _: SelfScope | _: WithScope | _: SignatureScope |
+                  _: ParamScope | _: TypeParamScope | _: ExistentialScope | _: RefineScope =>
+                return resolution
+              case scope: ImporterScope =>
+                resolution match {
+                  case _: ExplicitSymbol => ExplicitPriority
+                  case _: WildcardSymbol => WildcardPriority
+                }
+              case scope: PackageScope =>
+                if (root.contains(sym) && !sym.desc.isPackage) return resolution
+                else OutsidePriority
+            }
           }
-        case _ :: tail =>
-          loopTemplates(tail)
-        case Nil =>
-          MissingResolution
-      }
-    }
-    @tailrec def loopPackages(scopes: List[Scope]): SymbolResolution = {
-      scopes match {
-        case (head: PackageScope) :: tail =>
-          head.resolve(name) match {
-            case MissingResolution => loopPackages(tail)
-            case other => other
+          if (priority > currentPriority) {
+            currentResolution = resolution
+            currentPriority = priority
           }
-        case _ :: tail =>
-          loopPackages(tail)
-        case Nil =>
-          MissingResolution
       }
+      currentScopes = currentScopes.tail
     }
-    @tailrec def loopOthers(scopes: List[Scope]): SymbolResolution = {
-      scopes match {
-        case head :: tail =>
-          head.resolve(name) match {
-            case MissingResolution => loopOthers(tail)
-            case other => other
-          }
-        case Nil =>
-          MissingResolution
-      }
-    }
-    loopTemplates(scopes) match {
-      case MissingResolution =>
-        loopPackages(scopes) match {
-          case MissingResolution =>
-            loopOthers(scopes)
-          case packageResolution =>
-            packageResolution
-        }
-      case templateResolution =>
-        templateResolution
-    }
+
+    currentResolution
   }
 
   def resolve(value: String): SymbolResolution = {
@@ -194,7 +193,7 @@ sealed class Env protected (val scopes: List[Scope], val lang: Language) extends
 }
 
 object Env {
-  def apply(scopes: List[Scope], lang: Language): Env = {
-    new Env(scopes, lang)
+  def apply(root: Root, scopes: List[Scope]): Env = {
+    new Env(root, scopes)
   }
 }

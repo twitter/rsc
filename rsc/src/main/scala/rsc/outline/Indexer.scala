@@ -17,12 +17,15 @@ final class Indexer private (
     symtab: Symtab,
     todo: Todo) {
   def apply(): Unit = {
+    val rootEnv = Env(Root(ScalaLanguage), Nil)
     val rootScope = PackageScope(RootPackage, classpath)
     symtab.scopes.put(rootScope.sym, rootScope)
-    todo.add(Env(Nil, ScalaLanguage), rootScope)
+    todo.add(rootEnv, rootScope)
+
+    val emptyEnv = Env(Root(ScalaLanguage), Nil)
     val emptyScope = PackageScope(EmptyPackage, classpath)
     symtab.scopes.put(emptyScope.sym, emptyScope)
-    todo.add(Env(Nil, ScalaLanguage), emptyScope)
+    todo.add(emptyEnv, emptyScope)
 
     sanityCheck("java/lang/", JavaLanguage, ScalaLanguage)
     sanityCheck("scala/", ScalaLanguage)

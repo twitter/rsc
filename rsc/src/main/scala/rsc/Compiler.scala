@@ -104,7 +104,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
   private def schedule(): Unit = {
     val scheduler = Scheduler(settings, reporter, gensyms, classpath, symtab, todo)
     trees.foreach { tree =>
-      val env = Env(Nil, tree.lang)
+      val env = Env(Root(tree.lang), Nil)
       scheduler.apply(env, tree)
     }
   }
