@@ -83,27 +83,24 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
           val env1 = PackageScope(symbols, ref.name.symbol.get.syntax) :: env
           stats.foldLeft(env1)(loop)
         case Pkg.Object(_, name, templ) =>
-          val env1 = TemplateScope(symbols, name.symbol.get.syntax) :: env
-          loop(env1, templ)
-        case defn @ Defn.Class(_, name, _, _, templ) if defn.isVisible =>
-          val env1 = TemplateScope(symbols, name.symbol.get.syntax) :: env
-
-          templ.inits.headOption.foreach { init =>
+          loop(env, templ)
+        case defn @ Defn.Class(_, _, _, _, templ) if defn.isVisible =>
+          loop(env, templ)
+        case defn @ Defn.Trait(_, _, _, _, templ) if defn.isVisible =>
+          loop(env, templ)
+        case defn @ Defn.Object(_, _, templ) if defn.isVisible =>
+          loop(env, templ)
+        case templ @ Template(early, inits, _, stats) =>
+          val name = templ.name.get
+          inits.headOption.foreach { init =>
             val tokens = init.tpe.tokens
             // If type params of init may be inferred
             if (!tokens.exists(_.is[Token.LeftBracket])) {
               buf += RewriteInit(env, name, tokens.last)
             }
           }
-          loop(env1, templ)
-        case defn @ Defn.Trait(_, name, _, _, templ) if defn.isVisible =>
           val env1 = TemplateScope(symbols, name.symbol.get.syntax) :: env
-          loop(env1, templ)
-        case defn @ Defn.Object(_, name, templ) if defn.isVisible =>
-          val env1 = TemplateScope(symbols, name.symbol.get.syntax) :: env
-          loop(env1, templ)
-        case Template(early, _, _, stats) =>
-          (early ++ stats).foldLeft(env)(loop)
+          (early ++ stats).foldLeft(env1)(loop)
         case defn @ InferredDefnField(name, body) if defn.isVisible =>
           val before = name.tokens.head
           val after = name.tokens.last

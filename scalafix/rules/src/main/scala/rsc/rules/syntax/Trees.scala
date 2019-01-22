@@ -127,4 +127,16 @@ trait Trees {
       }
     }
   }
+
+  implicit class TemplateOps(templ: Template) {
+    def name: Option[Name] = {
+      templ.parent.flatMap {
+        case Pkg.Object(_, name, _) => Some(name)
+        case defn @ Defn.Class(_, name, _, _, _) => Some(name)
+        case defn @ Defn.Trait(_, name, _, _, _) => Some(name)
+        case defn @ Defn.Object(_, name, _) => Some(name)
+        case _ => None
+      }
+    }
+  }
 }

@@ -30,16 +30,22 @@ object BetterRscCompat_Test {
     class CC[A](x: Int)
 
     class CD extends CA
+    object CD extends CA
 
     class CE extends CB
+    object CE extends CB
 
     class CF extends CC(1)
+    object CF extends CC(1)
 
     class CG extends CB(42)
+    object CG extends CB(42)
 
     class CH extends CB[Int](43)
+    object CH extends CB[Int](43)
 
     class CI extends CG
+    object CI extends CG
 
     object nested {
       class CA3[A, B, C](x: A, y: B, z: C)
