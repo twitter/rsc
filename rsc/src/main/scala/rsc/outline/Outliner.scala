@@ -220,11 +220,19 @@ final class Outliner private (
       case TptByName(tpt) =>
         apply(env, sketch, tpt)
       case existentialTpt @ TptExistential(tpt, stats) =>
-        val existentialScope = ExistentialScope()
-        symtab.scopes.put(existentialTpt, existentialScope)
-        val existentialEnv = existentialScope :: env
-        stats.foreach(scheduler.apply(existentialEnv, _))
-        existentialScope.succeed()
+        val existentialEnv = {
+          if (symtab.scopes.contains(existentialTpt)) {
+            val existentialScope = symtab.scopes(existentialTpt)
+            existentialScope :: env
+          } else {
+            val existentialScope = ExistentialScope()
+            symtab.scopes.put(existentialTpt, existentialScope)
+            val existentialEnv = existentialScope :: env
+            stats.foreach(scheduler.apply(existentialEnv, _))
+            existentialScope.succeed()
+            existentialEnv
+          }
+        }
         apply(existentialEnv, sketch, tpt)
       case TptIntersect(tpts) =>
         tpts.foreach(apply(env, sketch, _))
@@ -244,11 +252,19 @@ final class Outliner private (
       case tpt: TptPrimitive =>
         ()
       case refineTpt @ TptRefine(tpt, stats) =>
-        val refineScope = RefineScope()
-        symtab.scopes.put(refineTpt, refineScope)
-        val refineEnv = refineScope :: env
-        stats.foreach(scheduler.apply(refineEnv, _))
-        refineScope.succeed()
+        val refineEnv = {
+          if (symtab.scopes.contains(refineTpt)) {
+            val refineScope = symtab.scopes(refineTpt)
+            refineScope :: env
+          } else {
+            val refineScope = RefineScope()
+            symtab.scopes.put(refineTpt, refineScope)
+            val refineEnv = refineScope :: env
+            stats.foreach(scheduler.apply(refineEnv, _))
+            refineScope.succeed()
+            refineEnv
+          }
+        }
         tpt.foreach(apply(refineEnv, sketch, _))
       case TptRepeat(tpt) =>
         apply(env, sketch, tpt)

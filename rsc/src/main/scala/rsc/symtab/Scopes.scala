@@ -66,10 +66,16 @@ trait Scopes {
     }
 
     def put(tpt: TptExistential, scope: ExistentialScope): Unit = {
+      if (existentialScopes.containsKey(tpt)) {
+        crash(tpt)
+      }
       existentialScopes.put(tpt, scope)
     }
 
     def put(tpt: TptRefine, scope: RefineScope): Unit = {
+      if (refineScopes.containsKey(tpt)) {
+        crash(tpt)
+      }
       refineScopes.put(tpt, scope)
     }
 
