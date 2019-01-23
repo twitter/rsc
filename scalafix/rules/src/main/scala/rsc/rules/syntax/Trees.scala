@@ -51,10 +51,10 @@ trait Trees {
   }
 
   object InferredDefnDef {
-    def unapply(tree: Defn): Option[(Name, Term)] = {
+    def unapply(tree: Defn): Option[(Name, Term, List[List[Term.Param]])] = {
       tree match {
-        case defn @ Defn.Def(_, name, _, _, None, body) =>
-          Some((name, body))
+        case defn @ Defn.Def(_, name, _, paramss, None, body) =>
+          Some((name, body, paramss))
         case _ =>
           None
       }

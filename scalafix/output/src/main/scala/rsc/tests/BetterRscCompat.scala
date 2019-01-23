@@ -193,4 +193,23 @@ object BetterRscCompat_Test {
 
     val poc: PkgObjClass = new PkgObjClass
   }
+
+  object PolymorphicDefaultParams {
+
+    def foo[A](x: A = null: Null): A = x
+
+    def opt[A](x: Option[A] = None: None.type): A = x.get
+
+    def both[A, B](x: A = null: Null)(y: Option[B] = None: None.type): Option[Tuple2[B, A]] = y.map((_, x))
+
+    class Z
+    class Y extends Z
+
+    class X[A >: Y] {
+
+      def bar[B <: Z](a: Int, b: B, a2: Int = 4, c: A = new Y: A)
+        (d: A)
+        (e: B = new Y: Y, f: B = {val x = new Z; x}: Z): Tuple2[B, A] = (f, c)
+    }
+  }
 }

@@ -126,8 +126,12 @@ class SemanticdbPrinter(
           }
         case s.AnnotatedType(anns, utpe) =>
           opt(utpe)(normal)
-          str(" ")
-          rep(anns, " ", "")(pprint)
+          anns.toList match {
+            case s.Annotation(s.NoType) :: Nil =>
+              ()
+            case _ =>
+              rep(" ", anns, " ", "")(pprint)
+          }
         case s.ExistentialType(utpe, decls) =>
           decls.infos.foreach(symbols.append)
           opt(utpe)(normal)
