@@ -4,6 +4,7 @@ rules = "scala:rsc.rules.RscCompat"
 package rsc.tests
 
 import rsc.tests.BetterRscCompat_Test.AutoImport.oa.ob.od
+import testpkg._
 
 object BetterRscCompat_Test {
 
@@ -157,5 +158,38 @@ object BetterRscCompat_Test {
     def order[T] = new Ordering[T] {
       override def compare(x: T, y: T): Int = 0
     }
+  }
+
+  object TypeAliases {
+
+    object scope1 {
+      class MyClass
+
+      def foo: MyClass = null
+    }
+
+    object scope2 {
+      type MyClass = scope1.MyClass
+
+      def foo: MyClass = null
+    }
+
+    object right2left {
+      import scope1.MyClass
+
+      val bar = scope2.foo
+    }
+
+    object left2right {
+      import scope2.MyClass
+
+      val bar = scope1.foo
+    }
+  }
+
+  object PackageObjects {
+    val o2c = O1.foo
+
+    val poc = new PkgObjClass
   }
 }
