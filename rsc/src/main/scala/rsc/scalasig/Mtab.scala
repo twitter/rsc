@@ -91,6 +91,12 @@ class Mtab private (infos: Infos) {
     if (impl != null) get(impl)
     else None
   }
+
+  def children(sym: String): Option[List[String]] = {
+    val children = infos.children.get(sym)
+    if (children != null) Some(children.toList)
+    else None
+  }
 }
 
 object Mtab {
