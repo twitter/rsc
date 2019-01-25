@@ -7,6 +7,7 @@ import rsc.classpath._
 import rsc.input._
 import rsc.semantics._
 import rsc.util._
+import scala.collection.mutable
 import scala.meta.internal.{semanticdb => s}
 
 class Infos private (classpathInfos: Classpath) {
@@ -14,6 +15,7 @@ class Infos private (classpathInfos: Classpath) {
   private val outlinePositions = new HashMap[Symbol, Position]
   val staticOwners = new HashSet[Symbol]
   val macroImpls = new HashMap[Symbol, Symbol]
+  val children = new HashMap[Symbol, mutable.UnrolledBuffer[Symbol]]
 
   def contains(sym: Symbol): Boolean = {
     outlineInfos.containsKey(sym) ||

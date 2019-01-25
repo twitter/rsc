@@ -34,6 +34,13 @@ final class Writer private (
   def write(outline: Outline): Unit = {
     val converter = Converter(settings, reporter, gensyms, symtab, outline)
     if (!converter.isEligible) return
+    writeInfo(outline)
+    writeChildren(outline)
+    writeIndex(outline)
+    writeDebug(outline)
+  }
+
+  private def writeInfo(outline: Outline): Unit = {
     val input = outline.pos.input
     if (input == NoInput) crash(outline)
     var symbolBuf = symbolBufs.get(input)
@@ -41,25 +48,74 @@ final class Writer private (
       symbolBuf = mutable.UnrolledBuffer[s.SymbolInformation]()
       symbolBufs.put(input, symbolBuf)
     }
-    val sym = outline.id.sym
+    val converter = Converter(settings, reporter, gensyms, symtab, outline)
     val info = converter.toSymbolInformation
     symbolBuf += info
-    infos.put(sym, info, outline.pos)
+    infos.put(outline.id.sym, info, outline.pos)
+  }
+
+  private def writeChildren(outline: Outline): Unit = {
+    outline match {
+      case outline: DefnTemplate =>
+        outline.parents.foreach {
+          case Init(tpt, _) =>
+            def loop(tpt: Tpt): Unit = {
+              tpt match {
+                case path: TptPath =>
+                  symtab.metadata(path.id.sym) match {
+                    case OutlineMetadata(parent: Outline) =>
+                      if (parent.mods.hasSealed) {
+                        var children = infos.children.get(parent.id.sym)
+                        if (children == null) {
+                          children = mutable.UnrolledBuffer[Symbol]()
+                          infos.children.put(parent.id.sym, children)
+                        }
+                        children.append(outline.id.sym)
+                      }
+                    case _ =>
+                      ()
+                  }
+                case TptAnnotate(tpt, mods) =>
+                  loop(tpt)
+                case TptApply(tpt, targs) =>
+                  loop(tpt)
+                case TptWildcardExistential(_, tpt) =>
+                  loop(tpt)
+                case _ =>
+                  crash(tpt)
+              }
+            }
+            loop(tpt)
+          case ParentExtends(tpt) =>
+            ()
+          case ParentImplements(tpt) =>
+            ()
+        }
+      case _ =>
+        ()
+    }
+  }
+
+  private def writeIndex(outline: Outline): Unit = {
+    val sym = outline.id.sym
     if (sym.owner.desc.isPackage) {
       sym.ownerChain.foreach { sym =>
         if (sym.desc.isPackage) {
           entryBuf(sym) = i.PackageEntry()
         } else {
-          val uri = cwd.relativize(input.path.toAbsolutePath).toString + ".semanticdb"
+          val uri = cwd.relativize(outline.pos.input.path.toAbsolutePath).toString + ".semanticdb"
           entryBuf(sym) = i.ToplevelEntry(uri)
         }
       }
     }
+  }
+
+  private def writeDebug(outline: Outline): Unit = {
     if (settings.debug) {
-      var occurrenceBuf = occurrenceBufs.get(input)
+      var occurrenceBuf = occurrenceBufs.get(outline.pos.input)
       if (occurrenceBuf == null) {
         occurrenceBuf = mutable.UnrolledBuffer[s.SymbolOccurrence]()
-        occurrenceBufs.put(input, occurrenceBuf)
+        occurrenceBufs.put(outline.pos.input, occurrenceBuf)
       }
       val pos = {
         if (outline.id.pos != NoPosition) outline.id.pos

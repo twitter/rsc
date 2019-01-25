@@ -116,6 +116,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
           } else if (ssym.isObject || ssym.isPackageObject ||
                      ssym.isClass || ssym.isInterface || ssym.isTrait) {
             val thisType = stack.inSelf(ssym.sself.map(emitTpe))
+            emitChildren(ssym)
             ClassSymbol(name, owner, flags, within, info, thisType)
           } else if (ssym.isDef || ssym.isParam || ssym.isField) {
             // FIXME: https://github.com/twitter/rsc/issues/100
@@ -468,6 +469,16 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
 
   private def emitTree(tree: Tree): Ref = {
     entries.update(tree)
+  }
+
+  private def emitChildren(ssym: String): Unit = {
+    mtab.children(ssym).foreach { schildren =>
+      entries.getOrElseUpdate(ChildrenKey(ssym)) {
+        val sym = emitSym(ssym, RefMode)
+        val children = schildren.map(emitSym(_, RefMode))
+        Children(sym, children)
+      }
+    }
   }
 
   def toScalasig: Scalasig = {
