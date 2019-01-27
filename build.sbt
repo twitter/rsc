@@ -2,7 +2,7 @@ lazy val V = new {
   val asm = "6.0"
   val scala = computeScalaVersionFromTravisYml("2.11")
   val scalafix = computeScalafixVersionFromBinScalafix()
-  val scalameta = "4.1.1-1-34a64252"
+  val scalameta = "4.1.1"
   val scalatest = "3.0.5"
 }
 
@@ -119,7 +119,6 @@ lazy val rsc = project
     commonSettings,
     publishableSettings,
     libraryDependencies += "org.scalameta" %% "semanticdb" % V.scalameta,
-    libraryDependencies += "org.scalameta" %% "symtab" % V.scalameta,
     libraryDependencies += "com.lihaoyi" %% "fastparse" % "1.0.0",
     mainClass := Some("rsc.cli.Main")
   )

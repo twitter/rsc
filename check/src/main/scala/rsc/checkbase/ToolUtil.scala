@@ -100,18 +100,20 @@ trait ToolUtil extends CacheUtil with NscUtil {
     import _root_.rsc.report._
     import _root_.rsc.settings._
     val out = Files.createTempDirectory("rsc_")
-    val settings = Settings(cp = classpath, d = out, ins = sources)
-    val reporter = StoreReporter(settings)
-    val compiler = Compiler(settings, reporter)
-    try {
-      compiler.run()
-      if (reporter.problems.isEmpty) {
-        Right(out)
-      } else {
-        Left(reporter.problems.map(_.str))
+    rsci(classpath).right.flatMap { rscClasspath =>
+      val settings = Settings(cp = rscClasspath, d = out, ins = sources)
+      val reporter = StoreReporter(settings)
+      val compiler = Compiler(settings, reporter)
+      try {
+        compiler.run()
+        if (reporter.problems.isEmpty) {
+          Right(out)
+        } else {
+          Left(reporter.problems.map(_.str))
+        }
+      } finally {
+        compiler.close()
       }
-    } finally {
-      compiler.close()
     }
   }
 
