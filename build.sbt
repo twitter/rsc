@@ -70,10 +70,8 @@ lazy val check = project
     libraryDependencies += "io.github.soc" % "directories" % "10",
     libraryDependencies += "org.scala-lang" % "scala-compiler" % V.scala,
     libraryDependencies += "org.scalameta" %% "cli" % V.scalameta,
-    libraryDependencies += "org.scalameta" %% "metac" % V.scalameta cross CrossVersion.full,
     libraryDependencies += "org.scalameta" %% "metacp" % V.scalameta,
     libraryDependencies += "org.scalameta" %% "metai" % V.scalameta,
-    libraryDependencies += "org.scalameta" %% "metap" % V.scalameta,
     libraryDependencies += "org.slf4j" % "slf4j-api" % "1.7.25",
     libraryDependencies += "org.slf4j" % "log4j-over-slf4j" % "1.7.25"
   )
