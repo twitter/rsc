@@ -4,6 +4,7 @@ package rsc.checkoutline
 
 import java.nio.file._
 import rsc.checkbase._
+import rsc.pretty._
 import rsc.util._
 import scala.collection.mutable
 import scala.meta.internal.semanticdb._
@@ -30,7 +31,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
             ()
           } else if ((nscInfo.displayName.contains("$default$") ||
                      nscInfo.displayName == "unapply") &&
-                     nscInfo.signature.asMessage.toProtoString.contains("existential_type")) {
+                     nscInfo.str.contains("existential_type")) {
             // FIXME: https://github.com/twitter/rsc/issues/274
             ()
           } else {
@@ -306,7 +307,7 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
   }
 
   private def lowlevelRepr(info: SymbolInformation): String = {
-    info.toProtoString
+    info.str
   }
 
   private def lowlevelPatch(s: String): String = {
@@ -318,32 +319,6 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     s1 = s1.replaceAll("symbol: \".*?\\._\\$(\\d+)#\"", "symbol: \"localNNN\"")
     // FIXME: https://github.com/scalameta/scalameta/issues/1797
     s1 = s1.replaceAll("symbol: \"(.*)##\"", "symbol: \"$1.\"")
-    val rxProperties = "properties: (-?\\d+)".r
-    s1 = rxProperties.replaceAllIn(
-      s1, { m =>
-        val props = m.group(1).toInt
-        val buf = List.newBuilder[String]
-        def has(prop: SymbolInformation.Property): Boolean = (props & prop.value) != 0
-        if (has(p.ABSTRACT)) buf += "ABSTRACT"
-        if (has(p.FINAL)) buf += "FINAL"
-        if (has(p.SEALED)) buf += "SEALED"
-        if (has(p.IMPLICIT)) buf += "IMPLICIT"
-        if (has(p.LAZY)) buf += "LAZY"
-        if (has(p.CASE)) buf += "CASE"
-        if (has(p.COVARIANT)) buf += "COVARIANT"
-        if (has(p.CONTRAVARIANT)) buf += "CONTRAVARIANT"
-        if (has(p.VAL)) buf += "VAL"
-        if (has(p.VAR)) buf += "VAR"
-        if (has(p.STATIC)) buf += "STATIC"
-        if (has(p.PRIMARY)) buf += "PRIMARY"
-        if (has(p.ENUM)) buf += "ENUM"
-        if (has(p.DEFAULT)) buf += "DEFAULT"
-        if (has(p.OVERRIDE)) buf += "OVERRIDE"
-        if (has(p.ABSOVERRIDE)) buf += "ABSOVERRIDE"
-        if (has(p.SYNTHETIC)) buf += "SYNTHETIC"
-        s"properties: ${buf.result.mkString(" | ")}"
-      }
-    )
     s1
   }
 

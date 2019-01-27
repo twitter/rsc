@@ -4,6 +4,8 @@ package rsc.pretty
 
 import rsc.util._
 import scala.{Symbol => StdlibSymbol}
+import scala.meta.internal.{semanticdb => s}
+import scalapb._
 
 trait Repl[T] {
   def apply(p: Printer, x: T): Unit
@@ -133,5 +135,17 @@ object Repl {
         p.repl(v)
     }
     p.str(")")
+  }
+
+  implicit def generatedMessage[T <: GeneratedMessage]: Repl[T] = Repl { (p, m) =>
+    ???
+  }
+
+  implicit def semanticdbType: Repl[s.Type] = Repl { (p, tpe) =>
+    ???
+  }
+
+  implicit def semanticdbSignature: Repl[s.Signature] = Repl { (p, sig) =>
+    ???
   }
 }

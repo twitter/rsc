@@ -55,7 +55,7 @@ trait Templates {
                         val s.TypeSignature(_, _, s.TypeRef(_, hiSym, _)) = info.signature
                         loop(hiSym)
                       case _ =>
-                        crash(info.toProtoString)
+                        crash(info)
                     }
                   case NoMetadata =>
                     crash(sym)

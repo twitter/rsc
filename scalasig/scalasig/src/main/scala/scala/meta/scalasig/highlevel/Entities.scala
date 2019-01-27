@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package scala.meta.scalasig.highlevel
 
+import scala.meta.scalasig._
 import scala.meta.internal.scalasig._
 
 sealed trait Entity extends Pretty
@@ -16,7 +17,7 @@ sealed trait Symbol extends Entity {
   var name: Name = null
 }
 case object NoSymbol extends Symbol { def id = "" }
-sealed trait EmbeddedSymbol extends Symbol {
+sealed trait EmbeddedSymbol extends Symbol with Flagged {
   var scalasig: Scalasig = null
   var flags: Long = 0
   var within: Symbol = null
@@ -121,4 +122,4 @@ case class AppliedTypeTree(fun: Tree, targs: List[Tree]) extends Tree
 case class TypeBoundsTree(lo: Tree, hi: Tree) extends Tree
 case class ExistentialTypeTree(tpt: Tree, decls: List[Tree]) extends Tree
 case class ImportSelector(name: Name, rename: Name) extends Entity
-case class Modifiers(flags: Long, within: Symbol) extends Entity
+case class Modifiers(flags: Long, within: Symbol) extends Entity with Flagged

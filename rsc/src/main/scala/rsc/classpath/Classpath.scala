@@ -4,21 +4,23 @@
 package rsc.classpath
 
 import java.nio.file._
-import java.nio.file.attribute._
 import java.util.HashMap
-import java.util.jar._
-import rsc.semantics._
+import rsc.classpath.javacp._
+import rsc.classpath.scalacp._
 import rsc.util._
-import scala.collection.JavaConverters._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.{Language => l}
-import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
+import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
+import scala.meta.scalasig._
+import scala.meta.scalasig.lowlevel._
+import scala.reflect.NameTransformer
 
-final class Classpath private (entries: HashMap[Symbol, Entry]) extends AutoCloseable {
-  private val infos = new HashMap[Symbol, s.SymbolInformation]
+final class Classpath private (index: Index) extends AutoCloseable {
+  private val infos = new HashMap[String, s.SymbolInformation]
+  Scalalib.synthetics.foreach(info => infos.put(info.symbol, info))
 
-  def contains(sym: Symbol): Boolean = {
+  def contains(sym: String): Boolean = {
     if (infos.containsKey(sym)) {
       true
     } else {
@@ -27,7 +29,7 @@ final class Classpath private (entries: HashMap[Symbol, Entry]) extends AutoClos
     }
   }
 
-  def apply(sym: Symbol): s.SymbolInformation = {
+  def apply(sym: String): s.SymbolInformation = {
     val info = infos.get(sym)
     if (info != null) {
       info
@@ -39,110 +41,56 @@ final class Classpath private (entries: HashMap[Symbol, Entry]) extends AutoClos
     }
   }
 
-  private def load(sym: Symbol): Unit = {
+  private def load(sym: String): Unit = {
     val info = infos.get(sym)
     if (info == null) {
-      val entry = {
-        sym.desc match {
-          case d.Package(value) =>
-            entries.get(sym)
-          case desc =>
-            val key = sym.owner + desc.value + ".class"
-            entries.get(key)
+      if (sym.desc.isPackage || sym.owner.desc.isPackage) {
+        val key = {
+          val base = sym.owner.stripPrefix("_empty_/").stripPrefix("_root_/")
+          if (sym.desc.isPackage) base + NameTransformer.encode(sym.desc.value) + "/"
+          else base + NameTransformer.encode(sym.desc.value) + ".class"
         }
-      }
-      entry match {
-        case PackageEntry() =>
-          val info = s.SymbolInformation(
-            symbol = sym,
-            language = l.SCALA,
-            kind = k.PACKAGE,
-            displayName = sym.desc.value
-          )
-          infos.put(info.symbol, info)
-        case entry: FileEntry =>
-          val stream = entry.openStream()
-          try {
-            ???
-          } finally {
-            stream.close()
+        if (index.contains(key)) {
+          index(key) match {
+            case PackageEntry() =>
+              val info = s.SymbolInformation(
+                symbol = sym,
+                language = l.SCALA,
+                kind = k.PACKAGE,
+                displayName = sym.desc.value
+              )
+              infos.put(info.symbol, info)
+            case entry: FileEntry =>
+              val binary = {
+                val stream = entry.openStream()
+                try BytesBinary(stream.readAllBytes())
+                finally stream.close()
+              }
+              val payload = Scalasig.fromBinary(binary) match {
+                case FailedClassfile(_, cause) => crash(cause)
+                case FailedScalasig(_, _, cause) => crash(cause)
+                case EmptyScalasig(_, Classfile(_, _, JavaPayload(node))) => Javacp.parse(node, index)
+                case EmptyScalasig(_, Classfile(name, _, _)) => crash(name)
+                case ParsedScalasig(_, _, scalasig) => Scalacp.parse(scalasig, index)
+              }
+              payload.foreach(info => infos.put(info.symbol, info))
           }
-        case null =>
-          if (sym.owner != NoSymbol) load(sym.owner)
-          else ()
+        }
+      } else {
+        if (sym.owner != "") load(sym.owner)
+        else ()
       }
     }
   }
 
   def close(): Unit = {
-    entries.values.iterator.asScala.foreach {
-      case CompressedEntry(jar, _) => jar.close()
-      case _ => ()
-    }
+    index.close()
   }
 }
 
 object Classpath {
   def apply(paths: List[Path]): Classpath = {
-    val entries = new HashMap[String, Entry]
-    def visit(root: Path): Unit = {
-      if (Files.exists(root)) {
-        if (Files.isDirectory(root)) {
-          Files.walkFileTree(root, new SimpleFileVisitor[Path] {
-            override def visitFile(
-                file: Path,
-                attrs: BasicFileAttributes
-            ): FileVisitResult = {
-              if (file.toString.endsWith(".class")) {
-                val key = root.relativize(file).toString
-                entries.put(key, UncompressedEntry(file))
-              }
-              super.visitFile(file, attrs)
-            }
-            override def preVisitDirectory(
-                dir: Path,
-                attrs: BasicFileAttributes
-            ): FileVisitResult = {
-              if (dir.endsWith("META-INF")) {
-                FileVisitResult.SKIP_SUBTREE
-              } else {
-                val key = root.relativize(dir).toString + "/"
-                entries.put(key, PackageEntry())
-                super.preVisitDirectory(dir, attrs)
-              }
-            }
-          })
-        } else if (root.toString.endsWith(".jar")) {
-          val jar = new JarFile(root.toFile)
-          val jarEntries = jar.entries()
-          while (jarEntries.hasMoreElements) {
-            val jarEntry = jarEntries.nextElement()
-            if (jarEntry.getName.endsWith(".class") && !jarEntry.getName.startsWith("META-INF")) {
-              val key = jarEntry.getName
-              entries.put(key, CompressedEntry(jar, jarEntry))
-              val parts = jarEntry.getName.split("/").toList.dropRight(1)
-              val packages = parts.inits.toList.dropRight(1).map(parts => parts.mkString("/") + "/")
-              packages.foreach(entries.put(_, PackageEntry()))
-            }
-          }
-          val manifest = jar.getManifest
-          if (manifest != null) {
-            val classpathAttr = manifest.getMainAttributes.getValue("Class-Path")
-            if (classpathAttr != null) {
-              classpathAttr.split(" ").foreach { relativePath =>
-                val parentPath = root.toAbsolutePath.getParent
-                visit(parentPath.resolve(relativePath))
-              }
-            }
-          }
-        } else {
-          ()
-        }
-      } else {
-        ()
-      }
-    }
-    paths.foreach(visit)
-    new Classpath(entries)
+    val index = Index(paths)
+    new Classpath(index)
   }
 }
