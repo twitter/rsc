@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.bench
 
-import java.nio.file._
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.annotations.Mode._
@@ -15,7 +14,6 @@ import org.openjdk.jmh.annotations.Mode._
 class RscScalasig extends RscBenchmark {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
-    val rscOut = Files.createTempFile("rsc_", ".jar")
-    runCompiler("-cp", bs.rscDeps, "-d", rscOut, "-artifacts", "semanticdb,scalasig", bs.files)
+    benchCompiler("-cp", bs.rscDeps, "-artifacts", "semanticdb,scalasig", bs.files)
   }
 }

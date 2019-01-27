@@ -14,6 +14,6 @@ import org.openjdk.jmh.annotations.Mode._
 class RscOutline extends RscBenchmark {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
-    runCompiler("-Ystop-after:outline", "-cp", bs.rscDeps, bs.files)
+    benchCompiler("-Ystop-after:outline", "-cp", bs.rscDeps, bs.files)
   }
 }

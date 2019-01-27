@@ -14,6 +14,6 @@ import org.openjdk.jmh.annotations.Mode._
 class RscIndex extends RscBenchmark {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
-    runCompiler("-Ystop-after:index", "-cp", bs.rscDeps, bs.files)
+    benchCompiler("-Ystop-after:index", "-cp", bs.rscDeps, bs.files)
   }
 }
