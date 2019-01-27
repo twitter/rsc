@@ -1,9 +1,10 @@
 // Copyright (c) 2017-2019 Twitter, Inc.
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
+// NOTE: This file has been partially copy/pasted from scalameta/scalameta.
 package rsc.classpath
 
-import java.io._
 import java.nio.file._
+import java.nio.file.attribute._
 import java.util.HashMap
 import java.util.jar._
 import rsc.semantics._
@@ -11,8 +12,8 @@ import rsc.util._
 import scala.collection.JavaConverters._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.{Language => l}
+import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
-import scala.meta.internal.{semanticidx => i}
 
 final class Classpath private (entries: HashMap[Symbol, Entry]) extends AutoCloseable {
   private val infos = new HashMap[Symbol, s.SymbolInformation]
@@ -41,7 +42,15 @@ final class Classpath private (entries: HashMap[Symbol, Entry]) extends AutoClos
   private def load(sym: Symbol): Unit = {
     val info = infos.get(sym)
     if (info == null) {
-      val entry = entries.get(sym)
+      val entry = {
+        sym.desc match {
+          case d.Package(value) =>
+            entries.get(sym)
+          case desc =>
+            val key = sym.owner + desc.value + ".class"
+            entries.get(key)
+        }
+      }
       entry match {
         case PackageEntry() =>
           val info = s.SymbolInformation(
@@ -54,33 +63,7 @@ final class Classpath private (entries: HashMap[Symbol, Entry]) extends AutoClos
         case entry: FileEntry =>
           val stream = entry.openStream()
           try {
-            val documents = s.TextDocuments.parseFrom(stream)
-            documents.documents.foreach { document =>
-              document.symbols.foreach { info =>
-                if (info.symbol.isGlobal) {
-                  val desc = info.symbol.desc
-                  if (desc.isMethod) {
-                    info.signature match {
-                      case s.MethodSignature(_, paramss, _) =>
-                        val isNullaryOrCompatible = paramss match {
-                          case Seq() => true
-                          case Seq(params) => params.symbols.isEmpty
-                          case _ => false
-                        }
-                        if (isNullaryOrCompatible) {
-                          val symbol1 = MethodSymbol(info.symbol.owner, desc.value, "()")
-                          val info1 = info.copy(symbol = symbol1)
-                          infos.put(info1.symbol, info1)
-                        }
-                      case _ =>
-                        ()
-                    }
-                  } else {
-                    infos.put(info.symbol, info)
-                  }
-                }
-              }
-            }
+            ???
           } finally {
             stream.close()
           }
@@ -100,75 +83,54 @@ final class Classpath private (entries: HashMap[Symbol, Entry]) extends AutoClos
 }
 
 object Classpath {
-  def apply(classpath: List[Path]): Classpath = {
-    val entries = new HashMap[Symbol, Entry]
-    def visit(path: Path): Unit = {
-      def fail(): Nothing = {
-        val explanation = s"""
-        |$path is not a supported classpath entry.
-        |Rsc only supports indexed SemanticDB classpaths.
-        |Indexed SemanticDB classpaths consist of directories or jars that have:
-        |  1) META-INF/semanticdb subdirectory with SemanticDB payloads.
-        |  2) META-INF/semanticdb.semanticidx file with an index of the payloads.
-        |Regular classpaths can be converted to SemanticDB classpaths via Metacp.
-        |SemanticDB classpaths can be indexed via Metai.
-        """.trim.stripMargin
-        crash(explanation)
-      }
-      if (Files.exists(path)) {
-        if (Files.isDirectory(path)) {
-          val indexPath = path.resolve("META-INF/semanticdb.semanticidx")
-          val semanticdbRoot = path.resolve("META-INF/semanticdb")
-          if (Files.exists(indexPath)) {
-            val iindexes = {
-              val unbufferedStream = Files.newInputStream(indexPath)
-              val stream = new BufferedInputStream(unbufferedStream)
-              try i.Indexes.parseFrom(stream)
-              finally stream.close()
+  def apply(paths: List[Path]): Classpath = {
+    val entries = new HashMap[String, Entry]
+    def visit(root: Path): Unit = {
+      if (Files.exists(root)) {
+        if (Files.isDirectory(root)) {
+          Files.walkFileTree(root, new SimpleFileVisitor[Path] {
+            override def visitFile(
+                file: Path,
+                attrs: BasicFileAttributes
+            ): FileVisitResult = {
+              if (file.toString.endsWith(".class")) {
+                val key = root.relativize(file).toString
+                entries.put(key, UncompressedEntry(file))
+              }
+              super.visitFile(file, attrs)
             }
-            iindexes.indexes.foreach { iindex =>
-              iindex.entries.foreach {
-                case (isym, i.PackageEntry()) =>
-                  entries.put(isym, PackageEntry())
-                case (isym, i.ToplevelEntry(iuri)) =>
-                  val semanticdbPath = semanticdbRoot.resolve(iuri)
-                  entries.put(isym, UncompressedEntry(semanticdbPath))
-                case (isym, i.Entry.Empty) =>
-                  ()
+            override def preVisitDirectory(
+                dir: Path,
+                attrs: BasicFileAttributes
+            ): FileVisitResult = {
+              if (dir.endsWith("META-INF")) {
+                FileVisitResult.SKIP_SUBTREE
+              } else {
+                val key = root.relativize(dir).toString + "/"
+                entries.put(key, PackageEntry())
+                super.preVisitDirectory(dir, attrs)
               }
             }
-          } else {
-            fail()
-          }
-        } else if (path.toString.endsWith(".jar")) {
-          val jar = new JarFile(path.toFile)
-          val indexEntry = jar.getEntry("META-INF/semanticdb.semanticidx")
-          if (indexEntry != null) {
-            val iindexes = {
-              val stream = jar.getInputStream(indexEntry)
-              try i.Indexes.parseFrom(stream)
-              finally stream.close()
+          })
+        } else if (root.toString.endsWith(".jar")) {
+          val jar = new JarFile(root.toFile)
+          val jarEntries = jar.entries()
+          while (jarEntries.hasMoreElements) {
+            val jarEntry = jarEntries.nextElement()
+            if (jarEntry.getName.endsWith(".class") && !jarEntry.getName.startsWith("META-INF")) {
+              val key = jarEntry.getName
+              entries.put(key, CompressedEntry(jar, jarEntry))
+              val parts = jarEntry.getName.split("/").toList.dropRight(1)
+              val packages = parts.inits.toList.dropRight(1).map(parts => parts.mkString("/") + "/")
+              packages.foreach(entries.put(_, PackageEntry()))
             }
-            iindexes.indexes.foreach { iindex =>
-              iindex.entries.foreach {
-                case (isym, i.PackageEntry()) =>
-                  entries.put(isym, PackageEntry())
-                case (isym, i.ToplevelEntry(iuri)) =>
-                  val jarEntry = jar.getEntry("META-INF/semanticdb/" + iuri)
-                  entries.put(isym, CompressedEntry(jar, jarEntry))
-                case (isym, i.Entry.Empty) =>
-                  ()
-              }
-            }
-          } else {
-            fail()
           }
           val manifest = jar.getManifest
           if (manifest != null) {
             val classpathAttr = manifest.getMainAttributes.getValue("Class-Path")
             if (classpathAttr != null) {
               classpathAttr.split(" ").foreach { relativePath =>
-                val parentPath = path.toAbsolutePath.getParent
+                val parentPath = root.toAbsolutePath.getParent
                 visit(parentPath.resolve(relativePath))
               }
             }
@@ -180,7 +142,7 @@ object Classpath {
         ()
       }
     }
-    classpath.foreach(visit)
+    paths.foreach(visit)
     new Classpath(entries)
   }
 }

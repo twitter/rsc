@@ -42,9 +42,7 @@ final class Indexer private (
         |Unlike Javac and Scalac, Rsc does not automatically prepopulate its classpath.
         |Please pass the following libraries explicitly:
         |  1) JDK libraries that are used in your code.
-        |  2) (If compiling Scala code) Scala library
-        |  3) (If compiling Scala code) Scala library synthetics, i.e. a SemanticDB-only
-        |     artifact produced by the Metacp tool from the Scalameta toolchain.
+        |  2) (If compiling Scala code) Scala library.
         """.trim.stripMargin)
       }
     }
