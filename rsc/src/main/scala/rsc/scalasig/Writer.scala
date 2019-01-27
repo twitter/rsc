@@ -42,7 +42,7 @@ final class Writer private (settings: Settings, reporter: Reporter, infos: Infos
     if (mtab.contains(companionSym)) {
       val markerName = classfile.name + "$"
       val markerSource = classfile.source
-      val markerClassfile = Classfile(markerName, markerSource, None)
+      val markerClassfile = Classfile(markerName, markerSource, NoPayload)
       val markerPath = Paths.get(markerClassfile.name + ".class")
       output.write(markerPath, markerClassfile.toBinary)
     }

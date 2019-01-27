@@ -21,9 +21,9 @@ class ScalametaTests extends RscTests {
         result match {
           case ParsedScalasig(_, classfile1, scalasig1) =>
             scalasigActuals(scalasig1.name) = scalasig1
-            val scalasigBytes1 = classfile1.scalasigBytes.get
+            val scalasigBytes1 = classfile1.payload.asInstanceOf[ScalaPayload].scalasigBytes
             val classfile2 = scalasig1.toClassfile
-            val scalasigBytes2 = classfile2.scalasigBytes.get
+            val scalasigBytes2 = classfile2.payload.asInstanceOf[ScalaPayload].scalasigBytes
             assertEquals("scalasigBytes1", scalasigBytes1, "scalasigBytes2", scalasigBytes2)
             Scalasig.fromClassfile(classfile2) match {
               case ParsedScalasig(_, _, scalasig2) =>
