@@ -202,14 +202,54 @@ object BetterRscCompat_Test {
 
     def both[A, B](x: A = null: Null)(y: Option[B] = None: None.type): Option[Tuple2[B, A]] = y.map((_, x))
 
+    def outer[A](x: A = null: Null): Tuple3[A, A, A] = {
+      def inner[B](y: A = x, z: B = null) = (x, y, z)
+      inner(x, x)
+    }
+
     class Z
     class Y extends Z
 
-    class X[A >: Y] {
+    abstract class X[A >: Y](val x1: A = null: Null, val x2: Option[A] = None: None.type) {
 
-      def bar[B <: Z](a: Int, b: B, a2: Int = 4, c: A = new Y: A)
+      def this(x4: A) = this(x4, Some(x4))
+
+      def bar[B <: Z](a: Int, b: B, a2: Int = 4, c: A = new Y)
         (d: A)
-        (e: B = new Y: Y, f: B = {val x = new Z; x}: Z): Tuple2[B, A] = (f, c)
+        (e: B = new Y: Y, f: Option[B] = {val x = new Z; Some(x)}: Some[Z]): Tuple2[Option[B], A] = (f, c)
+
+      def bar2[B >: Y](a: Int, b: B, c: A = new Y, e: B = new Y: Y)
+
+      class Inner[B](val x1: A = null, val x2: B = null: Null)
+        (x3: B = null: Null, x4: B = null: Null)
+
+      class Inner2[B](val a: A, val b: B, val c: B) extends Inner[A](a, a)(a, a) {
+        def this(b: B) = this(null, b, b)
+
+        def this(a1: A = null, b1: B = 5: Int) = this(a1, b1, b1)
+      }
+
+      class ExtendSecondaryCtor[B](x: B = null: Null)(val y: B = null: Null) extends Inner2[B](null, x)
+
+      class PrivateCtor[B] private(x: B = null: Null)
+    }
+
+    abstract class Ascribed[A >: Y](val x1: A = null: Null, val x2: Option[A] = None: None.type) {
+
+      def this(x4: A) = this(x4, Some(x4))
+
+      def bar[B <: Z](a: Int, b: B, a2: Int = 4: Int, c: A = new Y: Y)
+        (d: A)
+        (e: B = new Y: Y, f: Option[B] = {val x = new Z; Some(x)}: Option[Z]): Tuple2[Option[B], A] = (f, c)
+
+      def bar2[B >: Y](a: Int, b: B, c: A = new Y, e: B = new Y: Y)
+
+      class Inner[B](val x1: A = null: Null, val x2: B = null: Null)
+        (x3: B = null: Null, x4: B = null: Null)
+
+      class Inner2[B](val a: A, val b: B, val c: B) extends Inner[B](a, b)(b, b) {
+        def this(a1: A = null: Null, b1: B = 5: Int) = this(a1, b1, b1)
+      }
     }
   }
 }

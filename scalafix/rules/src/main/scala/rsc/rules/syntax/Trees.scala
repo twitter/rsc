@@ -51,10 +51,10 @@ trait Trees {
   }
 
   object InferredDefnDef {
-    def unapply(tree: Defn): Option[(Name, Term, List[List[Term.Param]])] = {
+    def unapply(tree: Defn): Option[(Name, Term, List[Type.Param], List[List[Term.Param]])] = {
       tree match {
-        case defn @ Defn.Def(_, name, _, paramss, None, body) =>
-          Some((name, body, paramss))
+        case defn @ Defn.Def(_, name, tparams, paramss, None, body) =>
+          Some((name, body, tparams, paramss))
         case _ =>
           None
       }
@@ -137,6 +137,24 @@ trait Trees {
         case Defn.Object(_, name, _) => Some(name)
         case _ => None
       }
+    }
+  }
+
+  implicit class CtorOps(ctor: Ctor) {
+    def tparams: List[Type.Param] = {
+      ctor.parent.toList.flatMap {
+        case Defn.Class(_, _, tparams, _, _) =>
+          tparams
+        case t: Template =>
+          t.parent.toList.collect { case Defn.Class(_, _, tparams, _, _) => tparams }.flatten
+        case _ =>
+          Nil
+      }
+    }
+
+    def paramss: List[List[Term.Param]] = ctor match {
+      case c: Ctor.Primary => c.paramss
+      case c: Ctor.Secondary => c.paramss
     }
   }
 }

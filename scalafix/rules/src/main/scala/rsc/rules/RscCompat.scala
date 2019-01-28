@@ -110,8 +110,11 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
           stats.foldLeft(env1)(loop)
         case Pkg.Object(_, name, templ) =>
           loop(env, templ)
-        case defn @ Defn.Class(_, _, _, _, templ) if defn.isVisible =>
+        case defn @ Defn.Class(_, _, _, ctor, templ) if defn.isVisible =>
+          loop(env, ctor)
           loop(env, templ)
+        case ctor: Ctor =>
+          buf ++= targetsForPolymorphicDefaultParams(env, ctor.name, ctor.tparams, ctor.paramss)
         case defn @ Defn.Trait(_, _, _, _, templ) if defn.isVisible =>
           loop(env, templ)
         case defn @ Defn.Object(_, _, templ) if defn.isVisible =>
@@ -151,7 +154,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
             // FIXME: https://github.com/twitter/rsc/issues/142
             buf += RewriteDefn(env, before, name, after, body, parens = true)
           }
-        case defn @ InferredDefnDef(name, body, paramss) if defn.isVisible =>
+        case defn @ InferredDefnDef(name, body, tparams, paramss) if defn.isVisible =>
           val before = name.tokens.head
           val after = {
             val start = name.tokens.head
@@ -162,9 +165,12 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
               .get
           }
           buf += RewriteDefn(env, before, name, after, body, parens = false)
-          buf ++= targetsForPolymorphicDefaultParams(env, name, paramss)
-        case defn @ Defn.Def(_, name, _, paramss, _, _) =>
-          buf ++= targetsForPolymorphicDefaultParams(env, name, paramss)
+          buf ++= targetsForPolymorphicDefaultParams(env, name, tparams, paramss)
+        // FIXME: https://github.com/twitter/rsc/issues/358
+        case defn @ Defn.Def(_, name, tparams, paramss, _, _) =>
+          buf ++= targetsForPolymorphicDefaultParams(env, name, tparams, paramss)
+        case decl @ Decl.Def(_, name, tparams, paramss, _) =>
+          buf ++= targetsForPolymorphicDefaultParams(env, name, tparams, paramss)
         case _ =>
           ()
       }
@@ -177,27 +183,44 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
   private def targetsForPolymorphicDefaultParams(
       env: Env,
       name: Name,
+      tparams: List[Type.Param],
       paramss: List[List[Term.Param]]
   ): Seq[RewriteDefault] = {
-    def isPolymorphic(tpe: Type): Boolean = tpe match {
+    def isPolymorphicInTypeParam(tpe: Type): Boolean = tpe match {
       case Type.Apply(_, args) =>
-        args.exists(isPolymorphic)
+        args.exists(isPolymorphicInTypeParam)
       case t =>
         t.symbol
           .flatMap(sym => symbols.info(sym.syntax))
-          .exists(_.kind == s.SymbolInformation.Kind.TYPE_PARAMETER)
+          .exists { info =>
+            tparams.exists { tpeParam =>
+              tpeParam.name.value == info.displayName
+            }
+          }
     }
 
-    val defnSymbolBase = name.symbol.get.syntax.dropRight(3) // drop "()." suffix
     for {
+      defnSymbol <- name.symbol.toSeq.map(_.syntax)
       param_i <- paramss.flatten.zipWithIndex
       (param, i) = param_i
-      default <- param.default
+      unascribedDefault <- param.default match {
+        case Some(Term.Ascribe(_, _)) => None
+        case d => d
+      }
       decltpe <- param.decltpe
-      target <- if (isPolymorphic(decltpe)) {
-        val after = default.tokens.last
-        val symbol = defnSymbolBase + "$default$" + s"${i + 1}()."
-        Some(RewriteDefault(env, after, default, symbol))
+      target <- if (isPolymorphicInTypeParam(decltpe)) {
+        val after = unascribedDefault.tokens.last
+
+        val isConstructor = defnSymbol.contains("<init>")
+        val defnSymbolBase = if (isConstructor) {
+          defnSymbol.replaceFirst("#`<init>`.*\\.", ".`<init>").reverse.dropWhile(_ != '>').reverse
+        } else {
+          defnSymbol.stripSuffix("().")
+        }
+        val maybeBacktick = if (isConstructor) "`" else ""
+        val defaultTermSymbol = defnSymbolBase + "$default$" + s"${i + 1}$maybeBacktick()."
+
+        Some(RewriteDefault(env, after, unascribedDefault, defaultTermSymbol))
       } else {
         None
       }
