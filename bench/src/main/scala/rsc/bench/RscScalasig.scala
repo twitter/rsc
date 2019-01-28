@@ -14,6 +14,6 @@ import org.openjdk.jmh.annotations.Mode._
 class RscScalasig extends RscBenchmark {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
-    benchCompiler("-cp", bs.rscDeps, "-artifacts", "semanticdb,scalasig", bs.files)
+    benchCompiler("-Ystop-after:scalasig", "-cp", bs.rscDeps, bs.files)
   }
 }

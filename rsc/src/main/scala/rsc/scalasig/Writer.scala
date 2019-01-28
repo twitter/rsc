@@ -18,6 +18,7 @@ final class Writer private (settings: Settings, reporter: Reporter, infos: Infos
   private val done = mutable.HashSet[String]()
 
   def write(outline: Outline): Unit = {
+    if (!settings.artifacts.contains(ArtifactScalasig)) return
     val sym = outline.id.sym
     val companionSym = {
       val desc = sym.desc

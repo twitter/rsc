@@ -150,12 +150,10 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
           crash(outline.pos, ex)
       }
     }
-    if (!settings.artifacts.contains(ArtifactSemanticdb)) return
     writer.save()
   }
 
   private def scalasig(): Unit = {
-    if (!settings.artifacts.contains(ArtifactScalasig)) return
     val writer = rsc.scalasig.Writer(settings, reporter, infos, output)
     val outlines = symtab.outlines.result
     while (!outlines.isEmpty) {

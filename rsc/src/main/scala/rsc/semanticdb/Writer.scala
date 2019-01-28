@@ -97,6 +97,7 @@ final class Writer private (
   }
 
   private def writeIndex(outline: Outline): Unit = {
+    if (!settings.artifacts.contains(ArtifactSemanticdb)) return
     val sym = outline.id.sym
     if (sym.owner.desc.isPackage) {
       sym.ownerChain.foreach { sym =>
@@ -111,6 +112,7 @@ final class Writer private (
   }
 
   private def writeDebug(outline: Outline): Unit = {
+    if (!settings.artifacts.contains(ArtifactSemanticdb)) return
     if (settings.debug) {
       var occurrenceBuf = occurrenceBufs.get(outline.pos.input)
       if (occurrenceBuf == null) {
@@ -137,6 +139,7 @@ final class Writer private (
   }
 
   def save(): Unit = {
+    if (!settings.artifacts.contains(ArtifactSemanticdb)) return
     val symbolIt = symbolBufs.entrySet.iterator
     while (symbolIt.hasNext) {
       val symbolEntry = symbolIt.next()
