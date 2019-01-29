@@ -28,13 +28,12 @@ class JarOutput(settings: Settings) extends Output {
   private var jos: JarOutputStream = _
 
   private def ensureStream(): Unit = {
-    if (jos == null) {
-      Files.createDirectories(settings.d.toAbsolutePath.getParent)
-      val os = Files.newOutputStream(settings.d)
-      val bos = new BufferedOutputStream(os)
-      jos = new JarOutputStream(bos)
-      jos.setLevel(NO_COMPRESSION)
-    }
+    if (jos != null) return
+    Files.createDirectories(settings.d.toAbsolutePath.getParent)
+    val os = Files.newOutputStream(settings.d)
+    val bos = new BufferedOutputStream(os)
+    jos = new JarOutputStream(bos)
+    jos.setLevel(NO_COMPRESSION)
   }
 
   def write(path: Path, bytes: Array[Byte]): Unit = {
@@ -45,7 +44,7 @@ class JarOutput(settings: Settings) extends Output {
   }
 
   def close(): Unit = {
-    ensureStream()
+    if (jos == null) return
     jos.close()
   }
 }
