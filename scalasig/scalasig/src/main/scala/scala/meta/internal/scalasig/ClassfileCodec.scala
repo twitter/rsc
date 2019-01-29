@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package scala.meta.internal.scalasig
 
+import java.util.ArrayList
 import org.objectweb.asm._
 import org.objectweb.asm.ClassReader._
 import org.objectweb.asm.Opcodes._
@@ -27,15 +28,16 @@ object ClassfileCodec {
                 val bs = ClassfileReader.unpackScalasig(Array(packedScalasig))
                 return Classfile(name, source, ScalaPayload(bs))
               case _ =>
-                ()
+                sys.error("unexpected ScalaSignature annotation values")
             }
           } else if (ann.desc == "Lscala/reflect/ScalaLongSignature;") {
             ann.values.asScala.toList match {
-              case List("bytes", packedScalasig: Array[String]) =>
-                val bs = ClassfileReader.unpackScalasig(packedScalasig)
+              case List("bytes", packedScalasig: ArrayList[_]) =>
+                val proto = Array.empty[String]
+                val bs = ClassfileReader.unpackScalasig(packedScalasig.toArray(proto))
                 return Classfile(name, source, ScalaPayload(bs))
               case _ =>
-                ()
+                sys.error("unexpected ScalaLongSignature annotation values")
             }
           }
         }
