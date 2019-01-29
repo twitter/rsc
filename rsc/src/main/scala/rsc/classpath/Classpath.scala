@@ -63,7 +63,7 @@ final class Classpath private (index: Index) extends AutoCloseable {
             case entry: FileEntry =>
               val binary = {
                 val stream = entry.openStream()
-                try BytesBinary(stream.readAllBytes())
+                try BytesBinary(entry.str, stream.readAllBytes())
                 finally stream.close()
               }
               val payload = Scalasig.fromBinary(binary) match {

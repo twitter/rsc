@@ -14,7 +14,7 @@ sealed trait Binary {
 object Binary {
   implicit def uriBinary(uri: URI): Binary = UriBinary(uri)
   implicit def pathBinary(path: Path): Binary = PathBinary(path)
-  implicit def bytesBinary(bytes: Array[Byte]): Binary = BytesBinary(bytes)
+  implicit def bytesBinary(bytes: Array[Byte]): Binary = BytesBinary("<bytes>", bytes)
 }
 
 case object NoBinary extends Binary {
@@ -32,7 +32,7 @@ case class PathBinary(path: Path) extends Binary {
   override def toString: String = path.toString
 }
 
-case class BytesBinary(bytes: Array[Byte]) extends Binary {
+case class BytesBinary(label: String, bytes: Array[Byte]) extends Binary {
   def openStream(): InputStream = new ByteArrayInputStream(bytes)
-  override def toString: String = "<bytes>"
+  override def toString: String = label
 }
