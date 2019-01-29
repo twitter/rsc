@@ -192,4 +192,65 @@ object BetterRscCompat_Test {
 
     val poc = new PkgObjClass
   }
+
+  object PolymorphicDefaultParams {
+
+    def foo[A](x: A = null): A = x
+
+    def opt[A](x: Option[A] = None): A = x.get
+
+    def both[A, B](x: A = null)(y: Option[B] = None) = y.map((_, x))
+
+    def outer[A](x: A = null) = {
+      def inner[B](y: A = x, z: B = null) = (x, y, z)
+      inner(x, x)
+    }
+
+    class Z
+    class Y extends Z
+
+    abstract class X[A >: Y](val x1: A = null, val x2: Option[A] = None) {
+
+      def this(x4: A) = this(x4, Some(x4))
+
+      def bar[B <: Z](a: Int, b: B, a2: Int = 4, c: A = new Y)
+        (d: A)
+        (e: B = new Y, f: Option[B] = {val x = new Z; Some(x)}) = (f, c)
+
+      def bar2[B >: Y](a: B, b: B, c: A, e: B)
+
+      def bar2[B >: Y](a: Int, b: B, c: A = new Y, e: B = new Y)
+
+      class Inner[B](val x1: A = null, val x2: B = null)
+        (x3: B = null, x4: B = null)
+
+      class Inner2[B](val a: A, val b: B, val c: B) extends Inner(a, a)(a, a) {
+        def this(b: B) = this(null, b, b)
+
+        def this(a1: A = null, b1: B = 5) = this(a1, b1, b1)
+      }
+
+      class ExtendSecondaryCtor[B](x: B = null)(val y: B = null) extends Inner2(null, x)
+
+      class PrivateCtor[B] private(x: B = null)
+    }
+
+    abstract class Ascribed[A >: Y](val x1: A = null: Null, val x2: Option[A] = None) {
+
+      def this(x4: A) = this(x4, Some(x4))
+
+      def bar[B <: Z](a: Int, b: B, a2: Int = 4: Int, c: A = new Y: Y)
+        (d: A)
+        (e: B = new Y: Y, f: Option[B] = {val x = new Z; Some(x)}: Option[Z]) = (f, c)
+
+      def bar2[B >: Y](a: Int, b: B, c: A = new Y, e: B = new Y: Y)
+
+      class Inner[B](val x1: A = null: Null, val x2: B = null: Null)
+        (x3: B = null: Null, x4: B = null)
+
+      class Inner2[B](val a: A, val b: B, val c: B) extends Inner(a, b)(b, b) {
+        def this(a1: A = null: Null, b1: B = 5) = this(a1, b1, b1)
+      }
+    }
+  }
 }
