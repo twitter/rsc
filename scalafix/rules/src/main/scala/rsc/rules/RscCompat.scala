@@ -12,6 +12,9 @@ import rsc.rules.util.GlobalImports
 import scala.meta._
 import scala.meta.contrib._
 import scala.meta.internal.{semanticdb => s}
+import scala.meta.internal.semanticdb.Scala._
+import scala.meta.internal.semanticdb.Scala.{Names => n}
+import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scalafix.internal.v0._
 import scalafix.syntax._
 import scalafix.util.TokenOps
@@ -194,7 +197,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
           .flatMap(sym => symbols.info(sym.syntax))
           .exists { info =>
             tparams.exists { tpeParam =>
-              tpeParam.name.value == info.displayName
+              tpeParam.name.symbol.get.syntax == info.symbol
             }
           }
     }
@@ -211,14 +214,17 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
       target <- if (isPolymorphicInTypeParam(decltpe)) {
         val after = unascribedDefault.tokens.last
 
-        val isConstructor = defnSymbol.contains("<init>")
-        val defnSymbolBase = if (isConstructor) {
-          defnSymbol.replaceFirst("#`<init>`.*\\.", ".`<init>").reverse.dropWhile(_ != '>').reverse
+        val desc = defnSymbol.desc
+        val owner = defnSymbol.owner
+        val defaultSymbolBase = if (desc.name == n.Constructor) {
+          Symbols.Global(owner.owner, d.Term(owner.desc.value))
         } else {
-          defnSymbol.stripSuffix("().")
+          owner
         }
-        val maybeBacktick = if (isConstructor) "`" else ""
-        val defaultTermSymbol = defnSymbolBase + "$default$" + s"${i + 1}$maybeBacktick()."
+        val defaultTermSymbol = Symbols.Global(
+          defaultSymbolBase,
+          d.Method(desc.value + "$default$" + s"${i + 1}", "()")
+        )
 
         Some(RewriteDefault(env, after, unascribedDefault, defaultTermSymbol))
       } else {

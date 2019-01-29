@@ -217,6 +217,8 @@ object BetterRscCompat_Test {
         (d: A)
         (e: B = new Y, f: Option[B] = {val x = new Z; Some(x)}) = (f, c)
 
+      def bar2[B >: Y](a: B, b: B, c: A, e: B)
+
       def bar2[B >: Y](a: Int, b: B, c: A = new Y, e: B = new Y)
 
       class Inner[B](val x1: A = null, val x2: B = null)
