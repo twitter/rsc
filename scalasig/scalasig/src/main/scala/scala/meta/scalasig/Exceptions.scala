@@ -8,7 +8,7 @@ import scala.meta.scalasig.{lowlevel => l}
 case class ClassfileReadException(binary: Binary, cause: Throwable) extends Exception {
   override def getMessage: String = {
     val details = s"${cause.getClass.getName}: ${cause.getMessage}"
-    "failed to read classfile from ${binary}: $details"
+    s"failed to read classfile from ${binary}: $details"
   }
   setStackTrace(cause.getStackTrace)
 }

@@ -124,8 +124,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
             ValSymbol(name, owner, flags, within, info, alias)
           } else {
             val sdefault = s.SymbolInformation(symbol = ssym)
-            val sinfo = mtab.getOrElse(ssym, sdefault)
-            crash(sinfo.toProtoString)
+            crash(mtab.getOrElse(ssym, sdefault))
           }
         }
       }
@@ -276,7 +275,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
           ThisType(sym)
         case s.SuperType(spre, ssym) =>
           // FIXME: https://github.com/twitter/rsc/issues/96
-          crash(stpe.asMessage.toProtoString)
+          crash(stpe)
         case s.ConstantType(sconst) =>
           val lit = emitLiteral(sconst.value.get)
           ConstantType(lit)
@@ -313,7 +312,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
           val targs = List(emitTpe(sret))
           TypeRef(pre, sym, targs)
         case _ =>
-          crash(stpe.asMessage.toProtoString)
+          crash(stpe)
       }
     }
   }
@@ -536,7 +535,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
                   if (ssym.isLocal) TermName(sinfo.displayName.encode)
                   else TypeName(ssym.desc.value.encode)
                 case _ =>
-                  crash(sinfo.toProtoString)
+                  crash(sinfo)
               }
             }
           case None =>

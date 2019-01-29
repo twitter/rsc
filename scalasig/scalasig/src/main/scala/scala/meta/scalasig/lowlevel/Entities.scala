@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package scala.meta.scalasig.lowlevel
 
+import scala.meta.scalasig._
 import scala.meta.internal.scalasig._
 
 // NOTE: There is no specification for this aspect of ScalaSignatures.
@@ -12,19 +13,21 @@ import scala.meta.internal.scalasig._
 sealed trait Entity extends Pretty
 sealed trait Entry extends Entity
 
-sealed trait Name extends Entry
+sealed trait Name extends Entry { def value: String }
 case class TermName(value: String) extends Name
 case class TypeName(value: String) extends Name
 
 sealed trait Symbol extends Entry
 case object NoSymbol extends Symbol
-case class TypeSymbol(name: Ref, owner: Ref, flags: Long, within: Option[Ref], info: Ref) extends Symbol
-case class AliasSymbol(name: Ref, owner: Ref, flags: Long, within: Option[Ref], info: Ref) extends Symbol
-case class ClassSymbol(name: Ref, owner: Ref, flags: Long, within: Option[Ref], info: Ref, thisType: Option[Ref]) extends Symbol
-case class ModuleSymbol(name: Ref, owner: Ref, flags: Long, within: Option[Ref], info: Ref) extends Symbol
-case class ValSymbol(name: Ref, owner: Ref, flags: Long, within: Option[Ref], info: Ref, alias: Option[Ref]) extends Symbol
-case class ExtRef(name: Ref, owner: Option[Ref]) extends Symbol
-case class ExtModClassRef(name: Ref, owner: Option[Ref]) extends Symbol
+sealed trait EmbeddedSymbol extends Symbol with Flagged
+case class TypeSymbol(name: Ref, owner: Ref, flags: Long, within: Option[Ref], info: Ref) extends EmbeddedSymbol
+case class AliasSymbol(name: Ref, owner: Ref, flags: Long, within: Option[Ref], info: Ref) extends EmbeddedSymbol
+case class ClassSymbol(name: Ref, owner: Ref, flags: Long, within: Option[Ref], info: Ref, thisType: Option[Ref]) extends EmbeddedSymbol
+case class ModuleSymbol(name: Ref, owner: Ref, flags: Long, within: Option[Ref], info: Ref) extends EmbeddedSymbol
+case class ValSymbol(name: Ref, owner: Ref, flags: Long, within: Option[Ref], info: Ref, alias: Option[Ref]) extends EmbeddedSymbol
+sealed trait ExternalSymbol extends Symbol
+case class ExtRef(name: Ref, owner: Option[Ref]) extends ExternalSymbol
+case class ExtModClassRef(name: Ref, owner: Option[Ref]) extends ExternalSymbol
 case class Children(sym: Ref, children: List[Ref]) extends Entry
 
 sealed trait Type extends Entry
@@ -111,4 +114,4 @@ case class AppliedTypeTree(tpe: Ref, fun: Ref, targs: List[Ref]) extends Tree
 case class TypeBoundsTree(tpe: Ref, lo: Ref, hi: Ref) extends Tree
 case class ExistentialTypeTree(tpe: Ref, tpt: Ref, decls: List[Ref]) extends Tree
 case class ImportSelector(name: Ref, rename: Ref) extends Entity
-case class Modifiers(flags: Long, within: Ref) extends Entry
+case class Modifiers(flags: Long, within: Ref) extends Entry with Flagged

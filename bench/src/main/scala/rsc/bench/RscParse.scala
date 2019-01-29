@@ -14,6 +14,6 @@ import org.openjdk.jmh.annotations.Mode._
 class RscParse extends RscBenchmark {
   @Benchmark
   def run(bs: BenchmarkState): Unit = {
-    runCompiler("-Ystop-after:parse", bs.files)
+    benchCompiler("-Ystop-after:parse", bs.files)
   }
 }

@@ -67,53 +67,24 @@ trait ToolUtil extends CacheUtil with NscUtil {
     }
   }
 
-  def rsci(classpath: List[Path]): ToolResult[List[Path]] = {
-    metacp(Nil, classpath).right.flatMap { metacpClasspath =>
-      var success = true
-      val errors = List.newBuilder[String]
-      metacpClasspath.foreach { entry =>
-        val relative = Paths.get(metaiVersion).resolve("done")
-        val fingerprint = Fingerprint(entry)
-        val done = cacheDir("metai", fingerprint).resolve(relative)
-        if (Files.exists(done)) {
-          ()
-        } else {
-          withConsole { console =>
-            import scala.meta.metai._
-            val metaiClasspath = Classpath(AbsolutePath(entry))
-            val settings = Settings().withClasspath(metaiClasspath)
-            val result = Metai.process(settings, console.reporter)
-            success &= result.isSuccess
-            if (console.err.nonEmpty) errors += console.err
-          }
-          Files.createDirectories(done.getParent)
-          Files.createFile(done)
-        }
-      }
-      if (success) Right(metacpClasspath)
-      else Left(errors.result)
-    }
-  }
-
   def rsc(classpath: List[Path], sources: List[Path]): ToolResult[Path] = {
     import _root_.rsc.Compiler
     import _root_.rsc.report._
     import _root_.rsc.settings._
+    val artifacts = List(ArtifactSemanticdb, ArtifactScalasig)
     val out = Files.createTempDirectory("rsc_")
-    rsci(classpath).right.flatMap { rscClasspath =>
-      val settings = Settings(cp = rscClasspath, d = out, ins = sources)
-      val reporter = StoreReporter(settings)
-      val compiler = Compiler(settings, reporter)
-      try {
-        compiler.run()
-        if (reporter.problems.isEmpty) {
-          Right(out)
-        } else {
-          Left(reporter.problems.map(_.str))
-        }
-      } finally {
-        compiler.close()
+    val settings = Settings(artifacts = artifacts, cp = classpath, d = out, ins = sources)
+    val reporter = StoreReporter(settings)
+    val compiler = Compiler(settings, reporter)
+    try {
+      compiler.run()
+      if (reporter.problems.isEmpty) {
+        Right(out)
+      } else {
+        Left(reporter.problems.map(_.str))
       }
+    } finally {
+      compiler.close()
     }
   }
 

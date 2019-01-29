@@ -31,7 +31,7 @@ trait Scopifies {
             case sig: s.MethodSignature if info.isVal => scopify(sig.returnType)
             case sig: s.TypeSignature => scopify(sig.upperBound)
             case sig: s.ValueSignature => scopify(sig.tpe)
-            case sig => crash(info.toProtoString)
+            case sig => crash(info)
           }
         case NoMetadata =>
           MissingResolution
@@ -104,7 +104,7 @@ trait Scopifies {
         scope.succeed()
         ResolvedScope(scope)
       case _ =>
-        crash(tpe.asMessage.toProtoString)
+        crash(tpe)
     }
   }
 

@@ -1,23 +1,26 @@
 // Copyright (c) 2017-2019 Twitter, Inc.
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
+// NOTE: This file has been partially copy/pasted from scalameta/scalameta.
 package rsc.classpath
 
-import java.io._
 import java.nio.file._
 import java.util.HashMap
-import java.util.jar._
-import rsc.semantics._
+import rsc.classpath.javacp._
+import rsc.classpath.scalacp._
 import rsc.util._
-import scala.collection.JavaConverters._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.{Language => l}
+import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
-import scala.meta.internal.{semanticidx => i}
+import scala.meta.scalasig._
+import scala.meta.scalasig.lowlevel._
+import scala.reflect.NameTransformer
 
-final class Classpath private (entries: HashMap[Symbol, Entry]) extends AutoCloseable {
-  private val infos = new HashMap[Symbol, s.SymbolInformation]
+final class Classpath private (index: Index) extends AutoCloseable {
+  private val infos = new HashMap[String, s.SymbolInformation]
+  Scalalib.synthetics.foreach(info => infos.put(info.symbol, info))
 
-  def contains(sym: Symbol): Boolean = {
+  def contains(sym: String): Boolean = {
     if (infos.containsKey(sym)) {
       true
     } else {
@@ -26,7 +29,7 @@ final class Classpath private (entries: HashMap[Symbol, Entry]) extends AutoClos
     }
   }
 
-  def apply(sym: Symbol): s.SymbolInformation = {
+  def apply(sym: String): s.SymbolInformation = {
     val info = infos.get(sym)
     if (info != null) {
       info
@@ -38,149 +41,56 @@ final class Classpath private (entries: HashMap[Symbol, Entry]) extends AutoClos
     }
   }
 
-  private def load(sym: Symbol): Unit = {
+  private def load(sym: String): Unit = {
     val info = infos.get(sym)
     if (info == null) {
-      val entry = entries.get(sym)
-      entry match {
-        case PackageEntry() =>
-          val info = s.SymbolInformation(
-            symbol = sym,
-            language = l.SCALA,
-            kind = k.PACKAGE,
-            displayName = sym.desc.value
-          )
-          infos.put(info.symbol, info)
-        case entry: FileEntry =>
-          val stream = entry.openStream()
-          try {
-            val documents = s.TextDocuments.parseFrom(stream)
-            documents.documents.foreach { document =>
-              document.symbols.foreach { info =>
-                if (info.symbol.isGlobal) {
-                  val desc = info.symbol.desc
-                  if (desc.isMethod) {
-                    info.signature match {
-                      case s.MethodSignature(_, paramss, _) =>
-                        val isNullaryOrCompatible = paramss match {
-                          case Seq() => true
-                          case Seq(params) => params.symbols.isEmpty
-                          case _ => false
-                        }
-                        if (isNullaryOrCompatible) {
-                          val symbol1 = MethodSymbol(info.symbol.owner, desc.value, "()")
-                          val info1 = info.copy(symbol = symbol1)
-                          infos.put(info1.symbol, info1)
-                        }
-                      case _ =>
-                        ()
-                    }
-                  } else {
-                    infos.put(info.symbol, info)
-                  }
-                }
+      if (sym.desc.isPackage || sym.owner.desc.isPackage) {
+        val key = {
+          val base = sym.owner.stripPrefix("_empty_/").stripPrefix("_root_/")
+          if (sym.desc.isPackage) base + NameTransformer.encode(sym.desc.value) + "/"
+          else base + NameTransformer.encode(sym.desc.value) + ".class"
+        }
+        if (index.contains(key)) {
+          index(key) match {
+            case PackageEntry() =>
+              val info = s.SymbolInformation(
+                symbol = sym,
+                language = l.SCALA,
+                kind = k.PACKAGE,
+                displayName = sym.desc.value
+              )
+              infos.put(info.symbol, info)
+            case entry: FileEntry =>
+              val binary = {
+                val stream = entry.openStream()
+                try BytesBinary(entry.str, stream.readAllBytes())
+                finally stream.close()
               }
-            }
-          } finally {
-            stream.close()
+              val payload = Scalasig.fromBinary(binary) match {
+                case FailedClassfile(_, cause) => crash(cause)
+                case FailedScalasig(_, _, cause) => crash(cause)
+                case EmptyScalasig(_, Classfile(_, _, JavaPayload(node))) => Javacp.parse(node, index)
+                case EmptyScalasig(_, Classfile(name, _, _)) => crash(name)
+                case ParsedScalasig(_, _, scalasig) => Scalacp.parse(scalasig, index)
+              }
+              payload.foreach(info => infos.put(info.symbol, info))
           }
-        case null =>
-          if (sym.owner != NoSymbol) load(sym.owner)
-          else ()
+        }
+      } else {
+        if (sym.owner != "") load(sym.owner)
+        else ()
       }
     }
   }
 
   def close(): Unit = {
-    entries.values.iterator.asScala.foreach {
-      case CompressedEntry(jar, _) => jar.close()
-      case _ => ()
-    }
+    index.close()
   }
 }
 
 object Classpath {
-  def apply(classpath: List[Path]): Classpath = {
-    val entries = new HashMap[Symbol, Entry]
-    def visit(path: Path): Unit = {
-      def fail(): Nothing = {
-        val explanation = s"""
-        |$path is not a supported classpath entry.
-        |Rsc only supports indexed SemanticDB classpaths.
-        |Indexed SemanticDB classpaths consist of directories or jars that have:
-        |  1) META-INF/semanticdb subdirectory with SemanticDB payloads.
-        |  2) META-INF/semanticdb.semanticidx file with an index of the payloads.
-        |Regular classpaths can be converted to SemanticDB classpaths via Metacp.
-        |SemanticDB classpaths can be indexed via Metai.
-        """.trim.stripMargin
-        crash(explanation)
-      }
-      if (Files.exists(path)) {
-        if (Files.isDirectory(path)) {
-          val indexPath = path.resolve("META-INF/semanticdb.semanticidx")
-          val semanticdbRoot = path.resolve("META-INF/semanticdb")
-          if (Files.exists(indexPath)) {
-            val iindexes = {
-              val unbufferedStream = Files.newInputStream(indexPath)
-              val stream = new BufferedInputStream(unbufferedStream)
-              try i.Indexes.parseFrom(stream)
-              finally stream.close()
-            }
-            iindexes.indexes.foreach { iindex =>
-              iindex.entries.foreach {
-                case (isym, i.PackageEntry()) =>
-                  entries.put(isym, PackageEntry())
-                case (isym, i.ToplevelEntry(iuri)) =>
-                  val semanticdbPath = semanticdbRoot.resolve(iuri)
-                  entries.put(isym, UncompressedEntry(semanticdbPath))
-                case (isym, i.Entry.Empty) =>
-                  ()
-              }
-            }
-          } else {
-            fail()
-          }
-        } else if (path.toString.endsWith(".jar")) {
-          val jar = new JarFile(path.toFile)
-          val indexEntry = jar.getEntry("META-INF/semanticdb.semanticidx")
-          if (indexEntry != null) {
-            val iindexes = {
-              val stream = jar.getInputStream(indexEntry)
-              try i.Indexes.parseFrom(stream)
-              finally stream.close()
-            }
-            iindexes.indexes.foreach { iindex =>
-              iindex.entries.foreach {
-                case (isym, i.PackageEntry()) =>
-                  entries.put(isym, PackageEntry())
-                case (isym, i.ToplevelEntry(iuri)) =>
-                  val jarEntry = jar.getEntry("META-INF/semanticdb/" + iuri)
-                  entries.put(isym, CompressedEntry(jar, jarEntry))
-                case (isym, i.Entry.Empty) =>
-                  ()
-              }
-            }
-          } else {
-            fail()
-          }
-          val manifest = jar.getManifest
-          if (manifest != null) {
-            val classpathAttr = manifest.getMainAttributes.getValue("Class-Path")
-            if (classpathAttr != null) {
-              classpathAttr.split(" ").foreach { relativePath =>
-                val parentPath = path.toAbsolutePath.getParent
-                visit(parentPath.resolve(relativePath))
-              }
-            }
-          }
-        } else {
-          ()
-        }
-      } else {
-        ()
-      }
-    }
-    classpath.foreach(visit)
-    new Classpath(entries)
+  def apply(paths: List[Path]): Classpath = {
+    val index = Index(paths)
+    new Classpath(index)
   }
 }

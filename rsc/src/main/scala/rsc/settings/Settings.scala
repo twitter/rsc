@@ -7,7 +7,7 @@ import java.nio.file._
 
 final case class Settings(
     abi: Abi = Abi211,
-    artifacts: List[Artifact] = List(ArtifactSemanticdb, ArtifactScalasig),
+    artifacts: List[Artifact] = List(ArtifactScalasig),
     cp: List[Path] = Nil,
     d: Path = Paths.get("out.jar"),
     debug: Boolean = false,

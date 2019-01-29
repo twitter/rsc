@@ -7,6 +7,7 @@ package object util
     with CrashUtil
     with ProtobufUtil
     with SemanticdbUtil
+    with StreamUtil
     with StringUtil
     with ThrowableUtil
     with TreeUtil

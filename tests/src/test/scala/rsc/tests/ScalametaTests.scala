@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.tests
 
+import java.util.Arrays
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file._
 import org.scalatest.exceptions._
@@ -21,9 +22,15 @@ class ScalametaTests extends RscTests {
         result match {
           case ParsedScalasig(_, classfile1, scalasig1) =>
             scalasigActuals(scalasig1.name) = scalasig1
-            val scalasigBytes1 = classfile1.scalasigBytes.get
+            var scalasigBytes1 = classfile1.payload.asInstanceOf[ScalaPayload].scalasigBytes
             val classfile2 = scalasig1.toClassfile
-            val scalasigBytes2 = classfile2.scalasigBytes.get
+            val scalasigBytes2 = classfile2.payload.asInstanceOf[ScalaPayload].scalasigBytes
+            if (scalasigBytes1.length == scalasigBytes2.length + 1) {
+              // NOTE: A roundtrip of ScalaSignature encoding/decoding may result
+              // in an array that is one zero byte longer than the original. For details:
+              // https://github.com/scala/scala/blob/v2.12.6/src/reflect/scala/reflect/internal/pickling/ByteCodecs.scala#L194-L209
+              scalasigBytes1 = Arrays.copyOfRange(scalasigBytes1, 0, scalasigBytes2.length)
+            }
             assertEquals("scalasigBytes1", scalasigBytes1, "scalasigBytes2", scalasigBytes2)
             Scalasig.fromClassfile(classfile2) match {
               case ParsedScalasig(_, _, scalasig2) =>

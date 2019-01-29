@@ -40,7 +40,7 @@ trait Params {
                               paramss match {
                                 case Seq() => false
                                 case Seq(params) if params.symbols.isEmpty => true
-                                case _ => crash(baseInfo.toProtoString)
+                                case _ => crash(baseInfo)
                               }
                             case _ =>
                               false

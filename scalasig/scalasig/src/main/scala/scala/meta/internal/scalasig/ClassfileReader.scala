@@ -15,7 +15,6 @@ object ClassfileReader {
     System.arraycopy(in, 0, scratchpad, 0, in.length)
     val srclen = regenerateZero(scratchpad)
     var dstlen = decode7to8(scratchpad, srclen)
-    if (dstlen > 0 && scratchpad(dstlen - 1) == 0) dstlen -= 1
     val out = new Array[Byte](dstlen)
     System.arraycopy(scratchpad, 0, out, 0, out.length)
     out

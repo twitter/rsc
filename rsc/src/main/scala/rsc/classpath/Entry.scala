@@ -6,8 +6,12 @@ import java.io._
 import java.nio.file._
 import java.util.jar._
 import java.util.zip._
+import rsc.pretty._
 
-sealed trait Entry
+sealed trait Entry extends Pretty {
+  def printStr(p: Printer): Unit = PrettyEntry.str(p, this)
+  def printRepl(p: Printer): Unit = PrettyEntry.repl(p, this)
+}
 
 case class PackageEntry() extends Entry
 

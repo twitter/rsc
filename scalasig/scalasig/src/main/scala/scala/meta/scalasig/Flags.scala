@@ -73,6 +73,70 @@ trait FlagValues {
   final val notPRIVATE = 1L << 58
 }
 
+trait Flagged {
+  def flags: Long
+  def isImplicit = (flags & IMPLICIT) != 0
+  def isFinal = (flags & FINAL) != 0
+  def isPrivate = (flags & PRIVATE) != 0
+  def isProtected = (flags & PROTECTED) != 0
+  def isSealed = (flags & SEALED) != 0
+  def isOverride = (flags & OVERRIDE) != 0
+  def isCase = (flags & CASE) != 0
+  def isAbstract = (flags & ABSTRACT) != 0
+  def isDeferred = (flags & DEFERRED) != 0
+  def isMethod = (flags & METHOD) != 0
+  def isModule = (flags & MODULE) != 0
+  def isInterface = (flags & INTERFACE) != 0
+  def isMutable = (flags & MUTABLE) != 0
+  def isParam = (flags & PARAM) != 0
+  def isPackage = (flags & PACKAGE) != 0
+  def isMacro = (flags & MACRO) != 0
+  def isByNameParam = (flags & BYNAMEPARAM) != 0
+  def isCaptured = (flags & CAPTURED) != 0
+  def isCovariant = (flags & COVARIANT) != 0
+  def isContravariant = (flags & CONTRAVARIANT) != 0
+  def isInConstructor = (flags & INCONSTRUCTOR) != 0
+  def isLabel = (flags & LABEL) != 0
+  def isAbsOverride = (flags & ABSOVERRIDE) != 0
+  def isLocal = (flags & LOCAL) != 0
+  def isJava = (flags & JAVA) != 0
+  def isSynthetic = (flags & SYNTHETIC) != 0
+  def isStable = (flags & STABLE) != 0
+  def isStatic = (flags & STATIC) != 0
+  def isCaseAccessor = (flags & CASEACCESSOR) != 0
+  def isDefaultParam = (flags & DEFAULTPARAM) != 0
+  def isTrait = (flags & TRAIT) != 0
+  def isBridge = (flags & BRIDGE) != 0
+  def isAccessor = (flags & ACCESSOR) != 0
+  def isSuperAccessor = (flags & SUPERACCESSOR) != 0
+  def isParamAccessor = (flags & PARAMACCESSOR) != 0
+  def isModuleVar = (flags & MODULEVAR) != 0
+  def isLazy = (flags & LAZY) != 0
+  def isError = (flags & IS_ERROR) != 0
+  def isOverloaded = (flags & OVERLOADED) != 0
+  def isLifted = (flags & LIFTED) != 0
+  def isExistential = (flags & EXISTENTIAL) != 0
+  def isMixedin = (flags & MIXEDIN) != 0
+  def isExpandedName = (flags & EXPANDEDNAME) != 0
+  def isImplClass = (flags & IMPLCLASS) != 0
+  def isPresuper = (flags & PRESUPER) != 0
+  def isTransFlag = (flags & TRANS_FLAG) != 0
+  def isLocked = (flags & LOCKED) != 0
+  def isSpecialized = (flags & SPECIALIZED) != 0
+  def isDefaultInit = (flags & DEFAULTINIT) != 0
+  def isVbridge = (flags & VBRIDGE) != 0
+  def isVarargs = (flags & VARARGS) != 0
+  def isTriedCooking = (flags & TRIEDCOOKING) != 0
+  def isSynchronized = (flags & SYNCHRONIZED) != 0
+  def isArtifact = (flags & ARTIFACT) != 0
+  def isJavaDefaultMethod = (flags & JAVA_DEFAULT_METHOD) != 0
+  def isJavaEnum = (flags & JAVA_ENUM) != 0
+  def isJavaAnnotation = (flags & JAVA_ANNOTATION) != 0
+  def isSynthesizeImplInSubclass = (flags & SYNTHESIZE_IMPL_IN_SUBCLASS) != 0
+  def isNotProtected = (flags & notPROTECTED) != 0
+  def isNotprivate = (flags & notPRIVATE) != 0
+}
+
 trait FlagNames extends FlagValues {
   val flagNames = scala.collection.mutable.Map[Long, String]()
   flagNames(IMPLICIT) = "IMPLICIT"

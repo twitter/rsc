@@ -4,6 +4,10 @@ package rsc.pretty
 
 import rsc.util._
 import scala.{Symbol => StdlibSymbol}
+import scala.meta.internal.{semanticdb => s}
+import scala.meta.internal.semanticdb.SymbolInformation._
+import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
+import scalapb._
 
 trait Str[T] {
   def apply(p: Printer, x: T): Unit
@@ -106,5 +110,48 @@ object Str {
         p.str(v)
     }
     p.str("}")
+  }
+
+  implicit def generatedMessage[T <: GeneratedMessage]: Str[T] = Str { (printer, message) =>
+    message match {
+      case info: s.SymbolInformation =>
+        val rxProperties = "properties: (-?\\d+)".r
+        val s = rxProperties.replaceAllIn(
+          info.toProtoString, { m =>
+            val props = m.group(1).toInt
+            val buf = List.newBuilder[String]
+            def has(prop: Property): Boolean = (props & prop.value) != 0
+            if (has(p.ABSTRACT)) buf += "ABSTRACT"
+            if (has(p.FINAL)) buf += "FINAL"
+            if (has(p.SEALED)) buf += "SEALED"
+            if (has(p.IMPLICIT)) buf += "IMPLICIT"
+            if (has(p.LAZY)) buf += "LAZY"
+            if (has(p.CASE)) buf += "CASE"
+            if (has(p.COVARIANT)) buf += "COVARIANT"
+            if (has(p.CONTRAVARIANT)) buf += "CONTRAVARIANT"
+            if (has(p.VAL)) buf += "VAL"
+            if (has(p.VAR)) buf += "VAR"
+            if (has(p.STATIC)) buf += "STATIC"
+            if (has(p.PRIMARY)) buf += "PRIMARY"
+            if (has(p.ENUM)) buf += "ENUM"
+            if (has(p.DEFAULT)) buf += "DEFAULT"
+            if (has(p.OVERRIDE)) buf += "OVERRIDE"
+            if (has(p.ABSOVERRIDE)) buf += "ABSOVERRIDE"
+            if (has(p.SYNTHETIC)) buf += "SYNTHETIC"
+            s"properties: ${buf.result.mkString(" | ")}"
+          }
+        )
+        printer.str(s)
+      case _ =>
+        printer.str(message.toProtoString)
+    }
+  }
+
+  implicit def semanticdbType: Str[s.Type] = Str { (p, tpe) =>
+    p.str(tpe.asMessage)
+  }
+
+  implicit def semanticdbSignature: Str[s.Signature] = Str { (p, sig) =>
+    p.str(sig.asMessage)
   }
 }
