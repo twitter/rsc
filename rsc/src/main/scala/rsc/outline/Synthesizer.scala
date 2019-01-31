@@ -154,7 +154,7 @@ final class Synthesizer private (
     val tparams = tree.tparams.map { tp =>
       def synthesize(tp: TypeParam): TypeParam = {
         val mods = Mods(Nil)
-        val id = TptId(tp.id.valueopt.get).withPos(tp.id.pos)
+        val id = tp.id.dupe.withPos(tp.id.pos)
         val tparams = tp.tparams.map(synthesize)
         val lbound = tp.lbound.map(_.dupe)
         val ubound = tp.ubound.map(_.dupe)
