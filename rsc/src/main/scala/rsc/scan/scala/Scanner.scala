@@ -561,6 +561,10 @@ final class Scanner private (val settings: Settings, val reporter: Reporter, val
           if (ch == '\\') {
             nextChar()
             ch match {
+              case '\\' =>
+                buf += '\\'
+                buf += '\\'
+                nextChar()
               case 'u' =>
                 val uoffset = offset
                 nextChar()
