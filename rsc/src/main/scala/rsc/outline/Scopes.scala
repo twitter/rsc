@@ -212,7 +212,7 @@ final class SignatureScope private (sym: Symbol, protected val classpath: Classp
     extends Scope(sym)
     with ClasspathScope {
   def signature: s.ClassSignature = {
-    classpath(sym).asInstanceOf[s.ClassSignature]
+    classpath(sym).signature.asInstanceOf[s.ClassSignature]
   }
 
   override def enter(name: Name, sym: Symbol): Symbol = {
