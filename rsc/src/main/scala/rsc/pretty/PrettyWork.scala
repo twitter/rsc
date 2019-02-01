@@ -17,6 +17,8 @@ object PrettyWork {
       case sketch: Sketch =>
         p.str("sketch ")
         p.str(sketch.tree)
+      case Unknown() =>
+        p.str("unknown")
     }
   }
 
