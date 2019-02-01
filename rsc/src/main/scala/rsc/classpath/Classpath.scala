@@ -18,6 +18,7 @@ import scala.meta.scalasig.lowlevel._
 final class Classpath private (index: Index) extends AutoCloseable {
   private val infos = new HashMap[String, s.SymbolInformation]
   Scalalib.synthetics.foreach(info => infos.put(info.symbol, info))
+  Scalalib.packages.foreach(info => infos.put(info.symbol, info))
 
   def contains(sym: String): Boolean = {
     if (infos.containsKey(sym)) {

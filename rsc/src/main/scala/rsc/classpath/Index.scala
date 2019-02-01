@@ -8,28 +8,16 @@ import java.util.HashMap
 import java.util.jar._
 import rsc.util._
 import scala.collection.JavaConverters._
-import scala.meta.internal.semanticdb.Scala._
 
 class Index private (entries: HashMap[Locator, Entry]) extends AutoCloseable {
   def contains(loc: Locator): Boolean = {
-    loc match {
-      case Symbols.RootPackage => true
-      case Symbols.EmptyPackage => true
-      case _ => entries.containsKey(loc)
-    }
+    entries.containsKey(loc)
   }
 
   def apply(loc: Locator): Entry = {
-    loc match {
-      case Symbols.RootPackage =>
-        PackageEntry()
-      case Symbols.EmptyPackage =>
-        PackageEntry()
-      case _ =>
-        val entry = entries.get(loc)
-        if (entry != null) entry
-        else crash(loc)
-    }
+    val entry = entries.get(loc)
+    if (entry != null) entry
+    else crash(loc)
   }
 
   def close(): Unit = {
