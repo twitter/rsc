@@ -24,13 +24,15 @@ trait FileFixtures extends ToolUtil {
     javaLibrary ++ BuildInfo.coreClasspath.map(_.toPath).toList
   }
 
-  lazy val depsDir: Path = {
-    buildRoot.resolve("examples/deps")
+  def depsDir(n: Int): Path = {
+    buildRoot.resolve(Paths.get("examples/deps" + n))
   }
 
-  lazy val depsFiles: List[Path] = {
-    val allFiles = Files.walk(depsDir).iterator.asScala.toList
-    allFiles.filter(_.toString.endsWith(".scala"))
+  lazy val depsFiles: List[List[Path]] = {
+    1.to(3).toList.map { i =>
+      val depsFiles = Files.walk(depsDir(i)).iterator.asScala.toList
+      depsFiles.filter(_.toString.endsWith(".scala"))
+    }
   }
 
   lazy val depsClasspath: List[Path] = {

@@ -10,6 +10,7 @@ import java.nio.file._
 import java.util.Locale
 import javax.tools._
 import javax.tools.Diagnostic.Kind._
+import rsc.util._
 import scala.collection.JavaConverters._
 import scala.meta.cli._
 import scala.meta.io._
@@ -67,6 +68,21 @@ trait ToolUtil extends CacheUtil with NscUtil {
     }
   }
 
+  def nscs(classpath: List[Path], sourcess: List[List[Path]]): ToolResult[List[Path]] = {
+    sourcess.toList match {
+      case sources :: Nil =>
+        nsc(classpath, sources).right.flatMap(nscJar => Right(List(nscJar)))
+      case sources :: sourcess =>
+        val nscJar = nsc(classpath, sources)
+        nscJar.right.flatMap { nscJar =>
+          val nscJars = nscs(classpath :+ nscJar, sourcess)
+          nscJars.right.flatMap(nscJars => Right(nscJar :: nscJars))
+        }
+      case Nil =>
+        crash("no sources")
+    }
+  }
+
   def rsc(classpath: List[Path], sources: List[Path]): ToolResult[Path] = {
     import _root_.rsc.Compiler
     import _root_.rsc.report._
@@ -85,6 +101,21 @@ trait ToolUtil extends CacheUtil with NscUtil {
       }
     } finally {
       compiler.close()
+    }
+  }
+
+  def rscs(classpath: List[Path], sourcess: List[List[Path]]): ToolResult[List[Path]] = {
+    sourcess.toList match {
+      case sources :: Nil =>
+        rsc(classpath, sources).right.flatMap(rscJar => Right(List(rscJar)))
+      case sources :: sourcess =>
+        val rscJar = rsc(classpath, sources)
+        rscJar.right.flatMap { rscJar =>
+          val rscJars = rscs(classpath :+ rscJar, sourcess)
+          rscJars.right.flatMap(rscJars => Right(rscJar :: rscJars))
+        }
+      case Nil =>
+        crash("no sources")
     }
   }
 
