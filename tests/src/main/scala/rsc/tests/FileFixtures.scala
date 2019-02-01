@@ -21,7 +21,7 @@ trait FileFixtures extends ToolUtil {
   }
 
   lazy val coreClasspath: List[Path] = {
-    javaLibrary ++ BuildInfo.coreDeps.map(_.toPath).toList
+    javaLibrary ++ BuildInfo.coreClasspath.map(_.toPath).toList
   }
 
   lazy val depsDir: Path = {
@@ -34,7 +34,7 @@ trait FileFixtures extends ToolUtil {
   }
 
   lazy val depsClasspath: List[Path] = {
-    javaLibrary ++ BuildInfo.depsDeps.map(_.toPath).toList
+    javaLibrary ++ BuildInfo.depsClasspath.map(_.toPath).toList
   }
 
   lazy val functionDir: Path = {
@@ -47,7 +47,7 @@ trait FileFixtures extends ToolUtil {
   }
 
   lazy val functionClasspath: List[Path] = {
-    javaLibrary ++ BuildInfo.functionDeps.map(_.toPath).toList
+    javaLibrary ++ BuildInfo.functionClasspath.map(_.toPath).toList
   }
 
   lazy val semanticDir: Path = {
@@ -60,7 +60,7 @@ trait FileFixtures extends ToolUtil {
   }
 
   lazy val semanticClasspath: List[Path] = {
-    javaLibrary ++ BuildInfo.semanticDeps.map(_.toPath).toList
+    javaLibrary ++ BuildInfo.semanticClasspath.map(_.toPath).toList
   }
 
   lazy val syntacticDir: Path = {

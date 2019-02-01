@@ -197,16 +197,16 @@ lazy val tests = project
     buildInfoKeys := Seq(
       "sourceRoot" -> (baseDirectory in ThisBuild).value,
       BuildInfoKey.map(dependencyClasspath.in(examplesCore, Compile)) {
-        case (k, v) => "coreDeps" -> v.map(_.data)
+        case (k, v) => "coreClasspath" -> v.map(_.data)
       },
       BuildInfoKey.map(dependencyClasspath.in(examplesFunction, Compile)) {
-        case (k, v) => "functionDeps" -> v.map(_.data)
+        case (k, v) => "functionClasspath" -> v.map(_.data)
       },
       BuildInfoKey.map(dependencyClasspath.in(examplesDeps, Compile)) {
-        case (k, v) => "depsDeps" -> v.map(_.data)
+        case (k, v) => "depsClasspath" -> v.map(_.data)
       },
       BuildInfoKey.map(dependencyClasspath.in(examplesSemantic, Compile)) {
-        case (k, v) => "semanticDeps" -> v.map(_.data)
+        case (k, v) => "semanticClasspath" -> v.map(_.data)
       }
     ),
     buildInfoPackage := "rsc.tests",
