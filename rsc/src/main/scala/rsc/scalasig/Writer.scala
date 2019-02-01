@@ -3,6 +3,7 @@
 package rsc.scalasig
 
 import java.nio.file._
+import rsc.classpath._
 import rsc.output._
 import rsc.report._
 import rsc.semanticdb._
@@ -25,6 +26,7 @@ final class Writer private (settings: Settings, reporter: Reporter, infos: Infos
       if (desc.isTerm) Symbols.Global(sym.owner, d.Type(desc.value))
       else Symbols.Global(sym.owner, d.Term(desc.value))
     }
+    val moduleSym = if (sym.desc.isTerm) sym else companionSym
 
     if (done(sym)) return
     val pickle = Pickle(settings, mtab, sym, companionSym)
@@ -40,11 +42,11 @@ final class Writer private (settings: Settings, reporter: Reporter, infos: Infos
     val path = Paths.get(classfile.name + ".class")
     output.write(path, classfile.toBinary)
 
-    if (mtab.contains(companionSym)) {
-      val markerName = classfile.name + "$"
+    pickle.history.modules.foreach { moduleSym =>
+      val markerPath = Paths.get(moduleSym.bytecodeLoc)
+      val markerName = markerPath.toString.stripSuffix(".class")
       val markerSource = classfile.source
       val markerClassfile = Classfile(markerName, markerSource, NoPayload)
-      val markerPath = Paths.get(markerClassfile.name + ".class")
       output.write(markerPath, markerClassfile.toBinary)
     }
   }

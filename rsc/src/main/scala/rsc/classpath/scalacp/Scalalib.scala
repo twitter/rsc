@@ -13,6 +13,27 @@ import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 
 object Scalalib {
+  lazy val packages: List[s.SymbolInformation] = {
+    List(rootPackage, emptyPackage)
+  }
+
+  lazy val rootPackage: s.SymbolInformation = {
+    builtinPackage(Symbols.RootPackage)
+  }
+
+  lazy val emptyPackage: s.SymbolInformation = {
+    builtinPackage(Symbols.EmptyPackage)
+  }
+
+  private def builtinPackage(sym: String): s.SymbolInformation = {
+    s.SymbolInformation(
+      symbol = sym,
+      language = l.SCALA,
+      kind = k.PACKAGE,
+      displayName = sym.desc.value
+    )
+  }
+
   lazy val synthetics: List[s.SymbolInformation] = {
     List(
       Scalalib.anyClass,

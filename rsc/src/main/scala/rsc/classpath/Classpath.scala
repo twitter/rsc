@@ -14,11 +14,11 @@ import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.scalasig._
 import scala.meta.scalasig.lowlevel._
-import scala.reflect.NameTransformer
 
 final class Classpath private (index: Index) extends AutoCloseable {
   private val infos = new HashMap[String, s.SymbolInformation]
   Scalalib.synthetics.foreach(info => infos.put(info.symbol, info))
+  Scalalib.packages.foreach(info => infos.put(info.symbol, info))
 
   def contains(sym: String): Boolean = {
     if (infos.containsKey(sym)) {
@@ -44,14 +44,9 @@ final class Classpath private (index: Index) extends AutoCloseable {
   private def load(sym: String): Unit = {
     val info = infos.get(sym)
     if (info == null) {
-      if (sym.desc.isPackage || sym.owner.desc.isPackage) {
-        val key = {
-          val base = sym.owner.stripPrefix("_empty_/").stripPrefix("_root_/")
-          if (sym.desc.isPackage) base + NameTransformer.encode(sym.desc.value) + "/"
-          else base + NameTransformer.encode(sym.desc.value) + ".class"
-        }
-        if (index.contains(key)) {
-          index(key) match {
+      if (sym.hasLoc) {
+        if (index.contains(sym.metadataLoc)) {
+          index(sym.metadataLoc) match {
             case PackageEntry() =>
               val info = s.SymbolInformation(
                 symbol = sym,

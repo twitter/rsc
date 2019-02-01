@@ -21,20 +21,22 @@ trait FileFixtures extends ToolUtil {
   }
 
   lazy val coreClasspath: List[Path] = {
-    javaLibrary ++ BuildInfo.coreDeps.map(_.toPath).toList
+    javaLibrary ++ BuildInfo.coreClasspath.map(_.toPath).toList
   }
 
-  lazy val dependenciesDir: Path = {
-    buildRoot.resolve("examples/dependencies")
+  def depsDir(n: Int): Path = {
+    buildRoot.resolve(Paths.get("examples/deps" + n))
   }
 
-  lazy val dependenciesFiles: List[Path] = {
-    val allFiles = Files.walk(dependenciesDir).iterator.asScala.toList
-    allFiles.filter(_.toString.endsWith(".scala"))
+  lazy val depsFiles: List[List[Path]] = {
+    1.to(3).toList.map { i =>
+      val depsFiles = Files.walk(depsDir(i)).iterator.asScala.toList
+      depsFiles.filter(_.toString.endsWith(".scala"))
+    }
   }
 
-  lazy val dependenciesClasspath: List[Path] = {
-    javaLibrary ++ BuildInfo.dependenciesDeps.map(_.toPath).toList
+  lazy val depsClasspath: List[Path] = {
+    javaLibrary ++ BuildInfo.depsClasspath.map(_.toPath).toList
   }
 
   lazy val functionDir: Path = {
@@ -47,7 +49,7 @@ trait FileFixtures extends ToolUtil {
   }
 
   lazy val functionClasspath: List[Path] = {
-    javaLibrary ++ BuildInfo.functionDeps.map(_.toPath).toList
+    javaLibrary ++ BuildInfo.functionClasspath.map(_.toPath).toList
   }
 
   lazy val semanticDir: Path = {
@@ -60,7 +62,7 @@ trait FileFixtures extends ToolUtil {
   }
 
   lazy val semanticClasspath: List[Path] = {
-    javaLibrary ++ BuildInfo.semanticDeps.map(_.toPath).toList
+    javaLibrary ++ BuildInfo.semanticClasspath.map(_.toPath).toList
   }
 
   lazy val syntacticDir: Path = {

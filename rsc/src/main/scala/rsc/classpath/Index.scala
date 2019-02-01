@@ -8,28 +8,16 @@ import java.util.HashMap
 import java.util.jar._
 import rsc.util._
 import scala.collection.JavaConverters._
-import scala.meta.internal.semanticdb.Scala._
 
-class Index private (entries: HashMap[String, Entry]) extends AutoCloseable {
-  def contains(key: String): Boolean = {
-    key match {
-      case Symbols.RootPackage => true
-      case Symbols.EmptyPackage => true
-      case _ => entries.containsKey(key)
-    }
+class Index private (entries: HashMap[Locator, Entry]) extends AutoCloseable {
+  def contains(loc: Locator): Boolean = {
+    entries.containsKey(loc)
   }
 
-  def apply(key: String): Entry = {
-    key match {
-      case Symbols.RootPackage =>
-        PackageEntry()
-      case Symbols.EmptyPackage =>
-        PackageEntry()
-      case _ =>
-        val entry = entries.get(key)
-        if (entry != null) entry
-        else crash(key)
-    }
+  def apply(loc: Locator): Entry = {
+    val entry = entries.get(loc)
+    if (entry != null) entry
+    else crash(loc)
   }
 
   def close(): Unit = {
@@ -42,7 +30,7 @@ class Index private (entries: HashMap[String, Entry]) extends AutoCloseable {
 
 object Index {
   def apply(paths: List[Path]): Index = {
-    val entries = new HashMap[String, Entry]
+    val entries = new HashMap[Locator, Entry]
     def visit(root: Path): Unit = {
       if (Files.exists(root)) {
         if (Files.isDirectory(root)) {
@@ -54,8 +42,8 @@ object Index {
                   attrs: BasicFileAttributes
               ): FileVisitResult = {
                 if (file.toString.endsWith(".class")) {
-                  val key = root.relativize(file).toString
-                  entries.put(key, UncompressedEntry(file))
+                  val loc = root.relativize(file).toString
+                  entries.put(loc, UncompressedEntry(file))
                 }
                 super.visitFile(file, attrs)
               }
@@ -67,8 +55,8 @@ object Index {
                   FileVisitResult.SKIP_SUBTREE
                 } else {
                   if (dir != root) {
-                    val key = root.relativize(dir).toString + "/"
-                    entries.put(key, PackageEntry())
+                    val loc = root.relativize(dir).toString + "/"
+                    entries.put(loc, PackageEntry())
                   }
                   super.preVisitDirectory(dir, attrs)
                 }
@@ -81,8 +69,8 @@ object Index {
           while (jarEntries.hasMoreElements) {
             val jarEntry = jarEntries.nextElement()
             if (jarEntry.getName.endsWith(".class") && !jarEntry.getName.startsWith("META-INF")) {
-              val key = jarEntry.getName
-              entries.put(key, CompressedEntry(jar, jarEntry))
+              val loc = jarEntry.getName
+              entries.put(loc, CompressedEntry(jar, jarEntry))
               val parts = jarEntry.getName.split("/").toList.dropRight(1)
               val packages = parts.inits.toList.dropRight(1).map(parts => parts.mkString("/") + "/")
               packages.foreach(entries.put(_, PackageEntry()))

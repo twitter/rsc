@@ -8,7 +8,7 @@ import rsc.checkbase._
 
 final case class Settings(
     cp: List[Path] = Nil,
-    deps: List[Path] = Nil,
+    deps: List[List[Path]] = Nil,
     ins: List[Path] = Nil,
     quiet: Boolean = false)
     extends SettingsBase
@@ -35,7 +35,7 @@ object Settings {
             }
           }
           val (deps, rest) = collectDeps(Nil, args)
-          loop(settings.copy(deps = deps), true, rest)
+          loop(settings.copy(deps = settings.deps :+ deps), true, rest)
         case "--quiet" +: rest if allowOptions =>
           loop(settings.copy(quiet = true), true, rest)
         case flag +: rest if allowOptions && flag.startsWith("-") =>
