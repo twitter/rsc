@@ -3,6 +3,7 @@
 package rsc.scalasig
 
 import java.nio.file._
+import rsc.classpath._
 import rsc.output._
 import rsc.report._
 import rsc.semanticdb._
@@ -42,14 +43,10 @@ final class Writer private (settings: Settings, reporter: Reporter, infos: Infos
     output.write(path, classfile.toBinary)
 
     pickle.history.modules.foreach { moduleSym =>
-      val markerBase = {
-        val result = moduleSym.owner.replace(".", "$").replace("#", "$")
-        result.stripPrefix("_empty_/").stripPrefix("_root_/")
-      }
-      val markerName = markerBase + moduleSym.desc.value + "$"
+      val markerPath = Paths.get(moduleSym.bytecodeLoc)
+      val markerName = markerPath.toString.stripSuffix(".class")
       val markerSource = classfile.source
       val markerClassfile = Classfile(markerName, markerSource, NoPayload)
-      val markerPath = Paths.get(markerClassfile.name + ".class")
       output.write(markerPath, markerClassfile.toBinary)
     }
   }

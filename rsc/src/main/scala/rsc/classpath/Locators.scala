@@ -49,5 +49,13 @@ trait Locators {
         case _ => crash(sym)
       }
     }
+    def bytecodeLoc: Locator = {
+      sym.desc match {
+        case _: d.Package => metadataLoc
+        case _: d.Term => metadataLoc.replace(".class", "$.class")
+        case _: d.Type => metadataLoc
+        case _ => crash(sym)
+      }
+    }
   }
 }
