@@ -1,4 +1,4 @@
-package ticket373
+package ticket373a
 
 object N {
   type T = M.X
