@@ -4,6 +4,7 @@
 package rsc.classpath.scalacp
 
 import java.util.HashMap
+import rsc.classpath._
 import rsc.util._
 import scala.collection.mutable
 import scala.meta.scalasig._
@@ -103,18 +104,16 @@ trait Symbols {
           if (sym.isToplevelPackage) {
             d.Package(svalue)
           } else {
-            val base = {
-              val result = sowner.replace(".", "$").replace("#", "$")
-              result.stripPrefix("_empty_/").stripPrefix("_root_/")
-            }
-            if (sowner.desc.isPackage && index.contains(base + sym.name.value + "/")) {
+            val spackageSym = Symbols.Global(sowner, d.Package(sym.name.value))
+            if (index.contains(spackageSym.bytecodeLoc)) {
               d.Package(svalue)
             } else {
               sym match {
                 case _: ExtRef =>
                   d.Type(svalue)
                 case _: ExtModClassRef =>
-                  if (index.contains(base + sym.name.value + "$.class")) d.Term(svalue)
+                  val smoduleSym = Symbols.Global(sowner, d.Term(sym.name.value))
+                  if (index.contains(smoduleSym.bytecodeLoc)) d.Term(svalue)
                   else d.Type(svalue)
               }
             }
