@@ -85,8 +85,8 @@ lazy val examplesCore = project
     libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
   )
 
-lazy val examplesDependencies = project
-  .in(file("examples/dependencies"))
+lazy val examplesDeps = project
+  .in(file("examples/deps"))
   .settings(commonSettings)
 
 lazy val examplesFunction = project
@@ -105,7 +105,7 @@ lazy val examplesOriginalCore = project
 
 lazy val examplesSemantic = project
   .in(file("examples/semantic"))
-  .dependsOn(examplesDependencies)
+  .dependsOn(examplesDeps)
   .settings(commonSettings)
 
 lazy val rsc = project
@@ -202,8 +202,8 @@ lazy val tests = project
       BuildInfoKey.map(dependencyClasspath.in(examplesFunction, Compile)) {
         case (k, v) => "functionDeps" -> v.map(_.data)
       },
-      BuildInfoKey.map(dependencyClasspath.in(examplesDependencies, Compile)) {
-        case (k, v) => "dependenciesDeps" -> v.map(_.data)
+      BuildInfoKey.map(dependencyClasspath.in(examplesDeps, Compile)) {
+        case (k, v) => "depsDeps" -> v.map(_.data)
       },
       BuildInfoKey.map(dependencyClasspath.in(examplesSemantic, Compile)) {
         case (k, v) => "semanticDeps" -> v.map(_.data)

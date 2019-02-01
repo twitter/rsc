@@ -8,7 +8,7 @@ import scala.meta.cli._
 class BytecodeTests extends RscTests {
   test("bytecode for semantic") {
     val reporter = Reporter()
-    val settings = Settings(dependenciesClasspath, dependenciesFiles, semanticFiles, quiet = true)
+    val settings = Settings(depsClasspath, depsFiles, semanticFiles, quiet = true)
     val problems = Main.process(reporter, settings)
     if (problems.nonEmpty) fail()
   }
