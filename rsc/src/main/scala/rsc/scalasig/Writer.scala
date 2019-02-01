@@ -25,6 +25,7 @@ final class Writer private (settings: Settings, reporter: Reporter, infos: Infos
       if (desc.isTerm) Symbols.Global(sym.owner, d.Type(desc.value))
       else Symbols.Global(sym.owner, d.Term(desc.value))
     }
+    val moduleSym = if (sym.desc.isTerm) sym else companionSym
 
     if (done(sym)) return
     val pickle = Pickle(settings, mtab, sym, companionSym)
@@ -40,8 +41,12 @@ final class Writer private (settings: Settings, reporter: Reporter, infos: Infos
     val path = Paths.get(classfile.name + ".class")
     output.write(path, classfile.toBinary)
 
-    if (mtab.contains(companionSym)) {
-      val markerName = classfile.name + "$"
+    pickle.history.modules.foreach { moduleSym =>
+      val markerBase = {
+        val result = moduleSym.owner.replace(".", "$").replace("#", "$")
+        result.stripPrefix("_empty_/").stripPrefix("_root_/")
+      }
+      val markerName = markerBase + moduleSym.desc.value + "$"
       val markerSource = classfile.source
       val markerClassfile = Classfile(markerName, markerSource, NoPayload)
       val markerPath = Paths.get(markerClassfile.name + ".class")

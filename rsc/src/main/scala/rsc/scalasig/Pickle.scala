@@ -26,7 +26,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
   private val entries = Entries()
   private val gensym = Gensym()
   private val stack = Stack()
-  private val history = History()
+  val history = History()
 
   private def emitName(name: Name): Ref = {
     entries.getOrElseUpdate(NameKey(name))(name)
@@ -81,6 +81,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
         entries.getOrElseUpdate(RefKey(ssym))(NoSymbol)
       } else if ((ssym.isObject || ssym.isPackageObject) && smode.emitModules) {
         entries.getOrElseUpdate(ModuleRefKey(ssym)) {
+          history.markModule(ssym)
           val name = ssym.name match {
             case TypeName(value) => emitName(TermName(value))
             case other => crash(other.toString)
@@ -1310,18 +1311,6 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
   private object Stack {
     def apply(): Stack = {
       new Stack
-    }
-  }
-
-  private class History {
-    private val existentials = mutable.Set[String]()
-    def markExistential(sinfo: s.SymbolInformation): Unit = existentials.add(sinfo.symbol)
-    def isExistential(ssym: String): Boolean = existentials.contains(ssym)
-  }
-
-  private object History {
-    def apply(): History = {
-      new History
     }
   }
 }
