@@ -45,13 +45,13 @@ final class Classpath private (index: Index) extends AutoCloseable {
     val info = infos.get(sym)
     if (info == null) {
       if (sym.desc.isPackage || sym.owner.desc.isPackage) {
-        val key = {
+        val loc = {
           val base = sym.owner.stripPrefix("_empty_/").stripPrefix("_root_/")
           if (sym.desc.isPackage) base + NameTransformer.encode(sym.desc.value) + "/"
           else base + NameTransformer.encode(sym.desc.value) + ".class"
         }
-        if (index.contains(key)) {
-          index(key) match {
+        if (index.contains(loc)) {
+          index(loc) match {
             case PackageEntry() =>
               val info = s.SymbolInformation(
                 symbol = sym,
