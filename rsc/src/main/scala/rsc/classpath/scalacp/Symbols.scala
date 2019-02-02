@@ -110,7 +110,10 @@ trait Symbols {
             } else {
               sym match {
                 case _: ExtRef =>
-                  d.Type(svalue)
+                  sym.name match {
+                    case _: TermName => d.Term(svalue)
+                    case _: TypeName => d.Type(svalue)
+                  }
                 case _: ExtModClassRef =>
                   val smoduleSym = Symbols.Global(sowner, d.Term(sym.name.value))
                   if (index.contains(smoduleSym.bytecodeLoc)) d.Term(svalue)
