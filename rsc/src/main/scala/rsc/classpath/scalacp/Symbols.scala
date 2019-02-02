@@ -115,6 +115,7 @@ trait Symbols {
                     case _: TypeName => d.Type(svalue)
                   }
                 case _: ExtModClassRef =>
+                  // FIXME: https://github.com/twitter/rsc/issues/379
                   val smoduleSym = Symbols.Global(sowner, d.Term(sym.name.value))
                   if (index.contains(smoduleSym.bytecodeLoc)) d.Term(svalue)
                   else d.Type(svalue)
