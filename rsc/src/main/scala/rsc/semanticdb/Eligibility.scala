@@ -38,6 +38,8 @@ trait Eligibility {
           if (owner.isVisible) {
             if (outline.isInstanceOf[DefnCtor] && owner.hasEnum) {
               false
+            } else if (outline.isInstanceOf[PrimaryCtor]) {
+              true
             } else if (outline.isInstanceOf[Param]) {
               true
             } else if (owner.isInstanceOf[DefnClass] && owner.hasTrait) {
