@@ -147,8 +147,9 @@ final class Scheduler private (
               case outline: Self =>
                 SelfSymbol(scope.sym)
               case outline: TypeParam =>
+                val gensym = gensyms(outline)
                 outline.id match {
-                  case AnonId() => TypeParamSymbol(scope.sym, "_")
+                  case AnonId() => TypeParamSymbol(scope.sym, gensym.anon())
                   case id: NamedId => TypeParamSymbol(scope.sym, id.value)
                 }
             }
