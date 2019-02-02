@@ -788,6 +788,9 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     def isAbsoverride: Boolean = {
       sinfo.isAbsoverride
     }
+    def isNotPrivate: Boolean = {
+      sinfo.isConstructor && ssym.isPrivate && ssym.owner.isValueClass
+    }
     def flags: Long = {
       var result = 0L
       if (ssym.isImplicit) result |= IMPLICIT
@@ -824,6 +827,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       if (ssym.isExistential) result |= EXISTENTIAL
       if (ssym.isArtifact) result |= ARTIFACT
       if (ssym.isJavaAnnotation) result |= JAVA_ANNOTATION
+      if (ssym.isNotPrivate) result |= notPRIVATE
       result
     }
     def sannots: List[s.Annotation] = {
