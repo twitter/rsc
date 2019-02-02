@@ -1136,10 +1136,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       val s.ClassSignature(sctparamScope, _, _, Some(s.Scope(scdecls, _))) =
         mtab(sclassSym).signature
       val Some(s.Scope(sctparamSyms, _)) = sctparamScope
-      val scmethodSyms = scdecls.filter { scdecl =>
-        val info = mtab(scdecl)
-        info.isMethod && (!info.isVal && !info.isVar)
-      }
+      val _ +: scmethodSyms = scdecls.dropWhile(_.desc.value != "<init>")
       scmethodSyms.foreach { smethodSym =>
         val smethod = mtab(smethodSym)
         val xmethodDisambig = {
