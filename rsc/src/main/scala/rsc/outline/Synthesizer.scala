@@ -405,16 +405,23 @@ final class Synthesizer private (
   }
 
   private def caseClassEquals(env: Env, tree: DefnClass): Unit = {
-    val id = TermId("equals")
-    val paramss = {
-      val tpt = TptId("Any").withSym(AnyClass)
-      val param = Param(Mods(Nil), TermId("x$1"), Some(tpt), None)
-      List(List(param.withPos(tree.pos)))
+    // FIXME: https://github.com/twitter/rsc/issues/98
+    val alreadyDefinesEquals = tree.stats.exists {
+      case DefnMethod(_, TermId("equals"), _, _, _, _) => true
+      case _ => false
     }
-    val ret = Some(TptId("Boolean").withSym(BooleanClass))
-    val rhs = Some(TermStub())
-    val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
-    scheduler(env, method.withPos(tree.pos))
+    if (!alreadyDefinesEquals) {
+      val id = TermId("equals")
+      val paramss = {
+        val tpt = TptId("Any").withSym(AnyClass)
+        val param = Param(Mods(Nil), TermId("x$1"), Some(tpt), None)
+        List(List(param.withPos(tree.pos)))
+      }
+      val ret = Some(TptId("Boolean").withSym(BooleanClass))
+      val rhs = Some(TermStub())
+      val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
+      scheduler(env, method.withPos(tree.pos))
+    }
   }
 
   private def caseClassCompanionToString(env: Env, tree: DefnClass): Unit = {
@@ -599,12 +606,19 @@ final class Synthesizer private (
   }
 
   private def caseHashCode(env: Env, tree: DefnTemplate): Unit = {
-    val id = TermId("hashCode")
-    val paramss = List(Nil)
-    val ret = Some(TptId("Int").withSym(IntClass))
-    val rhs = Some(TermStub())
-    val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
-    scheduler(env, method.withPos(tree.pos))
+    // FIXME: https://github.com/twitter/rsc/issues/98
+    val alreadyDefinesHashcode = tree.stats.exists {
+      case DefnMethod(_, TermId("hashCode"), _, _, _, _) => true
+      case _ => false
+    }
+    if (!alreadyDefinesHashcode) {
+      val id = TermId("hashCode")
+      val paramss = List(Nil)
+      val ret = Some(TptId("Int").withSym(IntClass))
+      val rhs = Some(TermStub())
+      val method = DefnMethod(Mods(Nil), id, Nil, paramss, ret, rhs)
+      scheduler(env, method.withPos(tree.pos))
+    }
   }
 
   private def caseToString(env: Env, tree: DefnTemplate): Unit = {
