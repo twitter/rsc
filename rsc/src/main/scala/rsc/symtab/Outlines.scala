@@ -28,6 +28,11 @@ trait Outlines {
     }
 
     def put(sym: Symbol, outline: Outline): Unit = {
+      if (impl.containsKey(sym) && !sym.desc.isPackage) {
+        val existingOutline = impl.get(sym)
+        if (outline == existingOutline) return
+        crash(sym)
+      }
       sym match {
         case NoSymbol => crash(outline)
         case other => impl.put(other, outline)
