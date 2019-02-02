@@ -293,8 +293,6 @@ final class Outliner private (
     }
   }
 
-  // ============ LEGACY ============
-
   private def resolveSym(env: Env, path: Path): SymbolResolution = {
     path.id.sym match {
       case NoSymbol =>
