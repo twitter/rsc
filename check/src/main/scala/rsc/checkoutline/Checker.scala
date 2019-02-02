@@ -9,6 +9,7 @@ import rsc.util._
 import scala.collection.mutable
 import scala.meta.internal.semanticdb._
 import scala.meta.internal.semanticdb.Scala._
+import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 import scala.meta.internal.semanticdb.SymbolOccurrence.{Role => r}
@@ -101,12 +102,18 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
         }
         document.symbols.foreach { info =>
           if (info.symbol.isGlobal) {
-            infos(info.symbol) = info
-            var anchor = document.uri
-            ranges.get(info.symbol).foreach { range =>
-              anchor += s":${range.startLine + 1}"
+            info.symbol.desc match {
+              case d.TypeParameter(value) if value == "_" || value.startsWith("anon$") =>
+                // FIXME: https://github.com/scalameta/scalameta/issues/1830
+                ()
+              case _ =>
+                infos(info.symbol) = info
+                var anchor = document.uri
+                ranges.get(info.symbol).foreach { range =>
+                  anchor += s":${range.startLine + 1}"
+                }
+                anchors(info.symbol) = anchor
             }
-            anchors(info.symbol) = anchor
           }
         }
       }
@@ -319,6 +326,8 @@ class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
     s1 = s1.replaceAll("symbol: \".*?\\._\\$(\\d+)#\"", "symbol: \"localNNN\"")
     // FIXME: https://github.com/scalameta/scalameta/issues/1797
     s1 = s1.replaceAll("symbol: \"(.*)##\"", "symbol: \"$1.\"")
+    // FIXME: https://github.com/scalameta/scalameta/issues/1830
+    s1 = s1.replaceAll("\\[anon\\$\\d+\\]", "[_]")
     s1
   }
 
