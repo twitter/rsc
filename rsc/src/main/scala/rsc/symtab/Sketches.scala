@@ -8,27 +8,17 @@ import rsc.syntax._
 import rsc.util._
 
 trait Sketches {
-  private val impl = new HashMap[Tree, Sketch]
+  private val impl = new HashMap[Sketchy, Sketch]
 
   object sketches {
-    def apply(tpt: Tpt): Sketch = {
-      val sketch = impl.get(tpt)
-      if (sketch == null) crash(tpt)
+    def apply(tree: Sketchy): Sketch = {
+      val sketch = impl.get(tree)
+      if (sketch == null) crash(tree)
       sketch
     }
 
-    def apply(within: ModWithin): Sketch = {
-      val sketch = impl.get(within)
-      if (sketch == null) crash(within)
-      sketch
-    }
-
-    def put(tpt: Tpt, sketch: Sketch): Unit = {
-      impl.put(tpt, sketch)
-    }
-
-    def put(within: ModWithin, sketch: Sketch): Unit = {
-      impl.put(within, sketch)
+    def put(tree: Sketchy, sketch: Sketch): Unit = {
+      impl.put(tree, sketch)
     }
   }
 }

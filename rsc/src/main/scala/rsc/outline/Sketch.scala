@@ -4,14 +4,14 @@ package rsc.outline
 
 import rsc.syntax._
 
-final class Sketch private (val tree: Tree) extends Work
+final class Sketch private (val tree: Sketchy) extends Work
 
 object Sketch {
-  def apply(tree: Tree): Sketch = {
+  def apply(tree: Sketchy): Sketch = {
     new Sketch(tree)
   }
 
-  def unapply(sketch: Sketch): Some[Tree] = {
+  def unapply(sketch: Sketch): Some[Sketchy] = {
     Some(sketch.tree)
   }
 }

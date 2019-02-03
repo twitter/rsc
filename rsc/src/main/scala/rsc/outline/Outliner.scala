@@ -35,7 +35,6 @@ final class Outliner private (
       case scope: TemplateScope => apply(env, scope)
       case sketch @ Sketch(tree: Tpt) => apply(env, sketch, tree)
       case sketch @ Sketch(tree: ModWithin) => apply(env, sketch, tree)
-      case other => crash(other)
     }
     if (work.status.isPending) {
       work.succeed()

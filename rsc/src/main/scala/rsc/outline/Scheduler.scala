@@ -173,15 +173,9 @@ final class Scheduler private (
     }
   }
 
-  private def assignSketch(env: Env, tpt: Tpt): Unit = {
-    val sketch = Sketch(tpt)
-    symtab.sketches.put(tpt, sketch)
-    todo.add(env, sketch)
-  }
-
-  private def assignSketch(env: Env, within: ModWithin): Unit = {
-    val sketch = Sketch(within)
-    symtab.sketches.put(within, sketch)
+  private def assignSketch(env: Env, tree: Sketchy): Unit = {
+    val sketch = Sketch(tree)
+    symtab.sketches.put(tree, sketch)
     todo.add(env, sketch)
   }
 

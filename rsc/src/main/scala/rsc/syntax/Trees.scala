@@ -292,7 +292,7 @@ final case class ModVar() extends Mod
 
 final case class ModVolatile() extends Mod
 
-sealed trait ModWithin extends ModAccess {
+sealed trait ModWithin extends ModAccess with Sketchy {
   def id: AmbigId
 }
 
@@ -424,6 +424,8 @@ final case class Self(id: UnambigId, tpt: Option[Tpt]) extends Stat with TermOut
 
 final case class Source(stats: List[Stat]) extends Tree
 
+sealed trait Sketchy extends Tree
+
 sealed trait SuperId extends Id
 
 sealed trait Stat extends Tree
@@ -523,7 +525,7 @@ final case class TermXml(raw: String) extends Term
 
 sealed trait ThisId extends Id
 
-sealed trait Tpt extends Tree
+sealed trait Tpt extends Tree with Sketchy
 
 final case class TptAnnotate(tpt: Tpt, mods: Mods) extends Tpt
 
