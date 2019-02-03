@@ -25,14 +25,14 @@ trait Lits {
         val parsee = if (isNegated) "-" + in.value else in.value
         java.lang.Integer.parseInt(parsee, 10)
       case LITHEXINT =>
-        val parsee = in.value.stripPrefix("0x")
+        val parsee = in.value.stripPrefix("0x").stripPrefix("0X")
         val result = java.lang.Integer.parseUnsignedInt(parsee, 16)
         if (isNegated) -result else result
       case LITLONG =>
         val parsee = if (isNegated) "-" + in.value else in.value
         java.lang.Long.parseLong(parsee, 10)
       case LITHEXLONG =>
-        val parsee = in.value.stripPrefix("0x")
+        val parsee = in.value.stripPrefix("0x").stripPrefix("0X")
         val result = java.lang.Long.parseUnsignedLong(parsee, 16)
         if (isNegated) -result else result
       case LITFLOAT =>
