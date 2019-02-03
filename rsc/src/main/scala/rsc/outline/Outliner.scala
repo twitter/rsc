@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.outline
 
-import rsc.classpath._
-import rsc.gensym._
 import rsc.input._
 import rsc.report._
 import rsc.semantics._
@@ -15,14 +13,7 @@ import rsc.util._
 final class Outliner private (
     settings: Settings,
     reporter: Reporter,
-    gensyms: Gensyms,
-    classpath: Classpath,
-    symtab: Symtab,
-    todo: Todo) {
-  private lazy val scheduler: Scheduler = {
-    Scheduler(settings, reporter, gensyms, classpath, symtab, todo)
-  }
-
+    symtab: Symtab) {
   def apply(env: Env, work: Work): Unit = {
     if (!work.status.isPending) {
       crash(work)
@@ -146,19 +137,8 @@ final class Outliner private (
       case TptByName(tpt) =>
         apply(env, sketch, tpt)
       case existentialTpt @ TptExistential(tpt, stats) =>
-        val existentialEnv = {
-          if (symtab.scopes.contains(existentialTpt)) {
-            val existentialScope = symtab.scopes(existentialTpt)
-            existentialScope :: env
-          } else {
-            val existentialScope = ExistentialScope()
-            symtab.scopes.put(existentialTpt, existentialScope)
-            val existentialEnv = existentialScope :: env
-            stats.foreach(scheduler.apply(existentialEnv, _))
-            existentialScope.succeed()
-            existentialEnv
-          }
-        }
+        val existentialScope = symtab.scopes(existentialTpt)
+        val existentialEnv = existentialScope :: env
         apply(existentialEnv, sketch, tpt)
       case TptIntersect(tpts) =>
         tpts.foreach(apply(env, sketch, _))
@@ -188,19 +168,8 @@ final class Outliner private (
       case tpt: TptPrimitive =>
         ()
       case refineTpt @ TptRefine(tpt, stats) =>
-        val refineEnv = {
-          if (symtab.scopes.contains(refineTpt)) {
-            val refineScope = symtab.scopes(refineTpt)
-            refineScope :: env
-          } else {
-            val refineScope = RefineScope()
-            symtab.scopes.put(refineTpt, refineScope)
-            val refineEnv = refineScope :: env
-            stats.foreach(scheduler.apply(refineEnv, _))
-            refineScope.succeed()
-            refineEnv
-          }
-        }
+        val refineScope = symtab.scopes(refineTpt)
+        val refineEnv = refineScope :: env
         tpt.foreach(apply(refineEnv, sketch, _))
       case TptRepeat(tpt) =>
         apply(env, sketch, tpt)
@@ -411,10 +380,7 @@ object Outliner {
   def apply(
       settings: Settings,
       reporter: Reporter,
-      gensyms: Gensyms,
-      classpath: Classpath,
-      symtab: Symtab,
-      todo: Todo): Outliner = {
-    new Outliner(settings, reporter, gensyms, classpath, symtab, todo)
+      symtab: Symtab): Outliner = {
+    new Outliner(settings, reporter, symtab)
   }
 }

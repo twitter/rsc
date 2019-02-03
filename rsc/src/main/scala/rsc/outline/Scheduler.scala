@@ -174,12 +174,6 @@ final class Scheduler private (
     }
   }
 
-  private def assignSketch(env: Env, tree: Sketchy): Unit = {
-    val sketch = Sketch(tree)
-    symtab.sketches.put(tree, sketch)
-    todo.add(env, sketch)
-  }
-
   private def defnConstant(env: Env, tree: DefnConstant): Env = {
     mods(env, tree.mods)
     assignSym(env, tree)
@@ -198,11 +192,11 @@ final class Scheduler private (
     val paramEnv = paramss(tparamEnv, tree)
     tree.ret match {
       case Some(ret) =>
-        assignSketch(paramEnv, ret)
+        sketch(paramEnv, ret)
       case None =>
         def infer(tpt: Tpt): Unit = {
           symtab.desugars.rets.put(tree, tpt)
-          assignSketch(paramEnv, tpt)
+          sketch(paramEnv, tpt)
         }
         tree match {
           case DefnMethod(mods, _, _, _, _, Some(TermLit(value))) if mods.hasFinal && mods.hasVal =>
@@ -227,7 +221,7 @@ final class Scheduler private (
   private def defnField(env: Env, tree: DefnField): Env = {
     mods(env, tree.mods)
     assignSym(env, tree)
-    tree.tpt.foreach(assignSketch(env, _))
+    tree.tpt.foreach(sketch(env, _))
     env
   }
 
@@ -294,7 +288,7 @@ final class Scheduler private (
     }
     mods(env, tree.mods)
     tree.pats.foreach(loop(env, _))
-    tree.tpt.foreach(assignSketch(env, _))
+    tree.tpt.foreach(sketch(env, _))
     env
   }
 
@@ -383,15 +377,15 @@ final class Scheduler private (
     mods(env, tree.mods)
     assignSym(env, tree)
     val tparamEnv = tparams(env, tree)
-    tree.lo.foreach(assignSketch(tparamEnv, _))
-    tree.hi.foreach(assignSketch(tparamEnv, _))
-    tree.rhs.foreach(assignSketch(tparamEnv, _))
+    tree.lo.foreach(sketch(tparamEnv, _))
+    tree.hi.foreach(sketch(tparamEnv, _))
+    tree.rhs.foreach(sketch(tparamEnv, _))
     env
   }
 
   private def mods(env: Env, mods: Mods): Env = {
-    mods.annots.foreach(annot => assignSketch(env, annot.init.tpt))
-    mods.within.foreach(assignSketch(env, _))
+    mods.annots.foreach(annot => sketch(env, annot.init.tpt))
+    mods.within.foreach(sketch(env, _))
     env
   }
 
@@ -401,7 +395,7 @@ final class Scheduler private (
     // This is inconsistent, and unfortunately not mentioned in SLS.
     mods(env, tree.mods)
     assignSym(env, tree)
-    tree.tpt.foreach(assignSketch(env.outer, _))
+    tree.tpt.foreach(sketch(env.outer, _))
     env
   }
 
@@ -427,10 +421,10 @@ final class Scheduler private (
         // See template scope handling in outliner for details.
         ()
       case TptAnnotate(tpt, mods) =>
-        mods.annots.foreach(ann => assignSketch(env, ann.init.tpt))
+        mods.annots.foreach(ann => sketch(env, ann.init.tpt))
         parent(env, tpt)
       case TptApply(tpt, targs) =>
-        targs.foreach(assignSketch(env, _))
+        targs.foreach(sketch(env, _))
         parent(env, tpt)
       case TptWildcardExistential(_, tpt) =>
         parent(env, tpt)
@@ -518,11 +512,66 @@ final class Scheduler private (
           }
         }
         symtab.desugars.rets.put(tree, selfTpt)
-        assignSketch(env, selfTpt)
+        sketch(env, selfTpt)
         todo.add(env, selfScope)
         selfEnv
       case None =>
         env
+    }
+  }
+
+  private def sketch(env: Env, tree: Sketchy): Unit = {
+    def loop(tpt: Tpt): Unit = {
+      tpt match {
+        case TptApply(fun, targs) =>
+          loop(fun)
+          targs.foreach(loop)
+        case TptArray(tpt) =>
+          loop(tpt)
+        case TptAnnotate(tpt, mods) =>
+          loop(tpt)
+        case TptByName(tpt) =>
+          loop(tpt)
+        case existentialTpt @ TptExistential(tpt, stats) =>
+          val existentialScope = ExistentialScope()
+          symtab.scopes.put(existentialTpt, existentialScope)
+          val existentialEnv = existentialScope :: env
+          stats.foreach(apply(existentialEnv, _))
+          existentialScope.succeed()
+        case TptIntersect(tpts) =>
+          tpts.foreach(loop)
+        case tpt: TptLit =>
+          ()
+        case tpt: TptPath =>
+          tpt match {
+            case TptProject(qual @ TptRefine(None, _), _) => loop(qual)
+            case _ => ()
+          }
+        case tpt: TptPrimitive =>
+          ()
+        case refineTpt @ TptRefine(tpt, stats) =>
+          val refineScope = RefineScope()
+          symtab.scopes.put(refineTpt, refineScope)
+          val refineEnv = refineScope :: env
+          stats.foreach(apply(refineEnv, _))
+          refineScope.succeed()
+        case TptRepeat(tpt) =>
+          loop(tpt)
+        case TptWildcard(ubound, lbound) =>
+          ubound.foreach(loop)
+          lbound.foreach(loop)
+        case TptWildcardExistential(_, tpt) =>
+          loop(tpt)
+        case TptWith(tpts) =>
+          tpts.foreach(loop)
+      }
+    }
+    val sketch = Sketch(tree)
+    symtab.sketches.put(tree, sketch)
+    todo.add(env, sketch)
+    tree match {
+      case tree: Tpt => loop(tree)
+      case tree: ModWithin => ()
     }
   }
 
@@ -627,10 +676,10 @@ final class Scheduler private (
     mods(env, tree.mods)
     assignSym(env, tree)
     val tparamEnv = tparams(env, tree)
-    tree.ubound.foreach(assignSketch(tparamEnv, _))
-    tree.lbound.foreach(assignSketch(tparamEnv, _))
-    tree.vbounds.foreach(assignSketch(tparamEnv, _))
-    tree.cbounds.foreach(assignSketch(tparamEnv, _))
+    tree.ubound.foreach(sketch(tparamEnv, _))
+    tree.lbound.foreach(sketch(tparamEnv, _))
+    tree.vbounds.foreach(sketch(tparamEnv, _))
+    tree.cbounds.foreach(sketch(tparamEnv, _))
     env
   }
 
