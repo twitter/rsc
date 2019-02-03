@@ -11,6 +11,7 @@ final class Symtab private (protected val classpath: Classpath)
     with Outlines
     with Scopes
     with Scopifies
+    with Sketches
 
 object Symtab {
   def apply(classpath: Classpath): Symtab = {

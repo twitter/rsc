@@ -23,7 +23,7 @@ trait Params {
           case (outline: DefnMethod, Some(owner: DefnTemplate))
               if !outline.hasVal && !outline.hasVar && outline.tparams.isEmpty =>
             def overridesNonNullary(parent: Tpt): Boolean = {
-              symtab.scopify(parent) match {
+              symtab.scopify(Sketch(parent)) match {
                 case ResolvedScope(parentScope) =>
                   parentScope.resolve(outline.id.name) match {
                     case ResolvedSymbol(baseSym) =>

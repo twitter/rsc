@@ -110,7 +110,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
   }
 
   private def outline(): Unit = {
-    val outliner = Outliner(settings, reporter, gensyms, classpath, symtab, todo)
+    val outliner = Outliner(settings, reporter, symtab)
     while (!todo.isEmpty) {
       val (env, work) = todo.remove()
       try {

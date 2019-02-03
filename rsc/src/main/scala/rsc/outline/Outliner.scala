@@ -2,8 +2,6 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.outline
 
-import rsc.classpath._
-import rsc.gensym._
 import rsc.input._
 import rsc.report._
 import rsc.semantics._
@@ -11,19 +9,8 @@ import rsc.settings._
 import rsc.symtab._
 import rsc.syntax._
 import rsc.util._
-import scala.collection.mutable
 
-final class Outliner private (
-    settings: Settings,
-    reporter: Reporter,
-    gensyms: Gensyms,
-    classpath: Classpath,
-    symtab: Symtab,
-    todo: Todo) {
-  private lazy val scheduler: Scheduler = {
-    Scheduler(settings, reporter, gensyms, classpath, symtab, todo)
-  }
-
+final class Outliner private (settings: Settings, reporter: Reporter, symtab: Symtab) {
   def apply(env: Env, work: Work): Unit = {
     if (!work.status.isPending) {
       crash(work)
@@ -35,7 +22,6 @@ final class Outliner private (
       case scope: TemplateScope => apply(env, scope)
       case sketch @ Sketch(tree: Tpt) => apply(env, sketch, tree)
       case sketch @ Sketch(tree: ModWithin) => apply(env, sketch, tree)
-      case other => crash(other)
     }
     if (work.status.isPending) {
       work.succeed()
@@ -88,18 +74,32 @@ final class Outliner private (
 
   private def apply(env: Env, scope: SelfScope): Unit = {
     scope.tree.tpt match {
-      case Some(tpt) =>
-        symtab.scopify(tpt) match {
-          case BlockedResolution(dep) =>
-            scope.block(dep)
-          case _: FailedResolution =>
+      case Some(_) =>
+        val sketch = symtab.sketches(symtab.desugars.rets(scope.tree))
+        sketch.status match {
+          case _: IncompleteStatus =>
+            scope.block(sketch)
+          case _: FailedStatus =>
             scope.fail()
-          case ResolvedScope(parent) =>
-            if (parent.status.isIncomplete) {
-              scope.block(parent)
-            } else {
-              scope.parent = parent
-              scope.succeed()
+          case SucceededStatus =>
+            symtab.scopify(sketch) match {
+              case BlockedResolution(dep) =>
+                scope.block(dep)
+              case _: FailedResolution =>
+                scope.fail()
+              case ResolvedScope(desugaredParent) =>
+                desugaredParent match {
+                  case desugaredParent: WithScope =>
+                    val List(_, parent) = desugaredParent.parents
+                    if (parent.status.isIncomplete) {
+                      scope.block(parent)
+                    } else {
+                      scope.parent = parent
+                      scope.succeed()
+                    }
+                  case _ =>
+                    crash(scope.tree)
+                }
             }
         }
       case None =>
@@ -108,102 +108,30 @@ final class Outliner private (
   }
 
   private def apply(env: Env, scope: TemplateScope): Unit = {
-    case class ResolvedParent(tpt: Tpt, scope: Scope)
-    val buf = mutable.ListBuffer[ResolvedParent]()
-    def insertParent(env: Env, tpt: Tpt, index: Int): Unit = {
+    val buf = List.newBuilder[Scope]
+    def resolveParent(tpt: Tpt): Unit = {
       if (scope.status.isPending) {
         def loop(tpt: Tpt): ScopeResolution = {
           tpt match {
-            case path: TptPath =>
-              resolveScope(env, path)
-            case TptAnnotate(tpt, mods) =>
-              mods.annots.foreach(ann => todo.add(env, ann.init.tpt))
-              loop(tpt)
-            case TptApply(tpt, targs) =>
-              targs.foreach(targ => todo.add(env, targ))
-              loop(tpt)
-            case TptWildcardExistential(_, tpt) =>
-              loop(tpt)
-            case _ =>
-              reporter.append(IllegalParent(tpt))
-              ErrorResolution
+            case path: TptPath => resolveScope(env, path)
+            case TptAnnotate(tpt, _) => loop(tpt)
+            case TptApply(tpt, _) => loop(tpt)
+            case TptWildcardExistential(_, tpt) => loop(tpt)
+            case _ => crash(tpt)
           }
         }
         loop(tpt) match {
-          case BlockedResolution(dep) =>
-            scope.block(dep)
-          case _: FailedResolution =>
-            scope.fail()
-          case ResolvedScope(scope) =>
-            buf.insert(index, ResolvedParent(tpt, scope))
+          case BlockedResolution(dep) => scope.block(dep)
+          case _: FailedResolution => scope.fail()
+          case ResolvedScope(scope) => buf += scope
         }
       }
     }
-    def appendParent(env: Env, tpt: Tpt): Unit = {
-      insertParent(env, tpt, buf.length)
-    }
-    def prependParent(env: Env, tpt: Tpt): Unit = {
-      insertParent(env, tpt, 0)
-    }
-    // FIXME: https://github.com/twitter/rsc/issues/98
-    def synthesizeParents(env: Env, tree: DefnTemplate): Unit = {
-      scope.tree match {
-        case tree if tree.hasCase =>
-          appendParent(env, TptId("Product").withSym(ProductClass))
-          appendParent(env, TptId("Serializable").withSym(SerializableClass))
-        case tree if tree.hasEnum =>
-          val id = TptId("Enum").withSym(EnumClass)
-          val ref = tree.id.asInstanceOf[TptId]
-          prependParent(env, TptParameterize(id, List(ref)))
-        case tree if tree.hasAnnotationInterface =>
-          appendParent(env, TptId("Annotation").withSym(JavaAnnotationClass))
-        case tree: DefnObject =>
-          val companionClass = symtab.outlines.get(tree.id.sym.companionClass)
-          companionClass match {
-            case Some(caseClass: DefnClass) if caseClass.hasCase =>
-              if (tree.isSynthetic && !caseClass.hasAbstract) {
-                (caseClass.tparams, caseClass.primaryCtor.get.paramss) match {
-                  case (Nil, List(params)) if params.length <= 22 =>
-                    val sym = AbstractFunctionClass(params.length)
-                    val core = TptId(sym.desc.value).withSym(sym)
-                    val paramTpts = params.map(_.tpt.get.dupe)
-                    val caseClassRef = caseClass.id
-                    val parent = TptParameterize(core, paramTpts :+ caseClassRef)
-                    appendParent(env, parent)
-                  case _ =>
-                    ()
-                }
-              }
-              val parent = TptId("Serializable").withSym(SerializableClass)
-              appendParent(env, parent)
-            case _ =>
-              ()
-          }
-        case _ =>
-          ()
-      }
-      if (buf.result.isEmpty) {
-        scope.tree.lang match {
-          case ScalaLanguage | UnknownLanguage =>
-            appendParent(env, TptId("AnyRef").withSym(AnyRefClass))
-          case JavaLanguage =>
-            appendParent(env, TptId("Object").withSym(ObjectClass))
-        }
-      }
-    }
-    scope.tree.parents.foreach(parent => appendParent(env, parent.tpt))
-    synthesizeParents(env, scope.tree)
+    val parents = symtab.desugars.parents(scope.tree)
+    parents.foreach(resolveParent)
     if (scope.status.isPending) {
-      val parents = buf.result
-      val incompleteParent = parents.find(_.scope.status.isIncomplete)
-      incompleteParent match {
-        case Some(incompleteParent) =>
-          scope.block(incompleteParent.scope)
-        case _ =>
-          symtab.desugars.parents.put(scope.tree, parents.map(_.tpt))
-          scope.parents = parents.map(_.scope)
-          scope.succeed()
-      }
+      scope.parents = buf.result
+      scope.succeed()
     }
   }
 
@@ -220,19 +148,8 @@ final class Outliner private (
       case TptByName(tpt) =>
         apply(env, sketch, tpt)
       case existentialTpt @ TptExistential(tpt, stats) =>
-        val existentialEnv = {
-          if (symtab.scopes.contains(existentialTpt)) {
-            val existentialScope = symtab.scopes(existentialTpt)
-            existentialScope :: env
-          } else {
-            val existentialScope = ExistentialScope()
-            symtab.scopes.put(existentialTpt, existentialScope)
-            val existentialEnv = existentialScope :: env
-            stats.foreach(scheduler.apply(existentialEnv, _))
-            existentialScope.succeed()
-            existentialEnv
-          }
-        }
+        val existentialScope = symtab.scopes(existentialTpt)
+        val existentialEnv = existentialScope :: env
         apply(existentialEnv, sketch, tpt)
       case TptIntersect(tpts) =>
         tpts.foreach(apply(env, sketch, _))
@@ -262,19 +179,8 @@ final class Outliner private (
       case tpt: TptPrimitive =>
         ()
       case refineTpt @ TptRefine(tpt, stats) =>
-        val refineEnv = {
-          if (symtab.scopes.contains(refineTpt)) {
-            val refineScope = symtab.scopes(refineTpt)
-            refineScope :: env
-          } else {
-            val refineScope = RefineScope()
-            symtab.scopes.put(refineTpt, refineScope)
-            val refineEnv = refineScope :: env
-            stats.foreach(scheduler.apply(refineEnv, _))
-            refineScope.succeed()
-            refineEnv
-          }
-        }
+        val refineScope = symtab.scopes(refineTpt)
+        val refineEnv = refineScope :: env
         tpt.foreach(apply(refineEnv, sketch, _))
       case TptRepeat(tpt) =>
         apply(env, sketch, tpt)
@@ -482,13 +388,7 @@ final class Outliner private (
 }
 
 object Outliner {
-  def apply(
-      settings: Settings,
-      reporter: Reporter,
-      gensyms: Gensyms,
-      classpath: Classpath,
-      symtab: Symtab,
-      todo: Todo): Outliner = {
-    new Outliner(settings, reporter, gensyms, classpath, symtab, todo)
+  def apply(settings: Settings, reporter: Reporter, symtab: Symtab): Outliner = {
+    new Outliner(settings, reporter, symtab)
   }
 }

@@ -19,11 +19,13 @@ trait Scopifies {
       metadata(sym) match {
         case OutlineMetadata(outline) =>
           outline match {
-            case DefnMethod(mods, _, _, _, Some(tpt), _) if mods.hasVal => scopify(tpt)
-            case outline: DefnType => scopify(outline.desugaredUbound)
-            case outline: TypeParam => scopify(outline.desugaredUbound)
-            case Param(_, _, Some(tpt), _) => scopify(tpt)
-            case outline: Self => scopify(desugars.rets(outline))
+            case DefnMethod(mods, _, _, _, Some(tpt), _) if mods.hasVal => scopify(sketches(tpt))
+            case DefnType(_, _, _, _, None, None) => scopify(AnyClass)
+            case outline: DefnType => scopify(sketches(outline.ubound.get))
+            case TypeParam(_, _, _, _, None, _, _) => scopify(AnyClass)
+            case outline: TypeParam => scopify(sketches(outline.ubound.get))
+            case Param(_, _, Some(tpt), _) => scopify(sketches(tpt))
+            case outline: Self => scopify(sketches(desugars.rets(outline)))
             case _ => crash(outline)
           }
         case ClasspathMetadata(info) =>
@@ -39,48 +41,57 @@ trait Scopifies {
     }
   }
 
-  def scopify(tpt: Tpt): ScopeResolution = {
-    tpt match {
-      case TptAnnotate(tpt, _) =>
-        scopify(tpt)
-      case TptArray(_) =>
-        scopify(ArrayClass)
-      case TptByName(tpt) =>
-        scopify(tpt)
-      case TptApply(fun, _) =>
-        scopify(fun)
-      case TptExistential(tpt, _) =>
-        scopify(tpt)
-      case TptIntersect(_) =>
-        crash(tpt)
-      case TptLit(_) =>
-        crash(tpt)
-      case tpt: TptPath =>
-        tpt.id.sym match {
-          case NoSymbol => BlockedResolution(Unknown())
-          case sym => scopify(sym)
-        }
-      case tpt: TptPrimitive =>
-        crash(tpt)
-      case tpt: TptRefine =>
-        crash(tpt)
-      case TptRepeat(tpt) =>
-        scopify(SeqClass)
-      case tpt: TptWildcard =>
-        scopify(tpt.desugaredUbound)
-      case TptWildcardExistential(_, tpt) =>
-        scopify(tpt)
-      case TptWith(tpts) =>
-        val buf = List.newBuilder[Scope]
-        tpts.foreach { tpt =>
-          scopify(tpt) match {
-            case ResolvedScope(scope) => buf += scope
-            case other => return other
+  def scopify(sketch: Sketch): ScopeResolution = {
+    def resolve(id: Id): ScopeResolution = {
+      id.sym match {
+        case NoSymbol => BlockedResolution(sketch)
+        case sym => scopify(sym)
+      }
+    }
+    def loop(tpt: Tpt): ScopeResolution = {
+      tpt match {
+        case TptAnnotate(tpt, _) =>
+          loop(tpt)
+        case TptArray(_) =>
+          scopify(ArrayClass)
+        case TptByName(tpt) =>
+          loop(tpt)
+        case TptApply(fun, _) =>
+          loop(fun)
+        case TptExistential(tpt, _) =>
+          loop(tpt)
+        case TptIntersect(_) =>
+          crash(tpt)
+        case TptLit(_) =>
+          crash(tpt)
+        case tpt: TptPath =>
+          resolve(tpt.id)
+        case tpt: TptPrimitive =>
+          crash(tpt)
+        case tpt: TptRefine =>
+          crash(tpt)
+        case TptRepeat(tpt) =>
+          scopify(SeqClass)
+        case tpt: TptWildcard =>
+          loop(tpt.desugaredUbound)
+        case TptWildcardExistential(_, tpt) =>
+          loop(tpt)
+        case TptWith(tpts) =>
+          val buf = List.newBuilder[Scope]
+          tpts.foreach { tpt =>
+            loop(tpt) match {
+              case ResolvedScope(scope) => buf += scope
+              case other => return other
+            }
           }
-        }
-        val scope = WithScope(buf.result)
-        scope.succeed()
-        ResolvedScope(scope)
+          val scope = WithScope(buf.result)
+          scope.succeed()
+          ResolvedScope(scope)
+      }
+    }
+    sketch.tree match {
+      case tree: Tpt => loop(tree)
+      case tree: ModWithin => resolve(tree.id)
     }
   }
 
