@@ -62,7 +62,7 @@ abstract class Work extends Pretty {
     status match {
       case BlockedStatus(dep) =>
         dep match {
-          case Unknown() =>
+          case _: Unknown =>
             status = PendingStatus
           case _ =>
             dep.status match {

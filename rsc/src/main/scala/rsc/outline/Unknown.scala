@@ -2,4 +2,10 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.outline
 
-final case class Unknown() extends Work
+final class Unknown private () extends Work
+
+object Unknown {
+  def apply(): Unknown = {
+    new Unknown()
+  }
+}
