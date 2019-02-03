@@ -9,5 +9,6 @@ trait Values {
     def caseAccessor(name: String): String = gensym(name + "$")
     def refinement(): String = gensym("<refinement") + ">"
     def wildcardExistential(): String = gensym("_$")
+    def lambda(): String = gensym("local_lambda")
   }
 }

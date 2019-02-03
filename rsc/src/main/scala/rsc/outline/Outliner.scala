@@ -239,7 +239,17 @@ final class Outliner private (
       case tpt: TptLit =>
         ()
       case tpt: TptPath =>
-        resolveSym(env, tpt) match {
+        val resolution = {
+          tpt match {
+            case TptProject(qual @ TptRefine(None, _), id) =>
+              apply(env, sketch, qual)
+              val env1 = Env(env.root, List(symtab.scopes(qual)))
+              resolveSym(env1, id)
+            case _ =>
+              resolveSym(env, tpt)
+          }
+        }
+        resolution match {
           case BlockedResolution(dep) =>
             if (sketch.status.isPending) sketch.block(dep)
             else ()
