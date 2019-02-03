@@ -12,6 +12,7 @@ import rsc.settings._
 import rsc.symtab._
 import rsc.syntax._
 import rsc.util._
+import scala.collection.mutable
 
 // FIXME: https://github.com/twitter/rsc/issues/98
 final class Scheduler private (
@@ -320,6 +321,7 @@ final class Scheduler private (
       }
     }
     stats(TemplateLevel, templateEnv, tree.earlies)
+    parents(tparamEnv, tree)
     tree match {
       case tree: DefnClass =>
         tree.lang match {
@@ -416,6 +418,78 @@ final class Scheduler private (
         env
       }
     }
+  }
+
+  private def parent(env: Env, tpt: Tpt): Env = {
+    tpt match {
+      case path: TptPath =>
+        // NOTE: This is taken care of without sketches.
+        // See template scope handling in outliner for details.
+        ()
+      case TptAnnotate(tpt, mods) =>
+        mods.annots.foreach(ann => assignSketch(env, ann.init.tpt))
+        parent(env, tpt)
+      case TptApply(tpt, targs) =>
+        targs.foreach(assignSketch(env, _))
+        parent(env, tpt)
+      case TptWildcardExistential(_, tpt) =>
+        parent(env, tpt)
+      case _ =>
+        reporter.append(IllegalParent(tpt))
+    }
+    env
+  }
+
+  private def parents(env: Env, tree: DefnTemplate): Env = {
+    val buf = mutable.ListBuffer[Tpt]()
+    tree.parents.foreach(parent => buf.append(parent.tpt))
+    tree match {
+      case tree if tree.hasCase =>
+        buf.append(TptId("Product").withSym(ProductClass))
+        buf.append(TptId("Serializable").withSym(SerializableClass))
+      case tree if tree.hasEnum =>
+        val id = TptId("Enum").withSym(EnumClass)
+        val ref = tree.id.asInstanceOf[TptId]
+        buf.prepend(TptParameterize(id, List(ref)))
+      case tree if tree.hasAnnotationInterface =>
+        buf.append(TptId("Annotation").withSym(JavaAnnotationClass))
+      case tree: DefnObject =>
+        val companionClass = symtab.outlines.get(tree.id.sym.companionClass)
+        companionClass match {
+          case Some(caseClass: DefnClass) if caseClass.hasCase =>
+            if (tree.isSynthetic && !caseClass.hasAbstract) {
+              (caseClass.tparams, caseClass.primaryCtor.get.paramss) match {
+                case (Nil, List(params)) if params.length <= 22 =>
+                  val sym = AbstractFunctionClass(params.length)
+                  val core = TptId(sym.desc.value).withSym(sym)
+                  val paramTpts = params.map(_.tpt.get.dupe)
+                  val caseClassRef = caseClass.id
+                  val parent = TptParameterize(core, paramTpts :+ caseClassRef)
+                  buf.append(parent)
+                case _ =>
+                  ()
+              }
+            }
+            val parent = TptId("Serializable").withSym(SerializableClass)
+            buf.append(parent)
+          case _ =>
+            ()
+        }
+      case _ =>
+        ()
+    }
+    if (buf.isEmpty) {
+      env.lang match {
+        case ScalaLanguage | UnknownLanguage =>
+          buf.append(TptId("AnyRef").withSym(AnyRefClass))
+        case JavaLanguage =>
+          buf.append(TptId("Object").withSym(ObjectClass))
+      }
+    }
+    val parents = buf.result
+    symtab.desugars.parents.put(tree, parents)
+    parents.foreach(parent(env, _))
+    env
   }
 
   private def self(env: Env, owner: DefnTemplate): Env = {

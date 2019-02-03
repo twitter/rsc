@@ -11,7 +11,6 @@ import rsc.settings._
 import rsc.symtab._
 import rsc.syntax._
 import rsc.util._
-import scala.collection.mutable
 
 final class Outliner private (
     settings: Settings,
@@ -107,107 +106,30 @@ final class Outliner private (
   }
 
   private def apply(env: Env, scope: TemplateScope): Unit = {
-    case class ResolvedParent(tpt: Tpt, scope: Scope)
-    val buf = mutable.ListBuffer[ResolvedParent]()
-    def assignSketch(env: Env, tpt: Tpt): Unit = {
-      val sketch = Sketch(tpt)
-      symtab.sketches.put(tpt, sketch)
-      todo.add(env, sketch)
-    }
-    def insertParent(env: Env, tpt: Tpt, index: Int): Unit = {
+    val buf = List.newBuilder[Scope]
+    def resolveParent(tpt: Tpt): Unit = {
       if (scope.status.isPending) {
         def loop(tpt: Tpt): ScopeResolution = {
           tpt match {
-            case path: TptPath =>
-              resolveScope(env, path)
-            case TptAnnotate(tpt, mods) =>
-              mods.annots.foreach(ann => assignSketch(env, ann.init.tpt))
-              loop(tpt)
-            case TptApply(tpt, targs) =>
-              targs.foreach(assignSketch(env, _))
-              loop(tpt)
-            case TptWildcardExistential(_, tpt) =>
-              loop(tpt)
-            case _ =>
-              reporter.append(IllegalParent(tpt))
-              ErrorResolution
+            case path: TptPath => resolveScope(env, path)
+            case TptAnnotate(tpt, _) => loop(tpt)
+            case TptApply(tpt, _) => loop(tpt)
+            case TptWildcardExistential(_, tpt) => loop(tpt)
+            case _ => crash(tpt)
           }
         }
         loop(tpt) match {
-          case BlockedResolution(dep) =>
-            scope.block(dep)
-          case _: FailedResolution =>
-            scope.fail()
-          case ResolvedScope(scope) =>
-            buf.insert(index, ResolvedParent(tpt, scope))
+          case BlockedResolution(dep) => scope.block(dep)
+          case _: FailedResolution => scope.fail()
+          case ResolvedScope(scope) => buf += scope
         }
       }
     }
-    def appendParent(env: Env, tpt: Tpt): Unit = {
-      insertParent(env, tpt, buf.length)
-    }
-    def prependParent(env: Env, tpt: Tpt): Unit = {
-      insertParent(env, tpt, 0)
-    }
-    // FIXME: https://github.com/twitter/rsc/issues/98
-    def synthesizeParents(env: Env, tree: DefnTemplate): Unit = {
-      scope.tree match {
-        case tree if tree.hasCase =>
-          appendParent(env, TptId("Product").withSym(ProductClass))
-          appendParent(env, TptId("Serializable").withSym(SerializableClass))
-        case tree if tree.hasEnum =>
-          val id = TptId("Enum").withSym(EnumClass)
-          val ref = tree.id.asInstanceOf[TptId]
-          prependParent(env, TptParameterize(id, List(ref)))
-        case tree if tree.hasAnnotationInterface =>
-          appendParent(env, TptId("Annotation").withSym(JavaAnnotationClass))
-        case tree: DefnObject =>
-          val companionClass = symtab.outlines.get(tree.id.sym.companionClass)
-          companionClass match {
-            case Some(caseClass: DefnClass) if caseClass.hasCase =>
-              if (tree.isSynthetic && !caseClass.hasAbstract) {
-                (caseClass.tparams, caseClass.primaryCtor.get.paramss) match {
-                  case (Nil, List(params)) if params.length <= 22 =>
-                    val sym = AbstractFunctionClass(params.length)
-                    val core = TptId(sym.desc.value).withSym(sym)
-                    val paramTpts = params.map(_.tpt.get.dupe)
-                    val caseClassRef = caseClass.id
-                    val parent = TptParameterize(core, paramTpts :+ caseClassRef)
-                    appendParent(env, parent)
-                  case _ =>
-                    ()
-                }
-              }
-              val parent = TptId("Serializable").withSym(SerializableClass)
-              appendParent(env, parent)
-            case _ =>
-              ()
-          }
-        case _ =>
-          ()
-      }
-      if (buf.result.isEmpty) {
-        scope.tree.lang match {
-          case ScalaLanguage | UnknownLanguage =>
-            appendParent(env, TptId("AnyRef").withSym(AnyRefClass))
-          case JavaLanguage =>
-            appendParent(env, TptId("Object").withSym(ObjectClass))
-        }
-      }
-    }
-    scope.tree.parents.foreach(parent => appendParent(env, parent.tpt))
-    synthesizeParents(env, scope.tree)
+    val parents = symtab.desugars.parents(scope.tree)
+    parents.foreach(resolveParent)
     if (scope.status.isPending) {
-      val parents = buf.result
-      val incompleteParent = parents.find(_.scope.status.isIncomplete)
-      incompleteParent match {
-        case Some(incompleteParent) =>
-          scope.block(incompleteParent.scope)
-        case _ =>
-          symtab.desugars.parents.put(scope.tree, parents.map(_.tpt))
-          scope.parents = parents.map(_.scope)
-          scope.succeed()
-      }
+      scope.parents = buf.result
+      scope.succeed()
     }
   }
 
