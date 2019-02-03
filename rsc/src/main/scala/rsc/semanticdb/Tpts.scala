@@ -90,6 +90,16 @@ trait Tpts {
           s.TypeRef(s.NoType, "scala/Long#", Nil)
         case TptProject(qual: Path, id) =>
           s.TypeRef(prefix(qual, id), id.sym, Nil)
+        case TptProject(TptRefine(None, _), id) =>
+          symtab.outlines(id.sym) match {
+            case DefnType(Mods(Nil), _, tparams, None, None, Some(tpt)) =>
+              val decls = tparams.scope(HardlinkChildren)
+              val tpe = tpt.tpe
+              s.UniversalType(decls, tpe)
+            case _ =>
+              // FIXME: https://github.com/twitter/rsc/issues/91
+              s.NoType
+          }
         case TptProject(qual, id) =>
           // FIXME: https://github.com/twitter/rsc/issues/91
           s.NoType

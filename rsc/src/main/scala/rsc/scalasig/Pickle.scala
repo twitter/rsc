@@ -312,6 +312,15 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
           val sym = emitSym(RepeatedClass, RefMode)
           val targs = List(emitTpe(sret))
           TypeRef(pre, sym, targs)
+        case stpe @ s.UniversalType(stparams, sret) =>
+          stparams.infos.foreach(sinfo => mtab(sinfo.symbol) = sinfo)
+          val slambdaRefinement = Transients.slambdaRefinement(stpe)
+          val List(slambda) = slambdaRefinement.declarations.infos
+          mtab(slambda.symbol) = slambda
+          emitTpe(slambdaRefinement)
+          val tparams = emitScope(stparams)
+          val ret = emitTpe(sret)
+          PolyType(ret, tparams)
         case _ =>
           crash(stpe)
       }
@@ -1230,6 +1239,21 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
         )
       }
       xbuf.result
+    }
+    def slambdaRefinement(stpe: s.UniversalType): s.StructuralType = {
+      val s.UniversalType(stparams, sret) = stpe
+      val slambda = s.SymbolInformation(
+        symbol = gensym.lambda(),
+        language = l.SCALA,
+        kind = k.TYPE,
+        properties = 0,
+        displayName = "λ",
+        signature = s.TypeSignature(stparams, sret, sret),
+        annotations = Nil,
+        access = s.PublicAccess()
+      )
+      val sdecls = Some(s.Scope(hardlinks = List(slambda)))
+      s.StructuralType(s.NoType, sdecls)
     }
   }
 
