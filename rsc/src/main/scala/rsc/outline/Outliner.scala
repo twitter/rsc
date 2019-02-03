@@ -110,6 +110,11 @@ final class Outliner private (
   private def apply(env: Env, scope: TemplateScope): Unit = {
     case class ResolvedParent(tpt: Tpt, scope: Scope)
     val buf = mutable.ListBuffer[ResolvedParent]()
+    def assignSketch(env: Env, tpt: Tpt): Unit = {
+      val sketch = Sketch(tpt)
+      symtab.sketches.put(tpt, sketch)
+      todo.add(env, sketch)
+    }
     def insertParent(env: Env, tpt: Tpt, index: Int): Unit = {
       if (scope.status.isPending) {
         def loop(tpt: Tpt): ScopeResolution = {
@@ -117,10 +122,10 @@ final class Outliner private (
             case path: TptPath =>
               resolveScope(env, path)
             case TptAnnotate(tpt, mods) =>
-              mods.annots.foreach(ann => todo.add(env, ann.init.tpt))
+              mods.annots.foreach(ann => assignSketch(env, ann.init.tpt))
               loop(tpt)
             case TptApply(tpt, targs) =>
-              targs.foreach(targ => todo.add(env, targ))
+              targs.foreach(assignSketch(env, _))
               loop(tpt)
             case TptWildcardExistential(_, tpt) =>
               loop(tpt)

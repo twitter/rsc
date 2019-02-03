@@ -173,6 +173,18 @@ final class Scheduler private (
     }
   }
 
+  private def assignSketch(env: Env, tpt: Tpt): Unit = {
+    val sketch = Sketch(tpt)
+    symtab.sketches.put(tpt, sketch)
+    todo.add(env, sketch)
+  }
+
+  private def assignSketch(env: Env, within: ModWithin): Unit = {
+    val sketch = Sketch(within)
+    symtab.sketches.put(within, sketch)
+    todo.add(env, sketch)
+  }
+
   private def defnConstant(env: Env, tree: DefnConstant): Env = {
     mods(env, tree.mods)
     assignSym(env, tree)
@@ -191,11 +203,11 @@ final class Scheduler private (
     val paramEnv = paramss(tparamEnv, tree)
     tree.ret match {
       case Some(ret) =>
-        todo.add(paramEnv, ret)
+        assignSketch(paramEnv, ret)
       case None =>
         def infer(tpt: Tpt): Unit = {
           symtab.desugars.rets.put(tree, tpt)
-          todo.add(paramEnv, tpt)
+          assignSketch(paramEnv, tpt)
         }
         tree match {
           case DefnMethod(mods, _, _, _, _, Some(TermLit(value))) if mods.hasFinal && mods.hasVal =>
@@ -220,7 +232,7 @@ final class Scheduler private (
   private def defnField(env: Env, tree: DefnField): Env = {
     mods(env, tree.mods)
     assignSym(env, tree)
-    tree.tpt.foreach(todo.add(env, _))
+    tree.tpt.foreach(assignSketch(env, _))
     env
   }
 
@@ -287,7 +299,7 @@ final class Scheduler private (
     }
     mods(env, tree.mods)
     tree.pats.foreach(loop(env, _))
-    tree.tpt.foreach(todo.add(env, _))
+    tree.tpt.foreach(assignSketch(env, _))
     env
   }
 
@@ -375,15 +387,15 @@ final class Scheduler private (
     mods(env, tree.mods)
     assignSym(env, tree)
     val tparamEnv = tparams(env, tree)
-    tree.lo.foreach(todo.add(tparamEnv, _))
-    tree.hi.foreach(todo.add(tparamEnv, _))
-    tree.rhs.foreach(todo.add(tparamEnv, _))
+    tree.lo.foreach(assignSketch(tparamEnv, _))
+    tree.hi.foreach(assignSketch(tparamEnv, _))
+    tree.rhs.foreach(assignSketch(tparamEnv, _))
     env
   }
 
   private def mods(env: Env, mods: Mods): Env = {
-    mods.annots.foreach(annot => todo.add(env, annot.init.tpt))
-    mods.within.foreach(todo.add(env, _))
+    mods.annots.foreach(annot => assignSketch(env, annot.init.tpt))
+    mods.within.foreach(assignSketch(env, _))
     env
   }
 
@@ -393,7 +405,7 @@ final class Scheduler private (
     // This is inconsistent, and unfortunately not mentioned in SLS.
     mods(env, tree.mods)
     assignSym(env, tree)
-    tree.tpt.foreach(todo.add(env.outer, _))
+    tree.tpt.foreach(assignSketch(env.outer, _))
     env
   }
 
@@ -438,7 +450,7 @@ final class Scheduler private (
           }
         }
         symtab.desugars.rets.put(tree, selfTpt)
-        todo.add(env, selfTpt)
+        assignSketch(env, selfTpt)
         todo.add(env, selfScope)
         selfEnv
       case None =>
@@ -547,10 +559,10 @@ final class Scheduler private (
     mods(env, tree.mods)
     assignSym(env, tree)
     val tparamEnv = tparams(env, tree)
-    tree.ubound.foreach(todo.add(tparamEnv, _))
-    tree.lbound.foreach(todo.add(tparamEnv, _))
-    tree.vbounds.foreach(todo.add(tparamEnv, _))
-    tree.cbounds.foreach(todo.add(tparamEnv, _))
+    tree.ubound.foreach(assignSketch(tparamEnv, _))
+    tree.lbound.foreach(assignSketch(tparamEnv, _))
+    tree.vbounds.foreach(assignSketch(tparamEnv, _))
+    tree.cbounds.foreach(assignSketch(tparamEnv, _))
     env
   }
 
