@@ -17,7 +17,14 @@ trait Sketches {
       sketch
     }
 
+    def contains(tree: Sketchy): Boolean = {
+      impl.containsKey(tree)
+    }
+
     def put(tree: Sketchy, sketch: Sketch): Unit = {
+      if (impl.containsKey(tree)) {
+        crash(tree)
+      }
       impl.put(tree, sketch)
     }
   }

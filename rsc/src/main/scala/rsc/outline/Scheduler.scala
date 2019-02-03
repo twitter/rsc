@@ -566,12 +566,14 @@ final class Scheduler private (
           tpts.foreach(loop)
       }
     }
-    val sketch = Sketch(tree)
-    symtab.sketches.put(tree, sketch)
-    todo.add(env, sketch)
-    tree match {
-      case tree: Tpt => loop(tree)
-      case tree: ModWithin => ()
+    if (!symtab.sketches.contains(tree)) {
+      val sketch = Sketch(tree)
+      symtab.sketches.put(tree, sketch)
+      todo.add(env, sketch)
+      tree match {
+        case tree: Tpt => loop(tree)
+        case tree: ModWithin => ()
+      }
     }
   }
 
