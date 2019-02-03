@@ -61,17 +61,12 @@ abstract class Work extends Pretty {
   def unblock(): Unit = {
     status match {
       case BlockedStatus(dep) =>
-        dep match {
-          case _: Unknown =>
+        dep.status match {
+          case SucceededStatus =>
             status = PendingStatus
-          case _ =>
-            dep.status match {
-              case SucceededStatus =>
-                status = PendingStatus
-              case other =>
-                status = PendingStatus
-                block(dep)
-            }
+          case other =>
+            status = PendingStatus
+            block(dep)
         }
       case _ =>
         ()

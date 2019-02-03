@@ -19,11 +19,13 @@ trait Scopifies {
       metadata(sym) match {
         case OutlineMetadata(outline) =>
           outline match {
-            case DefnMethod(mods, _, _, _, Some(tpt), _) if mods.hasVal => scopify(tpt)
-            case outline: DefnType => scopify(outline.desugaredUbound)
-            case outline: TypeParam => scopify(outline.desugaredUbound)
-            case Param(_, _, Some(tpt), _) => scopify(tpt)
-            case outline: Self => scopify(desugars.rets(outline))
+            case DefnMethod(mods, _, _, _, Some(tpt), _) if mods.hasVal => scopify(sketches(tpt))
+            case DefnType(_, _, _, _, None, None) => scopify(AnyClass)
+            case outline: DefnType => scopify(sketches(outline.ubound.get))
+            case TypeParam(_, _, _, _, None, _, _) => scopify(AnyClass)
+            case outline: TypeParam => scopify(sketches(outline.ubound.get))
+            case Param(_, _, Some(tpt), _) => scopify(sketches(tpt))
+            case outline: Self => scopify(sketches(desugars.rets(outline)))
             case _ => crash(outline)
           }
         case ClasspathMetadata(info) =>
@@ -39,7 +41,13 @@ trait Scopifies {
     }
   }
 
-  def scopify(tpt: Tpt): ScopeResolution = {
+  def scopify(sketch: Sketch): ScopeResolution = {
+    def resolve(id: Id): ScopeResolution = {
+      id.sym match {
+        case NoSymbol => BlockedResolution(sketch)
+        case sym => scopify(sym)
+      }
+    }
     def loop(tpt: Tpt): ScopeResolution = {
       tpt match {
         case TptAnnotate(tpt, _) =>
@@ -57,10 +65,7 @@ trait Scopifies {
         case TptLit(_) =>
           crash(tpt)
         case tpt: TptPath =>
-          tpt.id.sym match {
-            case NoSymbol => BlockedResolution(Unknown())
-            case sym => scopify(sym)
-          }
+          resolve(tpt.id)
         case tpt: TptPrimitive =>
           crash(tpt)
         case tpt: TptRefine =>
@@ -84,7 +89,10 @@ trait Scopifies {
           ResolvedScope(scope)
       }
     }
-    loop(tpt)
+    sketch.tree match {
+      case tree: Tpt => loop(tree)
+      case tree: ModWithin => resolve(tree.id)
+    }
   }
 
   def scopify(tpe: s.Type): ScopeResolution = {

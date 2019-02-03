@@ -78,15 +78,14 @@ final class Outliner private (
   private def apply(env: Env, scope: SelfScope): Unit = {
     scope.tree.tpt match {
       case Some(_) =>
-        val desugaredTpt = symtab.desugars.rets(scope.tree)
-        val sketch = symtab.sketches(desugaredTpt)
+        val sketch = symtab.sketches(symtab.desugars.rets(scope.tree))
         sketch.status match {
           case _: IncompleteStatus =>
             scope.block(sketch)
           case _: FailedStatus =>
             scope.fail()
           case SucceededStatus =>
-            symtab.scopify(desugaredTpt) match {
+            symtab.scopify(sketch) match {
               case BlockedResolution(dep) =>
                 scope.block(dep)
               case _: FailedResolution =>
