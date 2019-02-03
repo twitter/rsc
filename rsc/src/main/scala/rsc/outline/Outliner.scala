@@ -10,10 +10,7 @@ import rsc.symtab._
 import rsc.syntax._
 import rsc.util._
 
-final class Outliner private (
-    settings: Settings,
-    reporter: Reporter,
-    symtab: Symtab) {
+final class Outliner private (settings: Settings, reporter: Reporter, symtab: Symtab) {
   def apply(env: Env, work: Work): Unit = {
     if (!work.status.isPending) {
       crash(work)
@@ -391,10 +388,7 @@ final class Outliner private (
 }
 
 object Outliner {
-  def apply(
-      settings: Settings,
-      reporter: Reporter,
-      symtab: Symtab): Outliner = {
+  def apply(settings: Settings, reporter: Reporter, symtab: Symtab): Outliner = {
     new Outliner(settings, reporter, symtab)
   }
 }
