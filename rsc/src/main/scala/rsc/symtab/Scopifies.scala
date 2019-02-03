@@ -40,48 +40,51 @@ trait Scopifies {
   }
 
   def scopify(tpt: Tpt): ScopeResolution = {
-    tpt match {
-      case TptAnnotate(tpt, _) =>
-        scopify(tpt)
-      case TptArray(_) =>
-        scopify(ArrayClass)
-      case TptByName(tpt) =>
-        scopify(tpt)
-      case TptApply(fun, _) =>
-        scopify(fun)
-      case TptExistential(tpt, _) =>
-        scopify(tpt)
-      case TptIntersect(_) =>
-        crash(tpt)
-      case TptLit(_) =>
-        crash(tpt)
-      case tpt: TptPath =>
-        tpt.id.sym match {
-          case NoSymbol => BlockedResolution(Unknown())
-          case sym => scopify(sym)
-        }
-      case tpt: TptPrimitive =>
-        crash(tpt)
-      case tpt: TptRefine =>
-        crash(tpt)
-      case TptRepeat(tpt) =>
-        scopify(SeqClass)
-      case tpt: TptWildcard =>
-        scopify(tpt.desugaredUbound)
-      case TptWildcardExistential(_, tpt) =>
-        scopify(tpt)
-      case TptWith(tpts) =>
-        val buf = List.newBuilder[Scope]
-        tpts.foreach { tpt =>
-          scopify(tpt) match {
-            case ResolvedScope(scope) => buf += scope
-            case other => return other
+    def loop(tpt: Tpt): ScopeResolution = {
+      tpt match {
+        case TptAnnotate(tpt, _) =>
+          loop(tpt)
+        case TptArray(_) =>
+          scopify(ArrayClass)
+        case TptByName(tpt) =>
+          loop(tpt)
+        case TptApply(fun, _) =>
+          loop(fun)
+        case TptExistential(tpt, _) =>
+          loop(tpt)
+        case TptIntersect(_) =>
+          crash(tpt)
+        case TptLit(_) =>
+          crash(tpt)
+        case tpt: TptPath =>
+          tpt.id.sym match {
+            case NoSymbol => BlockedResolution(Unknown())
+            case sym => scopify(sym)
           }
-        }
-        val scope = WithScope(buf.result)
-        scope.succeed()
-        ResolvedScope(scope)
+        case tpt: TptPrimitive =>
+          crash(tpt)
+        case tpt: TptRefine =>
+          crash(tpt)
+        case TptRepeat(tpt) =>
+          scopify(SeqClass)
+        case tpt: TptWildcard =>
+          loop(tpt.desugaredUbound)
+        case TptWildcardExistential(_, tpt) =>
+          loop(tpt)
+        case TptWith(tpts) =>
+          val buf = List.newBuilder[Scope]
+          tpts.foreach { tpt =>
+            loop(tpt) match {
+              case ResolvedScope(scope) => buf += scope
+              case other => return other
+            }
+          }
+          val scope = WithScope(buf.result)
+          scope.succeed()
+          ResolvedScope(scope)
+      }
     }
+    loop(tpt)
   }
 
   def scopify(tpe: s.Type): ScopeResolution = {
