@@ -504,7 +504,7 @@ final class Scheduler private (
               case other => crash(other)
             }
             if (owner.tparams.isEmpty) ownerRef
-            TptParameterize(ownerRef, tparamRefs)
+            else TptParameterize(ownerRef, tparamRefs)
           }
           tree.tpt match {
             case Some(tpt) => TptWith(List(ownerTpt, tpt))
