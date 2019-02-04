@@ -14,7 +14,11 @@ abstract class Work extends Pretty {
       case PendingStatus =>
         dep.status match {
           case PendingStatus =>
-            status = BlockedStatus(dep)
+            if (this == dep) {
+              status = CyclicStatus(List(this))
+            } else {
+              status = BlockedStatus(dep)
+            }
           case BlockedStatus(depdep) =>
             val visited = mutable.Set[Work]()
             def loop(depdep: Work): Unit = {
