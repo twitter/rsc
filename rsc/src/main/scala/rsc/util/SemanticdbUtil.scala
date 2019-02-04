@@ -14,8 +14,7 @@ trait SemanticdbUtil {
 
   implicit class SymbolInformationOps(info: SymbolInformation) {
     def parents: List[String] = info.signature match {
-      case sig: ClassSignature =>
-        sig.parents.collect { case TypeRef(_, sym, _) => sym }.toList
+      case sig: ClassSignature => sig.parents.collect { case TypeRef(_, sym, _) => sym }.toList
       case _ => List()
     }
 
