@@ -46,7 +46,13 @@ sealed class Env protected (val root: Root, val scopes: List[Scope]) extends Pre
       val scope = currentScopes.head
       scope.resolve(name) match {
         case resolution @ (_: BlockedResolution | _: AmbiguousResolution | ErrorResolution) =>
-          return resolution
+          scope match {
+            case scope: ImporterScope =>
+              currentPriority = 2
+              currentResolution = resolution
+            case _ =>
+              return resolution
+          }
         case MissingResolution =>
           ()
         case resolution @ ResolvedSymbol(sym) =>
