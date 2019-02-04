@@ -533,6 +533,7 @@ final class Scheduler private (
         case TptByName(tpt) =>
           loop(tpt)
         case existentialTpt @ TptExistential(tpt, stats) =>
+          loop(tpt)
           if (!symtab.scopes.contains(existentialTpt)) {
             val existentialScope = ExistentialScope()
             symtab.scopes.put(existentialTpt, existentialScope)
@@ -552,6 +553,7 @@ final class Scheduler private (
         case tpt: TptPrimitive =>
           ()
         case refineTpt @ TptRefine(tpt, stats) =>
+          tpt.foreach(loop)
           if (!symtab.scopes.contains(refineTpt)) {
             val refineScope = RefineScope()
             symtab.scopes.put(refineTpt, refineScope)
