@@ -22,44 +22,53 @@ trait Params {
         (outline, owner) match {
           case (outline: DefnMethod, Some(owner: DefnTemplate))
               if !outline.hasVal && !outline.hasVar && outline.tparams.isEmpty =>
-            def overridesNonNullary(parent: Tpt): Boolean = {
-              symtab.scopify(Sketch(parent)) match {
-                case ResolvedScope(parentScope) =>
-                  parentScope.resolve(outline.id.name) match {
-                    case ResolvedSymbol(baseSym) =>
-                      symtab.metadata(baseSym) match {
-                        case OutlineMetadata(baseOutline: DefnMethod) =>
-                          baseOutline.desugaredParamss match {
-                            case List() => false
-                            case List(List()) => true
-                            case _ => crash(baseOutline)
-                          }
-                        case ClasspathMetadata(baseInfo) =>
-                          baseInfo.signature match {
-                            case s.MethodSignature(_, paramss, _) =>
-                              paramss match {
-                                case Seq() => false
-                                case Seq(params) if params.symbols.isEmpty => true
-                                case _ => crash(baseInfo)
-                              }
-                            case _ =>
-                              false
-                          }
-                        case _ =>
-                          false
-                      }
-                    case _ =>
-                      false
-                  }
-                case _ =>
-                  false
-              }
-            }
-            val needsParentheses = owner.desugaredParents.exists(overridesNonNullary)
-            if (needsParentheses) List(List()) else List()
+            val scope = symtab.scopes(owner.id.sym).asInstanceOf[TemplateScope]
+            if (overridesNonNullary(outline, scope)) List(List()) else List()
           case _ =>
             Nil
         }
+      }
+    }
+  }
+
+  private def overridesNonNullary(tree: DefnMethod, scope: Scope): Boolean = {
+    val parents = scope match {
+      case scope: TemplateScope =>
+        scope.parents
+      case scope: SignatureScope =>
+        val syms = scope.signature.parents.collect { case s.TypeRef(_, sym, _) => sym }.toList
+        syms.map(sym => symtab.scopes(sym))
+      case _ =>
+        crash(scope)
+    }
+    parents.exists { parent =>
+      parent.resolve(tree.id.name) match {
+        case ResolvedSymbol(baseSym) =>
+          baseSym.asMulti.exists { baseSym =>
+            symtab.metadata(baseSym) match {
+              case OutlineMetadata(baseOutline: DefnMethod) =>
+                baseOutline.desugaredParamss match {
+                  case List() => false
+                  case List(List()) => true
+                  case _ => overridesNonNullary(tree, parent)
+                }
+              case ClasspathMetadata(baseInfo) =>
+                baseInfo.signature match {
+                  case s.MethodSignature(_, paramss, _) =>
+                    paramss match {
+                      case Seq() => false
+                      case Seq(params) if params.symbols.isEmpty => true
+                      case _ => overridesNonNullary(tree, parent)
+                    }
+                  case _ =>
+                    false
+                }
+              case _ =>
+                false
+            }
+          }
+        case _ =>
+          false
       }
     }
   }

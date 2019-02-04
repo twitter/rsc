@@ -10,7 +10,6 @@ final class Symtab private (protected val classpath: Classpath)
     with Metadatas
     with Outlines
     with Scopes
-    with Scopifies
     with Sketches
 
 object Symtab {
