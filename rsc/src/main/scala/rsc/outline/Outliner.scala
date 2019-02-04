@@ -372,7 +372,19 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
   }
 
   private def resolveScope(env: Env, qual: Path): ScopeResolution = {
-    val resolution = resolveSym(env, qual)
+    val resolution = {
+      val resolution = resolveSym(env, qual)
+      qual match {
+        case TermThis(qual) =>
+          val qualScope = symtab.scopes(qual.sym).asInstanceOf[TemplateScope]
+          qualScope.tree.self match {
+            case Some(self @ Self(_, Some(_))) => ResolvedSymbol(self.id.sym)
+            case _ => resolution
+          }
+        case _ =>
+          resolution
+      }
+    }
     resolution match {
       case resolution: BlockedResolution =>
         resolution
