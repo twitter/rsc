@@ -533,11 +533,13 @@ final class Scheduler private (
         case TptByName(tpt) =>
           loop(tpt)
         case existentialTpt @ TptExistential(tpt, stats) =>
-          val existentialScope = ExistentialScope()
-          symtab.scopes.put(existentialTpt, existentialScope)
-          val existentialEnv = existentialScope :: env
-          stats.foreach(apply(existentialEnv, _))
-          existentialScope.succeed()
+          if (!symtab.scopes.contains(existentialTpt)) {
+            val existentialScope = ExistentialScope()
+            symtab.scopes.put(existentialTpt, existentialScope)
+            val existentialEnv = existentialScope :: env
+            stats.foreach(apply(existentialEnv, _))
+            existentialScope.succeed()
+          }
         case TptIntersect(tpts) =>
           tpts.foreach(loop)
         case tpt: TptLit =>
@@ -550,11 +552,13 @@ final class Scheduler private (
         case tpt: TptPrimitive =>
           ()
         case refineTpt @ TptRefine(tpt, stats) =>
-          val refineScope = RefineScope()
-          symtab.scopes.put(refineTpt, refineScope)
-          val refineEnv = refineScope :: env
-          stats.foreach(apply(refineEnv, _))
-          refineScope.succeed()
+          if (!symtab.scopes.contains(refineTpt)) {
+            val refineScope = RefineScope()
+            symtab.scopes.put(refineTpt, refineScope)
+            val refineEnv = refineScope :: env
+            stats.foreach(apply(refineEnv, _))
+            refineScope.succeed()
+          }
         case TptRepeat(tpt) =>
           loop(tpt)
         case TptWildcard(ubound, lbound) =>
