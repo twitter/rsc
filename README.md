@@ -1,8 +1,7 @@
 # Rsc
 
 Reasonable Scala compiler (also known as Rsc) is an experimental Scala compiler
-focused on compilation speed. This project is developed by Eugene Burmako
-and his team at Twitter.
+focused on compilation speed. This project is developed by the Language Tools team at Twitter.
 
 Rsc is not a fork, but a reimplementation of the Scala compiler.
 We believe that a performance-oriented rewrite will provide a unique perspective
