@@ -15,6 +15,13 @@ import rsc.util._
 import scala.collection.mutable
 
 // FIXME: https://github.com/twitter/rsc/issues/98
+/**
+ * Scheduler will
+ * 1. assign symbols to identifiers of definitions
+ * 2. append [[Work]] to todo
+ *
+ * To assign the correct symbols, Scheduler keeps track of the lexical environment, i.e. [[Env]]
+ */
 final class Scheduler private (
     settings: Settings,
     reporter: Reporter,
@@ -583,6 +590,12 @@ final class Scheduler private (
     }
   }
 
+  /**
+   * Builds up a sourceEnv which contains all the always-in-scope base imports,
+   * and passes that into stats which deals with the statements in the Source.
+   *
+   * Returns env unchanged.
+   */
   private def source(env: Env, tree: Source): Env = {
     def wildcardImport(qual: Path, env: Env): Env = {
       val importer = Importer(Mods(Nil), qual, List(ImporteeWildcard()))
@@ -595,6 +608,9 @@ final class Scheduler private (
         val rootEnv = symtab.scopes(RootPackage) :: env
         val javaLangEnv = wildcardImport(TermSelect(TermId("java"), TermId("lang")), rootEnv)
         val scalaEnv = wildcardImport(TermId("scala"), javaLangEnv)
+
+        // This replicates an interesting behavior of scalac
+        // See: https://github.com/twitter/rsc/issues/407
         val needsPredef = tree.toplevelImporters.forall {
           case Importer(_, TermSelect(TermId("scala"), TermId("Predef")), _) => false
           case _ => true

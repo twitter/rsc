@@ -138,6 +138,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
     }
   }
 
+  // Populates infos which is used in scalasig phase via Mtab
   private def semanticdb(): Unit = {
     val writer = rsc.semanticdb.Writer(settings, reporter, gensyms, symtab, infos, output)
     val outlines = symtab.outlines.result
