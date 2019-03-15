@@ -50,8 +50,20 @@ final class Writer private (
     }
     val converter = Converter(settings, reporter, gensyms, symtab, outline)
     val info = converter.toSymbolInformation
+
+    validate(outline, info)
+
     symbolBuf += info
     infos.put(outline.id.sym, info, outline.pos)
+  }
+
+  private def validate(outline: Outline, info: s.SymbolInformation): Unit = {
+    (outline, info.signature) match {
+      case (defn: DefnMethod, m: s.MethodSignature) if m.returnType.isEmpty =>
+        reporter.append(DefnMethodNotype(defn, settings.notypeWarn))
+      case _ =>
+        ()
+    }
   }
 
   private def writeChildren(outline: Outline): Unit = {
