@@ -16,8 +16,7 @@ trait FileFixtures extends ToolUtil {
   }
 
   lazy val coreFiles: List[Path] = {
-    val allFiles = Files.walk(coreDir).iterator.asScala.toList
-    allFiles.filter(_.toString.endsWith(".scala"))
+    scalaFilesIn(coreDir)
   }
 
   lazy val coreClasspath: List[Path] = {
@@ -30,8 +29,7 @@ trait FileFixtures extends ToolUtil {
 
   lazy val depsFiles: List[List[Path]] = {
     1.to(3).toList.map { i =>
-      val depsFiles = Files.walk(depsDir(i)).iterator.asScala.toList
-      depsFiles.filter(_.toString.endsWith(".scala"))
+      scalaFilesIn(depsDir(i))
     }
   }
 
@@ -39,14 +37,21 @@ trait FileFixtures extends ToolUtil {
     javaLibrary ++ BuildInfo.depsClasspath.map(_.toPath).toList
   }
 
+  lazy val errorDir: Path = {
+    buildRoot.resolve("examples/error")
+  }
+
+  lazy val errorFiles: List[Path] = scalaFilesIn(errorDir)
+
+  lazy val errorClasspath: List[Path] = {
+    javaLibrary ++ BuildInfo.errorClasspath.map(_.toPath).toList
+  }
+
   lazy val functionDir: Path = {
     buildRoot.resolve("examples/function")
   }
 
-  lazy val functionFiles: List[Path] = {
-    val allFiles = Files.walk(functionDir).iterator.asScala.toList
-    allFiles.filter(_.toString.endsWith(".java"))
-  }
+  lazy val functionFiles: List[Path] = javaFilesIn(functionDir)
 
   lazy val functionClasspath: List[Path] = {
     javaLibrary ++ BuildInfo.functionClasspath.map(_.toPath).toList
@@ -56,10 +61,7 @@ trait FileFixtures extends ToolUtil {
     buildRoot.resolve("examples/semantic")
   }
 
-  lazy val semanticFiles: List[Path] = {
-    val allFiles = Files.walk(semanticDir).iterator.asScala.toList
-    allFiles.filter(_.toString.endsWith(".scala"))
-  }
+  lazy val semanticFiles: List[Path] = scalaFilesIn(semanticDir)
 
   lazy val semanticClasspath: List[Path] = {
     javaLibrary ++ BuildInfo.semanticClasspath.map(_.toPath).toList
@@ -69,10 +71,7 @@ trait FileFixtures extends ToolUtil {
     buildRoot.resolve("examples/syntactic")
   }
 
-  lazy val syntacticFiles: List[Path] = {
-    val allFiles = Files.walk(syntacticDir).iterator.asScala.toList
-    allFiles.filter(_.toString.endsWith(".scala"))
-  }
+  lazy val syntacticFiles: List[Path] = scalaFilesIn(syntacticDir)
 
   lazy val javaLibrary: List[Path] = {
     val bootcpProp = System.getProperty("sun.boot.class.path")
@@ -91,4 +90,11 @@ trait FileFixtures extends ToolUtil {
       classfileName
     }
   }
+
+  private final def scalaFilesIn(dir: Path): List[Path] = filesEndingIn(dir, ".scala")
+
+  private final def javaFilesIn(dir: Path): List[Path] = filesEndingIn(dir, ".java")
+
+  private final def filesEndingIn(dir: Path, suffix: String): List[Path] =
+    Files.walk(dir).iterator.asScala.filter(_.toString.endsWith(suffix)).toList
 }

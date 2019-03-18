@@ -164,7 +164,7 @@ final class Synthesizer private (
       synthesize(tp)
     }
     val paramss = {
-      val paramss = symtab.desugars.paramss(tree.primaryCtor.get)
+      val paramss = symtab.desugars.paramss(tree.primaryCtor.get) // implicit class must have ctor
       paramss.map(_.map { p =>
         val mods = p.mods.filter(_.isInstanceOf[ModImplicit])
         val pos = p.id.pos

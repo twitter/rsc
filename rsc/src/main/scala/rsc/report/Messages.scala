@@ -339,3 +339,9 @@ final case class UnboundId(id: Id) extends Message {
     }
   }
 }
+
+final case class DefnMethodNotype(outline: DefnMethod, warn: Boolean = true) extends Message {
+  def sev = if (warn) WarningSeverity else ErrorSeverity
+  def pos = outline.point
+  def text = s"No type found at $pos for definition: $outline"
+}

@@ -12,6 +12,7 @@ final case class Settings(
     d: Path = Paths.get("out.jar"),
     debug: Boolean = false,
     ins: List[Path] = Nil,
+    notypeWarn: Boolean = false,
     xprint: Set[String] = Set[String](),
     ystopAfter: Set[String] = Set[String]()
 )
@@ -52,6 +53,8 @@ object Settings {
           loop(settings.copy(d = d), true, rest)
         case "-debug" +: rest if allowOptions =>
           loop(settings.copy(debug = true), true, rest)
+        case "-notype-warn" +: rest if allowOptions =>
+          loop(settings.copy(notypeWarn = true), true, rest)
         case "-release" +: rest if allowOptions =>
           loop(settings.copy(debug = false), true, rest)
         case opt +: rest if allowOptions && opt.startsWith("-Xprint:") =>

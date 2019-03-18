@@ -432,8 +432,8 @@ object SelfScope {
 class TemplateScope protected (val tree: DefnTemplate) extends OutlineScope(tree.id.sym) {
   // FIXME: https://github.com/twitter/rsc/issues/229
   // This shouldn't be modelled as Env since Env.resolve and linearization are two different things.
-  var _parents: List[Scope] = null
-  var _env: Env = null
+  private var _parents: List[Scope] = null
+  private var _env: Env = null
 
   def parents: List[Scope] = {
     if (status.isSucceeded) {
