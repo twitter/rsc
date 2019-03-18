@@ -10,7 +10,11 @@ class C {
 
   private val x2 = ""
 
+  var x3 = ""
+
   private[this] def y2 = 44
+
+  private[ticket408] def y3 = 45
 
   trait T[A]
 
