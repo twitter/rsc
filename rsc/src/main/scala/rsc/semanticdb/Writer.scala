@@ -59,8 +59,25 @@ final class Writer private (
 
   private def validate(outline: Outline, info: s.SymbolInformation): Unit = {
     (outline, info.signature) match {
+
       case (defn: DefnMethod, m: s.MethodSignature) if m.returnType.isEmpty =>
         reporter.append(DefnMethodNotype(defn, settings.notypeWarn))
+
+      case (defn: DefnClass, _: s.ClassSignature) =>
+        defn.parents.headOption match {
+          case Some(init @ Init(tpt: TptId, _)) =>
+            val parentTypeParams = symtab.metadata(tpt.sym) match {
+              case OutlineMetadata(outline: DefnClass) => outline.tparams
+              case ClasspathMetadata(parentInfo) => parentInfo.tparams
+              case NoMetadata => crash(defn)
+              case _ => Nil
+            }
+            if (parentTypeParams.nonEmpty) {
+              reporter.append(DefnClassInitNotype(defn, init, settings.notypeWarn))
+            }
+          case _ => ()
+        }
+
       case _ =>
         ()
     }

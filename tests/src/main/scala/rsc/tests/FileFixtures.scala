@@ -23,25 +23,25 @@ trait FileFixtures extends ToolUtil {
     javaLibrary ++ BuildInfo.coreClasspath.map(_.toPath).toList
   }
 
-  def depsDir(n: Int): Path = {
-    buildRoot.resolve(Paths.get("examples/deps" + n))
+  lazy val depsDirs: List[Path] = {
+    (1 to 3).map { i =>
+      buildRoot.resolve(Paths.get("examples/deps" + i))
+    }.toList
   }
 
   lazy val depsFiles: List[List[Path]] = {
-    1.to(3).toList.map { i =>
-      scalaFilesIn(depsDir(i))
-    }
+    depsDirs.map(scalaFilesIn)
   }
 
   lazy val depsClasspath: List[Path] = {
     javaLibrary ++ BuildInfo.depsClasspath.map(_.toPath).toList
   }
 
-  lazy val errorDir: Path = {
-    buildRoot.resolve("examples/error")
+  lazy val errorDirs: List[Path] = {
+    List("examples/errordeps", "examples/error").map(buildRoot.resolve)
   }
 
-  lazy val errorFiles: List[Path] = scalaFilesIn(errorDir)
+  lazy val errorFiles: List[List[Path]] = errorDirs.map(scalaFilesIn)
 
   lazy val errorClasspath: List[Path] = {
     javaLibrary ++ BuildInfo.errorClasspath.map(_.toPath).toList

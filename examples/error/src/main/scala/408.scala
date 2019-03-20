@@ -16,12 +16,4 @@ class C {
 
   private[ticket408] def y3 = 45
 
-  trait T[A]
-
-  class D[A](a: A) extends T[Int] {
-    def this() = this(???)
-  }
-
-  class E extends D(1)
-
 }
