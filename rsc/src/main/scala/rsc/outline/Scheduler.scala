@@ -666,6 +666,8 @@ final class Scheduler private (
         apply(treeEnv, tree)
         tree match {
           case tree: DefnClass if tree.hasImplicit =>
+            // When we encounter an implicit class, we must synthesize an implicit factory method
+            // of the same name located in the same scope.
             synthesizer.implicitClassConversion(currEnv, tree)
           case _: DefnCtor | _: PrimaryCtor =>
             ()
