@@ -346,12 +346,12 @@ final case class DefnMethodNotype(outline: DefnMethod, warn: Boolean = true) ext
   def text = s"No type found at $pos for definition: $outline"
 }
 
-final case class DefnClassInitNotype(
+final case class DefnClassInitTypeParamsMissing(
     outline: DefnClass,
     init: Init,
     warn: Boolean = true
 ) extends Message {
   def sev = if (warn) WarningSeverity else ErrorSeverity
   def pos = init.point
-  def text = s"No type parameter found at $pos for parent init: $init"
+  def text = s"Type parameters required but missing at $pos for parent init: $init"
 }

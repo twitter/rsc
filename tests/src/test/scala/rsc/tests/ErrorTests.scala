@@ -23,16 +23,16 @@ class ErrorTests extends RscTests {
     val filename = "410.scala"
 
     val expectedFailures = List(
-      initNotypeErrorMsg(filename, "8:16..8:20", "<ticket410/C#>(1)"),
-      initNotypeErrorMsg(filename, "10:16..10:17", "<ticket410/C#>"),
-      initNotypeErrorMsg(filename, "12:25..12:29", "<ticket410/C#>(2)"),
-      initNotypeErrorMsg(filename, "14:26..14:30", "<ticket410/C#>(3)"),
-      initNotypeErrorMsg(filename, "16:27..16:31", "<ticket410/C#>(x)"),
-      initNotypeErrorMsg(filename, "18:37..18:41", "<ticket410/C#>(x)"),
-      initNotypeErrorMsg(filename, "20:27..20:31", "<ticket410/C#>(4)"),
-      initNotypeErrorMsg(filename, "26:17..26:22", "<ticket410/CB#>(6)"),
-      initNotypeErrorMsg(filename, "28:26..28:31", "<ticket410/CB#>(7)"),
-      initNotypeErrorMsg(filename, "30:27..30:32", "<ticket410/CB#>(8)")
+      initNoTypeParamErrorMsg(filename, "8:16..8:20", "<ticket410/C#>(1)"),
+      initNoTypeParamErrorMsg(filename, "10:16..10:17", "<ticket410/C#>"),
+      initNoTypeParamErrorMsg(filename, "12:25..12:29", "<ticket410/C#>(2)"),
+      initNoTypeParamErrorMsg(filename, "14:26..14:30", "<ticket410/C#>(3)"),
+      initNoTypeParamErrorMsg(filename, "16:27..16:31", "<ticket410/C#>(x)"),
+      initNoTypeParamErrorMsg(filename, "18:37..18:41", "<ticket410/C#>(x)"),
+      initNoTypeParamErrorMsg(filename, "20:27..20:31", "<ticket410/C#>(4)"),
+      initNoTypeParamErrorMsg(filename, "26:17..26:22", "<ticket410/CB#>(6)"),
+      initNoTypeParamErrorMsg(filename, "28:26..28:31", "<ticket410/CB#>(7)"),
+      initNoTypeParamErrorMsg(filename, "30:27..30:32", "<ticket410/CB#>(8)")
     )
 
     val failures = problemsWith(filename)
@@ -103,11 +103,9 @@ class ErrorTests extends RscTests {
 
   private def absfile(filename: String): String = errorFilesMap(filename).toAbsolutePath.toString
 
-  private def notypeErrorMsg(filename: String, position: String, defn: String): String = {
+  private def notypeErrorMsg(filename: String, position: String, defn: String): String =
     s"error: No type found at ${absfile(filename)}@$position for definition: $defn"
-  }
 
-  private def initNotypeErrorMsg(filename: String, position: String, init: String): String = {
-    s"error: No type parameter found at ${absfile(filename)}@$position for parent init: $init"
-  }
+  private def initNoTypeParamErrorMsg(filename: String, position: String, init: String): String =
+    s"error: Type parameters required but missing at ${absfile(filename)}@$position for parent init: $init"
 }

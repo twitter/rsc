@@ -57,6 +57,8 @@ final class Writer private (
     infos.put(outline.id.sym, info, outline.pos)
   }
 
+  // Evolving attempt to catch errors from outlining
+  // for which scalac produces useless or cryptic error messages
   private def validate(outline: Outline, info: s.SymbolInformation): Unit = {
     (outline, info.signature) match {
 
@@ -64,16 +66,19 @@ final class Writer private (
         reporter.append(DefnMethodNotype(defn, settings.notypeWarn))
 
       case (defn: DefnClass, _: s.ClassSignature) =>
-        defn.parents.headOption match {
-          case Some(init @ Init(tpt: TptId, _)) =>
+        defn.parents match {
+          // Parent Init does not have type parameters specified, so make sure none are needed.
+          // Had type parameters been specified, tpt would be of type TptParameterize
+          // We will rely on scalac to deal with any further type parameter errors
+          case (init @ Init(tpt: TptId, _)) :: _ =>
             val parentTypeParams = symtab.metadata(tpt.sym) match {
               case OutlineMetadata(outline: DefnClass) => outline.tparams
+              case OutlineMetadata(_) => Nil
               case ClasspathMetadata(parentInfo) => parentInfo.tparams
               case NoMetadata => crash(defn)
-              case _ => Nil
             }
             if (parentTypeParams.nonEmpty) {
-              reporter.append(DefnClassInitNotype(defn, init, settings.notypeWarn))
+              reporter.append(DefnClassInitTypeParamsMissing(defn, init, settings.notypeWarn))
             }
           case _ => ()
         }
