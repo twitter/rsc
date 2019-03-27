@@ -66,12 +66,22 @@ final class Writer private (
         reporter.append(DefnMethodNotype(defn, settings.notypeWarn))
 
       case (defn: DefnClass, _: s.ClassSignature) =>
-        defn.parents match {
+        val maybeInitId = defn.parents match {
           // Parent Init does not have type parameters specified, so make sure none are needed.
           // Had type parameters been specified, tpt would be of type TptParameterize
           // We will rely on scalac to deal with any further type parameter errors
-          case (init @ Init(tpt: TptId, _)) :: _ =>
-            val parentTypeParams = symtab.metadata(tpt.sym) match {
+          case (init @ Init(tpt: TptPath, _)) :: _ =>
+            tpt match {
+              case tptid: TptId => Some(init, tptid)
+              case TptSelect(_, tptid) => Some(init, tptid)
+              // TptProject and TptSingleton are erroneous and will be caught by scalac
+              case _ => None
+            }
+          case _ => None
+        }
+        maybeInitId.foreach {
+          case (init, tptid) =>
+            val parentTypeParams = symtab.metadata(tptid.sym) match {
               case OutlineMetadata(outline: DefnClass) => outline.tparams
               case OutlineMetadata(_) => Nil
               case ClasspathMetadata(parentInfo) => parentInfo.tparams
@@ -80,7 +90,6 @@ final class Writer private (
             if (parentTypeParams.nonEmpty) {
               reporter.append(DefnClassInitTypeParamsMissing(defn, init, settings.notypeWarn))
             }
-          case _ => ()
         }
 
       case _ =>

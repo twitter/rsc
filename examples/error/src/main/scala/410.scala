@@ -29,3 +29,11 @@ class DB extends CB(6)
 private class PDB extends CB(7)
 
 abstract class ADB extends CB(8)
+
+class DA2 extends ticket410.CA(9)
+
+class DB2 extends ticket410.CB(10)
+
+class DB3 extends CB[Int](11)
+
+class DB4 extends ticket410.CB[Int](12)

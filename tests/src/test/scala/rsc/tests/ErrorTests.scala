@@ -32,7 +32,8 @@ class ErrorTests extends RscTests {
       initNoTypeParamErrorMsg(filename, "20:27..20:31", "<ticket410/C#>(4)"),
       initNoTypeParamErrorMsg(filename, "26:17..26:22", "<ticket410/CB#>(6)"),
       initNoTypeParamErrorMsg(filename, "28:26..28:31", "<ticket410/CB#>(7)"),
-      initNoTypeParamErrorMsg(filename, "30:27..30:32", "<ticket410/CB#>(8)")
+      initNoTypeParamErrorMsg(filename, "30:27..30:32", "<ticket410/CB#>(8)"),
+      initNoTypeParamErrorMsg(filename, "34:18..34:34", "<ticket410/>.<ticket410/CB#>(10)")
     )
 
     val failures = problemsWith(filename)
