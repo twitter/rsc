@@ -2,8 +2,6 @@ package rsc.tests
 
 class ErrorTests extends RscTests {
 
-  private val errorFilesMap = errorFiles.map(path => path.getFileName.toString -> path).toMap
-
   test("Method and field definition with No Type generates errors") {
 
     val filename = "408.scala"
@@ -20,8 +18,38 @@ class ErrorTests extends RscTests {
     checkFailures(failures, expectedFailures)
   }
 
+  test("Class definition with Init without required type parameters generates errors") {
+
+    val filename = "410.scala"
+
+    val expectedFailures = List(
+      initNoTypeParamErrorMsg(filename, "8:16..8:20", "<ticket410/C#>(1)"),
+      initNoTypeParamErrorMsg(filename, "10:16..10:17", "<ticket410/C#>"),
+      initNoTypeParamErrorMsg(filename, "12:25..12:29", "<ticket410/C#>(2)"),
+      initNoTypeParamErrorMsg(filename, "14:26..14:30", "<ticket410/C#>(3)"),
+      initNoTypeParamErrorMsg(filename, "16:27..16:31", "<ticket410/C#>(x)"),
+      initNoTypeParamErrorMsg(filename, "18:37..18:41", "<ticket410/C#>(x)"),
+      initNoTypeParamErrorMsg(filename, "20:27..20:31", "<ticket410/C#>(4)"),
+      initNoTypeParamErrorMsg(filename, "26:17..26:22", "<ticket410/CB#>(6)"),
+      initNoTypeParamErrorMsg(filename, "28:26..28:31", "<ticket410/CB#>(7)"),
+      initNoTypeParamErrorMsg(filename, "30:27..30:32", "<ticket410/CB#>(8)"),
+      initNoTypeParamErrorMsg(filename, "34:18..34:34", "<ticket410/>.<ticket410/CB#>(10)")
+    )
+
+    val failures = problemsWith(filename)
+
+    checkFailures(failures, expectedFailures)
+  }
+
+  ////////
+  // HELPERS
+  ////////
+
+  private val errorFilesMap =
+    errorFiles.last.map(path => path.getFileName.toString -> path).toMap
+
   private def problemsWith(filename: String): List[String] = {
-    rsc(errorClasspath, List(errorFilesMap(filename)))
+    rscs(errorClasspath, errorFiles.init :+ List(errorFilesMap(filename)))
       .fold( // Either.fold
         problems => problems,
         _ => Nil // success
@@ -74,9 +102,11 @@ class ErrorTests extends RscTests {
     }
   }
 
-  private def notypeErrorMsg(filename: String, position: String, line: String): String = {
-    val absfile = errorFilesMap(filename).toAbsolutePath.toString
+  private def absfile(filename: String): String = errorFilesMap(filename).toAbsolutePath.toString
 
-    s"error: No type found at $absfile@$position for definition: $line"
-  }
+  private def notypeErrorMsg(filename: String, position: String, defn: String): String =
+    s"error: No type found at ${absfile(filename)}@$position for definition: $defn"
+
+  private def initNoTypeParamErrorMsg(filename: String, position: String, init: String): String =
+    s"error: Type parameters required but missing at ${absfile(filename)}@$position for parent init: $init"
 }
