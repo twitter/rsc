@@ -148,6 +148,15 @@ final class Synthesizer private (
     enumValues(env, tree)
   }
 
+  /**
+   * Given an implicit class, synthesize an implicit factory method for it in
+   * the same scope. Note that if the implicit class has an anonymous type
+   * parameter (e.g., `implicit class C[_] { }`), the `_` will be replaced by
+   * `Any` in the factory method's return type (e.g., `C[Any]`).
+   *
+   * @param env
+   * @param tree
+   */
   def implicitClassConversion(env: Env, tree: DefnClass): Unit = {
     val mods = tree.mods.filter(_.isInstanceOf[ModAccess]) :+ ModImplicit()
     val id = TermId(tree.id.value)
@@ -175,8 +184,19 @@ final class Synthesizer private (
     }
     val ret = {
       val core = tree.id
-      if (tparams.isEmpty) Some(core)
-      else Some(TptParameterize(core, tparams.map(_.id.asInstanceOf[TptId])))
+      // Convert the implicit class's type parameters to the factory method return type parameters.
+      // This is necessary because the type parameters of a class or method definition can include
+      // constraints like upper and lower bounds, while a method return type can only include
+      // concrete type names and type variables that were bound in the method's type parameters.
+      val retTparams = tparams.map(_.id match {
+        case tptId: TptId => tptId
+        // AnonId represents `_`, which doesn't make sense as a type parameter in the return type;
+        // replace it by `Any`, i.e., `_root_.scala.Any`
+        case anonId: AnonId => TptId("Any").withSym(AnyClass)
+        case nonTptNamedId: NamedId => crash(nonTptNamedId.pos, nonTptNamedId)
+      })
+      if (retTparams.isEmpty) Some(core)
+      else Some(TptParameterize(core, retTparams))
     }
     val rhs = Some(TermStub())
     val meth = DefnMethod(mods, id, tparams, paramss, ret, rhs)
