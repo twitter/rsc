@@ -3,4 +3,7 @@
 
 # Roadmap
 
+Currently, we are focused on stabilizing an outliner to unlock parallelism in Scala builds.  
+An example of prior art for Java: https://github.com/google/turbine
+
 [Link](../../../milestones)
