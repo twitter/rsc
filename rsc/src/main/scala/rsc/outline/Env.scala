@@ -138,6 +138,8 @@ sealed class Env protected (val root: Root, val scopes: List[Scope]) extends Pre
     loop(scopes)
   }
 
+  // TODO: Add comment explaining what this is
+  // Likely to support resolving things like "this.MyType" with the sugared "MyType"
   def resolveThis(value: String): SymbolResolution = {
     @tailrec def loop(scopes: List[Scope]): SymbolResolution = {
       scopes match {

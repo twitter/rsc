@@ -24,14 +24,20 @@ trait Prefixes {
     } else if (id.sym.desc.isParameter || id.sym.desc.isTypeParameter) {
       s.NoType
     } else {
-      id.sym.owner.desc match {
+      val ownerSym = id.sym.owner
+      ownerSym.desc match {
         case d.Type(value) =>
           env.resolveThis(value) match {
-            case ResolvedSymbol(sym) =>
+            // We need to check the companion object because
+            // despite metac generating semanticdb with a prefix in the case of a companion object,
+            // metacp does not contain a prefix: see example file 417c.scala
+            case ResolvedSymbol(sym) if sym == ownerSym || sym == ownerSym.companionObject =>
               s.NoType
-            case MissingResolution =>
+            case ResolvedSymbol(_) | MissingResolution =>
               // FIXME: https://github.com/twitter/rsc/issues/229
               def loop(scopes: List[Scope]): s.Type = {
+                // TODO: should we refactor this resolution logic into Env?
+                // We would need to return the relevant scope as well as the SymbolResolution
                 scopes match {
                   case head :: tail =>
                     val resolution = {
