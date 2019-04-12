@@ -351,7 +351,8 @@ final class Synthesizer private (
         val tparam = TypeParam(mods, id, Nil, lbound, ubound, Nil, Nil)
         tparam.withPos(tp.pos)
       }
-      val paramss = tree.primaryCtor.get.paramss.zipWithIndex.map {
+
+      val paramss = symtab.desugars.paramss(tree.primaryCtor.get).zipWithIndex.map {
         case (params, i) =>
           params.map { p =>
             val mods = p.mods.filter(_.isInstanceOf[ModImplicit])
@@ -472,7 +473,8 @@ final class Synthesizer private (
         tparam.withPos(tp.pos)
       }
       var hasDefaultParams = false
-      val paramss = tree.primaryCtor.get.paramss.map(_.map { p =>
+      
+      val paramss = symtab.desugars.paramss(tree.primaryCtor.get).map(_.map { p =>
         val mods = p.mods.filter(_.isInstanceOf[ModImplicit])
         val id = TermId(p.id.valueopt.get).withPos(p.id.pos)
         val tpt = p.tpt.map(_.dupe)
