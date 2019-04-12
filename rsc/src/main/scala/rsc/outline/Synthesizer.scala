@@ -453,7 +453,9 @@ final class Synthesizer private (
       val tparams = tree.tparams.map(synthesizeTparam)
       var hasDefaultParams = false
 
-      val paramss = symtab.desugars.paramss(tree.primaryCtor.get).map(_.map { p =>
+      val desugaredParamss = symtab.desugars.paramss(tree.primaryCtor.get)
+
+      val paramss = desugaredParamss.map(_.map { p =>
         val mods = p.mods.filter(_.isInstanceOf[ModImplicit])
         val id = TermId(p.id.valueopt.get).withPos(p.id.pos)
         val tpt = p.tpt.map(_.dupe)
@@ -475,7 +477,9 @@ final class Synthesizer private (
   }
 
   private def caseClassCompanionUnapply(env: Env, tree: DefnClass): Unit = {
-    val params = tree.primaryCtor.get.paramss.headOption.getOrElse(Nil)
+    val desugaredParamss = symtab.desugars.paramss(tree.primaryCtor.get)
+
+    val params = desugaredParamss.headOption.getOrElse(Nil)
     if (params.length <= 22) {
       val id = {
         if (tree.primaryCtor.get.hasRepeated) TermId("unapplySeq")
@@ -498,7 +502,10 @@ final class Synthesizer private (
         }
       }
       val ret = {
-        val params = tree.primaryCtor.get.paramss.headOption.getOrElse(Nil)
+        // we need to desugar because a single, implicit parameter list desugars
+        // into two parameters lists, the first one being empty:
+        // case class C(implicit val x: Int) desugars into case class C()(implicit val x: Int)
+        val params = desugaredParamss.headOption.getOrElse(Nil)
         params match {
           case Nil =>
             Some(TptId("Boolean").withSym(BooleanClass))
