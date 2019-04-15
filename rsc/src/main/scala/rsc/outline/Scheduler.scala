@@ -353,6 +353,14 @@ final class Scheduler private (
       case tree: DefnClass =>
         if (tree.hasCase) {
           synthesizer.caseClassMembers(templateEnv, tree)
+          symtab.caseEnvs.put(tree.id.sym, templateEnv)
+          // We have to add companion members after the fact if
+          // the case class is defined after the companion object
+          // We can't add them while processing the companion object because
+          // it needs the Env from processing the case class
+          symtab.caseEnvs.get(tree.id.sym.companionObject).foreach { caseObjectTemplateEnv =>
+            synthesizer.caseClassCompanionMembers(caseObjectTemplateEnv, tree)
+          }
         }
         if (tree.hasEnum) {
           synthesizer.enumMembers(templateEnv, tree)
@@ -367,10 +375,17 @@ final class Scheduler private (
         if (tree.hasCase) {
           synthesizer.caseObjectMembers(templateEnv, tree)
         }
-        val companionClass = symtab.outlines.get(tree.id.sym.companionClass)
+        val classSym = tree.id.sym.companionClass
+        val companionClass = symtab.outlines.get(classSym)
         companionClass match {
           case Some(caseClass: DefnClass) if caseClass.hasCase =>
-            synthesizer.caseClassCompanionMembers(templateEnv, caseClass)
+            symtab.caseEnvs.put(tree.id.sym, templateEnv)
+            // We want to add case companion members only if we have the case class env already
+            // This is because we need it to make sure that the primaryCtor paramss are desugared
+            // The desugared paramss are then used in the companion apply method.
+            symtab.caseEnvs.get(classSym).foreach { caseClassTemplateEnv =>
+              synthesizer.caseClassCompanionMembers(templateEnv, caseClass)
+            }
           case _ =>
             ()
         }
