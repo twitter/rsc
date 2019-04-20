@@ -375,15 +375,15 @@ final class Scheduler private (
         if (tree.hasCase) {
           synthesizer.caseObjectMembers(templateEnv, tree)
         }
-        val classSym = tree.id.sym.companionClass
-        val companionClass = symtab.outlines.get(classSym)
+        val companionClassSym = tree.id.sym.companionClass
+        val companionClass = symtab.outlines.get(companionClassSym)
         companionClass match {
           case Some(caseClass: DefnClass) if caseClass.hasCase =>
             symtab.caseEnvs.put(tree.id.sym, templateEnv)
             // We want to add case companion members only if we have the case class env already
             // This is because we need it to make sure that the primaryCtor paramss are desugared
             // The desugared paramss are then used in the companion apply method.
-            symtab.caseEnvs.get(classSym).foreach { caseClassTemplateEnv =>
+            symtab.caseEnvs.get(companionClassSym).foreach { caseClassTemplateEnv =>
               synthesizer.caseClassCompanionMembers(templateEnv, caseClass)
             }
           case _ =>
@@ -705,8 +705,8 @@ final class Scheduler private (
         val objectSym = essentialObjectsIt.next()
         val needsSynthesis = !symtab.outlines.contains(objectSym)
         if (needsSynthesis) {
-          val classSym = objectSym.companionClass
-          val classTree = symtab.outlines(classSym).asInstanceOf[DefnClass]
+          val companionClassSym = objectSym.companionClass
+          val classTree = symtab.outlines(companionClassSym).asInstanceOf[DefnClass]
           val env = outlineEnv(currEnv, classTree)
           synthesizer.syntheticCompanion(env, classTree)
         }
