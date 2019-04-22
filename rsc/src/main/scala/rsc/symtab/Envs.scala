@@ -10,6 +10,8 @@ import rsc.util._
 trait Envs {
   private val impl = new HashMap[Symbol, Env]
 
+  private val caseTemplateEnvs = new HashMap[Symbol, Env]
+
   object envs {
     def apply(sym: Symbol): Env = {
       val env = impl.get(sym)
@@ -24,6 +26,25 @@ trait Envs {
       sym match {
         case NoSymbol => crash(env)
         case other => impl.put(other, env)
+      }
+    }
+  }
+
+  // Saves the template env of case class and companion object definitions
+  // See https://github.com/twitter/rsc/issues/421#issuecomment-483461637
+  object caseEnvs {
+    def get(sym: Symbol): Option[Env] =
+      Option(caseTemplateEnvs.get(sym))
+
+    def put(sym: Symbol, env: Env): Unit = {
+      val existingEnv = caseTemplateEnvs.get(sym)
+      if (existingEnv != null) {
+        if (env == existingEnv) return
+        crash(sym)
+      }
+      sym match {
+        case NoSymbol => crash(env)
+        case other => caseTemplateEnvs.put(other, env)
       }
     }
   }
