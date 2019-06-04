@@ -58,7 +58,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
     val body: Term
   }
 
-  private final case class RewriteDefn(
+  private case class RewriteDefn(
       env: Env,
       before: Token,
       name: Name,
@@ -75,7 +75,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
     override def pos: inputs.Position = name.pos
   }
 
-  private final case class RewriteDefault(
+  private case class RewriteDefault(
       env: Env,
       after: Token,
       body: Term,
@@ -85,7 +85,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
     override def pos: inputs.Position = body.pos
   }
 
-  private final case class RewriteInit(
+  private case class RewriteInit(
       env: Env,
       name: Name,
       parentCtor: Token
