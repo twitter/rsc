@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.semantics
 
+import rsc.settings.{Abi, Abi211}
+
 trait Stdlib {
   def AbstractFunctionClass(params: Int): Symbol = "scala/runtime/AbstractFunction" + params + "#"
   val AnyClass: Symbol = "scala/Any#"
@@ -23,7 +25,8 @@ trait Stdlib {
   val OptionClass: Symbol = "scala/Option#"
   val ProductClass: Symbol = "scala/Product#"
   val SerializableClass: Symbol = "scala/Serializable#"
-  val SeqClass: Symbol = "scala/collection/Seq#"
+  def SeqClass(abi: Abi): Symbol =
+    if (abi == Abi211) "scala/collection/Seq#" else "scala/package.Seq#"
   val SingletonClass: Symbol = "scala/Singleton#"
   val StringClass: Symbol = "java/lang/String#"
   def TupleClass(params: Int): Symbol = "scala/Tuple" + params + "#"

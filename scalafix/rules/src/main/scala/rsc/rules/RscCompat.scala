@@ -58,13 +58,16 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
     val body: Term
   }
 
-  private final case class RewriteDefn(
+  private case class RewriteDefn(
       env: Env,
       before: Token,
       name: Name,
       after: Token,
       body: Term,
-      parens: Boolean
+      parens: Boolean,
+      // FIXME: https://github.com/scalameta/scalameta/issues/1872
+      // Bug when analyzing var DefnPats like `var List(x) = 1`, so we need to keep track of this.
+      varDefnPat: Boolean
   ) extends RewriteWithBody {
 
     override val symbol: String = name.symbol.get.syntax
@@ -72,7 +75,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
     override def pos: inputs.Position = name.pos
   }
 
-  private final case class RewriteDefault(
+  private case class RewriteDefault(
       env: Env,
       after: Token,
       body: Term,
@@ -82,7 +85,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
     override def pos: inputs.Position = body.pos
   }
 
-  private final case class RewriteInit(
+  private case class RewriteInit(
       env: Env,
       name: Name,
       parentCtor: Token
@@ -136,8 +139,10 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
         case defn @ InferredDefnField(name, body) if defn.isVisible =>
           val before = name.tokens.head
           val after = name.tokens.last
-          buf += RewriteDefn(env, before, name, after, body, parens = false)
+          buf += RewriteDefn(env, before, name, after, body, parens = false, varDefnPat = false)
         case defn @ InferredDefnPat(fnames, pnames, body) if defn.isVisible =>
+          // Apparently, we only need to be worried about patterns with only one symbol
+          val varDefnPat = defn.is[Defn.Var] && fnames.isEmpty && pnames.size == 1
           if (fnames.nonEmpty) {
             val name = fnames.head
             val before = name.tokens.head
@@ -149,13 +154,29 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
                 .find(x => !x.is[Token.Equals] && !x.is[Trivia])
                 .get
             }
-            buf += RewriteDefn(env, before, name, after, body, parens = false)
+            buf += RewriteDefn(
+              env,
+              before,
+              name,
+              after,
+              body,
+              parens = false,
+              varDefnPat = varDefnPat
+            )
           }
           pnames.foreach { name =>
             val before = name.tokens.head
             val after = name.tokens.last
             // FIXME: https://github.com/twitter/rsc/issues/142
-            buf += RewriteDefn(env, before, name, after, body, parens = true)
+            buf += RewriteDefn(
+              env,
+              before,
+              name,
+              after,
+              body,
+              parens = true,
+              varDefnPat = varDefnPat
+            )
           }
         case defn @ InferredDefnDef(name, body, tparams, paramss) if defn.isVisible =>
           val before = name.tokens.head
@@ -167,7 +188,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
               .find(x => !x.is[Token.Equals] && !x.is[Trivia])
               .get
           }
-          buf += RewriteDefn(env, before, name, after, body, parens = false)
+          buf += RewriteDefn(env, before, name, after, body, parens = false, varDefnPat = false)
           buf ++= targetsForPolymorphicDefaultParams(env, name, tparams, paramss)
         // FIXME: https://github.com/twitter/rsc/issues/358
         case defn @ Defn.Def(_, name, tparams, paramss, _, _) =>
@@ -240,8 +261,14 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
       val typeString = config.hardcoded
         .get(target.symbol)
         .orElse {
+          val symbol = target match {
+            case target: RewriteDefn if target.varDefnPat =>
+              s"${target.symbol.init}()."
+            case _ =>
+              target.symbol
+          }
           symbols
-            .info(target.symbol)
+            .info(symbol)
             .flatMap { info =>
               target match {
                 case target: RewriteWithBody =>

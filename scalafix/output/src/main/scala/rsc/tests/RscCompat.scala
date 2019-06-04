@@ -173,7 +173,8 @@ object RscCompat_Test {
     val sane1: _root_.scala.Predef.String = implicitly[String]
     val sane2: _root_.com.twitter.bijection.Bijection[_root_.rsc.tests.RscCompat_Test.In, _root_.rsc.tests.RscCompat_Test.Out2] = Bijection.connect[In, Out2]
 
-    val X, List((y: _root_.scala.Int)): _root_.scala.collection.immutable.List[_root_.scala.Int] = List(1, 2)
+    // FIXME: https://github.com/scalameta/scalameta/issues/1872#issuecomment-498705622
+    // val X, List(y) = List(1, 2)
 
     val t: _root_.rsc.tests.foo.`package`.T = ??? : foo.T
 

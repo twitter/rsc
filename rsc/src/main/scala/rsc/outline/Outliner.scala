@@ -454,7 +454,7 @@ final class Outliner private (settings: Settings, reporter: Reporter, symtab: Sy
         case tpt: TptRefine =>
           crash(tpt)
         case TptRepeat(tpt) =>
-          scopify(SeqClass)
+          scopify(SeqClass(settings.abi))
         case tpt: TptWildcard =>
           loop(tpt.desugaredUbound)
         case TptWildcardExistential(_, tpt) =>
