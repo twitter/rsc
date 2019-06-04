@@ -181,7 +181,8 @@ object RscCompat_Test {
     val sane1 = implicitly[String]
     val sane2 = Bijection.connect[In, Out2]
 
-    val X, List(y) = List(1, 2)
+    // FIXME: https://github.com/scalameta/scalameta/issues/1872#issuecomment-498705622
+    // val X, List(y) = List(1, 2)
 
     val t = ??? : foo.T
 
