@@ -1123,11 +1123,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       )
     }
     def scaseAccessor(sgetterSym: String): s.SymbolInformation = {
-      val saccessorName = {
-        // FIXME: https://github.com/twitter/rsc/issues/99
-        if (settings.abi == Abi211) gensym.caseAccessor(sgetterSym.desc.value)
-        else crash(settings.abi.toString)
-      }
+      val saccessorName = gensym.caseAccessor(sgetterSym.desc.value)
       val saccessorDesc = d.Method(saccessorName, "()")
       val saccessorSym = Symbols.Global(sgetterSym.owner, saccessorDesc)
       val saccessorSig = mtab(sgetterSym).signature
