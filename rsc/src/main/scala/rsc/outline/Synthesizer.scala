@@ -497,8 +497,10 @@ final class Synthesizer private (
       }
       def paramTpt(param: Param): Tpt = {
         param.tpt.get match {
-          case TptRepeat(tpt) => TptParameterize(TptId("Seq").withSym(SeqClass), List(tpt.dupe))
-          case tpt => tpt.dupe
+          case TptRepeat(tpt) =>
+            TptParameterize(TptId("Seq").withSym(SeqClass(settings.abi)), List(tpt.dupe))
+          case tpt =>
+            tpt.dupe
         }
       }
       val ret = {
