@@ -6,7 +6,7 @@ import java.io._
 import java.nio.file._
 
 final case class Settings(
-    abi: Abi = Abi211,
+    abi: Abi = Abi212,
     artifacts: List[Artifact] = List(ArtifactScalasig),
     cp: List[Path] = Nil,
     d: Path = Paths.get("out.jar"),

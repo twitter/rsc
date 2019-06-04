@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="0.9.1"
+VERSION="0.9.5"
 CACHE="$HOME/.scalafix"
 COURSIER="$CACHE/coursier"
 SCALAFIX="$CACHE/scalafix-$VERSION"
@@ -15,7 +15,7 @@ if [ ! -f $COURSIER ]; then
 fi
 
 if [ ! -f $SCALAFIX ]; then
-  $COURSIER bootstrap ch.epfl.scala:scalafix-cli_2.11.12:$VERSION \
+  $COURSIER bootstrap ch.epfl.scala:scalafix-cli_2.12.8:$VERSION \
   -r https://oss.sonatype.org/content/repositories/snapshots \
   -r https://oss.sonatype.org/content/repositories/releases \
   --main scalafix.cli.Cli \
