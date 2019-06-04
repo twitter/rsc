@@ -57,7 +57,15 @@ trait Params {
                   case s.MethodSignature(_, paramss, _) =>
                     paramss match {
                       case Seq() => false
-                      case Seq(params) if params.symbols.isEmpty => true
+                      case Seq(params) if params.symbols.isEmpty =>
+                        scope match {
+                          case scope: TemplateScope
+                              // Best effort approximation; not sure why this is the case
+                              if (scope.tree.hasAbstract || scope.tree.mods.hasTrait) &&
+                                tree.rhs.isEmpty =>
+                            false
+                          case _ => true
+                        }
                       case _ => overridesNonNullary(tree, parent)
                     }
                   case _ =>
