@@ -11,3 +11,4 @@ package object util
     with StringUtil
     with ThrowableUtil
     with TreeUtil
+    with TimeUtil

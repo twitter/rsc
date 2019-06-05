@@ -26,7 +26,7 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
 
   var trees: List[Source] = Nil
   var gensyms: Gensyms = Gensyms()
-  var classpath: Classpath = Classpath(settings.cp)
+  var classpath: Classpath = profile (settings, reporter, "classpath") { Classpath(settings.cp) }
   var symtab: Symtab = Symtab(classpath)
   var todo: Todo = Todo()
   var infos: Infos = Infos(classpath)
@@ -166,16 +166,25 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
   private def scalasig(): Unit = {
     val writer = rsc.scalasig.Writer(settings, reporter, infos, output)
     val outlines = symtab.outlines.result
+    var classfileTime = 0.0
+    var writeTime = 0.0
     while (!outlines.isEmpty) {
       val outline = outlines.remove()
       if (outline.id.sym.owner.desc.isPackage && !outline.id.sym.desc.isPackage) {
         try {
-          writer.write(outline)
+          val (classfileTime1, writeTime1) = writer.write(outline)
+          classfileTime += classfileTime1
+          writeTime += writeTime1
         } catch {
           case ex: Throwable =>
             crash(outline.pos, ex)
         }
       }
+    }
+
+    if (settings.xprint("timings")) {
+      reporter.append(VerboseMessage(s"Finished classfiles in $classfileTime ms"))
+      reporter.append(VerboseMessage(s"Finished writing in $writeTime ms"))
     }
   }
 

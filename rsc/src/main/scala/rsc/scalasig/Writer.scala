@@ -9,6 +9,7 @@ import rsc.report._
 import rsc.semanticdb._
 import rsc.settings._
 import rsc.syntax._
+import rsc.util.time
 import scala.collection.mutable
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
@@ -18,8 +19,11 @@ final class Writer private (settings: Settings, reporter: Reporter, infos: Infos
   private val mtab = Mtab(infos)
   private val done = mutable.HashSet[String]()
 
-  def write(outline: Outline): Unit = {
-    if (!settings.artifacts.contains(ArtifactScalasig)) return
+  def write(outline: Outline): (Double, Double) = {
+    var classfileTiming: Double = 0.0
+    var writeTiming: Double = 0.0
+
+    if (!settings.artifacts.contains(ArtifactScalasig)) return (classfileTiming, writeTiming)
     val sym = outline.id.sym
     val companionSym = {
       val desc = sym.desc
@@ -28,7 +32,7 @@ final class Writer private (settings: Settings, reporter: Reporter, infos: Infos
     }
     val moduleSym = if (sym.desc.isTerm) sym else companionSym
 
-    if (done(sym)) return
+    if (done(sym)) return (classfileTiming, writeTiming)
     val pickle = Pickle(settings, mtab, sym, companionSym)
     pickle.emitEmbeddedSym(sym, ToplevelMode)
     done += sym
@@ -38,17 +42,27 @@ final class Writer private (settings: Settings, reporter: Reporter, infos: Infos
     }
 
     val scalasig = pickle.toScalasig
-    val classfile = scalasig.toClassfile
-    val path = Paths.get(classfile.name + ".class")
-    output.write(path, classfile.toBinary)
+    val (classfile, elapsed1) = time { scalasig.toClassfile }
+    classfileTiming += elapsed1
+
+    val (_, elapsed2) = time {
+      val path = Paths.get(classfile.name + ".class")
+      output.write(path, classfile.toBinary)
+    }
+    writeTiming += elapsed2
 
     pickle.history.modules.foreach { moduleSym =>
       val markerPath = Paths.get(moduleSym.bytecodeLoc)
       val markerName = markerPath.toString.stripSuffix(".class")
       val markerSource = classfile.source
       val markerClassfile = Classfile(markerName, markerSource, NoPayload)
-      output.write(markerPath, markerClassfile.toBinary)
+
+      val (_, elapsed3) = time {
+        output.write(markerPath, markerClassfile.toBinary)
+      }
+      writeTiming += elapsed3
     }
+    (classfileTiming, writeTiming)
   }
 }
 
