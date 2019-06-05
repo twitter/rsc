@@ -21,6 +21,9 @@ import rsc.syntax._
 import rsc.util._
 
 class Compiler(val settings: Settings, val reporter: Reporter) extends AutoCloseable with Pretty {
+
+  private val startInit = System.nanoTime()
+
   var trees: List[Source] = Nil
   var gensyms: Gensyms = Gensyms()
   var classpath: Classpath = Classpath(settings.cp)
@@ -28,6 +31,12 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
   var todo: Todo = Todo()
   var infos: Infos = Infos(classpath)
   var output: Output = Output(settings)
+
+  private val endInit = System.nanoTime()
+  private val msInit = (endInit - startInit) / 1000000
+  if (settings.xprint("timings")) {
+    reporter.append(VerboseMessage(s"Finished init in $msInit ms"))
+  }
 
   def run(): Unit = {
     for ((phaseName, phaseFn) <- phases) {
