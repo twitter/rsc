@@ -11,7 +11,7 @@ trait TimeUtil {
     val res = fn
 
     val end = System.nanoTime()
-    val ms = (end - start) / 1000000.0
+    val ms = (end - start) / 1000000
 
     if (settings.xprint("timings")) {
       reporter.append(VerboseMessage(s"Finished $msg in $ms ms"))
@@ -20,13 +20,13 @@ trait TimeUtil {
     res
   }
 
-  def time[A](fn: => A): (A, Double) = {
+  def time[A](fn: => A): (A, Long) = {
     val start = System.nanoTime()
 
     val res = fn
 
     val end = System.nanoTime()
-    val ms = (end - start) / 1000000.0
+    val ms = (end - start) / 1000000
 
     (res, ms)
   }
