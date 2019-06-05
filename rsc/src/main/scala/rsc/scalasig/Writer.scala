@@ -6,6 +6,7 @@ import java.nio.file._
 import rsc.classpath._
 import rsc.output._
 import rsc.report._
+import rsc.scalasig.Writer.Timings
 import rsc.semanticdb._
 import rsc.settings._
 import rsc.syntax._
@@ -19,11 +20,10 @@ final class Writer private (settings: Settings, reporter: Reporter, infos: Infos
   private val mtab = Mtab(infos)
   private val done = mutable.HashSet[String]()
 
-  def write(outline: Outline): (Double, Double) = {
-    var classfileTiming: Double = 0.0
-    var writeTiming: Double = 0.0
+  def write(outline: Outline): Timings = {
+    val timings = new Timings()
 
-    if (!settings.artifacts.contains(ArtifactScalasig)) return (classfileTiming, writeTiming)
+    if (!settings.artifacts.contains(ArtifactScalasig)) return timings
     val sym = outline.id.sym
     val companionSym = {
       val desc = sym.desc
@@ -32,24 +32,29 @@ final class Writer private (settings: Settings, reporter: Reporter, infos: Infos
     }
     val moduleSym = if (sym.desc.isTerm) sym else companionSym
 
-    if (done(sym)) return (classfileTiming, writeTiming)
-    val pickle = Pickle(settings, mtab, sym, companionSym)
-    pickle.emitEmbeddedSym(sym, ToplevelMode)
-    done += sym
-    if (mtab.contains(companionSym)) {
-      pickle.emitEmbeddedSym(companionSym, ToplevelMode)
-      done += companionSym
+    if (done(sym)) return timings
+
+    val (pickle, elapsed0) = time {
+      val pickle = Pickle(settings, mtab, sym, companionSym)
+      pickle.emitEmbeddedSym(sym, ToplevelMode)
+      done += sym
+      if (mtab.contains(companionSym)) {
+        pickle.emitEmbeddedSym(companionSym, ToplevelMode)
+        done += companionSym
+      }
+      pickle
     }
+    timings.pickleTiming += elapsed0
 
     val scalasig = pickle.toScalasig
     val (classfile, elapsed1) = time { scalasig.toClassfile }
-    classfileTiming += elapsed1
+    timings.classfileTiming += elapsed1
 
     val (_, elapsed2) = time {
       val path = Paths.get(classfile.name + ".class")
       output.write(path, classfile.toBinary)
     }
-    writeTiming += elapsed2
+    timings.writeTiming += elapsed2
 
     pickle.history.modules.foreach { moduleSym =>
       val markerPath = Paths.get(moduleSym.bytecodeLoc)
@@ -60,9 +65,9 @@ final class Writer private (settings: Settings, reporter: Reporter, infos: Infos
       val (_, elapsed3) = time {
         output.write(markerPath, markerClassfile.toBinary)
       }
-      writeTiming += elapsed3
+      timings.writeTiming += elapsed3
     }
-    (classfileTiming, writeTiming)
+    timings
   }
 }
 
@@ -70,4 +75,10 @@ object Writer {
   def apply(settings: Settings, reporter: Reporter, infos: Infos, output: Output): Writer = {
     new Writer(settings, reporter, infos, output)
   }
+
+  final class Timings(
+    var pickleTiming: Double = 0.0,
+    var classfileTiming: Double = 0.0,
+    var writeTiming: Double = 0.0
+  )
 }
