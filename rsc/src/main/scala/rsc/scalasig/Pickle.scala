@@ -141,7 +141,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     sscope.hardlinks.foreach(info => mtab(info.symbol) = info)
     sscope.symbols.map { ssym =>
       if (ssym.isAccessor) {
-        if (!ssym.isPrivateThis || ssym.isLazy) {
+        if (!ssym.isPrivateThis || ssym.isLazy || ssym.owner.isTrait) {
           buf += emitEmbeddedSym(ssym, RefMode)
         }
         if (!ssym.isDeferred && !(settings.abi == Abi212 && ssym.isLazy)) {
@@ -1054,6 +1054,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
         else sgetterSym.desc.value + " "
       }
       val sfieldSym = Symbols.Global(sgetterSym.owner, d.Term(sfieldName))
+
       var sfieldProps = p.VAL.value
       if (noGetter && sgetterSym.isImplicit) sfieldProps |= p.IMPLICIT.value
       if (sgetterSym.isFinal) sfieldProps |= p.FINAL.value
