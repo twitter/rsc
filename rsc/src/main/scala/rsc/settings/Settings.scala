@@ -24,6 +24,14 @@ object Settings {
       args match {
         case "--" +: rest =>
           loop(settings, false, rest)
+        case argsFile +: rest if argsFile.startsWith("@") =>
+          val source = scala.io.Source.fromFile(argsFile.tail)
+          try {
+            val args0 = source.mkString(" ").split("\\s").toList
+            loop(Settings(), true, args0 ++ rest)
+          } finally {
+            source.close()
+          }
         case "-abi" +: s_abi +: rest if allowOptions =>
           s_abi match {
             case "211" =>
