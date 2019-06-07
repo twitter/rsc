@@ -7,6 +7,7 @@ import rsc.lexis.scala._
 import rsc.pretty._
 import rsc.rules._
 import rsc.rules.semantics._
+import rsc.semantics._
 import scala.collection.mutable
 import scala.meta.internal.{semanticdb => s}
 // import scala.meta.internal.semanticdb.Scala._

@@ -2,18 +2,19 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.rules.semantics
 
+import rsc.semantics._
 import scala.collection.mutable
 import scala.meta._
 import scala.meta.internal.{semanticdb => s}
 // import scala.meta.internal.semanticdb.Scala._
-import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
+import scala.meta.internal.semanticdb.Scala.{Symbols, Descriptor => d}
 import scala.meta.internal.semanticdb.Scala.{Names => n}
 
 sealed trait Scope {
   def lookup(name: n.Name): String
 
   protected def member(symtab: Symtab, sym: String, name: n.Name): String = {
-    def getInfo(desc: Descriptor): Option[s.SymbolInformation] =
+    def getInfo(desc: d): Option[s.SymbolInformation] =
       symtab
         .info(Symbols.Global(sym, desc))
         .orElse(symtab.info(Symbols.Global(s"${sym}package.", desc)))

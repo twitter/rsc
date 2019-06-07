@@ -5,6 +5,7 @@ package rsc.checkoutline
 import java.nio.file._
 import rsc.checkbase._
 import rsc.pretty._
+import rsc.semantics._
 import rsc.util._
 import scala.collection.mutable
 import scala.meta.internal.semanticdb._

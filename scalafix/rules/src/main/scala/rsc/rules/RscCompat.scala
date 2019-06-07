@@ -9,11 +9,12 @@ import rsc.rules.pretty._
 import rsc.rules.semantics._
 import rsc.rules.syntax._
 import rsc.rules.util.GlobalImports
+import rsc.semantics.MyScalaSymbolOps
 import scala.meta._
 import scala.meta.contrib._
 import scala.meta.internal.{semanticdb => s}
 // import scala.meta.internal.semanticdb.Scala._
-import scala.meta.internal.semanticdb.Scala.{Names => n}
+import scala.meta.internal.semanticdb.Scala.{Symbols, Names => n}
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scalafix.internal.v0._
 import scalafix.syntax._
