@@ -21,11 +21,13 @@ import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
 import scala.reflect.NameTransformer
 
+import Pickle.ValueOps
+
 // NOTE: There is no specification for this aspect of ScalaSigs.
 // The best that we have is the Scala compiler source code:
 // * https://github.com/scala/scala/blob/v2.12.6/src/compiler/scala/tools/nsc/symtab/classfile/Pickler.scala
 
-class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: String) {
+final class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: String) {
   private val entries = Entries()
   private val gensym = Gensym()
   private val stack = Stack()
@@ -500,11 +502,15 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     Scalasig(name, source, entries)
   }
 
-  private implicit class SymbolOps(ssym: String) {
+  private val cacheSymIsEmbedded = new java.util.HashMap[String, Boolean]
+  private val cacheSymIsToplevel = new java.util.HashMap[String, Boolean]
+  private val cacheSymName = new java.util.HashMap[String, Name]
+
+  private final implicit class SymbolOps(ssym: String) {
     def isExternal: Boolean = {
       !isEmbedded
     }
-    def isEmbedded: Boolean = {
+    def _isEmbedded(ssym: String): Boolean = {
       if (ssym.isGlobal) {
         if (mtab.contains(ssym)) {
           if (isToplevel) ssym.startsWith(sroot1) || ssym.startsWith(sroot2)
@@ -516,7 +522,9 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
         true
       }
     }
-    private def isToplevel: Boolean = {
+    def isEmbedded: Boolean = cacheSymIsEmbedded.computeIfAbsent(ssym, _isEmbedded)
+
+    private def _isToplevel(ssym: String): Boolean = {
       if (ssym.isGlobal) {
         def loop(ssym: String): Boolean = {
           if (ssym.isNone) true
@@ -531,33 +539,31 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
         false
       }
     }
-    def name: Name = {
+    private def isToplevel: Boolean = cacheSymIsToplevel.computeIfAbsent(ssym, _isToplevel)
+    def _name(ssym: String): Name = {
       if (ssym.isEmbedded) {
-        mtab.get(ssym) match {
-          case Some(sinfo) =>
-            if (ssym.isExistential) {
-              TypeName(gensym.wildcardExistential())
-            } else {
-              sinfo.kind match {
-                case k.LOCAL | k.FIELD | k.METHOD | k.CONSTRUCTOR | k.MACRO | k.PARAMETER |
-                    k.SELF_PARAMETER =>
-                  if (ssym.isLocal) TermName(sinfo.displayName.encode)
-                  else TermName(ssym.desc.value.encode)
-                case k.TYPE | k.TYPE_PARAMETER | k.OBJECT | k.PACKAGE_OBJECT | k.CLASS | k.TRAIT |
-                    k.INTERFACE =>
-                  if (ssym.isLocal) TermName(sinfo.displayName.encode)
-                  else TypeName(ssym.desc.value.encode)
-                case _ =>
-                  crash(sinfo)
-              }
-            }
-          case None =>
-            crash(ssym)
+        val sinfo = mtab(ssym)
+        if (history.isExistential(ssym)) {
+          TypeName(gensym("_$"))
+        } else {
+          sinfo.kind match {
+            case k.LOCAL | k.FIELD | k.METHOD | k.CONSTRUCTOR | k.MACRO | k.PARAMETER |
+                k.SELF_PARAMETER =>
+              if (ssym.isLocal) TermName(sinfo.displayName.encode)
+              else TermName(ssym.desc.value.encode)
+            case k.TYPE | k.TYPE_PARAMETER | k.OBJECT | k.PACKAGE_OBJECT | k.CLASS | k.TRAIT |
+                k.INTERFACE =>
+              if (ssym.isLocal) TermName(sinfo.displayName.encode)
+              else TypeName(ssym.desc.value.encode)
+            case _ =>
+              crash(sinfo)
+          }
         }
       } else {
         TypeName(ssym.desc.value.encode)
       }
     }
+    def name: Name = cacheSymName.computeIfAbsent(ssym, _name)
     def jname: String = {
       val sparts = {
         def loop(sparts: List[String]): List[String] = {
@@ -573,16 +579,18 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     }
   }
 
-  private implicit class HardlinkOps(ssym: String) {
+  private val cacheParamAccessor = new java.util.HashMap[String, Boolean]
+  private val cacheSsig = new java.util.HashMap[String, Sig]
+  private val cacheStype = new java.util.HashMap[String, s.Type]
+
+  private final implicit class HardlinkOps(ssym: String) {
     private lazy val sinfo: s.SymbolInformation = {
-      mtab.get(ssym) match {
-        case Some(sinfo) => sinfo
-        case None => crash(ssym)
-      }
+      mtab(ssym)
     }
     def companionSym: String = {
-      if (ssym.endsWith(".")) ssym.stripSuffix(".") + "#"
-      else if (ssym.endsWith("#")) ssym.stripSuffix("#") + "."
+      val c = ssym.last
+      if (c == '.') ssym.stripSuffix(".") + "#"
+      else if (c == '#') ssym.stripSuffix("#") + "."
       else Symbols.None
     }
     def isObject: Boolean = {
@@ -619,7 +627,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       sinfo.isTrait
     }
     def isStable: Boolean = {
-      sinfo.isMethod && (sinfo.isVal || scaseAccessors(ssym))
+      sinfo.isMethod && (sinfo.isVal || scaseAccessors.contains(ssym))
     }
     def isAccessor: Boolean = {
       sinfo.isMethod && (sinfo.isVal || sinfo.isVar)
@@ -660,7 +668,8 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     def isPublic: Boolean = {
       sinfo.access == s.NoAccess || sinfo.isPublic
     }
-    def isParamAccessor: Boolean = {
+    def isParamAccessor: Boolean = cacheParamAccessor.computeIfAbsent(ssym, _isParamAccessor)
+    private def _isParamAccessor(ssym: String): Boolean = {
       ssym.name match {
         case TermName(value) if ssym.isField || ssym.isAccessor =>
           if (ssym.isGlobal) {
@@ -695,9 +704,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       sinfo.isLazy
     }
     def isCase: Boolean = {
-      if (sinfo.isClass) {
-        sinfo.isCase
-      } else if (sinfo.isObject) {
+      if (sinfo.isClass || sinfo.isObject) {
         sinfo.isCase
       } else if (sinfo.isMethod) {
         sinfo.isSynthetic &&
@@ -714,7 +721,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       sinfo.isDefault || ssym.desc.value.contains("$default$")
     }
     def isCaseAccessor: Boolean = {
-      (isCaseGetter || scaseAccessors(ssym)) && isPublic
+      (isCaseGetter || scaseAccessors.contains(ssym)) && isPublic
     }
     def isCaseGetter: Boolean = {
       ssym.isParamAccessor && ssym.isGetter && ssym.owner.isCase
@@ -845,7 +852,8 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     def sannots: List[s.Annotation] = {
       sinfo.annotations.toList
     }
-    def ssig: Sig = {
+    def ssig: Sig = cacheSsig.computeIfAbsent(ssym, _ssig)
+    def _ssig(ssym: String): Sig = {
       def maybePolySig(stparamSyms: Option[s.Scope], sig: Sig): Sig = {
         stparamSyms match {
           case Some(sscope) if sscope.symbols.nonEmpty => PolySig(sscope, sig)
@@ -937,7 +945,8 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
         SomePre(s.ThisType(sowner))
       }
     }
-    def stpe: s.Type = {
+    def stpe: s.Type = cacheStype.computeIfAbsent(ssym, _stpe)
+    def _stpe(ssym: String): s.Type = {
       val stargs = ssym.ssig match {
         case PolySig(stparamSyms, _) => stparamSyms.symbols.map(_.stpe)
         case _ => Nil
@@ -958,19 +967,6 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     }
   }
 
-  private implicit class ValueOps(value: String) {
-    def encode: String = {
-      if (value == "_root_") "<root>"
-      else if (value == "_empty_") "<empty>"
-      else if (value == "<init>") "<init>"
-      else if (value == "<byname>") "<byname>"
-      else if (value == "<repeated>") "<repeated>"
-      else if (value.startsWith("<refinement")) "<refinement>"
-      else if (value.endsWith(" ")) value.stripSuffix(" ").encode + " "
-      else NameTransformer.encode(value)
-    }
-  }
-
   implicit class PropertyOps(val p: Property.type) {
     val OVERRIDE = p.Unrecognized(0x20000000)
     val ABSOVERRIDE = p.Unrecognized(0x40000000)
@@ -983,7 +979,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
     def isSynthetic = (sinfo.properties & p.SYNTHETIC.value) != 0
   }
 
-  private val scaseAccessors = mutable.Set[String]()
+  private val scaseAccessors = new java.util.HashSet[String]()
   object Transients {
     def srefinement(sowner: String, stpe: s.StructuralType): s.SymbolInformation = {
       val ssym = Symbols.Global(sowner, d.Type(gensym.refinement()))
@@ -1131,7 +1127,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       val saccessorDesc = d.Method(saccessorName, "()")
       val saccessorSym = Symbols.Global(sgetterSym.owner, saccessorDesc)
       val saccessorSig = mtab(sgetterSym).signature
-      scaseAccessors += saccessorSym
+      scaseAccessors.add(saccessorSym)
       s.SymbolInformation(
         symbol = saccessorSym,
         language = l.SCALA,
@@ -1343,5 +1339,18 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
 object Pickle {
   def apply(settings: Settings, mtab: Mtab, sroot1: String, sroot2: String): Pickle = {
     new Pickle(settings, mtab, sroot1, sroot2)
+  }
+
+  final implicit class ValueOps(val value: String) extends AnyVal {
+    def encode: String = {
+      if (value == "_root_") "<root>"
+      else if (value == "_empty_") "<empty>"
+      else if (value == "<init>") "<init>"
+      else if (value == "<byname>") "<byname>"
+      else if (value == "<repeated>") "<repeated>"
+      else if (value.startsWith("<refinement")) "<refinement>"
+      else if (value.endsWith(" ")) value.stripSuffix(" ").encode + " "
+      else NameTransformer.encode(value)
+    }
   }
 }

@@ -5,7 +5,7 @@ package rsc.scalasig
 import scala.collection.mutable
 import scala.meta.internal.{semanticdb => s}
 
-class History {
+final class History {
   private val existentials = mutable.Set[String]()
   def markExistential(sinfo: s.SymbolInformation): Unit = existentials.add(sinfo.symbol)
   def isExistential(ssym: String): Boolean = existentials.contains(ssym)

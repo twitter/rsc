@@ -54,7 +54,8 @@ class Mtab private (infos: Infos) {
   }
 
   def contains(sym: String): Boolean = {
-    infos.contains(sym)
+    infos.outlineInfos.containsKey(sym) ||
+    infos.classpathInfos.contains(sym)
   }
 
   def get(sym: String): Option[s.SymbolInformation] = {
