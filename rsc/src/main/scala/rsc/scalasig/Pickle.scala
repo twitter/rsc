@@ -4,7 +4,7 @@ package rsc.scalasig
 
 import rsc.gensym._
 import rsc.semantics.{Name => _}
-import rsc.semantics.wat.MyScalaSymbols.MyScalaSymbolOps
+import rsc.semantics.MyScalaSymbolOps
 import rsc.settings._
 import rsc.util._
 import scala.collection.mutable
