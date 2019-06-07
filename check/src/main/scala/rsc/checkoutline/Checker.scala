@@ -8,7 +8,7 @@ import rsc.pretty._
 import rsc.util._
 import scala.collection.mutable
 import scala.meta.internal.semanticdb._
-import scala.meta.internal.semanticdb.Scala._
+// import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}

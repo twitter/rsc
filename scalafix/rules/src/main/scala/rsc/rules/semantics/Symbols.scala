@@ -3,7 +3,7 @@
 package rsc.rules.semantics
 
 import scala.meta.internal.{semanticdb => s}
-import scala.meta.internal.semanticdb.Scala._
+// import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 
 trait Symbols {

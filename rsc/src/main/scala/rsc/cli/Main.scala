@@ -11,6 +11,7 @@ import rsc.settings._
 
 object Main {
   def main(args: Array[String]): Unit = {
+    println("hello")
     val result = process(args)
     if (result) sys.exit(0) else sys.exit(1)
   }

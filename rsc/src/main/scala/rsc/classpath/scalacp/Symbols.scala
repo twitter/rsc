@@ -9,9 +9,9 @@ import rsc.util._
 import scala.collection.mutable
 import scala.meta.scalasig._
 import scala.meta.scalasig.lowlevel._
-import scala.meta.internal.semanticdb.Scala._
+// import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
-import scala.meta.internal.semanticdb.Scala.{Names => n}
+import scala.meta.internal.semanticdb.Scala.{Symbols, Names => n}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.reflect.NameTransformer
 
@@ -77,7 +77,7 @@ trait Symbols {
         loop(sym.name.value)
       }
     }
-    def sdesc: Descriptor = {
+    def sdesc: d = {
       sym match {
         case sym: EmbeddedSymbol =>
           sym.skind match {

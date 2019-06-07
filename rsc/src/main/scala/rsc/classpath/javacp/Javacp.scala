@@ -9,10 +9,11 @@ import org.objectweb.asm.{Opcodes => o}
 import org.objectweb.asm.tree._
 import rsc.classpath._
 import rsc.classpath.javacp.asm._
+import rsc.semantics._
 import scala.collection.JavaConverters._
 import scala.collection.mutable._
-import scala.meta.internal.semanticdb.Scala._
-import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
+// import scala.meta.internal.semanticdb.Scala._
+import scala.meta.internal.semanticdb.Scala.{Symbols, Descriptor => d}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.{Language => l}
 import scala.meta.internal.{semanticdb => s}
@@ -265,7 +266,7 @@ object Javacp {
         val prefix = styperef(sym, targs.toSemanticTpe(scope))
         val (result, _) = suffix.foldLeft(prefix -> sym) {
           case ((accum, owner), s: ClassTypeSignatureSuffix) =>
-            val desc = Descriptor.Type(s.simpleClassTypeSignature.identifier)
+            val desc = d.Type(s.simpleClassTypeSignature.identifier)
             val symbol = Symbols.Global(owner, desc)
             styperef(
               prefix = accum,

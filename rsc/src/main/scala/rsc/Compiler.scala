@@ -170,6 +170,8 @@ class Compiler(val settings: Settings, val reporter: Reporter) extends AutoClose
 
     while (!outlines.isEmpty) {
       val outline = outlines.remove()
+      val s = outline.id.sym
+      s.desc
       if (outline.id.sym.owner.desc.isPackage && !outline.id.sym.desc.isPackage) {
         try {
           val timings0 = writer.write(outline)

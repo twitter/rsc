@@ -3,10 +3,11 @@
 // NOTE: This file has been partially copy/pasted from scalameta/scalameta.
 package rsc.classpath.scalacp
 
+import rsc.semantics._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.{Language => l}
-import scala.meta.internal.semanticdb.Scala._
-import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
+// import scala.meta.internal.semanticdb.Scala._
+import scala.meta.internal.semanticdb.Scala.{Symbols, Descriptor => d}
 import scala.meta.internal.semanticdb.Scala.{DisplayNames => dn}
 import scala.meta.internal.semanticdb.Scala.{Names => n}
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}

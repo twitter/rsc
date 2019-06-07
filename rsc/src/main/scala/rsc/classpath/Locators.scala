@@ -2,8 +2,9 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.classpath
 
+import rsc.semantics._
 import rsc.util._
-import scala.meta.internal.semanticdb.Scala._
+ import scala.meta.internal.semanticdb.Scala.Symbols
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.reflect.NameTransformer
 

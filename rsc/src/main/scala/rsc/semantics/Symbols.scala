@@ -4,7 +4,7 @@ package rsc.semantics
 
 import rsc.gensym._
 import scala.meta.internal.{semanticdb => s}
-import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
+import scala.meta.internal.semanticdb.Scala.{Symbols, Descriptor => D}
 
 trait Symbols {
   type Symbol = String
@@ -22,27 +22,27 @@ trait Symbols {
   }
 
   def TermSymbol(owner: Symbol, value: String): Symbol = {
-    s.Scala.Symbols.Global(owner, d.Term(value))
+    s.Scala.Symbols.Global(owner, D.Term(value))
   }
 
   def MethodSymbol(owner: Symbol, value: String, disambig: String): Symbol = {
-    s.Scala.Symbols.Global(owner, d.Method(value, disambig))
+    s.Scala.Symbols.Global(owner, D.Method(value, disambig))
   }
 
   def TypeSymbol(owner: Symbol, value: String): Symbol = {
-    s.Scala.Symbols.Global(owner, d.Type(value))
+    s.Scala.Symbols.Global(owner, D.Type(value))
   }
 
   def PackageSymbol(owner: Symbol, value: String): Symbol = {
-    s.Scala.Symbols.Global(owner, d.Package(value))
+    s.Scala.Symbols.Global(owner, D.Package(value))
   }
 
   def ParamSymbol(owner: Symbol, value: String): Symbol = {
-    s.Scala.Symbols.Global(owner, d.Parameter(value))
+    s.Scala.Symbols.Global(owner, D.Parameter(value))
   }
 
   def TypeParamSymbol(owner: Symbol, value: String): Symbol = {
-    s.Scala.Symbols.Global(owner, d.TypeParameter(value))
+    s.Scala.Symbols.Global(owner, D.TypeParameter(value))
   }
 
   def SelfSymbol(owner: Symbol): Symbol = {
@@ -59,7 +59,7 @@ trait Symbols {
     s.Scala.Symbols.Multi(List(sym1, sym2))
   }
 
-  implicit class SymbolOps(sym: Symbol) extends s.Scala.ScalaSymbolOps(sym) {
+  implicit class SymbolOps(sym: Symbol) extends wat.MyScalaSymbols.MyScalaSymbolOps(sym) {
     def companionClass: Symbol = {
       if (sym.endsWith(".")) sym.substring(0, sym.length - 1) + "#"
       else NoSymbol

@@ -12,7 +12,7 @@ import rsc.rules.util.GlobalImports
 import scala.meta._
 import scala.meta.contrib._
 import scala.meta.internal.{semanticdb => s}
-import scala.meta.internal.semanticdb.Scala._
+// import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Names => n}
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scalafix.internal.v0._

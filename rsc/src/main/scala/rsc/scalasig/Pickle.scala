@@ -3,6 +3,8 @@
 package rsc.scalasig
 
 import rsc.gensym._
+import rsc.semantics.{Name => _}
+import rsc.semantics.wat.MyScalaSymbols.MyScalaSymbolOps
 import rsc.settings._
 import rsc.util._
 import scala.collection.mutable
@@ -10,9 +12,10 @@ import scala.meta.scalasig._
 import scala.meta.scalasig.lowlevel._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.{Language => l}
-import scala.meta.internal.semanticdb.Scala._
+//// import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.internal.semanticdb.Scala.{DisplayNames => dn}
+import scala.meta.internal.semanticdb.Scala.Symbols
 import scala.meta.internal.semanticdb.SymbolInformation._
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.internal.semanticdb.SymbolInformation.{Property => p}
@@ -38,7 +41,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
   }
 
   private def emitExternalSym(ssym: String, smode: Mode): Ref = {
-    val isModule = ssym.desc.isPackage || ssym.desc.isTerm
+    val isModule = new MyScalaSymbolOps(ssym).desc.isPackage || ssym.desc.isTerm
     val key = {
       if (isModule && smode.emitModules) ModuleRefKey(ssym)
       else RefKey(ssym)

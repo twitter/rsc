@@ -9,7 +9,7 @@ import rsc.rules._
 import rsc.rules.semantics._
 import scala.collection.mutable
 import scala.meta.internal.{semanticdb => s}
-import scala.meta.internal.semanticdb.Scala._
+// import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.internal.semanticdb.Scala.{Names => n}
 import scalafix.internal.v0._

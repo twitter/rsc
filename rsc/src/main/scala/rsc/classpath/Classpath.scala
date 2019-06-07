@@ -7,10 +7,11 @@ import java.nio.file._
 import java.util.HashMap
 import rsc.classpath.javacp._
 import rsc.classpath.scalacp._
+import rsc.semantics._
 import rsc.util._
 import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.{Language => l}
-import scala.meta.internal.semanticdb.Scala._
+// import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.SymbolInformation.{Kind => k}
 import scala.meta.scalasig._
 import scala.meta.scalasig.lowlevel._

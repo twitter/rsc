@@ -8,12 +8,14 @@ import rsc.output._
 import rsc.report._
 import rsc.scalasig.Writer.Timings
 import rsc.semanticdb._
+import rsc.semantics._
 import rsc.settings._
 import rsc.syntax._
 import rsc.util.time
 import scala.collection.mutable
-import scala.meta.internal.semanticdb.Scala._
+// import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
+import scala.meta.internal.semanticdb.Scala.Symbols
 import scala.meta.scalasig._
 
 final class Writer private (settings: Settings, reporter: Reporter, infos: Infos, output: Output) {
