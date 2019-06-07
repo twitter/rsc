@@ -150,14 +150,16 @@ trait Symbols {
     }
   }
 
-  private[semantics] object DescriptorParser {
-    private val cache = mutable.Map.empty[String, (d, String)]
+  private[semantics] final object DescriptorParser {
+    private final val _cache = new java.util.HashMap[String, (d, String)]()
+
+    def compute(symbol: String): (d, String) = {
+      val parser = new DescriptorParser(symbol)
+      parser.entryPoint()
+    }
 
     def apply(symbol: String): (d, String) = {
-      cache.getOrElseUpdate(symbol, {
-        val parser = new DescriptorParser(symbol)
-        parser.entryPoint()
-      })
+      _cache.computeIfAbsent(symbol, compute)
     }
   }
 }
