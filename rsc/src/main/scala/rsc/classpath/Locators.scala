@@ -4,7 +4,7 @@ package rsc.classpath
 
 import rsc.semantics._
 import rsc.util._
- import scala.meta.internal.semanticdb.Scala.Symbols
+import scala.meta.internal.semanticdb.Scala.Symbols
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.reflect.NameTransformer
 

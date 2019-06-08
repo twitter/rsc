@@ -79,8 +79,8 @@ object Writer {
   }
 
   final class Timings(
-    var pickleTiming: Long = 0L,
-    var classfileTiming: Long = 0L,
-    var writeTiming: Long = 0L
+      var pickleTiming: Long = 0L,
+      var classfileTiming: Long = 0L,
+      var writeTiming: Long = 0L
   )
 }
