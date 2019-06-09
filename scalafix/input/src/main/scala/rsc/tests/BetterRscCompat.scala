@@ -1,5 +1,6 @@
 /*
 rules = "scala:rsc.rules.RscCompat"
+RscCompat.autoimport = true
  */
 package rsc.tests
 

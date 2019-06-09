@@ -65,7 +65,7 @@ class SemanticdbPrinter(
             if (config.better) {
               name.map(fullEnv.lookup) match {
                 case Some(x) if !symbols.equivalent(x, sym) =>
-                  if (x.isEmpty && pre == s.NoType) {
+                  if (config.autoimport && x.isEmpty && pre == s.NoType) {
                     addedImportsScope.addImport(sym)
                   } else {
                     printPrettyPrefix
@@ -82,7 +82,7 @@ class SemanticdbPrinter(
         case s.SingleType(pre, sym) =>
           if (config.better && symbols.equivalent(fullEnv.lookup(sym.desc.name), sym)) {
             str(sym.desc.value)
-          } else if (config.better && fullEnv.lookup(sym.desc.name).isEmpty) {
+          } else if (config.better && config.autoimport && fullEnv.lookup(sym.desc.name).isEmpty) {
             addedImportsScope.addImport(sym)
             str(sym.desc.value)
           } else {
