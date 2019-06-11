@@ -4,7 +4,6 @@ import java.util.concurrent.CancellationException
 import java.util.logging.Logger
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
 /**
  * A "batcher" that takes a function `Seq[In] => Future[Seq[Out]]` and
@@ -59,7 +58,7 @@ private[util] class BatchExecutor[In, Out](
   val log: Logger = Logger.getLogger("Future.batched")
 
   // operations on these are synchronized on `this`.
-  val buf: ArrayBuffer[Tuple2[In, Promise[Out]]] = new mutable.ArrayBuffer[(In, Promise[Out])](sizeThreshold)
+  val buf: mutable.ArrayBuffer[Tuple2[In, Promise[Out]]] = new mutable.ArrayBuffer[(In, Promise[Out])](sizeThreshold)
   var scheduled: Option[ScheduledFlush] = scala.None
   var currentBufThreshold: Int = newBufThreshold
 

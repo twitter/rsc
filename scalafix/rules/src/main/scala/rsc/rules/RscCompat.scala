@@ -37,7 +37,7 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
 
     val typeAscriptions = targets.map(ascribeInferredType(ctx, _)).asPatch
 
-    val addedImports = if (config.better) {
+    val addedImports = if (config.better && config.autoimport) {
       new GlobalImports(ctx).addGlobalImports(addedImportsScope.importers)
     } else {
       Patch.empty
