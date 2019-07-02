@@ -200,9 +200,9 @@ object BetterRscCompat_Test {
 
     def opt[A](x: Option[A] = None: None.type): A = x.get
 
-    def both[A, B](x: A = null: Null)(y: Option[B] = None: None.type): Option[Tuple2[B, A]] = y.map((_, x))
+    def both[A, B](x: A = null: Null)(y: Option[B] = None: None.type): Option[(B, A)] = y.map((_, x))
 
-    def outer[A](x: A = null: Null): Tuple3[A, A, A] = {
+    def outer[A](x: A = null: Null): (A, A, A) = {
       def inner[B](y: A = x, z: B = null) = (x, y, z)
       inner(x, x)
     }
@@ -216,7 +216,7 @@ object BetterRscCompat_Test {
 
       def bar[B <: Z](a: Int, b: B, a2: Int = 4, c: A = new Y)
         (d: A)
-        (e: B = new Y: Y, f: Option[B] = {val x = new Z; Some(x)}: Some[Z]): Tuple2[Option[B], A] = (f, c)
+        (e: B = new Y: Y, f: Option[B] = {val x = new Z; Some(x)}: Some[Z]): (Option[B], A) = (f, c)
 
       def bar2[B >: Y](a: B, b: B, c: A, e: B)
 
@@ -242,7 +242,7 @@ object BetterRscCompat_Test {
 
       def bar[B <: Z](a: Int, b: B, a2: Int = 4: Int, c: A = new Y: Y)
         (d: A)
-        (e: B = new Y: Y, f: Option[B] = {val x = new Z; Some(x)}: Option[Z]): Tuple2[Option[B], A] = (f, c)
+        (e: B = new Y: Y, f: Option[B] = {val x = new Z; Some(x)}: Option[Z]): (Option[B], A) = (f, c)
 
       def bar2[B >: Y](a: Int, b: B, c: A = new Y, e: B = new Y: Y)
 
