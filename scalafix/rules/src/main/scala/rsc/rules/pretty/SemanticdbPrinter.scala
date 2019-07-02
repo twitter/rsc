@@ -25,7 +25,12 @@ class SemanticdbPrinter(
     def prefix(tpe: s.Type): Unit = {
       tpe match {
         case s.TypeRef(pre, sym, args) =>
-          if (sym.startsWith("scala/Function") &&
+          if (sym.startsWith("scala/Tuple")) {
+            str("(")
+            rep(args, ", ")(normal)
+            str(")")
+          }
+          else if (sym.startsWith("scala/Function") &&
               args.exists(_.isInstanceOf[s.ByNameType])) {
             var params :+ ret = args
             if (params.length != 1) str("(")
