@@ -254,4 +254,8 @@ object BetterRscCompat_Test {
       }
     }
   }
+
+  object NestedTuples {
+    val foo = (("1", 1), 1.0)
+  }
 }

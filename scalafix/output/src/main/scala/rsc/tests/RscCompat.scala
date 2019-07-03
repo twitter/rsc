@@ -92,7 +92,7 @@ object RscCompat_Test {
     val typeRef7: _root_.scala.Function0[T] = ??? : () => T
     val typeRef8: _root_.scala.Function1[T, T] = ??? : T => T
     val typeRef9: _root_.scala.Function2[T, T, T] = ??? : (T, T) => T
-    val typeRef10: _root_.scala.Tuple2[T, T] = ??? : (T, T)
+    val typeRef10: (T, T) = ??? : (T, T)
 
     val singleType1: _root_.rsc.tests.RscCompat_Test.TypesHelpers.c.type = ??? : c.type
     val singleType2: _root_.rsc.tests.RscCompat_Test.TypesHelpers.p.c.type = ??? : p.c.type

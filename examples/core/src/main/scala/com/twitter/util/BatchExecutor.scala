@@ -58,7 +58,7 @@ private[util] class BatchExecutor[In, Out](
   val log: Logger = Logger.getLogger("Future.batched")
 
   // operations on these are synchronized on `this`.
-  val buf: mutable.ArrayBuffer[Tuple2[In, Promise[Out]]] = new mutable.ArrayBuffer[(In, Promise[Out])](sizeThreshold)
+  val buf: mutable.ArrayBuffer[(In, Promise[Out])] = new mutable.ArrayBuffer[(In, Promise[Out])](sizeThreshold)
   var scheduled: Option[ScheduledFlush] = scala.None
   var currentBufThreshold: Int = newBufThreshold
 
