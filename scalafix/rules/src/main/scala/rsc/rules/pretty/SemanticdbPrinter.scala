@@ -29,9 +29,8 @@ class SemanticdbPrinter(
             str("(")
             rep(args, ", ")(normal)
             str(")")
-          }
-          else if (sym.startsWith("scala/Function") &&
-              args.exists(_.isInstanceOf[s.ByNameType])) {
+          } else if (sym.startsWith("scala/Function") &&
+                     args.exists(_.isInstanceOf[s.ByNameType])) {
             var params :+ ret = args
             if (params.length != 1) str("(")
             rep(params, ", ") { param =>
