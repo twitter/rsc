@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.build
 
-import java.io._
 import java.io.File.pathSeparator
 import java.lang.ProcessBuilder._
 import scala.collection.JavaConverters._
+import scala.sys.process._
 import sbt._
 import sbt.Keys._
 import sbt.plugins._

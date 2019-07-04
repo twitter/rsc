@@ -130,7 +130,6 @@ lazy val examplesSemantic = project
 lazy val rsc = project
   .in(file("rsc"))
   .dependsOn(scalasig)
-  .disablePlugins(BackgroundRunPlugin)
   .settings(
     commonSettings,
     publishableSettings,
@@ -195,7 +194,6 @@ lazy val scalasig = project
 lazy val scalap = project
   .in(file("scalasig/scalap"))
   .dependsOn(scalasig)
-  .disablePlugins(BackgroundRunPlugin)
   .settings(
     commonSettings,
     publishableSettings,
