@@ -401,7 +401,7 @@ object Time extends TimeLikeOps[Time] {
   /**
    * Note, this should only ever be updated by methods used for testing.
    */
-  private[util] val localGetTime: Local[scala.Function0[Time]] = new Local[() => Time]
+  private[util] val localGetTime: Local[() => Time] = new Local[() => Time]
   private[util] val localGetTimer: Local[MockTimer] = new Local[MockTimer]
 
   /**

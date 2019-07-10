@@ -89,9 +89,9 @@ object RscCompat_Test {
     val typeRef4: _root_.scala.`package`.List[_root_.scala.Int] = ??? : List[Int]
     val typeRef5: Types.this.X = ??? : X
     val typeRef6: T = ??? : T
-    val typeRef7: _root_.scala.Function0[T] = ??? : () => T
-    val typeRef8: _root_.scala.Function1[T, T] = ??? : T => T
-    val typeRef9: _root_.scala.Function2[T, T, T] = ??? : (T, T) => T
+    val typeRef7: () => T = ??? : () => T
+    val typeRef8: T => T = ??? : T => T
+    val typeRef9: (T, T) => T = ??? : (T, T) => T
     val typeRef10: (T, T) = ??? : (T, T)
 
     val singleType1: _root_.rsc.tests.RscCompat_Test.TypesHelpers.c.type = ??? : c.type

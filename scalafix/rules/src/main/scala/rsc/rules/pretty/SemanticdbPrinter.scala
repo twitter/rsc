@@ -29,17 +29,13 @@ class SemanticdbPrinter(
             str("(")
             rep(args, ", ")(normal)
             str(")")
-          } else if (sym.startsWith("scala/Function") &&
-                     args.exists(_.isInstanceOf[s.ByNameType])) {
+          } else if (sym.startsWith("scala/Function")) {
             var params :+ ret = args
-            if (params.length != 1) str("(")
-            rep(params, ", ") { param =>
-              // FIXME: https://github.com/twitter/rsc/issues/142
-              str("(")
-              normal(param)
-              str(")")
-            }
-            if (params.length != 1) str(")")
+            val hasByNameArg = params.exists(_.isInstanceOf[s.ByNameType])
+            val needsExtraParens = hasByNameArg || (params.length != 1)
+            if (needsExtraParens) str("(")
+            rep(params, ", ") { normal }
+            if (needsExtraParens) str(")")
             str(" => ")
             normal(ret)
           } else {
