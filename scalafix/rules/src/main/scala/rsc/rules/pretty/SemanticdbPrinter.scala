@@ -32,7 +32,7 @@ class SemanticdbPrinter(
           } else if (sym.startsWith("scala/Function")) {
             var params :+ ret = args
             val hasByNameArg = params.exists(_.isInstanceOf[s.ByNameType])
-            val hasFunctionArg = params.exists{
+            val hasFunctionArg = params.exists {
               case s.TypeRef(pre, sym, args) if sym.startsWith("scala/Function") => true
               case _ => false
             }
