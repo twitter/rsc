@@ -19,6 +19,7 @@ object BetterRscCompat_Test {
     def str2 = s"$str world"
     val foo = (x: Int) => (y: Int) => x + y
     val bar = (f: Int => Int) => f
+    val baz = (f: Int) => bar _
 
 
     class MyClass
