@@ -32,7 +32,11 @@ class SemanticdbPrinter(
           } else if (sym.startsWith("scala/Function")) {
             var params :+ ret = args
             val hasByNameArg = params.exists(_.isInstanceOf[s.ByNameType])
-            val needsExtraParens = hasByNameArg || (params.length != 1)
+            val hasFunctionArg = params.exists{
+              case s.TypeRef(pre, sym, args) if sym.startsWith("scala/Function") => true
+              case _ => false
+            }
+            val needsExtraParens = hasFunctionArg || hasByNameArg || (params.length != 1)
             if (needsExtraParens) str("(")
             rep(params, ", ") { normal }
             if (needsExtraParens) str(")")
