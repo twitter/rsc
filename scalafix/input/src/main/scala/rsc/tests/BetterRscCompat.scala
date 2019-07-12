@@ -20,6 +20,7 @@ object BetterRscCompat_Test {
     val foo = (x: Int) => (y: Int) => x + y
     val bar = (f: Int => Int) => f
     val baz = (f: Int) => bar _
+    def qux[A] = (x: A, y: A => A) => x
 
 
     class MyClass
