@@ -17,6 +17,11 @@ object BetterRscCompat_Test {
     def map = mutable.Map(1 -> "1")
     def str = "hello"
     def str2 = s"$str world"
+    val foo = (x: Int) => (y: Int) => x + y
+    val bar = (f: Int => Int) => f
+    val baz = (f: Int) => bar _
+    def qux[A] = (x: A, y: A => A) => x
+
 
     class MyClass
 
