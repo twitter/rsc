@@ -7,20 +7,7 @@
 
 Rsc has the following build dependencies:
   * Java 8
-  * sbt 0.13.17
-
-In addition to being compiled into JVM bytecode, Rsc is compiled with Scala
-Native. If you'd like to compile native binaries or run native tests, check out
-Scala Native documentation for
-[additional instructions](http://www.scala-native.org/en/latest/user/setup.html).
-When installing Scala Native install the optional `bdw-gc` and `re2` packages, as they
-are required by the build.
-
-At the moment, IntelliJ doesn't work well on the Rsc codebase. After opening
-our project in IntelliJ, you may experience incomplete code intelligence,
-spurious red squiggles and other unpleasant issues. If you encounter these
-issues, please follow
-[the workaround suggested by Nikolay Tropin](https://github.com/twitter/rsc/issues/13#issuecomment-345429964).
+  * sbt 1.2.8
 
 ## Playing with Rsc
 
@@ -67,6 +54,10 @@ an automated benchmark suite that can be invoked via `bin/bench`.
 $ bin/bench
 ...
 ```
+
+## Windows + IntelliJ
+
+Use sbt shell for build and import seems to work well.
 
 ## Contributing to Rsc
 
