@@ -87,6 +87,13 @@ class ScalametaTests extends RscTests {
 
     var numProblems = 0
 
+    // The Predef.* files were obtained by:
+    // 1) clone scala/scala from github
+    // 2) check out the tag "v2.12.8"
+    // 3) sbt compile
+    // 4) find Predef.class from build/quick/classes/library/scala directory
+    // 5) run Rsc's scalap on it
+
     scalasigExpects.foreach {
       case (scalasigName, pathsExpect) =>
         scalasigActuals.get(scalasigName) match {
