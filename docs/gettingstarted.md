@@ -55,10 +55,6 @@ $ bin/bench
 ...
 ```
 
-## Windows + IntelliJ
-
-Use sbt shell for build and import seems to work well.
-
 ## Contributing to Rsc
 
 [Link](contributing.md)
