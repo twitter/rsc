@@ -2,7 +2,8 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.checkbase
 
-import difflib.DiffUtils
+import com.github.difflib.{DiffUtils, UnifiedDiffUtils}
+import java.util
 import rsc.pretty._
 import scala.collection.JavaConverters._
 
@@ -14,13 +15,18 @@ trait DiffUtil {
       expectContent: String): Option[String] = {
     val actualLines = actualContent.replaceAll("\\s+$", "").split(EOL).toList.asJava
     val expectLines = expectContent.replaceAll("\\s+$", "").split(EOL).toList.asJava
-    val diff = DiffUtils.diff(actualLines, expectLines)
+
+    // Diff algorithm will use random lookup, so we need an array.
+    val actualLinesArray = new util.ArrayList[String](actualLines)
+    val expectLinesArray = new util.ArrayList[String](expectLines)
+
+    val diff = DiffUtils.diff(actualLinesArray, expectLinesArray)
     if (!diff.getDeltas.isEmpty) {
-      val prettyDiff = DiffUtils
+      val prettyDiff = UnifiedDiffUtils
         .generateUnifiedDiff(
           actualTitle,
           expectTitle,
-          actualLines,
+          actualLinesArray,
           diff,
           5
         )
