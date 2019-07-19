@@ -734,7 +734,9 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
       } else if (ssym.isTrait) {
         sinfo.signature match {
           case s.ClassSignature(_, _, _, ds) =>
-            ds.symbols.forall(sym => sym.isDeferred || sym.isAbstractType || sym.isAliasType)
+            ds.symbols.forall { sym =>
+              sym.isDeferred || sym.isAbstractType || sym.isAliasType || sym.isDefaultParam
+            }
           case _ =>
             false
         }
