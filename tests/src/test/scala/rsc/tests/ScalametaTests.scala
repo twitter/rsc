@@ -2,10 +2,9 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.tests
 
-import java.util.Arrays
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file._
-import org.scalatest.Ignore
+import java.util.Arrays
 import org.scalatest.exceptions._
 import org.scalatest.tagobjects._
 import rsc.checkbase._
@@ -14,12 +13,9 @@ import scala.collection.mutable
 import scala.meta.scalasig._
 import scala.meta.scalasig.lowlevel._
 
-// These have passed for 2.11.12 but we are now targeting 2.12.8.
-// FIXME https://github.com/twitter/rsc/issues/429
-@Ignore
 class ScalametaTests extends RscTests {
   test("roundtrip for core", Slow) {
-    var scalasigActuals = mutable.Map[String, Scalasig]()
+    val scalasigActuals = mutable.Map[String, Scalasig]()
     var numProblems = 0
     Scalasigs(coreClasspath) { result =>
       try {
@@ -70,6 +66,34 @@ class ScalametaTests extends RscTests {
           numProblems += 1
       }
     }
+
+    // These have passed for 2.11.12 but we are now targeting 2.12.8.
+    // TODO: https://github.com/twitter/rsc/issues/429
+    // numProblems += checkExpects(scalasigActuals)
+
+    if (numProblems == 0) {
+      ()
+    } else {
+      if (numProblems == 1) println("one error found")
+      else if (numProblems == 2) println("two errors found")
+      else if (numProblems == 3) println("three errors found")
+      else if (numProblems == 4) println("four errors found")
+      else println(s"$numProblems errors found")
+      fail()
+    }
+  }
+
+  private def checkExpects(scalasigActuals: mutable.Map[String, Scalasig]): Int = {
+
+    var numProblems = 0
+
+    // The Predef.* files were obtained by:
+    // 1) clone scala/scala from github
+    // 2) check out the tag "v2.12.8"
+    // 3) sbt compile
+    // 4) find Predef.class from build/quick/classes/library/scala directory
+    // 5) run Rsc's scalap on it
+
     scalasigExpects.foreach {
       case (scalasigName, pathsExpect) =>
         scalasigActuals.get(scalasigName) match {
@@ -104,15 +128,6 @@ class ScalametaTests extends RscTests {
             numProblems += 1
         }
     }
-    if (numProblems == 0) {
-      ()
-    } else {
-      if (numProblems == 1) println("one error found")
-      else if (numProblems == 2) println("two errors found")
-      else if (numProblems == 3) println("three errors found")
-      else if (numProblems == 4) println("four errors found")
-      else println(s"$numProblems errors found")
-      fail()
-    }
+    numProblems
   }
 }
