@@ -76,9 +76,9 @@ object BetterRscCompat_Test {
         object od {
           class MyClass
 
-          import scala.collection.mutable
+          import scala.collection.{ mutable => mut }
 
-          val map = mutable.Map(new MyClass -> new oe.MyClass2)
+          val map = mut.Map(new MyClass -> new oe.MyClass2)
         }
       }
       object oe {

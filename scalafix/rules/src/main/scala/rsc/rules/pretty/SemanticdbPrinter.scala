@@ -68,7 +68,7 @@ class SemanticdbPrinter(
             }
             if (config.better) {
               name.map(fullEnv.lookup) match {
-                case Some(x) if !symbols.equivalent(x, sym) =>
+                case Some(x) if !symbols.sameOrTypeAlias(x, sym) =>
                   if (config.autoimport && x.isEmpty && pre == s.NoType) {
                     addedImportsScope.addImport(sym)
                   } else {
@@ -84,9 +84,14 @@ class SemanticdbPrinter(
             rep("[", args, ", ", "]")(normal)
           }
         case s.SingleType(pre, sym) =>
-          if (config.better && symbols.equivalent(fullEnv.lookup(sym.desc.name), sym)) {
+          lazy val fromEnv = fullEnv.lookup(sym.desc.name)
+          lazy val renamed = fullEnv.getRename(sym.desc.name)
+          lazy val isRenamedSymbol = renamed.nonEmpty && renamed != sym.desc.value
+          if (config.better && symbols.sameOrTypeAlias(fromEnv, sym)) {
             str(sym.desc.value)
-          } else if (config.better && config.autoimport && fullEnv.lookup(sym.desc.name).isEmpty) {
+          } else if (config.better && isRenamedSymbol) {
+            str(fullEnv.getRename(sym.desc.name))
+          } else if (config.better && config.autoimport && fromEnv.isEmpty) {
             addedImportsScope.addImport(sym)
             str(sym.desc.value)
           } else {
