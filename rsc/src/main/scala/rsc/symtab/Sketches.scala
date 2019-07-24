@@ -8,24 +8,24 @@ import rsc.syntax._
 import rsc.util._
 
 trait Sketches {
-  private val impl = new HashMap[Sketchy, Sketch]
+  private val sketchesImpl = new HashMap[Sketchy, Sketch]
 
   object sketches {
     def apply(tree: Sketchy): Sketch = {
-      val sketch = impl.get(tree)
+      val sketch = sketchesImpl.get(tree)
       if (sketch == null) crash(tree)
       sketch
     }
 
     def contains(tree: Sketchy): Boolean = {
-      impl.containsKey(tree)
+      sketchesImpl.containsKey(tree)
     }
 
     def put(tree: Sketchy, sketch: Sketch): Unit = {
-      if (impl.containsKey(tree)) {
+      if (sketchesImpl.containsKey(tree)) {
         crash(tree)
       }
-      impl.put(tree, sketch)
+      sketchesImpl.put(tree, sketch)
     }
   }
 }
