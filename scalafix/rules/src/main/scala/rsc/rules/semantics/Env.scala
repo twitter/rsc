@@ -24,6 +24,21 @@ case class Env(scopes: List[Scope]) {
     loop(scopes)
   }
 
+  def getRename(name: n.Name): String = {
+    //dealias if the symbol was renamed during import, else use the current name
+    def loop(scopes: List[Scope]): String = {
+      scopes match {
+        case head :: tail =>
+          val sym = head.getRename(name)
+          if (sym.isNone) loop(tail)
+          else sym
+        case Nil =>
+          Symbols.None
+      }
+    }
+    loop(scopes)
+  }
+
   def lookupThis(value: String): String = {
     def loop(scopes: List[Scope]): String = {
       scopes match {

@@ -12,6 +12,8 @@ import scala.meta.internal.semanticdb.Scala.{Names => n}
 sealed trait Scope {
   def lookup(name: n.Name): String
 
+  def getRename(name: n.Name): String = ""
+
   protected def member(symtab: Symtab, sym: String, name: n.Name): String = {
     def getInfo(desc: Descriptor): Option[s.SymbolInformation] =
       symtab
@@ -58,6 +60,10 @@ final case class ImporterScope(symtab: Symtab, sym: String, importees: List[Impo
     case Importee.Name(name) => mappings.put(name.value, Some(name.value))
     case Importee.Rename(name, rename) => mappings.put(name.value, Some(rename.value))
     case Importee.Unimport(name) => mappings.put(name.value, None)
+  }
+
+  override def getRename(name: n.Name): String = {
+    mappings.get(name.value).flatten.getOrElse(name.value)
   }
 
   def lookup(name: n.Name): String = {

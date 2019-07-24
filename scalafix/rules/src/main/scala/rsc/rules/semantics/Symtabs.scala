@@ -9,7 +9,7 @@ trait Symtabs {
 
   implicit class SymtabOps(symtab: Symtab) {
 
-    def equivalent(sym1: String, sym2: String): Boolean = {
+    def sameOrTypeAlias(sym1: String, sym2: String): Boolean = {
       def aliased(aSym: String, bSym: String): Boolean =
         symtab.info(aSym).map(_.signature).exists {
           case s.TypeSignature(_, s.TypeRef(_, loSym, _), s.TypeRef(_, hiSym, _)) =>
