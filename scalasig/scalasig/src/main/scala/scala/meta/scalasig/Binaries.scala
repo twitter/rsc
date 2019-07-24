@@ -59,4 +59,13 @@ object Binaries {
       }
     }
   }
+
+  def list(paths: Path*): List[Binary] = {
+    var ress = List.empty[Binary]
+
+    apply(paths.toList) { res =>
+      ress = ress :+ res
+    }
+    ress
+  }
 }

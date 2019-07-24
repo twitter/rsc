@@ -72,10 +72,7 @@ class Mtab private (infos: Infos) {
   }
 
   def anchor(sym: String): Option[String] = {
-    val pos = {
-      if (infos.staticOwners.contains(sym) && sym.desc.isTerm) infos.pos(sym.companionClass)
-      else infos.pos(sym)
-    }
+    val pos = position(sym)
     if (pos != NoPosition) {
       val cwd = Paths.get("").toAbsolutePath
       val uri = cwd.relativize(pos.input.path.toAbsolutePath).toString
@@ -84,6 +81,20 @@ class Mtab private (infos: Infos) {
     } else {
       None
     }
+  }
+
+  def filename(sym: String): String = {
+    val pos = position(sym)
+    if (pos != NoPosition) {
+      pos.input.path.getFileName.toString
+    } else {
+      ""
+    }
+  }
+
+  private def position(sym: String): Position = {
+    if (infos.staticOwners.contains(sym) && sym.desc.isTerm) infos.pos(sym.companionClass)
+    else infos.pos(sym)
   }
 
   def macroImpl(sym: String): Option[s.SymbolInformation] = {

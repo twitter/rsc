@@ -492,7 +492,7 @@ class Pickle private (settings: Settings, mtab: Mtab, sroot1: String, sroot2: St
 
   def toScalasig: Scalasig = {
     val name = sroot1.jname
-    val source = if (settings.debug) mtab.anchor(sroot1).getOrElse("") else ""
+    val source = if (settings.debug) mtab.anchor(sroot1).getOrElse("") else mtab.filename(sroot1)
     val entries = this.entries.toArray
     Scalasig(name, source, entries)
   }
