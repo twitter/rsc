@@ -263,4 +263,24 @@ object BetterRscCompat_Test {
   object NestedTuples {
     val foo: ((String, Int), Double) = (("1", 1), 1.0)
   }
+
+  object PolymorphicGrandparent {
+    class C[A]
+
+    abstract class D[A]
+
+    trait E[A]
+
+    trait T extends C[Int]
+
+    trait U extends D[Int]
+
+    trait V extends E[Int]
+
+    class F extends T
+
+    class G extends U
+
+    class H extends V
+  }
 }

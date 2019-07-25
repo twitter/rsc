@@ -15,6 +15,7 @@ import scala.meta.internal.{semanticdb => s}
 import scala.meta.internal.semanticdb.Scala._
 import scala.meta.internal.semanticdb.Scala.{Names => n}
 import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
+import scala.meta.internal.semanticdb.SymbolInformation.Kind
 import scalafix.internal.v0._
 import scalafix.syntax._
 import scalafix.util.TokenOps
@@ -129,8 +130,14 @@ case class RscCompat(legacyIndex: SemanticdbIndex, config: RscCompatConfig)
           val name = templ.name.get
           inits.headOption.foreach { init =>
             val tokens = init.tpe.tokens
-            // If type params of init may be inferred
-            if (!tokens.exists(_.is[Token.LeftBracket])) {
+            //TODO getOrElse is a workaround for a bug in semanticdb that may cause symbols to
+            //be incorrect in some cases https://github.com/scalameta/scalameta/issues/1887
+            lazy val isTrait = (for {
+              symbol <- init.symbol
+              info <- symbols.info(symbol.syntax)
+            } yield info.kind == Kind.TRAIT).getOrElse(false)
+            // If type params of init may be inferred and init is not a trait
+            if (!tokens.exists(_.is[Token.LeftBracket]) && !isTrait) {
               buf += RewriteInit(env, name, tokens.last)
             }
           }
