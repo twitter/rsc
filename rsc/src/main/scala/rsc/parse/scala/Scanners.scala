@@ -166,4 +166,22 @@ trait Scanners {
       in.nextToken()
     }
   }
+
+  def optTrailingComma(): Unit = {
+    if (in.token == COMMA) {
+      var foundNewLine = false
+      var foundRParen = false
+      val snapshot = in.snapshot()
+      scanner.next()
+      while (scanner.token == WHITESPACE ||
+             scanner.token == NEWLINE ||
+             scanner.token == COMMENT) {
+        if (scanner.token == NEWLINE) foundNewLine = true
+        scanner.next()
+      }
+      foundRParen = scanner.token == RPAREN
+      in.restore(snapshot)
+      if (foundNewLine && foundRParen) in.nextToken()
+    }
+  }
 }

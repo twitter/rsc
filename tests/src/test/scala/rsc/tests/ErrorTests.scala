@@ -41,6 +41,19 @@ class ErrorTests extends RscTests {
     checkFailures(failures, expectedFailures)
   }
 
+  test("Parsing trailing commas in single line args list generates errors") {
+
+    val filename = "427.scala"
+
+    val expectedFailures = List(
+      illegalSimpleExpressionErrorMsg(filename, "3")
+    )
+
+    val failures = problemsWith(filename)
+
+    checkFailures(failures, expectedFailures)
+  }
+
   ////////
   // HELPERS
   ////////
@@ -109,4 +122,7 @@ class ErrorTests extends RscTests {
 
   private def initNoTypeParamErrorMsg(filename: String, position: String, init: String): String =
     s"error: Type parameters required but missing at ${absfile(filename)}@$position for parent init: $init"
+
+  private def illegalSimpleExpressionErrorMsg(filename: String, position: String): String =
+    s"${absfile(filename)}:$position: error: illegal start of simple expression"
 }
