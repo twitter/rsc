@@ -55,7 +55,15 @@ trait Helpers {
   }
 
   def commaSeparated[T](part: => T): List[T] = {
-    tokenSeparated(COMMA, part)
+    val ts = List.newBuilder[T]
+    ts += part
+    optTrailingComma()
+    while (in.token == COMMA) {
+      in.nextToken()
+      ts += part
+      optTrailingComma()
+    }
+    ts.result
   }
 
   def errorStat(): Stat = {
@@ -92,13 +100,9 @@ trait Helpers {
   }
 
   def withSeparated[T](part: => T): List[T] = {
-    tokenSeparated(WITH, part)
-  }
-
-  private def tokenSeparated[T](separator: Int, part: => T): List[T] = {
     val ts = List.newBuilder[T]
     ts += part
-    while (in.token == separator) {
+    while (in.token == WITH) {
       in.nextToken()
       ts += part
     }
