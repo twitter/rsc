@@ -3,6 +3,12 @@ package rsc.checkscalasig
 import java.nio.file.Path
 import _root_.rsc.checkbase.{SimpleBase, ToolResult}
 
+/**
+ * Example invocation (in sbt):
+ * check/runMain rsc.checkscalasig.Main --classpath $JAVALIB:SCALALIB C.scala
+ *
+ * Replace $JAVALIB:SCALALIB with the actual paths
+ */
 object Main extends SimpleBase[Settings, Path, Path] {
 
   def settings(args: List[String]): Either[List[String], Settings] = {

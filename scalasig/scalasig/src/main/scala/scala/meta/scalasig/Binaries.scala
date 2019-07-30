@@ -7,6 +7,7 @@ import java.net._
 import java.nio.file._
 import java.util.jar._
 import scala.collection.JavaConverters._
+import scala.collection.mutable.ListBuffer
 
 object Binaries {
   def apply(paths: List[Path])(fn: Binary => Unit): Unit = {
@@ -61,11 +62,11 @@ object Binaries {
   }
 
   def list(paths: Path*): List[Binary] = {
-    var ress = List.empty[Binary]
+    val ress = ListBuffer.empty[Binary]
 
     apply(paths.toList) { res =>
-      ress = ress :+ res
+      ress.prepend(res)
     }
-    ress
+    ress.reverse.toList
   }
 }
