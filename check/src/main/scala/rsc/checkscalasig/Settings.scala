@@ -7,7 +7,8 @@ import rsc.checkbase.SettingsBase
 final case class Settings(
     cp: List[Path] = Nil,
     ins: List[Path] = Nil,
-    quiet: Boolean = false
+    quiet: Boolean = false,
+    saveOutput: Boolean = false
 ) extends SettingsBase
 
 object Settings {
@@ -22,6 +23,8 @@ object Settings {
         case "--classpath" +: s_cp +: rest if allowOptions =>
           val cp = s_cp.split(pathSeparator).map(s => Paths.get(s)).toList
           loop(settings.copy(cp = settings.cp ++ cp), true, rest)
+        case "--save-output" +: rest if allowOptions =>
+          loop(settings.copy(saveOutput = true), true, rest)
         case "--quiet" +: rest if allowOptions =>
           loop(settings.copy(quiet = true), true, rest)
         case flag +: rest if allowOptions && flag.startsWith("-") =>
