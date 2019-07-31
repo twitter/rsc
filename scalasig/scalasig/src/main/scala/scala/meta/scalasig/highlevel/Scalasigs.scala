@@ -13,4 +13,8 @@ object Scalasigs {
   def apply(path: Path)(fn: ScalasigResult => Unit): Unit = {
     Binaries(path)(binary => fn(Scalasig.fromBinary(binary)))
   }
+
+  def list(paths: Path*): List[ScalasigResult] = {
+    Binaries.list(paths: _*).map(Scalasig.fromBinary)
+  }
 }
