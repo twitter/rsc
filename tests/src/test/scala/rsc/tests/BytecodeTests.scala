@@ -14,7 +14,7 @@ class BytecodeTests extends RscTests {
       semanticFiles,
       quiet = true
     )
-    val problems = Main.process(reporter, settings)
+    val problems = MainCommand.process(reporter, settings)
     if (problems.nonEmpty) fail()
   }
 }

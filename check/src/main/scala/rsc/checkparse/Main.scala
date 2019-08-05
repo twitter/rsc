@@ -2,15 +2,29 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.checkparse
 
+import com.monovore.decline.Opts.{argument, flag}
+import com.monovore.decline.{CommandApp, Opts}
+import cats.implicits._
 import java.nio.file._
 import rsc.checkbase._
 import rsc.syntax.{Tree => RscTree}
 import scala.tools.nsc.{Global => NscGlobal, Settings => NscSettings}
 import scala.tools.nsc.reporters.{StoreReporter => NscReporter}
 
-object Main extends MainBase[Settings, Path, NscGlobal#Tree, RscTree] {
-  def settings(args: List[String]) = {
-    Settings.parse(args)
+object Main extends CommandApp(MainCommand.command)
+
+private[rsc] object MainCommand extends MainBase[Settings, Path, NscGlobal#Tree, RscTree] {
+  val name = "checkparse"
+  val header = "checkparse"
+  val opts: Opts[Settings] = {
+    val insArgs = argument[SourceFiles]("files")
+
+    val quietOpt =
+      flag("quiet", short = "q", help = "Don't output diffs to standard out").orFalse
+
+    (insArgs, quietOpt).mapN { (ins, quiet) =>
+      Settings(ins.sources, quiet)
+    }
   }
 
   def inputs(settings: Settings) = {

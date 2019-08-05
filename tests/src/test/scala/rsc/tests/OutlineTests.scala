@@ -9,21 +9,22 @@ class OutlineTests extends RscTests {
   test("outline for core") {
     val reporter = Reporter()
     val settings = Settings(coreClasspath, coreFiles, quiet = true)
-    val problems = Main.process(reporter, settings)
+
+    val problems = MainCommand.process(reporter, settings)
     if (problems.nonEmpty) fail()
   }
 
   test("outline for function") {
     val reporter = Reporter()
     val settings = Settings(functionClasspath, functionFiles, quiet = true)
-    val problems = Main.process(reporter, settings)
+    val problems = MainCommand.process(reporter, settings)
     if (problems.nonEmpty) fail()
   }
 
   test("outline for semantic") {
     val reporter = Reporter()
     val settings = Settings(semanticClasspath, semanticFiles, quiet = true)
-    val problems = Main.process(reporter, settings)
+    val problems = MainCommand.process(reporter, settings)
     if (problems.nonEmpty) fail()
   }
 }

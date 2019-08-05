@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.checkbase
 
+import com.monovore.decline.{Command, Opts}
 import rsc.util._
 import scala.collection.mutable
 import scala.meta.cli._
@@ -9,18 +10,11 @@ import scala.meta.internal.cli._
 import scala.util._
 
 trait MainBase[S <: SettingsBase, I, N, R] extends DiffUtil with NscUtil with ToolUtil {
-  def main(args: Array[String]): Unit = {
-    val expandedArgs = Args.expand(args)
-    settings(expandedArgs) match {
-      case Right(settings) =>
-        val reporter = Reporter()
-        val problems = process(reporter, settings)
-        reporter.err.flush()
-        if (problems.nonEmpty) sys.exit(1) else sys.exit(0)
-      case Left(failures) =>
-        failures.foreach(println)
-        sys.exit(1)
-    }
+  def run(settings: S): Unit = {
+    val reporter = Reporter()
+    val problems = process(reporter, settings)
+    reporter.err.flush()
+    if (problems.nonEmpty) sys.exit(1) else sys.exit(0)
   }
 
   def process(reporter: Reporter, settings: S): List[Problem] = {
@@ -82,9 +76,12 @@ trait MainBase[S <: SettingsBase, I, N, R] extends DiffUtil with NscUtil with To
     allProblems.toList
   }
 
-  def settings(args: List[String]): Either[List[String], S]
   def inputs(settings: S): List[I]
   def nscResult(settings: S, input: I): Either[List[String], N]
   def rscResult(settings: S, input: I): Either[List[String], R]
   def checker(settings: S, nscResult: N, rscResult: R): CheckerBase
+  def name: String
+  def header: String
+  def opts: Opts[S]
+  def command: Command[Unit] = Command(name, header, helpFlag = false)(opts.map(run))
 }

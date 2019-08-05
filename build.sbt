@@ -136,6 +136,7 @@ lazy val rsc = project
     publishableSettings,
     libraryDependencies += "org.scalameta" %% "semanticdb" % V.scalameta,
     libraryDependencies += "com.lihaoyi" %% "fastparse" % "1.0.0",
+    libraryDependencies += "com.monovore" %% "decline" % "0.5.0",
     mainClass := Some("rsc.cli.Main")
   )
 

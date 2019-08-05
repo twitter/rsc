@@ -9,21 +9,21 @@ class ParseTests extends RscTests {
   test("parse for core") {
     val reporter = Reporter()
     val settings = Settings(coreFiles, quiet = true)
-    val problems = Main.process(reporter, settings)
+    val problems = MainCommand.process(reporter, settings)
     if (problems.nonEmpty) fail()
   }
 
   test("parse for function") {
     val reporter = Reporter()
     val settings = Settings(functionFiles, quiet = true)
-    val problems = Main.process(reporter, settings)
+    val problems = MainCommand.process(reporter, settings)
     if (problems.nonEmpty) fail()
   }
 
   test("parse for syntactic") {
     val reporter = Reporter()
     val settings = Settings(syntacticFiles, quiet = true)
-    val problems = Main.process(reporter, settings)
+    val problems = MainCommand.process(reporter, settings)
     if (problems.nonEmpty) fail()
   }
 }
