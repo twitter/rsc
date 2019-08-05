@@ -61,6 +61,7 @@ lazy val check = project
     moduleName := "rsc-check",
     scalacOptions += "-Xexperimental",
     libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3",
+    libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.8.0",
     libraryDependencies += "commons-cli" % "commons-cli" % "1.4",
     libraryDependencies += "io.github.java-diff-utils" % "java-diff-utils" % "4.0",
     libraryDependencies += "io.github.soc" % "directories" % "10",
