@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.rules.semantics
 
+import rsc.rules.semantics.Scope.MemberKey
 import scala.collection.mutable
 import scala.meta._
 import scala.meta.internal.{semanticdb => s}
@@ -14,7 +15,14 @@ sealed trait Scope {
 
   def getRename(name: n.Name): String = ""
 
-  protected def member(symtab: Symtab, sym: String, name: n.Name): String = {
+  private val _cache = new java.util.HashMap[MemberKey, String]
+
+  protected def member(symtab: Symtab, sym: String, name: n.Name): String =
+    _cache.computeIfAbsent(MemberKey(symtab, sym, name), _member)
+
+  private def _member(key: MemberKey): String = {
+    val MemberKey(symtab, sym, name) = key
+
     def getInfo(desc: Descriptor): Option[s.SymbolInformation] =
       symtab
         .info(Symbols.Global(sym, desc))
@@ -26,6 +34,9 @@ sealed trait Scope {
     }
     info.map(_.symbol).getOrElse(Symbols.None)
   }
+}
+object Scope {
+  final case class MemberKey(symtab: Symtab, sym: String, name: n.Name)
 }
 
 final class AddedImportsScope extends Scope {
