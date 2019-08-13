@@ -3,6 +3,7 @@
 package rsc.rules.semantics
 
 import rsc.rules.semantics.Scope.MemberKey
+import rsc.rules.util.memoize
 import scala.collection.mutable
 import scala.meta._
 import scala.meta.internal.{semanticdb => s}
@@ -15,12 +16,10 @@ sealed trait Scope {
 
   def getRename(name: n.Name): String = ""
 
-  private val _cache = new java.util.HashMap[MemberKey, String]
-
   protected def member(symtab: Symtab, sym: String, name: n.Name): String =
-    _cache.computeIfAbsent(MemberKey(symtab, sym, name), _member)
+    _member(MemberKey(symtab, sym, name))
 
-  private def _member(key: MemberKey): String = {
+  private val _member: MemberKey => String = memoize { key: MemberKey =>
     val MemberKey(symtab, sym, name) = key
 
     def getInfo(desc: Descriptor): Option[s.SymbolInformation] =
