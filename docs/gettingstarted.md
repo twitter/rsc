@@ -30,10 +30,10 @@ $ sbt
 
 The best way to get your feet wet is to run our outliner on an example
 codebase. Feel free to change a thing or two to see how everything works.
-Then go ahead and run `testsJVM/test-only rsc.tests.SymbolTests`.
+Then go ahead and run `tests/testOnly rsc.tests.SymbolTests`.
 
 ```
-> testsJVM/test-only rsc.tests.SemanticdbTests
+> tests/testOnly rsc.tests.SemanticdbTests
 -------------------------------- Running Tests --------------------------------
 [info] SemanticdbTests:
 [info] - semanticdb for core
