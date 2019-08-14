@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.rules.semantics
 
-import rsc.rules.semantics.Scope.MemberKey
 import rsc.rules.util.memoize
 import scala.collection.mutable
 import scala.meta._
@@ -12,6 +11,8 @@ import scala.meta.internal.semanticdb.Scala.{Descriptor => d}
 import scala.meta.internal.semanticdb.Scala.{Names => n}
 
 sealed trait Scope {
+  import Scope.MemberKey
+
   def lookup(name: n.Name): String
 
   def getRename(name: n.Name): String = ""
@@ -35,7 +36,7 @@ sealed trait Scope {
   }
 }
 object Scope {
-  final case class MemberKey(symtab: Symtab, sym: String, name: n.Name)
+  private[Scope] final case class MemberKey(symtab: Symtab, sym: String, name: n.Name)
 }
 
 final class AddedImportsScope extends Scope {
