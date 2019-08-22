@@ -2,7 +2,6 @@ package rsc.checkscalasig
 
 import java.nio.file.Path
 import _root_.rsc.checkbase.{SimpleBase, ToolResult}
-import rsc.checkscalasig.Settings.ClassFiles
 
 /**
  * Example invocation (in sbt):
