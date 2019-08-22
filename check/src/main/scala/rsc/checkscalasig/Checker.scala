@@ -4,7 +4,7 @@ import better.files._
 import java.nio.file.Path
 import rsc.checkbase.{CheckerBase, DiffUtil, DifferentProblem}
 import scala.collection.mutable
-import scala.meta.scalasig.highlevel.{ParsedScalasig, ScalasigResult, Scalasigs}
+import scala.meta.scalasig.highlevel._
 
 /**
  *
@@ -21,14 +21,21 @@ class Checker(settings: Settings, nscResult: Path, rscResult: Path)
   val nscFilenameDefaultBase = "nsc_scalasigs"
   val rscFilenameDefaultBase = "rsc_scalasigs"
 
-  private def resStr(sig: ScalasigResult): Option[(String, String)] = {
+  private def symbols(scalasig: Scalasig): Map[Id, EmbeddedSymbol] =
+    scalasig.symbols.map(sym => sym.id -> sym).toMap
+
+  private def resStr(sig: ScalasigResult): Option[(String, Map[Id, EmbeddedSymbol])] = {
     sig match {
-      case ParsedScalasig(_, _, scalasig) => Some(scalasig.name -> scalasig.toString)
+      case ParsedScalasig(_, _, scalasig) => Some(scalasig.name -> symbols(scalasig))
       case _ => None
     }
   }
 
   def check(): Unit = {
+
+    val ns1: Scalasig = Scalasigs.list(nscResult)(1).asInstanceOf[ParsedScalasig].scalasig
+    val rs1: Scalasig = Scalasigs.list(rscResult)(1).asInstanceOf[ParsedScalasig].scalasig
+
     val nscSigs = Scalasigs.list(nscResult).flatMap(resStr).toMap
     val rscSigs = Scalasigs.list(rscResult).flatMap(resStr).toMap
 
@@ -38,18 +45,27 @@ class Checker(settings: Settings, nscResult: Path, rscResult: Path)
     val rscTexts = mutable.ListBuffer.empty[String]
 
     nscSigs.foreach {
-      case (k, nscText) =>
-        val rscText = rscSigs(k)
+      case (k, nscSyms) =>
+        val rscSyms = rscSigs(k)
+        
+        val rscSymStrs = rscSyms.mapValues(_.toString)
+        val nscSymStrs = rscSyms.mapValues(_.toString)
 
         if (settings.saveOutput) {
-          nscTexts.prepend(nscText)
-          rscTexts.prepend(rscText)
+          nscTexts.prepend(nscSymStrs.mkString("\n"))
+          rscTexts.prepend(rscSymStrs.mkString("\n"))
         }
 
-        val unifiedDiff = diff(nscResult.toString, nscText, rscText.toString, rscText)
+        val relevant_ids = (nscSymStrs.keySet ++ rscSymStrs.keySet).toList.sorted
 
-        unifiedDiff.foreach { d =>
-          problems += DifferentProblem(d)
+        relevant_ids.foreach { id =>
+
+          val nscString = nscSymStrs.getOrElse(id, "")
+          val rscString = rscSymStrs.getOrElse(id, "")
+
+          if (nscString != rscString) {
+            problems += DifferentProblem(s"$k: $id", nscString, rscString)
+          }
         }
     }
 
