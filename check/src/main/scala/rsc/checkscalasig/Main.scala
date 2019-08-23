@@ -8,6 +8,10 @@ import _root_.rsc.checkbase.{SimpleBase, ToolResult}
  * check/runMain rsc.checkscalasig.Main --classpath $JAVALIB:SCALALIB C.scala
  *
  * Replace $JAVALIB:SCALALIB with the actual paths
+ *
+ * Or in --classfiles mode to check output
+ *
+ * check/runMain rsc.checkscalasig.Main --classfiles rsc_output.jar nsc_output.jar
  */
 object Main extends SimpleBase[Settings, Path, Path] {
 
@@ -16,11 +20,11 @@ object Main extends SimpleBase[Settings, Path, Path] {
   }
 
   def nscResult(settings: Settings): ToolResult[Path] = {
-    nsc(settings.cp, settings.ins)
+    settings.classfiles.nsc.map(Right(_)).getOrElse(nsc(settings.cp, settings.ins))
   }
 
   def rscResult(settings: Settings): ToolResult[Path] = {
-    rsc(settings.cp, settings.ins)
+    settings.classfiles.rsc.map(Right(_)).getOrElse(rsc(settings.cp, settings.ins))
   }
 
   def checker(settings: Settings, nscResult: Path, rscResult: Path): Checker = {
