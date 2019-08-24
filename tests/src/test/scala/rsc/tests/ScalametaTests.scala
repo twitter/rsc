@@ -67,9 +67,7 @@ class ScalametaTests extends RscTests {
       }
     }
 
-    // These have passed for 2.11.12 but we are now targeting 2.12.8.
-    // TODO: https://github.com/twitter/rsc/issues/429
-    // numProblems += checkExpects(scalasigActuals)
+    numProblems += checkExpects(scalasigActuals)
 
     if (numProblems == 0) {
       ()
@@ -88,11 +86,9 @@ class ScalametaTests extends RscTests {
     var numProblems = 0
 
     // The Predef.* files were obtained by:
-    // 1) clone scala/scala from github
-    // 2) check out the tag "v2.12.8"
-    // 3) sbt compile
-    // 4) find Predef.class from build/quick/classes/library/scala directory
-    // 5) run Rsc's scalap on it
+    // 1) coursier fetch org.scala-lang:scala-library:2.12.8
+    // 2) jar -xvf <scala-library.jar location>
+    // 3) run Rsc's scalap on scala/Predef.class
 
     scalasigExpects.foreach {
       case (scalasigName, pathsExpect) =>
