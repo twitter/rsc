@@ -15,7 +15,7 @@ final case class Settings(
 
 object Settings {
 
-  final case class ClassfilesPath(rsc: Option[Path], nsc: Option[Path])
+  final case class ClassfilesPath(rsc: Option[List[Path]], nsc: Option[List[Path]])
 
   private def pathsFor(pathStr: String): List[Path] =
     pathStr.split(pathSeparator).map(s => Paths.get(s)).toList
@@ -29,8 +29,8 @@ object Settings {
         case "--" +: rest =>
           loop(settings, false, rest)
         case "--classfiles" +: rsc_path +: nsc_path +: Nil =>
-          val rsc_files = Paths.get(rsc_path)
-          val nsc_files = Paths.get(nsc_path)
+          val rsc_files = pathsFor(rsc_path)
+          val nsc_files = pathsFor(nsc_path)
           loop(
             settings.copy(classfiles = ClassfilesPath(Some(rsc_files), Some(nsc_files))),
             true,

@@ -13,21 +13,21 @@ import _root_.rsc.checkbase.{SimpleBase, ToolResult}
  *
  * check/runMain rsc.checkscalasig.Main --classfiles rsc_output.jar nsc_output.jar
  */
-object Main extends SimpleBase[Settings, Path, Path] {
+object Main extends SimpleBase[Settings, List[Path], List[Path]] {
 
   def settings(args: List[String]): Either[List[String], Settings] = {
     Settings.parse(args)
   }
 
-  def nscResult(settings: Settings): ToolResult[Path] = {
-    settings.classfiles.nsc.map(Right(_)).getOrElse(nsc(settings.cp, settings.ins))
+  def nscResult(settings: Settings): ToolResult[List[Path]] = {
+    settings.classfiles.nsc.map(Right(_)).getOrElse(nsc(settings.cp, settings.ins).map(List(_)))
   }
 
-  def rscResult(settings: Settings): ToolResult[Path] = {
-    settings.classfiles.rsc.map(Right(_)).getOrElse(rsc(settings.cp, settings.ins))
+  def rscResult(settings: Settings): ToolResult[List[Path]] = {
+    settings.classfiles.rsc.map(Right(_)).getOrElse(rsc(settings.cp, settings.ins).map(List(_)))
   }
 
-  def checker(settings: Settings, nscResult: Path, rscResult: Path): Checker = {
-    new Checker(settings, nscResult, rscResult)
+  def checker(settings: Settings, nscResults: List[Path], rscResults: List[Path]): Checker = {
+    new Checker(settings, nscResults, rscResults)
   }
 }

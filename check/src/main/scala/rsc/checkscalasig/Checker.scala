@@ -11,10 +11,10 @@ import scala.meta.scalasig.highlevel._
  * Checks *high-level* scalasigs
  *
  * @param settings
- * @param nscResult Scalac-produced classfile with scalasigs
- * @param rscResult Rsc-produced classfile with scalasigs
+ * @param nscResults Scalac-produced classfiles with scalasigs
+ * @param rscResults Rsc-produced classfiles with scalasigs
  */
-class Checker(settings: Settings, nscResult: Path, rscResult: Path)
+class Checker(settings: Settings, nscResults: List[Path], rscResults: List[Path])
     extends CheckerBase
     with DiffUtil {
 
@@ -33,8 +33,8 @@ class Checker(settings: Settings, nscResult: Path, rscResult: Path)
 
   def check(): Unit = {
 
-    val nscSigs = Scalasigs.list(nscResult).flatMap(resultSyms).toMap
-    val rscSigs = Scalasigs.list(rscResult).flatMap(resultSyms).toMap
+    val nscSigs = Scalasigs.list(nscResults: _*).flatMap(resultSyms).toMap
+    val rscSigs = Scalasigs.list(rscResults: _*).flatMap(resultSyms).toMap
 
     assert(nscSigs.keySet == rscSigs.keySet)
 
