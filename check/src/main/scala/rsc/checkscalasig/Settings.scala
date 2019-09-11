@@ -1,9 +1,8 @@
 package rsc.checkscalasig
 
-import java.io.File.pathSeparator
 import java.nio.file.{Path, Paths}
 import rsc.checkbase.SettingsBase
-import rsc.checkscalasig.Settings.ClassfilesPath
+import rsc.checkbase.SettingsBase.ClassfilesPath
 
 final case class Settings(
     cp: List[Path] = Nil,
@@ -14,12 +13,6 @@ final case class Settings(
 ) extends SettingsBase
 
 object Settings {
-
-  final case class ClassfilesPath(rsc: Option[List[Path]], nsc: Option[List[Path]])
-
-  private def pathsFor(pathStr: String): List[Path] =
-    pathStr.split(pathSeparator).map(s => Paths.get(s)).toList
-
   def parse(args: List[String]): Either[List[String], Settings] = {
     def loop(
         settings: Settings,
@@ -29,14 +22,14 @@ object Settings {
         case "--" +: rest =>
           loop(settings, false, rest)
         case "--classfiles" +: rsc_path +: nsc_path +: Nil =>
-          val rsc_files = pathsFor(rsc_path)
-          val nsc_files = pathsFor(nsc_path)
+          val rsc_files = SettingsBase.pathsFor(rsc_path)
+          val nsc_files = SettingsBase.pathsFor(nsc_path)
           loop(
             settings.copy(classfiles = ClassfilesPath(Some(rsc_files), Some(nsc_files))),
             true,
             Nil)
         case "--classpath" +: s_cp +: rest if allowOptions =>
-          val cp = pathsFor(s_cp)
+          val cp = SettingsBase.pathsFor(s_cp)
           loop(settings.copy(cp = settings.cp ++ cp), true, rest)
         case "--save-output" +: rest if allowOptions =>
           loop(settings.copy(saveOutput = true), true, rest)
