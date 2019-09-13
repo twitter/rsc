@@ -2,16 +2,17 @@
 // Licensed under the Apache License, Version 2.0 (see LICENSE.md).
 package rsc.checkbytecode
 
-import java.io.File.pathSeparator
 import java.nio.file._
+import rsc.checkbase.SettingsBase.ClassfilesPath
 import rsc.checkbase._
 
 final case class Settings(
     cp: List[Path] = Nil,
     deps: List[List[Path]] = Nil,
     ins: List[Path] = Nil,
-    quiet: Boolean = false)
-    extends SettingsBase
+    quiet: Boolean = false,
+    precomputedJars: ClassfilesPath = ClassfilesPath(None, None)
+) extends SettingsBase
 
 // FIXME: https://github.com/twitter/rsc/issues/166
 object Settings {
@@ -24,7 +25,7 @@ object Settings {
         case "--" +: rest =>
           loop(settings, false, rest)
         case "--classpath" +: s_cp +: rest if allowOptions =>
-          val cp = s_cp.split(pathSeparator).map(s => Paths.get(s)).toList
+          val cp = SettingsBase.pathsFor(s_cp)
           loop(settings.copy(cp = settings.cp ++ cp), true, rest)
         case "--deps" +: args if allowOptions =>
           def collectDeps(deps: List[Path], args: List[String]): (List[Path], List[String]) = {
@@ -36,6 +37,13 @@ object Settings {
           }
           val (deps, rest) = collectDeps(Nil, args)
           loop(settings.copy(deps = settings.deps :+ deps), true, rest)
+        case "--jars" +: rsc_path +: nsc_path +: Nil =>
+          val rsc_files = SettingsBase.pathsFor(rsc_path)
+          val nsc_files = SettingsBase.pathsFor(nsc_path)
+          loop(
+            settings.copy(precomputedJars = ClassfilesPath(Some(rsc_files), Some(nsc_files))),
+            true,
+            Nil)
         case "--quiet" +: rest if allowOptions =>
           loop(settings.copy(quiet = true), true, rest)
         case flag +: rest if allowOptions && flag.startsWith("-") =>

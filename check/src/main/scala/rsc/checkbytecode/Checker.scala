@@ -8,10 +8,13 @@ import java.nio.file._
 import rsc.checkbase._
 import scala.tools.jardiff._
 
-class Checker(nscResult: Path, rscResult: Path) extends CheckerBase {
+class Checker(
+    nscResults: List[Path],
+    rscResults: List[Path]
+) extends CheckerBase {
   def check(): Unit = {
     val baos = new ByteArrayOutputStream()
-    val paths = List(List(nscResult), List(rscResult))
+    val paths = List(nscResults, rscResults)
     val config = JarDiff.Config(
       gitRepo = None,
       code = true,
