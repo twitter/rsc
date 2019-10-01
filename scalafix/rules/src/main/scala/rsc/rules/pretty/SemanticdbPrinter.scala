@@ -38,7 +38,9 @@ class SemanticdbPrinter(
             }
             val needsExtraParens = hasFunctionArg || hasByNameArg || (params.length != 1)
             if (needsExtraParens) str("(")
-            rep(params, ", ") { normal }
+            rep(params, ", ") {
+              normal
+            }
             if (needsExtraParens) str(")")
             str(" => ")
             normal(ret)
@@ -53,6 +55,7 @@ class SemanticdbPrinter(
               case d.TypeParameter(value) => Some(n.TypeName(value))
               case other => None
             }
+
             def printPrettyPrefix: Unit = {
               val prettyPre = if (pre == s.NoType) sym.trivialPrefix(env) else pre
               prettyPre match {
@@ -66,6 +69,7 @@ class SemanticdbPrinter(
                   str("#")
               }
             }
+
             if (config.better) {
               name.map(fullEnv.lookup) match {
                 case Some(x) if !symbols.sameOrTypeAlias(x, sym) =>
@@ -142,9 +146,15 @@ class SemanticdbPrinter(
               rep(" ", anns, " ", "")(pprint)
           }
         case s.ExistentialType(utpe, decls) =>
-          decls.infos.foreach(symbols.append)
-          opt(utpe)(normal)
-          rep(" forSome { ", decls.infos, "; ", " }")(pprint)
+          if (config.better) {
+            val wildcardInfos = decls.infos.map(_.withDisplayName("_"))
+            wildcardInfos.foreach(symbols.append)
+            opt(utpe)(normal)
+          } else {
+            decls.infos.foreach(symbols.append)
+            opt(utpe)(normal)
+            rep(" forSome { ", decls.infos, "; ", " }")(pprint)
+          }
         case s.UniversalType(tparams, utpe) =>
           // FIXME: https://github.com/twitter/rsc/issues/150
           str("({ type λ")
@@ -189,7 +199,9 @@ class SemanticdbPrinter(
             val displayName = info.displayName
             if (displayName == "") {
               sys.error(s"unsupported symbol: $sym")
-            } else if (displayName == "_" || displayName.startsWith("?")) {
+            } else if (displayName == "_" && !config.better) {
+              gensymCache.getOrElseUpdate(sym, gensym("T"))
+            } else if (displayName.startsWith("?")) {
               gensymCache.getOrElseUpdate(sym, gensym("T"))
             } else {
               displayName
@@ -200,9 +212,10 @@ class SemanticdbPrinter(
           else sym
       }
     }
-    if (keywords.containsKey(printableName)) str("`")
+    val needsBackticks = keywords.containsKey(printableName) && printableName != "_"
+    if (needsBackticks) str("`")
     str(printableName)
-    if (keywords.containsKey(printableName)) str("`")
+    if (needsBackticks) str("`")
   }
 
   private def pprint(info: s.SymbolInformation): Unit = {

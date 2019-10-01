@@ -283,4 +283,18 @@ object BetterRscCompat_Test {
 
     class H extends V
   }
+
+  object ExistentialTypes {
+    class Box[A]
+    class Box2[A, B]
+    trait T
+    class A extends T
+    class B extends T
+
+    val box = null.asInstanceOf[Box[_]]
+
+    val boxes1 = Seq(new Box[A], new Box[B])
+
+    val boxes2 = Seq(new Box2[A, B], new Box2[B, A])
+  }
 }
