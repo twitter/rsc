@@ -283,4 +283,11 @@ object BetterRscCompat_Test {
 
     class H extends V
   }
+
+  object FunctionTypes {
+
+    val f1: ((Int, Int)) => Unit = (_: (Int, Int)) => ()
+
+    def f2: ((Int, Int), Int) => Unit = (_: (Int, Int), _: Int) => ()
+  }
 }
