@@ -134,12 +134,14 @@ class SemanticdbPrinter(
         case s.StructuralType(utpe, decls) =>
           decls.infos.foreach(symbols.append)
           opt(utpe)(normal)
-          if (decls.infos.nonEmpty) {
-            rep(" { ", decls.infos, "; ", " }")(pprint)
-          } else {
-            utpe match {
-              case s.WithType(tpes) if tpes.length > 1 => ()
-              case _ => str(" {}")
+          if (!config.better) {
+            if (decls.infos.nonEmpty) {
+              rep(" { ", decls.infos, "; ", " }")(pprint)
+            } else {
+              utpe match {
+                case s.WithType(tpes) if tpes.length > 1 => ()
+                case _ => str(" {}")
+              }
             }
           }
         case s.AnnotatedType(anns, utpe) =>
