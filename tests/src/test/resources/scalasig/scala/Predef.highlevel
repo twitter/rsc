@@ -479,6 +479,31 @@ scalasig {
       }
       sym: scala.#reflect.#ClassManifestFactory.
     }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+          name: "use `scala.reflect.ClassTag` instead"
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+          name: "2.10.0"
+        }
+      }
+    }
   }
   symbols {
     tag: VALsym
@@ -2463,6 +2488,31 @@ scalasig {
         sym: scala.#Char#
       }
     }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+          name: "will be made private"
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+          name: "2.12.0"
+        }
+      }
+    }
   }
   symbols {
     tag: VALsym
@@ -2665,6 +2715,31 @@ scalasig {
           sym: scala.#
         }
         sym: scala.#Char#
+      }
+    }
+    annots {
+      tag: ANNOTINFO
+      tpe {
+        tag: TYPEREFtpe
+        pre {
+          tag: THIStpe
+          sym: scala.#
+        }
+        sym: scala.#deprecated#
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+          name: "will be made private"
+        }
+      }
+      args {
+        tag: ANNOTARG
+        value {
+          tag: LITERALstring
+          name: "2.12.0"
+        }
       }
     }
   }

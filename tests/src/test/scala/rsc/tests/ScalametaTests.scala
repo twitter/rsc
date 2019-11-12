@@ -86,7 +86,7 @@ class ScalametaTests extends RscTests {
     var numProblems = 0
 
     // The Predef.* files were obtained by:
-    // 1) coursier fetch org.scala-lang:scala-library:2.12.8
+    // 1) coursier fetch org.scala-lang:scala-library:2.12.10
     // 2) jar -xvf <scala-library.jar location>
     // 3) run Rsc's scalap on scala/Predef.class
 

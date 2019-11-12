@@ -148,162 +148,162 @@ scalasig {
   entries {
     index: 18
     tag: VALsym
-    name: 347
+    name: 348
     owner: 1
     flags: METHOD | STABLE | ACCESSOR
-    info: 348
+    info: 349
   }
   entries {
     index: 19
     tag: VALsym
-    name: 352
+    name: 353
     owner: 1
     flags: PRIVATE | LOCAL
-    info: 349
+    info: 350
   }
   entries {
     index: 20
     tag: VALsym
-    name: 353
+    name: 354
     owner: 1
     flags: METHOD | STABLE | ACCESSOR
-    info: 354
+    info: 355
   }
   entries {
     index: 21
     tag: VALsym
-    name: 357
+    name: 358
     owner: 1
     flags: PRIVATE | LOCAL
-    info: 355
+    info: 356
   }
   entries {
     index: 22
     tag: VALsym
-    name: 358
+    name: 359
     owner: 1
     flags: METHOD
-    info: 359
+    info: 360
   }
   entries {
     index: 23
     tag: VALsym
-    name: 366
+    name: 367
     owner: 1
     flags: METHOD
-    info: 367
+    info: 368
   }
   entries {
     index: 24
     tag: VALsym
-    name: 376
+    name: 377
     owner: 1
     flags: METHOD
-    info: 377
+    info: 378
   }
   entries {
     index: 25
     tag: VALsym
-    name: 383
+    name: 384
     owner: 1
     flags: METHOD
-    info: 384
+    info: 385
   }
   entries {
     index: 26
     tag: VALsym
-    name: 394
+    name: 395
     owner: 1
     flags: METHOD
-    info: 395
+    info: 396
   }
   entries {
     index: 27
     tag: VALsym
-    name: 402
+    name: 403
     owner: 1
     flags: METHOD
-    info: 403
+    info: 404
   }
   entries {
     index: 28
     tag: VALsym
-    name: 409
+    name: 410
     owner: 1
     flags: METHOD
-    info: 410
+    info: 411
   }
   entries {
     index: 29
     tag: VALsym
-    name: 409
+    name: 410
     owner: 1
     flags: FINAL | METHOD
-    info: 424
+    info: 425
   }
   entries {
     index: 30
     tag: VALsym
-    name: 433
+    name: 434
     owner: 1
     flags: METHOD
-    info: 434
+    info: 435
   }
   entries {
     index: 31
     tag: VALsym
-    name: 433
+    name: 434
     owner: 1
     flags: FINAL | METHOD
-    info: 438
+    info: 439
   }
   entries {
     index: 32
     tag: VALsym
-    name: 443
+    name: 444
     owner: 1
     flags: METHOD
-    info: 444
+    info: 445
   }
   entries {
     index: 33
     tag: VALsym
-    name: 443
+    name: 444
     owner: 1
     flags: FINAL | METHOD
-    info: 447
+    info: 448
   }
   entries {
     index: 34
     tag: VALsym
-    name: 451
+    name: 452
     owner: 1
     flags: METHOD
-    info: 452
+    info: 453
   }
   entries {
     index: 35
     tag: ALIASsym
-    name: 453
+    name: 454
     owner: 1
     flags: 
-    info: 454
+    info: 455
   }
   entries {
     index: 36
     tag: MODULEsym
-    name: 467
+    name: 468
     owner: 1
     flags: MODULE
-    info: 468
+    info: 469
   }
   entries {
     index: 37
     tag: CLASSsym
-    name: 453
+    name: 454
     owner: 1
     flags: MODULE
-    info: 469
+    info: 470
   }
   entries {
     index: 38
@@ -311,47 +311,47 @@ scalasig {
     name: 213
     owner: 37
     flags: METHOD
-    info: 473
+    info: 474
   }
   entries {
     index: 39
     tag: VALsym
-    name: 474
+    name: 475
     owner: 37
     flags: METHOD
-    info: 475
+    info: 476
   }
   entries {
     index: 40
     tag: VALsym
-    name: 485
+    name: 486
     owner: 37
     flags: METHOD
-    info: 486
+    info: 487
   }
   entries {
     index: 41
     tag: ALIASsym
-    name: 499
+    name: 500
     owner: 1
     flags: 
-    info: 500
+    info: 501
   }
   entries {
     index: 42
     tag: MODULEsym
-    name: 514
+    name: 515
     owner: 1
     flags: MODULE
-    info: 515
+    info: 516
   }
   entries {
     index: 43
     tag: CLASSsym
-    name: 499
+    name: 500
     owner: 1
     flags: MODULE
-    info: 516
+    info: 517
   }
   entries {
     index: 44
@@ -359,47 +359,47 @@ scalasig {
     name: 213
     owner: 43
     flags: METHOD
-    info: 517
+    info: 518
   }
   entries {
     index: 45
     tag: VALsym
-    name: 474
+    name: 475
     owner: 43
     flags: METHOD
-    info: 518
+    info: 519
   }
   entries {
     index: 46
     tag: VALsym
-    name: 485
+    name: 486
     owner: 43
     flags: METHOD
-    info: 531
+    info: 532
   }
   entries {
     index: 47
     tag: CLASSsym
-    name: 544
+    name: 545
     owner: 1
     flags: IMPLICIT | FINAL
-    info: 545
+    info: 546
   }
   entries {
     index: 48
     tag: VALsym
-    name: 550
+    name: 551
     owner: 47
     flags: PRIVATE | METHOD | STABLE | ACCESSOR | PARAMACCESSOR | EXPANDEDNAME | notPRIVATE
-    info: 551
+    info: 552
   }
   entries {
     index: 49
     tag: VALsym
-    name: 554
+    name: 555
     owner: 47
     flags: PRIVATE | LOCAL | PARAMACCESSOR | EXPANDEDNAME
-    info: 552
+    info: 553
   }
   entries {
     index: 50
@@ -407,71 +407,71 @@ scalasig {
     name: 213
     owner: 47
     flags: METHOD
-    info: 555
+    info: 556
   }
   entries {
     index: 51
     tag: VALsym
-    name: 559
+    name: 560
     owner: 47
     flags: METHOD
-    info: 560
+    info: 561
   }
   entries {
     index: 52
     tag: VALsym
-    name: 567
+    name: 568
     owner: 47
     flags: METHOD
-    info: 568
+    info: 569
   }
   entries {
     index: 53
     tag: VALsym
-    name: 574
+    name: 575
     owner: 47
     flags: OVERRIDE | METHOD | SYNTHETIC
-    info: 575
+    info: 576
   }
   entries {
     index: 54
     tag: VALsym
-    name: 579
+    name: 580
     owner: 47
     flags: OVERRIDE | METHOD | SYNTHETIC
-    info: 580
+    info: 581
   }
   entries {
     index: 55
     tag: VALsym
-    name: 583
+    name: 584
     owner: 1
     flags: IMPLICIT | METHOD | SYNTHETIC
-    info: 584
+    info: 585
   }
   entries {
     index: 56
     tag: CLASSsym
-    name: 590
+    name: 591
     owner: 1
     flags: IMPLICIT | FINAL
-    info: 591
+    info: 592
   }
   entries {
     index: 57
     tag: VALsym
-    name: 593
+    name: 594
     owner: 56
     flags: PRIVATE | METHOD | STABLE | ACCESSOR | PARAMACCESSOR | EXPANDEDNAME | notPRIVATE
-    info: 594
+    info: 595
   }
   entries {
     index: 58
     tag: VALsym
-    name: 597
+    name: 598
     owner: 56
     flags: PRIVATE | LOCAL | PARAMACCESSOR | EXPANDEDNAME
-    info: 595
+    info: 596
   }
   entries {
     index: 59
@@ -479,87 +479,87 @@ scalasig {
     name: 213
     owner: 56
     flags: METHOD
-    info: 598
+    info: 599
   }
   entries {
     index: 60
     tag: VALsym
-    name: 601
+    name: 602
     owner: 56
     flags: METHOD
-    info: 602
+    info: 603
   }
   entries {
     index: 61
     tag: VALsym
-    name: 601
+    name: 602
     owner: 56
     flags: METHOD
-    info: 605
+    info: 606
   }
   entries {
     index: 62
     tag: VALsym
-    name: 601
+    name: 602
     owner: 56
     flags: METHOD
-    info: 609
+    info: 610
   }
   entries {
     index: 63
     tag: VALsym
-    name: 601
+    name: 602
     owner: 56
     flags: METHOD
-    info: 612
+    info: 613
   }
   entries {
     index: 64
     tag: VALsym
-    name: 574
+    name: 575
     owner: 56
     flags: OVERRIDE | METHOD | SYNTHETIC
-    info: 575
+    info: 576
   }
   entries {
     index: 65
     tag: VALsym
-    name: 579
+    name: 580
     owner: 56
     flags: OVERRIDE | METHOD | SYNTHETIC
-    info: 615
+    info: 616
   }
   entries {
     index: 66
     tag: VALsym
-    name: 617
+    name: 618
     owner: 1
     flags: IMPLICIT | METHOD | SYNTHETIC
-    info: 618
+    info: 619
   }
   entries {
     index: 67
     tag: CLASSsym
-    name: 624
+    name: 625
     owner: 1
     flags: IMPLICIT | FINAL
-    info: 625
+    info: 626
   }
   entries {
     index: 68
     tag: VALsym
-    name: 627
+    name: 628
     owner: 67
     flags: PRIVATE | METHOD | STABLE | ACCESSOR | PARAMACCESSOR | EXPANDEDNAME | notPRIVATE
-    info: 628
+    info: 629
   }
   entries {
     index: 69
     tag: VALsym
-    name: 631
+    name: 632
     owner: 67
     flags: PRIVATE | LOCAL | PARAMACCESSOR | EXPANDEDNAME
-    info: 629
+    info: 630
   }
   entries {
     index: 70
@@ -567,63 +567,63 @@ scalasig {
     name: 213
     owner: 67
     flags: METHOD
-    info: 632
+    info: 633
   }
   entries {
     index: 71
     tag: VALsym
-    name: 635
+    name: 636
     owner: 67
     flags: METHOD
-    info: 636
+    info: 637
   }
   entries {
     index: 72
     tag: VALsym
-    name: 574
+    name: 575
     owner: 67
     flags: OVERRIDE | METHOD | SYNTHETIC
-    info: 575
+    info: 576
   }
   entries {
     index: 73
     tag: VALsym
-    name: 579
+    name: 580
     owner: 67
     flags: OVERRIDE | METHOD | SYNTHETIC
-    info: 641
+    info: 642
   }
   entries {
     index: 74
     tag: VALsym
-    name: 643
+    name: 644
     owner: 1
     flags: IMPLICIT | METHOD | SYNTHETIC
-    info: 644
+    info: 645
   }
   entries {
     index: 75
     tag: CLASSsym
-    name: 650
+    name: 651
     owner: 1
     flags: IMPLICIT | FINAL
-    info: 651
+    info: 652
   }
   entries {
     index: 76
     tag: VALsym
-    name: 653
+    name: 654
     owner: 75
     flags: PRIVATE | METHOD | STABLE | ACCESSOR | PARAMACCESSOR | EXPANDEDNAME | notPRIVATE
-    info: 654
+    info: 655
   }
   entries {
     index: 77
     tag: VALsym
-    name: 657
+    name: 658
     owner: 75
     flags: PRIVATE | LOCAL | PARAMACCESSOR | EXPANDEDNAME
-    info: 655
+    info: 656
   }
   entries {
     index: 78
@@ -631,63 +631,63 @@ scalasig {
     name: 213
     owner: 75
     flags: METHOD
-    info: 658
+    info: 659
   }
   entries {
     index: 79
     tag: VALsym
-    name: 661
+    name: 662
     owner: 75
     flags: METHOD
-    info: 662
+    info: 663
   }
   entries {
     index: 80
     tag: VALsym
-    name: 574
+    name: 575
     owner: 75
     flags: OVERRIDE | METHOD | SYNTHETIC
-    info: 575
+    info: 576
   }
   entries {
     index: 81
     tag: VALsym
-    name: 579
+    name: 580
     owner: 75
     flags: OVERRIDE | METHOD | SYNTHETIC
-    info: 665
+    info: 666
   }
   entries {
     index: 82
     tag: VALsym
-    name: 667
+    name: 668
     owner: 1
     flags: IMPLICIT | METHOD | SYNTHETIC
-    info: 668
+    info: 669
   }
   entries {
     index: 83
     tag: CLASSsym
-    name: 674
+    name: 675
     owner: 1
     flags: IMPLICIT | FINAL
-    info: 675
+    info: 676
   }
   entries {
     index: 84
     tag: VALsym
-    name: 676
+    name: 677
     owner: 83
     flags: PRIVATE | METHOD | STABLE | ACCESSOR | PARAMACCESSOR | EXPANDEDNAME | notPRIVATE
-    info: 677
+    info: 678
   }
   entries {
     index: 85
     tag: VALsym
-    name: 684
+    name: 685
     owner: 83
     flags: PRIVATE | LOCAL | PARAMACCESSOR | EXPANDEDNAME
-    info: 678
+    info: 679
   }
   entries {
     index: 86
@@ -695,63 +695,63 @@ scalasig {
     name: 213
     owner: 83
     flags: METHOD
-    info: 685
+    info: 686
   }
   entries {
     index: 87
     tag: VALsym
-    name: 688
+    name: 689
     owner: 83
     flags: METHOD
-    info: 689
+    info: 690
   }
   entries {
     index: 88
     tag: VALsym
-    name: 574
+    name: 575
     owner: 83
     flags: OVERRIDE | METHOD | SYNTHETIC
-    info: 575
+    info: 576
   }
   entries {
     index: 89
     tag: VALsym
-    name: 579
+    name: 580
     owner: 83
     flags: OVERRIDE | METHOD | SYNTHETIC
-    info: 696
+    info: 697
   }
   entries {
     index: 90
     tag: VALsym
-    name: 698
+    name: 699
     owner: 1
     flags: IMPLICIT | METHOD | SYNTHETIC
-    info: 699
+    info: 700
   }
   entries {
     index: 91
     tag: CLASSsym
-    name: 701
+    name: 702
     owner: 1
     flags: IMPLICIT | FINAL
-    info: 702
+    info: 703
   }
   entries {
     index: 92
     tag: VALsym
-    name: 709
+    name: 710
     owner: 91
     flags: METHOD | STABLE | ACCESSOR | PARAMACCESSOR
-    info: 710
+    info: 711
   }
   entries {
     index: 93
     tag: VALsym
-    name: 722
+    name: 723
     owner: 91
     flags: PRIVATE | LOCAL | PARAMACCESSOR
-    info: 711
+    info: 712
   }
   entries {
     index: 94
@@ -759,71 +759,71 @@ scalasig {
     name: 213
     owner: 91
     flags: METHOD
-    info: 723
+    info: 725
   }
   entries {
     index: 95
     tag: VALsym
-    name: 731
+    name: 733
     owner: 91
     flags: METHOD
-    info: 575
+    info: 576
   }
   entries {
     index: 96
     tag: VALsym
-    name: 732
+    name: 734
     owner: 91
     flags: METHOD
-    info: 733
+    info: 735
   }
   entries {
     index: 97
     tag: VALsym
-    name: 736
+    name: 738
     owner: 91
     flags: METHOD
-    info: 737
+    info: 739
   }
   entries {
     index: 98
     tag: VALsym
-    name: 742
+    name: 744
     owner: 91
     flags: OVERRIDE | METHOD
-    info: 743
+    info: 745
   }
   entries {
     index: 99
     tag: VALsym
-    name: 744
+    name: 746
     owner: 1
     flags: IMPLICIT | METHOD | SYNTHETIC
-    info: 745
+    info: 747
   }
   entries {
     index: 100
     tag: CLASSsym
-    name: 749
+    name: 751
     owner: 1
     flags: IMPLICIT | FINAL
-    info: 750
+    info: 752
   }
   entries {
     index: 101
     tag: VALsym
-    name: 751
+    name: 753
     owner: 100
     flags: METHOD | STABLE | ACCESSOR | PARAMACCESSOR
-    info: 752
+    info: 754
   }
   entries {
     index: 102
     tag: VALsym
-    name: 757
+    name: 759
     owner: 100
     flags: PRIVATE | LOCAL | PARAMACCESSOR
-    info: 753
+    info: 755
   }
   entries {
     index: 103
@@ -831,90 +831,82 @@ scalasig {
     name: 213
     owner: 100
     flags: METHOD
-    info: 758
+    info: 761
   }
   entries {
     index: 104
     tag: VALsym
-    name: 731
+    name: 733
     owner: 100
     flags: METHOD
-    info: 575
+    info: 576
   }
   entries {
     index: 105
     tag: VALsym
-    name: 732
+    name: 734
     owner: 100
     flags: METHOD
-    info: 762
+    info: 765
   }
   entries {
     index: 106
     tag: VALsym
-    name: 736
+    name: 738
     owner: 100
     flags: METHOD
-    info: 764
+    info: 767
   }
   entries {
     index: 107
     tag: VALsym
-    name: 742
+    name: 744
     owner: 100
     flags: OVERRIDE | METHOD
-    info: 743
+    info: 745
   }
   entries {
     index: 108
     tag: VALsym
-    name: 767
+    name: 770
     owner: 1
     flags: IMPLICIT | METHOD | SYNTHETIC
-    info: 768
+    info: 771
   }
   entries {
     index: 109
     tag: VALsym
-    name: 772
+    name: 775
     owner: 1
     flags: IMPLICIT | METHOD | STABLE | ACCESSOR
-    info: 773
+    info: 776
   }
   entries {
     index: 110
     tag: VALsym
-    name: 780
+    name: 783
     owner: 1
     flags: PRIVATE | LOCAL
-    info: 774
+    info: 777
   }
   entries {
     index: 111
     tag: VALsym
-    name: 781
+    name: 784
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 782
+    info: 785
   }
   entries {
     index: 112
     tag: VALsym
-    name: 788
+    name: 791
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 789
+    info: 792
   }
   entries {
     index: 113
-    tag: VALsym
-    name: 792
-    owner: 1
-    flags: METHOD
-    info: 793
-  }
-  entries {
-    index: 114
     tag: VALsym
     name: 795
     owner: 1
@@ -922,199 +914,199 @@ scalasig {
     info: 796
   }
   entries {
-    index: 115
+    index: 114
     tag: VALsym
-    name: 795
+    name: 798
     owner: 1
     flags: METHOD
-    info: 797
+    info: 799
   }
   entries {
-    index: 116
+    index: 115
     tag: VALsym
-    name: 799
+    name: 798
     owner: 1
     flags: METHOD
     info: 800
   }
   entries {
+    index: 116
+    tag: VALsym
+    name: 802
+    owner: 1
+    flags: METHOD
+    info: 803
+  }
+  entries {
     index: 117
     tag: VALsym
-    name: 808
+    name: 811
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 809
+    info: 812
   }
   entries {
     index: 118
     tag: VALsym
-    name: 830
+    name: 833
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 831
+    info: 834
   }
   entries {
     index: 119
     tag: VALsym
-    name: 848
+    name: 851
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 849
+    info: 852
   }
   entries {
     index: 120
     tag: VALsym
-    name: 861
+    name: 864
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 862
+    info: 865
   }
   entries {
     index: 121
     tag: VALsym
-    name: 872
+    name: 875
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 873
+    info: 876
   }
   entries {
     index: 122
     tag: VALsym
-    name: 882
+    name: 885
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 883
+    info: 886
   }
   entries {
     index: 123
     tag: VALsym
-    name: 888
+    name: 891
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 889
+    info: 892
   }
   entries {
     index: 124
     tag: VALsym
-    name: 898
+    name: 901
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 899
+    info: 902
   }
   entries {
     index: 125
     tag: VALsym
-    name: 908
+    name: 911
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 909
+    info: 912
   }
   entries {
     index: 126
     tag: VALsym
-    name: 915
+    name: 918
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 916
+    info: 919
   }
   entries {
     index: 127
     tag: VALsym
-    name: 925
+    name: 928
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 926
+    info: 929
   }
   entries {
     index: 128
     tag: VALsym
-    name: 936
+    name: 939
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 937
+    info: 940
   }
   entries {
     index: 129
     tag: VALsym
-    name: 946
+    name: 949
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 947
+    info: 950
   }
   entries {
     index: 130
     tag: VALsym
-    name: 953
+    name: 956
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 954
+    info: 957
   }
   entries {
     index: 131
     tag: VALsym
-    name: 958
+    name: 961
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 959
+    info: 962
   }
   entries {
     index: 132
     tag: VALsym
-    name: 963
+    name: 966
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 964
+    info: 967
   }
   entries {
     index: 133
     tag: VALsym
-    name: 969
+    name: 972
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 970
+    info: 973
   }
   entries {
     index: 134
     tag: VALsym
-    name: 975
+    name: 978
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 976
+    info: 979
   }
   entries {
     index: 135
     tag: VALsym
-    name: 980
+    name: 983
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 981
+    info: 984
   }
   entries {
     index: 136
     tag: VALsym
-    name: 985
+    name: 988
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 986
+    info: 989
   }
   entries {
     index: 137
     tag: VALsym
-    name: 990
+    name: 993
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 991
+    info: 994
   }
   entries {
     index: 138
-    tag: VALsym
-    name: 995
-    owner: 1
-    flags: IMPLICIT | METHOD
-    info: 996
-  }
-  entries {
-    index: 139
     tag: VALsym
     name: 998
     owner: 1
@@ -1122,7 +1114,7 @@ scalasig {
     info: 999
   }
   entries {
-    index: 140
+    index: 139
     tag: VALsym
     name: 1001
     owner: 1
@@ -1130,7 +1122,7 @@ scalasig {
     info: 1002
   }
   entries {
-    index: 141
+    index: 140
     tag: VALsym
     name: 1004
     owner: 1
@@ -1138,7 +1130,7 @@ scalasig {
     info: 1005
   }
   entries {
-    index: 142
+    index: 141
     tag: VALsym
     name: 1007
     owner: 1
@@ -1146,7 +1138,7 @@ scalasig {
     info: 1008
   }
   entries {
-    index: 143
+    index: 142
     tag: VALsym
     name: 1010
     owner: 1
@@ -1154,7 +1146,7 @@ scalasig {
     info: 1011
   }
   entries {
-    index: 144
+    index: 143
     tag: VALsym
     name: 1013
     owner: 1
@@ -1162,7 +1154,7 @@ scalasig {
     info: 1014
   }
   entries {
-    index: 145
+    index: 144
     tag: VALsym
     name: 1016
     owner: 1
@@ -1170,12 +1162,20 @@ scalasig {
     info: 1017
   }
   entries {
-    index: 146
-    tag: CLASSsym
+    index: 145
+    tag: VALsym
     name: 1019
     owner: 1
-    flags: SEALED | ABSTRACT
+    flags: IMPLICIT | METHOD
     info: 1020
+  }
+  entries {
+    index: 146
+    tag: CLASSsym
+    name: 1022
+    owner: 1
+    flags: SEALED | ABSTRACT
+    info: 1023
   }
   entries {
     index: 147
@@ -1183,39 +1183,39 @@ scalasig {
     name: 213
     owner: 146
     flags: METHOD
-    info: 1032
+    info: 1035
   }
   entries {
     index: 148
     tag: VALsym
-    name: 1041
+    name: 1044
     owner: 1
     flags: FINAL | PRIVATE | LOCAL
-    info: 1042
+    info: 1045
   }
   entries {
     index: 149
     tag: VALsym
-    name: 1043
+    name: 1046
     owner: 1
     flags: IMPLICIT | METHOD
-    info: 1044
+    info: 1047
   }
   entries {
     index: 150
     tag: VALsym
-    name: 1049
+    name: 1052
     owner: 1
     flags: METHOD
-    info: 1050
+    info: 1053
   }
   entries {
     index: 151
     tag: CLASSsym
-    name: 1058
+    name: 1061
     owner: 1
     flags: SEALED | ABSTRACT
-    info: 1059
+    info: 1062
   }
   entries {
     index: 152
@@ -1223,31 +1223,31 @@ scalasig {
     name: 213
     owner: 151
     flags: METHOD
-    info: 1066
+    info: 1069
   }
   entries {
     index: 153
     tag: VALsym
-    name: 1074
+    name: 1077
     owner: 1
     flags: FINAL | PRIVATE | LOCAL
-    info: 1075
+    info: 1078
   }
   entries {
     index: 154
     tag: MODULEsym
-    name: 1076
+    name: 1079
     owner: 1
     flags: MODULE
-    info: 1077
+    info: 1080
   }
   entries {
     index: 155
     tag: CLASSsym
-    name: 1058
+    name: 1061
     owner: 1
     flags: MODULE
-    info: 1078
+    info: 1081
   }
   entries {
     index: 156
@@ -1255,31 +1255,31 @@ scalasig {
     name: 213
     owner: 155
     flags: METHOD
-    info: 1079
+    info: 1082
   }
   entries {
     index: 157
     tag: VALsym
-    name: 1080
+    name: 1083
     owner: 155
     flags: IMPLICIT | METHOD
-    info: 1081
+    info: 1084
   }
   entries {
     index: 158
     tag: VALsym
-    name: 1086
+    name: 1089
     owner: 155
     flags: PRIVATE | METHOD | SYNTHETIC
-    info: 1087
+    info: 1090
   }
   entries {
     index: 159
     tag: CLASSsym
-    name: 1088
+    name: 1091
     owner: 1
     flags: 
-    info: 1089
+    info: 1092
   }
   entries {
     index: 160
@@ -1287,23 +1287,23 @@ scalasig {
     name: 213
     owner: 159
     flags: METHOD
-    info: 1090
+    info: 1093
   }
   entries {
     index: 161
     tag: MODULEsym
-    name: 1092
+    name: 1095
     owner: 1
     flags: MODULE
-    info: 1093
+    info: 1096
   }
   entries {
     index: 162
     tag: CLASSsym
-    name: 1088
+    name: 1091
     owner: 1
     flags: MODULE
-    info: 1094
+    info: 1097
   }
   entries {
     index: 163
@@ -1311,31 +1311,31 @@ scalasig {
     name: 213
     owner: 162
     flags: METHOD
-    info: 1095
+    info: 1098
   }
   entries {
     index: 164
     tag: VALsym
-    name: 1096
+    name: 1099
     owner: 162
     flags: IMPLICIT | METHOD
-    info: 1097
+    info: 1100
   }
   entries {
     index: 165
     tag: MODULEsym
-    name: 698
+    name: 699
     owner: 1
     flags: MODULE | SYNTHETIC
-    info: 1098
+    info: 1101
   }
   entries {
     index: 166
     tag: CLASSsym
-    name: 674
+    name: 675
     owner: 1
     flags: MODULE | SYNTHETIC
-    info: 1099
+    info: 1102
   }
   entries {
     index: 167
@@ -1343,26 +1343,18 @@ scalasig {
     name: 213
     owner: 166
     flags: METHOD
-    info: 1100
+    info: 1103
   }
   entries {
     index: 168
     tag: VALsym
-    name: 1101
+    name: 1104
     owner: 166
     flags: FINAL | METHOD
-    info: 1102
+    info: 1105
   }
   entries {
     index: 169
-    tag: VALsym
-    name: 1106
-    owner: 166
-    flags: FINAL | METHOD | SYNTHETIC
-    info: 1107
-  }
-  entries {
-    index: 170
     tag: VALsym
     name: 1109
     owner: 166
@@ -1370,20 +1362,28 @@ scalasig {
     info: 1110
   }
   entries {
+    index: 170
+    tag: VALsym
+    name: 1112
+    owner: 166
+    flags: FINAL | METHOD | SYNTHETIC
+    info: 1113
+  }
+  entries {
     index: 171
     tag: MODULEsym
-    name: 667
+    name: 668
     owner: 1
     flags: MODULE | SYNTHETIC
-    info: 1114
+    info: 1117
   }
   entries {
     index: 172
     tag: CLASSsym
-    name: 650
+    name: 651
     owner: 1
     flags: MODULE | SYNTHETIC
-    info: 1115
+    info: 1118
   }
   entries {
     index: 173
@@ -1391,47 +1391,47 @@ scalasig {
     name: 213
     owner: 172
     flags: METHOD
-    info: 1116
+    info: 1119
   }
   entries {
     index: 174
     tag: VALsym
-    name: 1117
+    name: 1120
     owner: 172
     flags: FINAL | METHOD
-    info: 1118
+    info: 1121
   }
   entries {
     index: 175
     tag: VALsym
-    name: 1106
+    name: 1109
     owner: 172
     flags: FINAL | METHOD | SYNTHETIC
-    info: 1126
+    info: 1129
   }
   entries {
     index: 176
     tag: VALsym
-    name: 1109
+    name: 1112
     owner: 172
     flags: FINAL | METHOD | SYNTHETIC
-    info: 1132
+    info: 1135
   }
   entries {
     index: 177
     tag: MODULEsym
-    name: 643
+    name: 644
     owner: 1
     flags: MODULE | SYNTHETIC
-    info: 1140
+    info: 1143
   }
   entries {
     index: 178
     tag: CLASSsym
-    name: 624
+    name: 625
     owner: 1
     flags: MODULE | SYNTHETIC
-    info: 1141
+    info: 1144
   }
   entries {
     index: 179
@@ -1439,47 +1439,47 @@ scalasig {
     name: 213
     owner: 178
     flags: METHOD
-    info: 1142
+    info: 1145
   }
   entries {
     index: 180
     tag: VALsym
-    name: 1143
+    name: 1146
     owner: 178
     flags: FINAL | METHOD
-    info: 1144
+    info: 1147
   }
   entries {
     index: 181
     tag: VALsym
-    name: 1106
+    name: 1109
     owner: 178
     flags: FINAL | METHOD | SYNTHETIC
-    info: 1153
+    info: 1156
   }
   entries {
     index: 182
     tag: VALsym
-    name: 1109
+    name: 1112
     owner: 178
     flags: FINAL | METHOD | SYNTHETIC
-    info: 1159
+    info: 1162
   }
   entries {
     index: 183
     tag: MODULEsym
-    name: 617
+    name: 618
     owner: 1
     flags: MODULE | SYNTHETIC
-    info: 1167
+    info: 1170
   }
   entries {
     index: 184
     tag: CLASSsym
-    name: 590
+    name: 591
     owner: 1
     flags: MODULE | SYNTHETIC
-    info: 1168
+    info: 1171
   }
   entries {
     index: 185
@@ -1487,71 +1487,71 @@ scalasig {
     name: 213
     owner: 184
     flags: METHOD
-    info: 1169
+    info: 1172
   }
   entries {
     index: 186
     tag: VALsym
-    name: 1170
+    name: 1173
     owner: 184
     flags: FINAL | METHOD
-    info: 1171
+    info: 1174
   }
   entries {
     index: 187
     tag: VALsym
-    name: 1179
+    name: 1182
     owner: 184
     flags: FINAL | METHOD
-    info: 1180
+    info: 1183
   }
   entries {
     index: 188
     tag: VALsym
-    name: 1189
+    name: 1192
     owner: 184
     flags: FINAL | METHOD
-    info: 1190
+    info: 1193
   }
   entries {
     index: 189
     tag: VALsym
-    name: 1199
+    name: 1202
     owner: 184
     flags: FINAL | METHOD
-    info: 1200
+    info: 1203
   }
   entries {
     index: 190
     tag: VALsym
-    name: 1106
+    name: 1109
     owner: 184
     flags: FINAL | METHOD | SYNTHETIC
-    info: 1210
+    info: 1213
   }
   entries {
     index: 191
     tag: VALsym
-    name: 1109
+    name: 1112
     owner: 184
     flags: FINAL | METHOD | SYNTHETIC
-    info: 1216
+    info: 1219
   }
   entries {
     index: 192
     tag: MODULEsym
-    name: 583
+    name: 584
     owner: 1
     flags: MODULE | SYNTHETIC
-    info: 1224
+    info: 1227
   }
   entries {
     index: 193
     tag: CLASSsym
-    name: 544
+    name: 545
     owner: 1
     flags: MODULE | SYNTHETIC
-    info: 1225
+    info: 1228
   }
   entries {
     index: 194
@@ -1559,39 +1559,39 @@ scalasig {
     name: 213
     owner: 193
     flags: METHOD
-    info: 1226
+    info: 1229
   }
   entries {
     index: 195
     tag: VALsym
-    name: 1227
+    name: 1230
     owner: 193
     flags: FINAL | METHOD
-    info: 1228
+    info: 1231
   }
   entries {
     index: 196
     tag: VALsym
-    name: 1240
+    name: 1243
     owner: 193
     flags: FINAL | METHOD
-    info: 1241
+    info: 1244
   }
   entries {
     index: 197
     tag: VALsym
-    name: 1106
+    name: 1109
     owner: 193
     flags: FINAL | METHOD | SYNTHETIC
-    info: 1252
+    info: 1255
   }
   entries {
     index: 198
     tag: VALsym
-    name: 1109
+    name: 1112
     owner: 193
     flags: FINAL | METHOD | SYNTHETIC
-    info: 1258
+    info: 1261
   }
   entries {
     index: 199
@@ -2474,168 +2474,12 @@ scalasig {
   }
   entries {
     index: 347
-    tag: TERMname
-    value: "Manifest"
-  }
-  entries {
-    index: 348
-    tag: POLYtpe
-    tpe: 349
-  }
-  entries {
-    index: 349
-    tag: SINGLEtpe
-    pre: 327
-    sym: 350
-  }
-  entries {
-    index: 350
-    tag: EXTref
-    name: 351
-    owner: 302
-  }
-  entries {
-    index: 351
-    tag: TERMname
-    value: "ManifestFactory"
-  }
-  entries {
-    index: 352
-    tag: TERMname
-    value: "Manifest "
-  }
-  entries {
-    index: 353
-    tag: TERMname
-    value: "NoManifest"
-  }
-  entries {
-    index: 354
-    tag: POLYtpe
-    tpe: 355
-  }
-  entries {
-    index: 355
-    tag: SINGLEtpe
-    pre: 292
-    sym: 356
-  }
-  entries {
-    index: 356
-    tag: EXTref
-    name: 353
-    owner: 302
-  }
-  entries {
-    index: 357
-    tag: TERMname
-    value: "NoManifest "
-  }
-  entries {
-    index: 358
-    tag: TERMname
-    value: "manifest"
-  }
-  entries {
-    index: 359
-    tag: POLYtpe
-    tpe: 360
-    params: 363
-  }
-  entries {
-    index: 360
-    tag: METHODtpe
-    ret: 361
-    params: 364
-  }
-  entries {
-    index: 361
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 15
-    targs: 362
-  }
-  entries {
-    index: 362
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 363
-  }
-  entries {
-    index: 363
-    tag: TYPEsym
-    name: 232
-    owner: 22
-    flags: DEFERRED | PARAM
-    info: 233
-  }
-  entries {
-    index: 364
-    tag: VALsym
-    name: 365
-    owner: 22
-    flags: IMPLICIT | PARAM
-    info: 361
-  }
-  entries {
-    index: 365
-    tag: TERMname
-    value: "m"
-  }
-  entries {
-    index: 366
-    tag: TERMname
-    value: "classManifest"
-  }
-  entries {
-    index: 367
-    tag: POLYtpe
-    tpe: 368
-    params: 371
-  }
-  entries {
-    index: 368
-    tag: METHODtpe
-    ret: 369
-    params: 372
-  }
-  entries {
-    index: 369
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 13
-    targs: 370
-  }
-  entries {
-    index: 370
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 371
-  }
-  entries {
-    index: 371
-    tag: TYPEsym
-    name: 232
-    owner: 23
-    flags: DEFERRED | PARAM
-    info: 233
-  }
-  entries {
-    index: 372
-    tag: VALsym
-    name: 365
-    owner: 23
-    flags: IMPLICIT | PARAM
-    info: 369
-  }
-  entries {
-    index: 373
     tag: SYMANNOT
-    sym: 23
+    sym: 17
     tpe: 308
     args {
       tag: ANNOTARG
-      value: 374
+      value: 311
     }
     args {
       tag: ANNOTARG
@@ -2643,47 +2487,217 @@ scalasig {
     }
   }
   entries {
+    index: 348
+    tag: TERMname
+    value: "Manifest"
+  }
+  entries {
+    index: 349
+    tag: POLYtpe
+    tpe: 350
+  }
+  entries {
+    index: 350
+    tag: SINGLEtpe
+    pre: 327
+    sym: 351
+  }
+  entries {
+    index: 351
+    tag: EXTref
+    name: 352
+    owner: 302
+  }
+  entries {
+    index: 352
+    tag: TERMname
+    value: "ManifestFactory"
+  }
+  entries {
+    index: 353
+    tag: TERMname
+    value: "Manifest "
+  }
+  entries {
+    index: 354
+    tag: TERMname
+    value: "NoManifest"
+  }
+  entries {
+    index: 355
+    tag: POLYtpe
+    tpe: 356
+  }
+  entries {
+    index: 356
+    tag: SINGLEtpe
+    pre: 292
+    sym: 357
+  }
+  entries {
+    index: 357
+    tag: EXTref
+    name: 354
+    owner: 302
+  }
+  entries {
+    index: 358
+    tag: TERMname
+    value: "NoManifest "
+  }
+  entries {
+    index: 359
+    tag: TERMname
+    value: "manifest"
+  }
+  entries {
+    index: 360
+    tag: POLYtpe
+    tpe: 361
+    params: 364
+  }
+  entries {
+    index: 361
+    tag: METHODtpe
+    ret: 362
+    params: 365
+  }
+  entries {
+    index: 362
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 15
+    targs: 363
+  }
+  entries {
+    index: 363
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 364
+  }
+  entries {
+    index: 364
+    tag: TYPEsym
+    name: 232
+    owner: 22
+    flags: DEFERRED | PARAM
+    info: 233
+  }
+  entries {
+    index: 365
+    tag: VALsym
+    name: 366
+    owner: 22
+    flags: IMPLICIT | PARAM
+    info: 362
+  }
+  entries {
+    index: 366
+    tag: TERMname
+    value: "m"
+  }
+  entries {
+    index: 367
+    tag: TERMname
+    value: "classManifest"
+  }
+  entries {
+    index: 368
+    tag: POLYtpe
+    tpe: 369
+    params: 372
+  }
+  entries {
+    index: 369
+    tag: METHODtpe
+    ret: 370
+    params: 373
+  }
+  entries {
+    index: 370
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 13
+    targs: 371
+  }
+  entries {
+    index: 371
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 372
+  }
+  entries {
+    index: 372
+    tag: TYPEsym
+    name: 232
+    owner: 23
+    flags: DEFERRED | PARAM
+    info: 233
+  }
+  entries {
+    index: 373
+    tag: VALsym
+    name: 366
+    owner: 23
+    flags: IMPLICIT | PARAM
+    info: 370
+  }
+  entries {
     index: 374
-    tag: LITERALstring
-    name: 375
+    tag: SYMANNOT
+    sym: 23
+    tpe: 308
+    args {
+      tag: ANNOTARG
+      value: 375
+    }
+    args {
+      tag: ANNOTARG
+      value: 313
+    }
   }
   entries {
     index: 375
-    tag: TERMname
-    value: "use scala.reflect.classTag[T] instead"
+    tag: LITERALstring
+    name: 376
   }
   entries {
     index: 376
     tag: TERMname
-    value: "optManifest"
+    value: "use scala.reflect.classTag[T] instead"
   }
   entries {
     index: 377
-    tag: POLYtpe
-    tpe: 378
-    params: 381
+    tag: TERMname
+    value: "optManifest"
   }
   entries {
     index: 378
-    tag: METHODtpe
-    ret: 379
+    tag: POLYtpe
+    tpe: 379
     params: 382
   }
   entries {
     index: 379
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 14
-    targs: 380
+    tag: METHODtpe
+    ret: 380
+    params: 383
   }
   entries {
     index: 380
     tag: TYPEREFtpe
-    pre: 230
-    sym: 381
+    pre: 219
+    sym: 14
+    targs: 381
   }
   entries {
     index: 381
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 382
+  }
+  entries {
+    index: 382
     tag: TYPEsym
     name: 232
     owner: 24
@@ -2691,38 +2705,38 @@ scalasig {
     info: 233
   }
   entries {
-    index: 382
+    index: 383
     tag: VALsym
-    name: 365
+    name: 366
     owner: 24
     flags: IMPLICIT | PARAM
-    info: 379
+    info: 380
   }
   entries {
-    index: 383
+    index: 384
     tag: TERMname
     value: "identity"
   }
   entries {
-    index: 384
-    tag: POLYtpe
-    tpe: 385
-    params: 387
-  }
-  entries {
     index: 385
-    tag: METHODtpe
-    ret: 386
+    tag: POLYtpe
+    tpe: 386
     params: 388
   }
   entries {
     index: 386
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 387
+    tag: METHODtpe
+    ret: 387
+    params: 389
   }
   entries {
     index: 387
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 388
+  }
+  entries {
+    index: 388
     tag: TYPEsym
     name: 252
     owner: 25
@@ -2730,66 +2744,66 @@ scalasig {
     info: 233
   }
   entries {
-    index: 388
+    index: 389
     tag: VALsym
-    name: 389
+    name: 390
     owner: 25
     flags: PARAM
-    info: 386
+    info: 387
   }
   entries {
-    index: 389
+    index: 390
     tag: TERMname
     value: "x"
   }
   entries {
-    index: 390
+    index: 391
     tag: SYMANNOT
     sym: 25
-    tpe: 391
-  }
-  entries {
-    index: 391
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 392
+    tpe: 392
   }
   entries {
     index: 392
-    tag: EXTref
-    name: 393
-    owner: 200
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 393
   }
   entries {
     index: 393
+    tag: EXTref
+    name: 394
+    owner: 200
+  }
+  entries {
+    index: 394
     tag: TYPEname
     value: "inline"
   }
   entries {
-    index: 394
+    index: 395
     tag: TERMname
     value: "implicitly"
   }
   entries {
-    index: 395
-    tag: POLYtpe
-    tpe: 396
-    params: 398
-  }
-  entries {
     index: 396
-    tag: METHODtpe
-    ret: 397
+    tag: POLYtpe
+    tpe: 397
     params: 399
   }
   entries {
     index: 397
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 398
+    tag: METHODtpe
+    ret: 398
+    params: 400
   }
   entries {
     index: 398
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 399
+  }
+  entries {
+    index: 399
     tag: TYPEsym
     name: 232
     owner: 26
@@ -2797,49 +2811,49 @@ scalasig {
     info: 233
   }
   entries {
-    index: 399
+    index: 400
     tag: VALsym
-    name: 400
+    name: 401
     owner: 26
     flags: IMPLICIT | PARAM
-    info: 397
+    info: 398
   }
   entries {
-    index: 400
+    index: 401
     tag: TERMname
     value: "e"
   }
   entries {
-    index: 401
+    index: 402
     tag: SYMANNOT
     sym: 26
-    tpe: 391
+    tpe: 392
   }
   entries {
-    index: 402
+    index: 403
     tag: TERMname
     value: "locally"
   }
   entries {
-    index: 403
-    tag: POLYtpe
-    tpe: 404
-    params: 406
-  }
-  entries {
     index: 404
-    tag: METHODtpe
-    ret: 405
+    tag: POLYtpe
+    tpe: 405
     params: 407
   }
   entries {
     index: 405
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 406
+    tag: METHODtpe
+    ret: 406
+    params: 408
   }
   entries {
     index: 406
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 407
+  }
+  entries {
+    index: 407
     tag: TYPEsym
     name: 232
     owner: 27
@@ -2847,346 +2861,346 @@ scalasig {
     info: 233
   }
   entries {
-    index: 407
+    index: 408
     tag: VALsym
-    name: 389
+    name: 390
     owner: 27
     flags: PARAM
-    info: 405
-  }
-  entries {
-    index: 408
-    tag: SYMANNOT
-    sym: 27
-    tpe: 391
+    info: 406
   }
   entries {
     index: 409
+    tag: SYMANNOT
+    sym: 27
+    tpe: 392
+  }
+  entries {
+    index: 410
     tag: TERMname
     value: "assert"
   }
   entries {
-    index: 410
-    tag: METHODtpe
-    ret: 411
-    params: 414
-  }
-  entries {
     index: 411
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 412
+    tag: METHODtpe
+    ret: 412
+    params: 415
   }
   entries {
     index: 412
-    tag: EXTref
-    name: 413
-    owner: 200
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 413
   }
   entries {
     index: 413
+    tag: EXTref
+    name: 414
+    owner: 200
+  }
+  entries {
+    index: 414
     tag: TYPEname
     value: "Unit"
   }
   entries {
-    index: 414
+    index: 415
     tag: VALsym
-    name: 415
+    name: 416
     owner: 28
     flags: PARAM
-    info: 416
+    info: 417
   }
   entries {
-    index: 415
+    index: 416
     tag: TERMname
     value: "assertion"
   }
   entries {
-    index: 416
+    index: 417
     tag: TYPEREFtpe
     pre: 204
-    sym: 417
-  }
-  entries {
-    index: 417
-    tag: EXTref
-    name: 418
-    owner: 200
+    sym: 418
   }
   entries {
     index: 418
+    tag: EXTref
+    name: 419
+    owner: 200
+  }
+  entries {
+    index: 419
     tag: TYPEname
     value: "Boolean"
   }
   entries {
-    index: 419
+    index: 420
     tag: SYMANNOT
     sym: 28
-    tpe: 420
+    tpe: 421
     args {
       tag: ANNOTARG
-      value: 423
+      value: 424
     }
   }
   entries {
-    index: 420
+    index: 421
     tag: TYPEREFtpe
     pre: 317
-    sym: 421
-  }
-  entries {
-    index: 421
-    tag: EXTref
-    name: 422
-    owner: 318
+    sym: 422
   }
   entries {
     index: 422
+    tag: EXTref
+    name: 423
+    owner: 318
+  }
+  entries {
+    index: 423
     tag: TYPEname
     value: "elidable"
   }
   entries {
-    index: 423
+    index: 424
     tag: LITERALint
     value: 2000
   }
   entries {
-    index: 424
-    tag: METHODtpe
-    ret: 411
-    params: 425
-    params: 426
-  }
-  entries {
     index: 425
-    tag: VALsym
-    name: 415
-    owner: 29
-    flags: PARAM
-    info: 416
+    tag: METHODtpe
+    ret: 412
+    params: 426
+    params: 427
   }
   entries {
     index: 426
     tag: VALsym
-    name: 427
+    name: 416
     owner: 29
-    flags: PARAM | BYNAMEPARAM
-    info: 428
+    flags: PARAM
+    info: 417
   }
   entries {
     index: 427
+    tag: VALsym
+    name: 428
+    owner: 29
+    flags: PARAM | BYNAMEPARAM
+    info: 429
+  }
+  entries {
+    index: 428
     tag: TERMname
     value: "message"
   }
   entries {
-    index: 428
+    index: 429
     tag: TYPEREFtpe
     pre: 204
-    sym: 429
+    sym: 430
     targs: 237
   }
   entries {
-    index: 429
+    index: 430
     tag: EXTref
-    name: 430
+    name: 431
     owner: 200
   }
   entries {
-    index: 430
+    index: 431
     tag: TYPEname
     value: "<byname>"
-  }
-  entries {
-    index: 431
-    tag: SYMANNOT
-    sym: 29
-    tpe: 391
   }
   entries {
     index: 432
     tag: SYMANNOT
     sym: 29
-    tpe: 420
-    args {
-      tag: ANNOTARG
-      value: 423
-    }
+    tpe: 392
   }
   entries {
     index: 433
+    tag: SYMANNOT
+    sym: 29
+    tpe: 421
+    args {
+      tag: ANNOTARG
+      value: 424
+    }
+  }
+  entries {
+    index: 434
     tag: TERMname
     value: "assume"
   }
   entries {
-    index: 434
-    tag: METHODtpe
-    ret: 411
-    params: 435
-  }
-  entries {
     index: 435
-    tag: VALsym
-    name: 436
-    owner: 30
-    flags: PARAM
-    info: 416
+    tag: METHODtpe
+    ret: 412
+    params: 436
   }
   entries {
     index: 436
+    tag: VALsym
+    name: 437
+    owner: 30
+    flags: PARAM
+    info: 417
+  }
+  entries {
+    index: 437
     tag: TERMname
     value: "assumption"
   }
   entries {
-    index: 437
+    index: 438
     tag: SYMANNOT
     sym: 30
-    tpe: 420
+    tpe: 421
     args {
       tag: ANNOTARG
-      value: 423
+      value: 424
     }
   }
   entries {
-    index: 438
-    tag: METHODtpe
-    ret: 411
-    params: 439
-    params: 440
-  }
-  entries {
     index: 439
-    tag: VALsym
-    name: 436
-    owner: 31
-    flags: PARAM
-    info: 416
+    tag: METHODtpe
+    ret: 412
+    params: 440
+    params: 441
   }
   entries {
     index: 440
     tag: VALsym
-    name: 427
+    name: 437
     owner: 31
-    flags: PARAM | BYNAMEPARAM
-    info: 428
+    flags: PARAM
+    info: 417
   }
   entries {
     index: 441
-    tag: SYMANNOT
-    sym: 31
-    tpe: 391
+    tag: VALsym
+    name: 428
+    owner: 31
+    flags: PARAM | BYNAMEPARAM
+    info: 429
   }
   entries {
     index: 442
     tag: SYMANNOT
     sym: 31
-    tpe: 420
-    args {
-      tag: ANNOTARG
-      value: 423
-    }
+    tpe: 392
   }
   entries {
     index: 443
+    tag: SYMANNOT
+    sym: 31
+    tpe: 421
+    args {
+      tag: ANNOTARG
+      value: 424
+    }
+  }
+  entries {
+    index: 444
     tag: TERMname
     value: "require"
   }
   entries {
-    index: 444
-    tag: METHODtpe
-    ret: 411
-    params: 445
-  }
-  entries {
     index: 445
-    tag: VALsym
-    name: 446
-    owner: 32
-    flags: PARAM
-    info: 416
+    tag: METHODtpe
+    ret: 412
+    params: 446
   }
   entries {
     index: 446
+    tag: VALsym
+    name: 447
+    owner: 32
+    flags: PARAM
+    info: 417
+  }
+  entries {
+    index: 447
     tag: TERMname
     value: "requirement"
   }
   entries {
-    index: 447
-    tag: METHODtpe
-    ret: 411
-    params: 448
-    params: 449
-  }
-  entries {
     index: 448
-    tag: VALsym
-    name: 446
-    owner: 33
-    flags: PARAM
-    info: 416
+    tag: METHODtpe
+    ret: 412
+    params: 449
+    params: 450
   }
   entries {
     index: 449
     tag: VALsym
-    name: 427
+    name: 447
     owner: 33
-    flags: PARAM | BYNAMEPARAM
-    info: 428
+    flags: PARAM
+    info: 417
   }
   entries {
     index: 450
-    tag: SYMANNOT
-    sym: 33
-    tpe: 391
+    tag: VALsym
+    name: 428
+    owner: 33
+    flags: PARAM | BYNAMEPARAM
+    info: 429
   }
   entries {
     index: 451
+    tag: SYMANNOT
+    sym: 33
+    tpe: 392
+  }
+  entries {
+    index: 452
     tag: TERMname
     value: "$qmark$qmark$qmark"
   }
   entries {
-    index: 452
+    index: 453
     tag: POLYtpe
     tpe: 234
   }
   entries {
-    index: 453
+    index: 454
     tag: TYPEname
     value: "Pair"
   }
   entries {
-    index: 454
-    tag: POLYtpe
-    tpe: 455
-    params: 459
-    params: 461
-  }
-  entries {
     index: 455
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 456
-    targs: 458
-    targs: 460
+    tag: POLYtpe
+    tpe: 456
+    params: 460
+    params: 462
   }
   entries {
     index: 456
-    tag: EXTref
-    name: 457
-    owner: 200
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 457
+    targs: 459
+    targs: 461
   }
   entries {
     index: 457
+    tag: EXTref
+    name: 458
+    owner: 200
+  }
+  entries {
+    index: 458
     tag: TYPEname
     value: "Tuple2"
   }
   entries {
-    index: 458
+    index: 459
     tag: TYPEREFtpe
     pre: 230
-    sym: 459
+    sym: 460
   }
   entries {
-    index: 459
+    index: 460
     tag: TYPEsym
     name: 252
     owner: 35
@@ -3194,13 +3208,13 @@ scalasig {
     info: 233
   }
   entries {
-    index: 460
+    index: 461
     tag: TYPEREFtpe
     pre: 230
-    sym: 461
+    sym: 462
   }
   entries {
-    index: 461
+    index: 462
     tag: TYPEsym
     name: 255
     owner: 35
@@ -3208,113 +3222,113 @@ scalasig {
     info: 233
   }
   entries {
-    index: 462
+    index: 463
     tag: SYMANNOT
     sym: 35
     tpe: 308
     args {
       tag: ANNOTARG
-      value: 463
+      value: 464
     }
     args {
       tag: ANNOTARG
-      value: 465
+      value: 466
     }
   }
   entries {
-    index: 463
+    index: 464
     tag: LITERALstring
-    name: 464
+    name: 465
   }
   entries {
-    index: 464
+    index: 465
     tag: TERMname
     value: "use built-in tuple syntax or Tuple2 instead"
   }
   entries {
-    index: 465
-    tag: LITERALstring
-    name: 466
-  }
-  entries {
     index: 466
-    tag: TERMname
-    value: "2.11.0"
+    tag: LITERALstring
+    name: 467
   }
   entries {
     index: 467
     tag: TERMname
-    value: "Pair"
+    value: "2.11.0"
   }
   entries {
     index: 468
+    tag: TERMname
+    value: "Pair"
+  }
+  entries {
+    index: 469
     tag: TYPEREFtpe
     pre: 219
     sym: 37
   }
   entries {
-    index: 469
+    index: 470
     tag: CLASSINFOtpe
     sym: 37
-    parents: 470
-  }
-  entries {
-    index: 470
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 471
+    parents: 471
   }
   entries {
     index: 471
-    tag: EXTref
-    name: 472
-    owner: 200
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 472
   }
   entries {
     index: 472
+    tag: EXTref
+    name: 473
+    owner: 200
+  }
+  entries {
+    index: 473
     tag: TYPEname
     value: "AnyRef"
   }
   entries {
-    index: 473
+    index: 474
     tag: METHODtpe
-    ret: 468
+    ret: 469
   }
   entries {
-    index: 474
+    index: 475
     tag: TERMname
     value: "apply"
   }
   entries {
-    index: 475
-    tag: POLYtpe
-    tpe: 476
-    params: 479
-    params: 481
-  }
-  entries {
     index: 476
-    tag: METHODtpe
-    ret: 477
+    tag: POLYtpe
+    tpe: 477
+    params: 480
     params: 482
-    params: 483
   }
   entries {
     index: 477
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 456
-    targs: 478
-    targs: 480
+    tag: METHODtpe
+    ret: 478
+    params: 483
+    params: 484
   }
   entries {
     index: 478
     tag: TYPEREFtpe
-    pre: 230
-    sym: 479
+    pre: 204
+    sym: 457
+    targs: 479
+    targs: 481
   }
   entries {
     index: 479
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 480
+  }
+  entries {
+    index: 480
     tag: TYPEsym
     name: 252
     owner: 39
@@ -3322,92 +3336,92 @@ scalasig {
     info: 233
   }
   entries {
-    index: 480
+    index: 481
     tag: TYPEREFtpe
     pre: 230
-    sym: 481
+    sym: 482
   }
   entries {
-    index: 481
+    index: 482
     tag: TYPEsym
     name: 255
     owner: 39
     flags: DEFERRED | PARAM
     info: 233
-  }
-  entries {
-    index: 482
-    tag: VALsym
-    name: 389
-    owner: 39
-    flags: PARAM
-    info: 478
   }
   entries {
     index: 483
     tag: VALsym
-    name: 484
+    name: 390
     owner: 39
     flags: PARAM
-    info: 480
+    info: 479
   }
   entries {
     index: 484
-    tag: TERMname
-    value: "y"
+    tag: VALsym
+    name: 485
+    owner: 39
+    flags: PARAM
+    info: 481
   }
   entries {
     index: 485
     tag: TERMname
-    value: "unapply"
+    value: "y"
   }
   entries {
     index: 486
-    tag: POLYtpe
-    tpe: 487
-    params: 493
-    params: 495
+    tag: TERMname
+    value: "unapply"
   }
   entries {
     index: 487
-    tag: METHODtpe
-    ret: 488
+    tag: POLYtpe
+    tpe: 488
+    params: 494
     params: 496
   }
   entries {
     index: 488
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 489
-    targs: 491
+    tag: METHODtpe
+    ret: 489
+    params: 497
   }
   entries {
     index: 489
-    tag: EXTref
-    name: 490
-    owner: 200
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 490
+    targs: 492
   }
   entries {
     index: 490
+    tag: EXTref
+    name: 491
+    owner: 200
+  }
+  entries {
+    index: 491
     tag: TYPEname
     value: "Option"
   }
   entries {
-    index: 491
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 456
-    targs: 492
-    targs: 494
-  }
-  entries {
     index: 492
     tag: TYPEREFtpe
-    pre: 230
-    sym: 493
+    pre: 204
+    sym: 457
+    targs: 493
+    targs: 495
   }
   entries {
     index: 493
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 494
+  }
+  entries {
+    index: 494
     tag: TYPEsym
     name: 252
     owner: 40
@@ -3415,13 +3429,13 @@ scalasig {
     info: 233
   }
   entries {
-    index: 494
+    index: 495
     tag: TYPEREFtpe
     pre: 230
-    sym: 495
+    sym: 496
   }
   entries {
-    index: 495
+    index: 496
     tag: TYPEsym
     name: 255
     owner: 40
@@ -3429,82 +3443,82 @@ scalasig {
     info: 233
   }
   entries {
-    index: 496
+    index: 497
     tag: VALsym
-    name: 389
+    name: 390
     owner: 40
     flags: PARAM
-    info: 491
+    info: 492
   }
   entries {
-    index: 497
+    index: 498
     tag: SYMANNOT
     sym: 37
     tpe: 308
     args {
       tag: ANNOTARG
-      value: 463
+      value: 464
     }
     args {
       tag: ANNOTARG
-      value: 465
+      value: 466
     }
   }
   entries {
-    index: 498
+    index: 499
     tag: SYMANNOT
     sym: 36
     tpe: 308
     args {
       tag: ANNOTARG
-      value: 463
+      value: 464
     }
     args {
       tag: ANNOTARG
-      value: 465
+      value: 466
     }
   }
   entries {
-    index: 499
+    index: 500
     tag: TYPEname
     value: "Triple"
   }
   entries {
-    index: 500
-    tag: POLYtpe
-    tpe: 501
-    params: 505
-    params: 507
-    params: 509
-  }
-  entries {
     index: 501
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 502
-    targs: 504
-    targs: 506
-    targs: 508
+    tag: POLYtpe
+    tpe: 502
+    params: 506
+    params: 508
+    params: 510
   }
   entries {
     index: 502
-    tag: EXTref
-    name: 503
-    owner: 200
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 503
+    targs: 505
+    targs: 507
+    targs: 509
   }
   entries {
     index: 503
+    tag: EXTref
+    name: 504
+    owner: 200
+  }
+  entries {
+    index: 504
     tag: TYPEname
     value: "Tuple3"
   }
   entries {
-    index: 504
+    index: 505
     tag: TYPEREFtpe
     pre: 230
-    sym: 505
+    sym: 506
   }
   entries {
-    index: 505
+    index: 506
     tag: TYPEsym
     name: 252
     owner: 41
@@ -3512,13 +3526,13 @@ scalasig {
     info: 233
   }
   entries {
-    index: 506
+    index: 507
     tag: TYPEREFtpe
     pre: 230
-    sym: 507
+    sym: 508
   }
   entries {
-    index: 507
+    index: 508
     tag: TYPEsym
     name: 255
     owner: 41
@@ -3526,103 +3540,103 @@ scalasig {
     info: 233
   }
   entries {
-    index: 508
+    index: 509
     tag: TYPEREFtpe
     pre: 230
-    sym: 509
+    sym: 510
   }
   entries {
-    index: 509
+    index: 510
     tag: TYPEsym
-    name: 510
+    name: 511
     owner: 41
     flags: DEFERRED | PARAM | COVARIANT
     info: 233
   }
   entries {
-    index: 510
+    index: 511
     tag: TYPEname
     value: "C"
   }
   entries {
-    index: 511
+    index: 512
     tag: SYMANNOT
     sym: 41
     tpe: 308
     args {
       tag: ANNOTARG
-      value: 512
+      value: 513
     }
     args {
       tag: ANNOTARG
-      value: 465
+      value: 466
     }
   }
   entries {
-    index: 512
-    tag: LITERALstring
-    name: 513
-  }
-  entries {
     index: 513
-    tag: TERMname
-    value: "use built-in tuple syntax or Tuple3 instead"
+    tag: LITERALstring
+    name: 514
   }
   entries {
     index: 514
     tag: TERMname
-    value: "Triple"
+    value: "use built-in tuple syntax or Tuple3 instead"
   }
   entries {
     index: 515
+    tag: TERMname
+    value: "Triple"
+  }
+  entries {
+    index: 516
     tag: TYPEREFtpe
     pre: 219
     sym: 43
   }
   entries {
-    index: 516
+    index: 517
     tag: CLASSINFOtpe
     sym: 43
-    parents: 470
-  }
-  entries {
-    index: 517
-    tag: METHODtpe
-    ret: 515
+    parents: 471
   }
   entries {
     index: 518
-    tag: POLYtpe
-    tpe: 519
-    params: 522
-    params: 524
-    params: 526
+    tag: METHODtpe
+    ret: 516
   }
   entries {
     index: 519
-    tag: METHODtpe
-    ret: 520
+    tag: POLYtpe
+    tpe: 520
+    params: 523
+    params: 525
     params: 527
-    params: 528
-    params: 529
   }
   entries {
     index: 520
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 502
-    targs: 521
-    targs: 523
-    targs: 525
+    tag: METHODtpe
+    ret: 521
+    params: 528
+    params: 529
+    params: 530
   }
   entries {
     index: 521
     tag: TYPEREFtpe
-    pre: 230
-    sym: 522
+    pre: 204
+    sym: 503
+    targs: 522
+    targs: 524
+    targs: 526
   }
   entries {
     index: 522
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 523
+  }
+  entries {
+    index: 523
     tag: TYPEsym
     name: 252
     owner: 45
@@ -3630,13 +3644,13 @@ scalasig {
     info: 233
   }
   entries {
-    index: 523
+    index: 524
     tag: TYPEREFtpe
     pre: 230
-    sym: 524
+    sym: 525
   }
   entries {
-    index: 524
+    index: 525
     tag: TYPEsym
     name: 255
     owner: 45
@@ -3644,86 +3658,86 @@ scalasig {
     info: 233
   }
   entries {
-    index: 525
+    index: 526
     tag: TYPEREFtpe
     pre: 230
-    sym: 526
+    sym: 527
   }
   entries {
-    index: 526
+    index: 527
     tag: TYPEsym
-    name: 510
+    name: 511
     owner: 45
     flags: DEFERRED | PARAM
     info: 233
   }
   entries {
-    index: 527
-    tag: VALsym
-    name: 389
-    owner: 45
-    flags: PARAM
-    info: 521
-  }
-  entries {
     index: 528
     tag: VALsym
-    name: 484
+    name: 390
     owner: 45
     flags: PARAM
-    info: 523
+    info: 522
   }
   entries {
     index: 529
     tag: VALsym
-    name: 530
+    name: 485
     owner: 45
     flags: PARAM
-    info: 525
+    info: 524
   }
   entries {
     index: 530
+    tag: VALsym
+    name: 531
+    owner: 45
+    flags: PARAM
+    info: 526
+  }
+  entries {
+    index: 531
     tag: TERMname
     value: "z"
   }
   entries {
-    index: 531
-    tag: POLYtpe
-    tpe: 532
-    params: 536
-    params: 538
-    params: 540
-  }
-  entries {
     index: 532
-    tag: METHODtpe
-    ret: 533
+    tag: POLYtpe
+    tpe: 533
+    params: 537
+    params: 539
     params: 541
   }
   entries {
     index: 533
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 489
-    targs: 534
+    tag: METHODtpe
+    ret: 534
+    params: 542
   }
   entries {
     index: 534
     tag: TYPEREFtpe
     pre: 204
-    sym: 502
+    sym: 490
     targs: 535
-    targs: 537
-    targs: 539
   }
   entries {
     index: 535
     tag: TYPEREFtpe
-    pre: 230
-    sym: 536
+    pre: 204
+    sym: 503
+    targs: 536
+    targs: 538
+    targs: 540
   }
   entries {
     index: 536
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 537
+  }
+  entries {
+    index: 537
     tag: TYPEsym
     name: 252
     owner: 46
@@ -3731,13 +3745,13 @@ scalasig {
     info: 233
   }
   entries {
-    index: 537
+    index: 538
     tag: TYPEREFtpe
     pre: 230
-    sym: 538
+    sym: 539
   }
   entries {
-    index: 538
+    index: 539
     tag: TYPEsym
     name: 255
     owner: 46
@@ -3745,107 +3759,107 @@ scalasig {
     info: 233
   }
   entries {
-    index: 539
+    index: 540
     tag: TYPEREFtpe
     pre: 230
-    sym: 540
+    sym: 541
   }
   entries {
-    index: 540
+    index: 541
     tag: TYPEsym
-    name: 510
+    name: 511
     owner: 46
     flags: DEFERRED | PARAM
     info: 233
   }
   entries {
-    index: 541
+    index: 542
     tag: VALsym
-    name: 389
+    name: 390
     owner: 46
     flags: PARAM
-    info: 534
+    info: 535
   }
   entries {
-    index: 542
+    index: 543
     tag: SYMANNOT
     sym: 43
     tpe: 308
     args {
       tag: ANNOTARG
-      value: 512
+      value: 513
     }
     args {
       tag: ANNOTARG
-      value: 465
+      value: 466
     }
   }
   entries {
-    index: 543
+    index: 544
     tag: SYMANNOT
     sym: 42
     tpe: 308
     args {
       tag: ANNOTARG
-      value: 512
+      value: 513
     }
     args {
       tag: ANNOTARG
-      value: 465
+      value: 466
     }
   }
   entries {
-    index: 544
+    index: 545
     tag: TYPEname
     value: "ArrowAssoc"
   }
   entries {
-    index: 545
-    tag: POLYtpe
-    tpe: 546
-    params: 553
-  }
-  entries {
     index: 546
-    tag: CLASSINFOtpe
-    sym: 47
-    parents: 547
+    tag: POLYtpe
+    tpe: 547
+    params: 554
   }
   entries {
     index: 547
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 548
+    tag: CLASSINFOtpe
+    sym: 47
+    parents: 548
   }
   entries {
     index: 548
-    tag: EXTref
-    name: 549
-    owner: 200
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 549
   }
   entries {
     index: 549
+    tag: EXTref
+    name: 550
+    owner: 200
+  }
+  entries {
+    index: 550
     tag: TYPEname
     value: "AnyVal"
   }
   entries {
-    index: 550
+    index: 551
     tag: TERMname
     value: "scala$Predef$ArrowAssoc$$self"
   }
   entries {
-    index: 551
-    tag: POLYtpe
-    tpe: 552
-  }
-  entries {
     index: 552
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 553
+    tag: POLYtpe
+    tpe: 553
   }
   entries {
     index: 553
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 554
+  }
+  entries {
+    index: 554
     tag: TYPEsym
     name: 252
     owner: 47
@@ -3853,69 +3867,69 @@ scalasig {
     info: 233
   }
   entries {
-    index: 554
+    index: 555
     tag: TERMname
     value: "scala$Predef$ArrowAssoc$$self "
   }
   entries {
-    index: 555
-    tag: METHODtpe
-    ret: 556
-    params: 557
-  }
-  entries {
     index: 556
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 47
-    targs: 552
+    tag: METHODtpe
+    ret: 557
+    params: 558
   }
   entries {
     index: 557
-    tag: VALsym
-    name: 558
-    owner: 50
-    flags: PARAM
-    info: 552
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 47
+    targs: 553
   }
   entries {
     index: 558
-    tag: TERMname
-    value: "self"
+    tag: VALsym
+    name: 559
+    owner: 50
+    flags: PARAM
+    info: 553
   }
   entries {
     index: 559
     tag: TERMname
-    value: "$minus$greater"
+    value: "self"
   }
   entries {
     index: 560
-    tag: POLYtpe
-    tpe: 561
-    params: 564
+    tag: TERMname
+    value: "$minus$greater"
   }
   entries {
     index: 561
-    tag: METHODtpe
-    ret: 562
+    tag: POLYtpe
+    tpe: 562
     params: 565
   }
   entries {
     index: 562
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 456
-    targs: 552
-    targs: 563
+    tag: METHODtpe
+    ret: 563
+    params: 566
   }
   entries {
     index: 563
     tag: TYPEREFtpe
-    pre: 230
-    sym: 564
+    pre: 204
+    sym: 457
+    targs: 553
+    targs: 564
   }
   entries {
     index: 564
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 565
+  }
+  entries {
+    index: 565
     tag: TYPEsym
     name: 255
     owner: 51
@@ -3923,52 +3937,52 @@ scalasig {
     info: 233
   }
   entries {
-    index: 565
+    index: 566
     tag: VALsym
-    name: 484
+    name: 485
     owner: 51
     flags: PARAM
-    info: 563
-  }
-  entries {
-    index: 566
-    tag: SYMANNOT
-    sym: 51
-    tpe: 391
+    info: 564
   }
   entries {
     index: 567
+    tag: SYMANNOT
+    sym: 51
+    tpe: 392
+  }
+  entries {
+    index: 568
     tag: TERMname
     value: "$u2192"
   }
   entries {
-    index: 568
-    tag: POLYtpe
-    tpe: 569
-    params: 572
-  }
-  entries {
     index: 569
-    tag: METHODtpe
-    ret: 570
+    tag: POLYtpe
+    tpe: 570
     params: 573
   }
   entries {
     index: 570
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 456
-    targs: 552
-    targs: 571
+    tag: METHODtpe
+    ret: 571
+    params: 574
   }
   entries {
     index: 571
     tag: TYPEREFtpe
-    pre: 230
-    sym: 572
+    pre: 204
+    sym: 457
+    targs: 553
+    targs: 572
   }
   entries {
     index: 572
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 573
+  }
+  entries {
+    index: 573
     tag: TYPEsym
     name: 255
     owner: 52
@@ -3976,96 +3990,96 @@ scalasig {
     info: 233
   }
   entries {
-    index: 573
+    index: 574
     tag: VALsym
-    name: 484
+    name: 485
     owner: 52
     flags: PARAM
-    info: 571
+    info: 572
   }
   entries {
-    index: 574
+    index: 575
     tag: TERMname
     value: "hashCode"
   }
   entries {
-    index: 575
-    tag: METHODtpe
-    ret: 576
-  }
-  entries {
     index: 576
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 577
+    tag: METHODtpe
+    ret: 577
   }
   entries {
     index: 577
-    tag: EXTref
-    name: 578
-    owner: 200
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 578
   }
   entries {
     index: 578
+    tag: EXTref
+    name: 579
+    owner: 200
+  }
+  entries {
+    index: 579
     tag: TYPEname
     value: "Int"
   }
   entries {
-    index: 579
+    index: 580
     tag: TERMname
     value: "equals"
   }
   entries {
-    index: 580
+    index: 581
     tag: METHODtpe
-    ret: 416
-    params: 581
+    ret: 417
+    params: 582
   }
   entries {
-    index: 581
+    index: 582
     tag: VALsym
-    name: 582
+    name: 583
     owner: 54
     flags: PARAM | SYNTHETIC
     info: 237
   }
   entries {
-    index: 582
+    index: 583
     tag: TERMname
     value: "x$1"
   }
   entries {
-    index: 583
+    index: 584
     tag: TERMname
     value: "ArrowAssoc"
   }
   entries {
-    index: 584
-    tag: POLYtpe
-    tpe: 585
-    params: 588
-  }
-  entries {
     index: 585
-    tag: METHODtpe
-    ret: 586
+    tag: POLYtpe
+    tpe: 586
     params: 589
   }
   entries {
     index: 586
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 47
-    targs: 587
+    tag: METHODtpe
+    ret: 587
+    params: 590
   }
   entries {
     index: 587
     tag: TYPEREFtpe
-    pre: 230
-    sym: 588
+    pre: 219
+    sym: 47
+    targs: 588
   }
   entries {
     index: 588
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 589
+  }
+  entries {
+    index: 589
     tag: TYPEsym
     name: 252
     owner: 55
@@ -4073,48 +4087,48 @@ scalasig {
     info: 233
   }
   entries {
-    index: 589
+    index: 590
     tag: VALsym
-    name: 558
+    name: 559
     owner: 55
     flags: PARAM
-    info: 587
+    info: 588
   }
   entries {
-    index: 590
+    index: 591
     tag: TYPEname
     value: "Ensuring"
   }
   entries {
-    index: 591
-    tag: POLYtpe
-    tpe: 592
-    params: 596
-  }
-  entries {
     index: 592
-    tag: CLASSINFOtpe
-    sym: 56
-    parents: 547
+    tag: POLYtpe
+    tpe: 593
+    params: 597
   }
   entries {
     index: 593
+    tag: CLASSINFOtpe
+    sym: 56
+    parents: 548
+  }
+  entries {
+    index: 594
     tag: TERMname
     value: "scala$Predef$Ensuring$$self"
   }
   entries {
-    index: 594
-    tag: POLYtpe
-    tpe: 595
-  }
-  entries {
     index: 595
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 596
+    tag: POLYtpe
+    tpe: 596
   }
   entries {
     index: 596
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 597
+  }
+  entries {
+    index: 597
     tag: TYPEsym
     name: 252
     owner: 56
@@ -4122,174 +4136,174 @@ scalasig {
     info: 233
   }
   entries {
-    index: 597
+    index: 598
     tag: TERMname
     value: "scala$Predef$Ensuring$$self "
   }
   entries {
-    index: 598
-    tag: METHODtpe
-    ret: 599
-    params: 600
-  }
-  entries {
     index: 599
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 56
-    targs: 595
+    tag: METHODtpe
+    ret: 600
+    params: 601
   }
   entries {
     index: 600
-    tag: VALsym
-    name: 558
-    owner: 59
-    flags: PARAM
-    info: 595
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 56
+    targs: 596
   }
   entries {
     index: 601
+    tag: VALsym
+    name: 559
+    owner: 59
+    flags: PARAM
+    info: 596
+  }
+  entries {
+    index: 602
     tag: TERMname
     value: "ensuring"
   }
   entries {
-    index: 602
-    tag: METHODtpe
-    ret: 595
-    params: 603
-  }
-  entries {
     index: 603
-    tag: VALsym
-    name: 604
-    owner: 60
-    flags: PARAM
-    info: 416
+    tag: METHODtpe
+    ret: 596
+    params: 604
   }
   entries {
     index: 604
+    tag: VALsym
+    name: 605
+    owner: 60
+    flags: PARAM
+    info: 417
+  }
+  entries {
+    index: 605
     tag: TERMname
     value: "cond"
   }
   entries {
-    index: 605
-    tag: METHODtpe
-    ret: 595
-    params: 606
-    params: 607
-  }
-  entries {
     index: 606
-    tag: VALsym
-    name: 604
-    owner: 61
-    flags: PARAM
-    info: 416
+    tag: METHODtpe
+    ret: 596
+    params: 607
+    params: 608
   }
   entries {
     index: 607
     tag: VALsym
-    name: 608
+    name: 605
     owner: 61
-    flags: PARAM | BYNAMEPARAM
-    info: 428
+    flags: PARAM
+    info: 417
   }
   entries {
     index: 608
+    tag: VALsym
+    name: 609
+    owner: 61
+    flags: PARAM | BYNAMEPARAM
+    info: 429
+  }
+  entries {
+    index: 609
     tag: TERMname
     value: "msg"
   }
   entries {
-    index: 609
-    tag: METHODtpe
-    ret: 595
-    params: 610
-  }
-  entries {
     index: 610
-    tag: VALsym
-    name: 604
-    owner: 62
-    flags: PARAM
-    info: 611
+    tag: METHODtpe
+    ret: 596
+    params: 611
   }
   entries {
     index: 611
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 248
-    targs: 595
-    targs: 416
+    tag: VALsym
+    name: 605
+    owner: 62
+    flags: PARAM
+    info: 612
   }
   entries {
     index: 612
-    tag: METHODtpe
-    ret: 595
-    params: 613
-    params: 614
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 248
+    targs: 596
+    targs: 417
   }
   entries {
     index: 613
-    tag: VALsym
-    name: 604
-    owner: 63
-    flags: PARAM
-    info: 611
+    tag: METHODtpe
+    ret: 596
+    params: 614
+    params: 615
   }
   entries {
     index: 614
     tag: VALsym
-    name: 608
+    name: 605
     owner: 63
-    flags: PARAM | BYNAMEPARAM
-    info: 428
+    flags: PARAM
+    info: 612
   }
   entries {
     index: 615
-    tag: METHODtpe
-    ret: 416
-    params: 616
+    tag: VALsym
+    name: 609
+    owner: 63
+    flags: PARAM | BYNAMEPARAM
+    info: 429
   }
   entries {
     index: 616
+    tag: METHODtpe
+    ret: 417
+    params: 617
+  }
+  entries {
+    index: 617
     tag: VALsym
-    name: 582
+    name: 583
     owner: 65
     flags: PARAM | SYNTHETIC
     info: 237
   }
   entries {
-    index: 617
+    index: 618
     tag: TERMname
     value: "Ensuring"
   }
   entries {
-    index: 618
-    tag: POLYtpe
-    tpe: 619
-    params: 622
-  }
-  entries {
     index: 619
-    tag: METHODtpe
-    ret: 620
+    tag: POLYtpe
+    tpe: 620
     params: 623
   }
   entries {
     index: 620
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 56
-    targs: 621
+    tag: METHODtpe
+    ret: 621
+    params: 624
   }
   entries {
     index: 621
     tag: TYPEREFtpe
-    pre: 230
-    sym: 622
+    pre: 219
+    sym: 56
+    targs: 622
   }
   entries {
     index: 622
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 623
+  }
+  entries {
+    index: 623
     tag: TYPEsym
     name: 252
     owner: 66
@@ -4297,48 +4311,48 @@ scalasig {
     info: 233
   }
   entries {
-    index: 623
+    index: 624
     tag: VALsym
-    name: 558
+    name: 559
     owner: 66
     flags: PARAM
-    info: 621
+    info: 622
   }
   entries {
-    index: 624
+    index: 625
     tag: TYPEname
     value: "StringFormat"
   }
   entries {
-    index: 625
-    tag: POLYtpe
-    tpe: 626
-    params: 630
-  }
-  entries {
     index: 626
-    tag: CLASSINFOtpe
-    sym: 67
-    parents: 547
+    tag: POLYtpe
+    tpe: 627
+    params: 631
   }
   entries {
     index: 627
+    tag: CLASSINFOtpe
+    sym: 67
+    parents: 548
+  }
+  entries {
+    index: 628
     tag: TERMname
     value: "scala$Predef$StringFormat$$self"
   }
   entries {
-    index: 628
-    tag: POLYtpe
-    tpe: 629
-  }
-  entries {
     index: 629
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 630
+    tag: POLYtpe
+    tpe: 630
   }
   entries {
     index: 630
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 631
+  }
+  entries {
+    index: 631
     tag: TYPEsym
     name: 252
     owner: 67
@@ -4346,113 +4360,113 @@ scalasig {
     info: 233
   }
   entries {
-    index: 631
+    index: 632
     tag: TERMname
     value: "scala$Predef$StringFormat$$self "
   }
   entries {
-    index: 632
-    tag: METHODtpe
-    ret: 633
-    params: 634
-  }
-  entries {
     index: 633
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 67
-    targs: 629
+    tag: METHODtpe
+    ret: 634
+    params: 635
   }
   entries {
     index: 634
-    tag: VALsym
-    name: 558
-    owner: 70
-    flags: PARAM
-    info: 629
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 67
+    targs: 630
   }
   entries {
     index: 635
+    tag: VALsym
+    name: 559
+    owner: 70
+    flags: PARAM
+    info: 630
+  }
+  entries {
+    index: 636
     tag: TERMname
     value: "formatted"
   }
   entries {
-    index: 636
+    index: 637
     tag: METHODtpe
-    ret: 637
-    params: 638
+    ret: 638
+    params: 639
   }
   entries {
-    index: 637
+    index: 638
     tag: TYPEREFtpe
     pre: 219
     sym: 4
   }
   entries {
-    index: 638
+    index: 639
     tag: VALsym
-    name: 639
+    name: 640
     owner: 71
     flags: PARAM
-    info: 637
+    info: 638
   }
   entries {
-    index: 639
+    index: 640
     tag: TERMname
     value: "fmtstr"
   }
   entries {
-    index: 640
+    index: 641
     tag: SYMANNOT
     sym: 71
-    tpe: 391
-  }
-  entries {
-    index: 641
-    tag: METHODtpe
-    ret: 416
-    params: 642
+    tpe: 392
   }
   entries {
     index: 642
+    tag: METHODtpe
+    ret: 417
+    params: 643
+  }
+  entries {
+    index: 643
     tag: VALsym
-    name: 582
+    name: 583
     owner: 73
     flags: PARAM | SYNTHETIC
     info: 237
   }
   entries {
-    index: 643
+    index: 644
     tag: TERMname
     value: "StringFormat"
   }
   entries {
-    index: 644
-    tag: POLYtpe
-    tpe: 645
-    params: 648
-  }
-  entries {
     index: 645
-    tag: METHODtpe
-    ret: 646
+    tag: POLYtpe
+    tpe: 646
     params: 649
   }
   entries {
     index: 646
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 67
-    targs: 647
+    tag: METHODtpe
+    ret: 647
+    params: 650
   }
   entries {
     index: 647
     tag: TYPEREFtpe
-    pre: 230
-    sym: 648
+    pre: 219
+    sym: 67
+    targs: 648
   }
   entries {
     index: 648
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 649
+  }
+  entries {
+    index: 649
     tag: TYPEsym
     name: 252
     owner: 74
@@ -4460,48 +4474,48 @@ scalasig {
     info: 233
   }
   entries {
-    index: 649
+    index: 650
     tag: VALsym
-    name: 558
+    name: 559
     owner: 74
     flags: PARAM
-    info: 647
+    info: 648
   }
   entries {
-    index: 650
+    index: 651
     tag: TYPEname
     value: "any2stringadd"
   }
   entries {
-    index: 651
-    tag: POLYtpe
-    tpe: 652
-    params: 656
-  }
-  entries {
     index: 652
-    tag: CLASSINFOtpe
-    sym: 75
-    parents: 547
+    tag: POLYtpe
+    tpe: 653
+    params: 657
   }
   entries {
     index: 653
+    tag: CLASSINFOtpe
+    sym: 75
+    parents: 548
+  }
+  entries {
+    index: 654
     tag: TERMname
     value: "scala$Predef$any2stringadd$$self"
   }
   entries {
-    index: 654
-    tag: POLYtpe
-    tpe: 655
-  }
-  entries {
     index: 655
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 656
+    tag: POLYtpe
+    tpe: 656
   }
   entries {
     index: 656
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 657
+  }
+  entries {
+    index: 657
     tag: TYPEsym
     name: 252
     owner: 75
@@ -4509,101 +4523,101 @@ scalasig {
     info: 233
   }
   entries {
-    index: 657
+    index: 658
     tag: TERMname
     value: "scala$Predef$any2stringadd$$self "
   }
   entries {
-    index: 658
-    tag: METHODtpe
-    ret: 659
-    params: 660
-  }
-  entries {
     index: 659
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 75
-    targs: 655
+    tag: METHODtpe
+    ret: 660
+    params: 661
   }
   entries {
     index: 660
-    tag: VALsym
-    name: 558
-    owner: 78
-    flags: PARAM
-    info: 655
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 75
+    targs: 656
   }
   entries {
     index: 661
+    tag: VALsym
+    name: 559
+    owner: 78
+    flags: PARAM
+    info: 656
+  }
+  entries {
+    index: 662
     tag: TERMname
     value: "$plus"
   }
   entries {
-    index: 662
-    tag: METHODtpe
-    ret: 637
-    params: 663
-  }
-  entries {
     index: 663
-    tag: VALsym
-    name: 664
-    owner: 79
-    flags: PARAM
-    info: 637
+    tag: METHODtpe
+    ret: 638
+    params: 664
   }
   entries {
     index: 664
+    tag: VALsym
+    name: 665
+    owner: 79
+    flags: PARAM
+    info: 638
+  }
+  entries {
+    index: 665
     tag: TERMname
     value: "other"
   }
   entries {
-    index: 665
+    index: 666
     tag: METHODtpe
-    ret: 416
-    params: 666
+    ret: 417
+    params: 667
   }
   entries {
-    index: 666
+    index: 667
     tag: VALsym
-    name: 582
+    name: 583
     owner: 81
     flags: PARAM | SYNTHETIC
     info: 237
   }
   entries {
-    index: 667
+    index: 668
     tag: TERMname
     value: "any2stringadd"
   }
   entries {
-    index: 668
-    tag: POLYtpe
-    tpe: 669
-    params: 672
-  }
-  entries {
     index: 669
-    tag: METHODtpe
-    ret: 670
+    tag: POLYtpe
+    tpe: 670
     params: 673
   }
   entries {
     index: 670
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 75
-    targs: 671
+    tag: METHODtpe
+    ret: 671
+    params: 674
   }
   entries {
     index: 671
     tag: TYPEREFtpe
-    pre: 230
-    sym: 672
+    pre: 219
+    sym: 75
+    targs: 672
   }
   entries {
     index: 672
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 673
+  }
+  entries {
+    index: 673
     tag: TYPEsym
     name: 252
     owner: 82
@@ -4611,417 +4625,418 @@ scalasig {
     info: 233
   }
   entries {
-    index: 673
+    index: 674
     tag: VALsym
-    name: 558
+    name: 559
     owner: 82
     flags: PARAM
-    info: 671
+    info: 672
   }
   entries {
-    index: 674
+    index: 675
     tag: TYPEname
     value: "RichException"
   }
   entries {
-    index: 675
+    index: 676
     tag: CLASSINFOtpe
     sym: 83
-    parents: 547
+    parents: 548
   }
   entries {
-    index: 676
+    index: 677
     tag: TERMname
     value: "scala$Predef$RichException$$self"
   }
   entries {
-    index: 677
-    tag: POLYtpe
-    tpe: 678
-  }
-  entries {
     index: 678
-    tag: TYPEREFtpe
-    pre: 679
-    sym: 681
+    tag: POLYtpe
+    tpe: 679
   }
   entries {
     index: 679
-    tag: SINGLEtpe
-    pre: 204
-    sym: 680
+    tag: TYPEREFtpe
+    pre: 680
+    sym: 682
   }
   entries {
     index: 680
+    tag: SINGLEtpe
+    pre: 204
+    sym: 681
+  }
+  entries {
+    index: 681
     tag: EXTref
     name: 301
     owner: 200
   }
   entries {
-    index: 681
+    index: 682
     tag: EXTref
-    name: 682
-    owner: 683
+    name: 683
+    owner: 684
   }
   entries {
-    index: 682
+    index: 683
     tag: TYPEname
     value: "Throwable"
   }
   entries {
-    index: 683
+    index: 684
     tag: EXTMODCLASSref
     name: 301
     owner: 200
   }
   entries {
-    index: 684
+    index: 685
     tag: TERMname
     value: "scala$Predef$RichException$$self "
   }
   entries {
-    index: 685
+    index: 686
     tag: METHODtpe
-    ret: 686
-    params: 687
+    ret: 687
+    params: 688
   }
   entries {
-    index: 686
+    index: 687
     tag: TYPEREFtpe
     pre: 219
     sym: 83
   }
   entries {
-    index: 687
+    index: 688
     tag: VALsym
-    name: 558
+    name: 559
     owner: 86
     flags: PARAM
-    info: 678
+    info: 679
   }
   entries {
-    index: 688
+    index: 689
     tag: TERMname
     value: "getStackTraceString"
   }
   entries {
-    index: 689
-    tag: POLYtpe
-    tpe: 690
-  }
-  entries {
     index: 690
-    tag: TYPEREFtpe
-    pre: 691
-    sym: 4
+    tag: POLYtpe
+    tpe: 691
   }
   entries {
     index: 691
-    tag: SINGLEtpe
+    tag: TYPEREFtpe
     pre: 692
-    sym: 0
+    sym: 4
   }
   entries {
     index: 692
+    tag: SINGLEtpe
+    pre: 693
+    sym: 0
+  }
+  entries {
+    index: 693
     tag: TYPEREFtpe
     pre: 294
     sym: 200
   }
   entries {
-    index: 693
+    index: 694
     tag: SYMANNOT
     sym: 87
     tpe: 308
     args {
       tag: ANNOTARG
-      value: 694
+      value: 695
     }
     args {
       tag: ANNOTARG
-      value: 465
+      value: 466
     }
   }
   entries {
-    index: 694
+    index: 695
     tag: LITERALstring
-    name: 695
+    name: 696
   }
   entries {
-    index: 695
+    index: 696
     tag: TERMname
     value: "use Throwable#getStackTrace"
   }
   entries {
-    index: 696
+    index: 697
     tag: METHODtpe
-    ret: 416
-    params: 697
+    ret: 417
+    params: 698
   }
   entries {
-    index: 697
+    index: 698
     tag: VALsym
-    name: 582
+    name: 583
     owner: 89
     flags: PARAM | SYNTHETIC
     info: 237
   }
   entries {
-    index: 698
+    index: 699
     tag: TERMname
     value: "RichException"
   }
   entries {
-    index: 699
-    tag: METHODtpe
-    ret: 686
-    params: 700
-  }
-  entries {
     index: 700
-    tag: VALsym
-    name: 558
-    owner: 90
-    flags: PARAM
-    info: 678
+    tag: METHODtpe
+    ret: 687
+    params: 701
   }
   entries {
     index: 701
+    tag: VALsym
+    name: 559
+    owner: 90
+    flags: PARAM
+    info: 679
+  }
+  entries {
+    index: 702
     tag: TYPEname
     value: "SeqCharSequence"
   }
   entries {
-    index: 702
+    index: 703
     tag: CLASSINFOtpe
     sym: 91
-    parents: 703
-    parents: 706
-  }
-  entries {
-    index: 703
-    tag: TYPEREFtpe
-    pre: 223
-    sym: 704
+    parents: 704
+    parents: 707
   }
   entries {
     index: 704
-    tag: EXTref
-    name: 705
-    owner: 224
+    tag: TYPEREFtpe
+    pre: 223
+    sym: 705
   }
   entries {
     index: 705
+    tag: EXTref
+    name: 706
+    owner: 224
+  }
+  entries {
+    index: 706
     tag: TYPEname
     value: "Object"
   }
   entries {
-    index: 706
+    index: 707
     tag: TYPEREFtpe
     pre: 223
-    sym: 707
-  }
-  entries {
-    index: 707
-    tag: EXTref
-    name: 708
-    owner: 224
+    sym: 708
   }
   entries {
     index: 708
+    tag: EXTref
+    name: 709
+    owner: 224
+  }
+  entries {
+    index: 709
     tag: TYPEname
     value: "CharSequence"
   }
   entries {
-    index: 709
+    index: 710
     tag: TERMname
     value: "__sequenceOfChars"
   }
   entries {
-    index: 710
-    tag: POLYtpe
-    tpe: 711
-  }
-  entries {
     index: 711
-    tag: TYPEREFtpe
-    pre: 279
-    sym: 712
-    targs: 714
+    tag: POLYtpe
+    tpe: 712
   }
   entries {
     index: 712
-    tag: EXTref
-    name: 713
-    owner: 262
+    tag: TYPEREFtpe
+    pre: 279
+    sym: 713
+    targs: 715
   }
   entries {
     index: 713
+    tag: EXTref
+    name: 714
+    owner: 262
+  }
+  entries {
+    index: 714
     tag: TYPEname
     value: "IndexedSeq"
   }
   entries {
-    index: 714
+    index: 715
     tag: TYPEREFtpe
     pre: 204
-    sym: 715
-  }
-  entries {
-    index: 715
-    tag: EXTref
-    name: 716
-    owner: 200
+    sym: 716
   }
   entries {
     index: 716
+    tag: EXTref
+    name: 717
+    owner: 200
+  }
+  entries {
+    index: 717
     tag: TYPEname
     value: "Char"
   }
   entries {
-    index: 717
+    index: 718
     tag: SYMANNOT
     sym: 92
     tpe: 308
     args {
       tag: ANNOTARG
-      value: 718
+      value: 719
     }
     args {
       tag: ANNOTARG
-      value: 720
+      value: 721
     }
   }
   entries {
-    index: 718
+    index: 719
     tag: LITERALstring
-    name: 719
+    name: 720
   }
   entries {
-    index: 719
+    index: 720
     tag: TERMname
     value: "will be made private"
   }
   entries {
-    index: 720
-    tag: LITERALstring
-    name: 721
-  }
-  entries {
     index: 721
-    tag: TERMname
-    value: "2.12.0"
+    tag: LITERALstring
+    name: 722
   }
   entries {
     index: 722
     tag: TERMname
-    value: "__sequenceOfChars "
+    value: "2.12.0"
   }
   entries {
     index: 723
-    tag: METHODtpe
-    ret: 724
-    params: 725
+    tag: TERMname
+    value: "__sequenceOfChars "
   }
   entries {
     index: 724
+    tag: SYMANNOT
+    sym: 93
+    tpe: 308
+    args {
+      tag: ANNOTARG
+      value: 719
+    }
+    args {
+      tag: ANNOTARG
+      value: 721
+    }
+  }
+  entries {
+    index: 725
+    tag: METHODtpe
+    ret: 726
+    params: 727
+  }
+  entries {
+    index: 726
     tag: TYPEREFtpe
     pre: 219
     sym: 91
   }
   entries {
-    index: 725
+    index: 727
     tag: VALsym
-    name: 709
+    name: 710
     owner: 94
     flags: PARAM
-    info: 711
-  }
-  entries {
-    index: 726
-    tag: SYMANNOT
-    sym: 725
-    tpe: 727
-    args {
-      tag: ANNOTARG
-      value: 730
-    }
-    args {
-      tag: ANNOTARG
-      value: 720
-    }
-  }
-  entries {
-    index: 727
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 728
+    info: 712
   }
   entries {
     index: 728
-    tag: EXTref
-    name: 729
-    owner: 200
+    tag: SYMANNOT
+    sym: 727
+    tpe: 729
+    args {
+      tag: ANNOTARG
+      value: 732
+    }
+    args {
+      tag: ANNOTARG
+      value: 721
+    }
   }
   entries {
     index: 729
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 730
+  }
+  entries {
+    index: 730
+    tag: EXTref
+    name: 731
+    owner: 200
+  }
+  entries {
+    index: 731
     tag: TYPEname
     value: "deprecatedName"
   }
   entries {
-    index: 730
+    index: 732
     tag: LITERALnull
   }
   entries {
-    index: 731
+    index: 733
     tag: TERMname
     value: "length"
   }
   entries {
-    index: 732
+    index: 734
     tag: TERMname
     value: "charAt"
   }
   entries {
-    index: 733
+    index: 735
     tag: METHODtpe
-    ret: 714
-    params: 734
+    ret: 715
+    params: 736
   }
   entries {
-    index: 734
+    index: 736
     tag: VALsym
-    name: 735
+    name: 737
     owner: 96
     flags: PARAM
-    info: 576
+    info: 577
   }
   entries {
-    index: 735
+    index: 737
     tag: TERMname
     value: "index"
   }
   entries {
-    index: 736
+    index: 738
     tag: TERMname
     value: "subSequence"
   }
   entries {
-    index: 737
-    tag: METHODtpe
-    ret: 706
-    params: 738
-    params: 740
-  }
-  entries {
-    index: 738
-    tag: VALsym
-    name: 739
-    owner: 97
-    flags: PARAM
-    info: 576
-  }
-  entries {
     index: 739
-    tag: TERMname
-    value: "start"
+    tag: METHODtpe
+    ret: 707
+    params: 740
+    params: 742
   }
   entries {
     index: 740
@@ -5029,529 +5044,539 @@ scalasig {
     name: 741
     owner: 97
     flags: PARAM
-    info: 576
+    info: 577
   }
   entries {
     index: 741
     tag: TERMname
-    value: "end"
+    value: "start"
   }
   entries {
     index: 742
-    tag: TERMname
-    value: "toString"
+    tag: VALsym
+    name: 743
+    owner: 97
+    flags: PARAM
+    info: 577
   }
   entries {
     index: 743
-    tag: METHODtpe
-    ret: 690
+    tag: TERMname
+    value: "end"
   }
   entries {
     index: 744
     tag: TERMname
-    value: "SeqCharSequence"
+    value: "toString"
   }
   entries {
     index: 745
     tag: METHODtpe
-    ret: 724
-    params: 746
+    ret: 691
   }
   entries {
     index: 746
-    tag: VALsym
-    name: 709
-    owner: 99
-    flags: PARAM
-    info: 711
+    tag: TERMname
+    value: "SeqCharSequence"
   }
   entries {
     index: 747
-    tag: SYMANNOT
-    sym: 746
-    tpe: 727
-    args {
-      tag: ANNOTARG
-      value: 730
-    }
-    args {
-      tag: ANNOTARG
-      value: 720
-    }
+    tag: METHODtpe
+    ret: 726
+    params: 748
   }
   entries {
     index: 748
-    tag: SYMANNOT
-    sym: 746
-    tpe: 308
-    args {
-      tag: ANNOTARG
-      value: 718
-    }
-    args {
-      tag: ANNOTARG
-      value: 720
-    }
+    tag: VALsym
+    name: 710
+    owner: 99
+    flags: PARAM
+    info: 712
   }
   entries {
     index: 749
+    tag: SYMANNOT
+    sym: 748
+    tpe: 729
+    args {
+      tag: ANNOTARG
+      value: 732
+    }
+    args {
+      tag: ANNOTARG
+      value: 721
+    }
+  }
+  entries {
+    index: 750
+    tag: SYMANNOT
+    sym: 748
+    tpe: 308
+    args {
+      tag: ANNOTARG
+      value: 719
+    }
+    args {
+      tag: ANNOTARG
+      value: 721
+    }
+  }
+  entries {
+    index: 751
     tag: TYPEname
     value: "ArrayCharSequence"
   }
   entries {
-    index: 750
+    index: 752
     tag: CLASSINFOtpe
     sym: 100
-    parents: 703
-    parents: 706
+    parents: 704
+    parents: 707
   }
   entries {
-    index: 751
+    index: 753
     tag: TERMname
     value: "__arrayOfChars"
   }
   entries {
-    index: 752
-    tag: POLYtpe
-    tpe: 753
-  }
-  entries {
-    index: 753
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 754
-    targs: 714
-  }
-  entries {
     index: 754
-    tag: EXTref
-    name: 755
-    owner: 200
+    tag: POLYtpe
+    tpe: 755
   }
   entries {
     index: 755
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 756
+    targs: 715
+  }
+  entries {
+    index: 756
+    tag: EXTref
+    name: 757
+    owner: 200
+  }
+  entries {
+    index: 757
     tag: TYPEname
     value: "Array"
   }
   entries {
-    index: 756
+    index: 758
     tag: SYMANNOT
     sym: 101
     tpe: 308
     args {
       tag: ANNOTARG
-      value: 718
+      value: 719
     }
     args {
       tag: ANNOTARG
-      value: 720
+      value: 721
     }
   }
   entries {
-    index: 757
+    index: 759
     tag: TERMname
     value: "__arrayOfChars "
   }
   entries {
-    index: 758
-    tag: METHODtpe
-    ret: 759
-    params: 760
+    index: 760
+    tag: SYMANNOT
+    sym: 102
+    tpe: 308
+    args {
+      tag: ANNOTARG
+      value: 719
+    }
+    args {
+      tag: ANNOTARG
+      value: 721
+    }
   }
   entries {
-    index: 759
+    index: 761
+    tag: METHODtpe
+    ret: 762
+    params: 763
+  }
+  entries {
+    index: 762
     tag: TYPEREFtpe
     pre: 219
     sym: 100
   }
   entries {
-    index: 760
-    tag: VALsym
-    name: 751
-    owner: 103
-    flags: PARAM
-    info: 753
-  }
-  entries {
-    index: 761
-    tag: SYMANNOT
-    sym: 760
-    tpe: 727
-    args {
-      tag: ANNOTARG
-      value: 730
-    }
-    args {
-      tag: ANNOTARG
-      value: 720
-    }
-  }
-  entries {
-    index: 762
-    tag: METHODtpe
-    ret: 714
-    params: 763
-  }
-  entries {
     index: 763
     tag: VALsym
-    name: 735
-    owner: 105
+    name: 753
+    owner: 103
     flags: PARAM
-    info: 576
+    info: 755
   }
   entries {
     index: 764
-    tag: METHODtpe
-    ret: 706
-    params: 765
-    params: 766
+    tag: SYMANNOT
+    sym: 763
+    tpe: 729
+    args {
+      tag: ANNOTARG
+      value: 732
+    }
+    args {
+      tag: ANNOTARG
+      value: 721
+    }
   }
   entries {
     index: 765
-    tag: VALsym
-    name: 739
-    owner: 106
-    flags: PARAM
-    info: 576
+    tag: METHODtpe
+    ret: 715
+    params: 766
   }
   entries {
     index: 766
     tag: VALsym
-    name: 741
-    owner: 106
+    name: 737
+    owner: 105
     flags: PARAM
-    info: 576
+    info: 577
   }
   entries {
     index: 767
-    tag: TERMname
-    value: "ArrayCharSequence"
+    tag: METHODtpe
+    ret: 707
+    params: 768
+    params: 769
   }
   entries {
     index: 768
-    tag: METHODtpe
-    ret: 759
-    params: 769
+    tag: VALsym
+    name: 741
+    owner: 106
+    flags: PARAM
+    info: 577
   }
   entries {
     index: 769
     tag: VALsym
-    name: 751
-    owner: 108
+    name: 743
+    owner: 106
     flags: PARAM
-    info: 753
+    info: 577
   }
   entries {
     index: 770
-    tag: SYMANNOT
-    sym: 769
-    tpe: 727
-    args {
-      tag: ANNOTARG
-      value: 730
-    }
-    args {
-      tag: ANNOTARG
-      value: 720
-    }
+    tag: TERMname
+    value: "ArrayCharSequence"
   }
   entries {
     index: 771
-    tag: SYMANNOT
-    sym: 769
-    tpe: 308
-    args {
-      tag: ANNOTARG
-      value: 718
-    }
-    args {
-      tag: ANNOTARG
-      value: 720
-    }
+    tag: METHODtpe
+    ret: 762
+    params: 772
   }
   entries {
     index: 772
+    tag: VALsym
+    name: 753
+    owner: 108
+    flags: PARAM
+    info: 755
+  }
+  entries {
+    index: 773
+    tag: SYMANNOT
+    sym: 772
+    tpe: 729
+    args {
+      tag: ANNOTARG
+      value: 732
+    }
+    args {
+      tag: ANNOTARG
+      value: 721
+    }
+  }
+  entries {
+    index: 774
+    tag: SYMANNOT
+    sym: 772
+    tpe: 308
+    args {
+      tag: ANNOTARG
+      value: 719
+    }
+    args {
+      tag: ANNOTARG
+      value: 721
+    }
+  }
+  entries {
+    index: 775
     tag: TERMname
     value: "StringCanBuildFrom"
   }
   entries {
-    index: 773
-    tag: POLYtpe
-    tpe: 774
-  }
-  entries {
-    index: 774
-    tag: TYPEREFtpe
-    pre: 775
-    sym: 778
-    targs: 637
-    targs: 714
-    targs: 637
-  }
-  entries {
-    index: 775
-    tag: THIStpe
-    sym: 776
-  }
-  entries {
     index: 776
-    tag: EXTMODCLASSref
-    name: 777
-    owner: 262
+    tag: POLYtpe
+    tpe: 777
   }
   entries {
     index: 777
-    tag: TERMname
-    value: "generic"
+    tag: TYPEREFtpe
+    pre: 778
+    sym: 781
+    targs: 638
+    targs: 715
+    targs: 638
   }
   entries {
     index: 778
-    tag: EXTref
-    name: 779
-    owner: 776
+    tag: THIStpe
+    sym: 779
   }
   entries {
     index: 779
-    tag: TYPEname
-    value: "CanBuildFrom"
+    tag: EXTMODCLASSref
+    name: 780
+    owner: 262
   }
   entries {
     index: 780
     tag: TERMname
-    value: "StringCanBuildFrom "
+    value: "generic"
   }
   entries {
     index: 781
+    tag: EXTref
+    name: 782
+    owner: 779
+  }
+  entries {
+    index: 782
+    tag: TYPEname
+    value: "CanBuildFrom"
+  }
+  entries {
+    index: 783
+    tag: TERMname
+    value: "StringCanBuildFrom "
+  }
+  entries {
+    index: 784
     tag: TERMname
     value: "augmentString"
   }
   entries {
-    index: 782
+    index: 785
     tag: METHODtpe
-    ret: 783
-    params: 786
+    ret: 786
+    params: 789
   }
   entries {
-    index: 783
+    index: 786
     tag: TYPEREFtpe
     pre: 259
-    sym: 784
+    sym: 787
   }
   entries {
-    index: 784
+    index: 787
     tag: EXTref
-    name: 785
+    name: 788
     owner: 260
   }
   entries {
-    index: 785
+    index: 788
     tag: TYPEname
     value: "StringOps"
   }
   entries {
-    index: 786
+    index: 789
     tag: VALsym
-    name: 389
+    name: 390
     owner: 111
     flags: PARAM
-    info: 637
+    info: 638
   }
   entries {
-    index: 787
+    index: 790
     tag: SYMANNOT
     sym: 111
-    tpe: 391
+    tpe: 392
   }
   entries {
-    index: 788
+    index: 791
     tag: TERMname
     value: "unaugmentString"
   }
   entries {
-    index: 789
+    index: 792
     tag: METHODtpe
-    ret: 637
-    params: 790
+    ret: 638
+    params: 793
   }
   entries {
-    index: 790
+    index: 793
     tag: VALsym
-    name: 389
+    name: 390
     owner: 112
     flags: PARAM
-    info: 783
+    info: 786
   }
   entries {
-    index: 791
+    index: 794
     tag: SYMANNOT
     sym: 112
-    tpe: 391
+    tpe: 392
   }
   entries {
-    index: 792
+    index: 795
     tag: TERMname
     value: "print"
   }
   entries {
-    index: 793
+    index: 796
     tag: METHODtpe
-    ret: 411
-    params: 794
+    ret: 412
+    params: 797
   }
   entries {
-    index: 794
+    index: 797
     tag: VALsym
-    name: 389
+    name: 390
     owner: 113
     flags: PARAM
     info: 237
   }
   entries {
-    index: 795
+    index: 798
     tag: TERMname
     value: "println"
   }
   entries {
-    index: 796
+    index: 799
     tag: METHODtpe
-    ret: 411
+    ret: 412
   }
   entries {
-    index: 797
+    index: 800
     tag: METHODtpe
-    ret: 411
-    params: 798
+    ret: 412
+    params: 801
   }
   entries {
-    index: 798
+    index: 801
     tag: VALsym
-    name: 389
+    name: 390
     owner: 115
     flags: PARAM
     info: 237
   }
   entries {
-    index: 799
+    index: 802
     tag: TERMname
     value: "printf"
   }
   entries {
-    index: 800
+    index: 803
     tag: METHODtpe
-    ret: 411
-    params: 801
-    params: 803
+    ret: 412
+    params: 804
+    params: 806
   }
   entries {
-    index: 801
+    index: 804
     tag: VALsym
-    name: 802
+    name: 805
     owner: 116
     flags: PARAM
-    info: 637
+    info: 638
   }
   entries {
-    index: 802
+    index: 805
     tag: TERMname
     value: "text"
   }
   entries {
-    index: 803
+    index: 806
     tag: VALsym
-    name: 804
+    name: 807
     owner: 116
     flags: PARAM
-    info: 805
+    info: 808
   }
   entries {
-    index: 804
+    index: 807
     tag: TERMname
     value: "xs"
   }
   entries {
-    index: 805
+    index: 808
     tag: TYPEREFtpe
     pre: 204
-    sym: 806
+    sym: 809
     targs: 237
   }
   entries {
-    index: 806
+    index: 809
     tag: EXTref
-    name: 807
+    name: 810
     owner: 200
   }
   entries {
-    index: 807
+    index: 810
     tag: TYPEname
     value: "<repeated>"
   }
   entries {
-    index: 808
+    index: 811
     tag: TERMname
     value: "tuple2ToZippedOps"
   }
   entries {
-    index: 809
-    tag: POLYtpe
-    tpe: 810
-    params: 823
-    params: 826
-  }
-  entries {
-    index: 810
-    tag: METHODtpe
-    ret: 811
-    params: 828
-  }
-  entries {
-    index: 811
-    tag: TYPEREFtpe
-    pre: 812
-    sym: 819
-    targs: 822
-    targs: 825
-  }
-  entries {
     index: 812
-    tag: SINGLEtpe
-    pre: 813
-    sym: 816
+    tag: POLYtpe
+    tpe: 813
+    params: 826
+    params: 829
   }
   entries {
     index: 813
-    tag: SINGLEtpe
-    pre: 204
-    sym: 814
+    tag: METHODtpe
+    ret: 814
+    params: 831
   }
   entries {
     index: 814
-    tag: EXTref
-    name: 815
-    owner: 200
+    tag: TYPEREFtpe
+    pre: 815
+    sym: 822
+    targs: 825
+    targs: 828
   }
   entries {
     index: 815
-    tag: TERMname
-    value: "runtime"
+    tag: SINGLEtpe
+    pre: 816
+    sym: 819
   }
   entries {
     index: 816
-    tag: EXTref
-    name: 817
-    owner: 818
+    tag: SINGLEtpe
+    pre: 204
+    sym: 817
   }
   entries {
     index: 817
-    tag: TERMname
-    value: "Tuple2Zipped"
+    tag: EXTref
+    name: 818
+    owner: 200
   }
   entries {
     index: 818
-    tag: EXTMODCLASSref
-    name: 815
-    owner: 200
+    tag: TERMname
+    value: "runtime"
   }
   entries {
     index: 819
@@ -5561,33 +5586,31 @@ scalasig {
   }
   entries {
     index: 820
-    tag: TYPEname
-    value: "Ops"
+    tag: TERMname
+    value: "Tuple2Zipped"
   }
   entries {
     index: 821
     tag: EXTMODCLASSref
-    name: 817
-    owner: 818
+    name: 818
+    owner: 200
   }
   entries {
     index: 822
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 823
+    tag: EXTref
+    name: 823
+    owner: 824
   }
   entries {
     index: 823
-    tag: TYPEsym
-    name: 824
-    owner: 117
-    flags: DEFERRED | PARAM
-    info: 233
+    tag: TYPEname
+    value: "Ops"
   }
   entries {
     index: 824
-    tag: TYPEname
-    value: "T1"
+    tag: EXTMODCLASSref
+    name: 820
+    owner: 821
   }
   entries {
     index: 825
@@ -5606,103 +5629,108 @@ scalasig {
   entries {
     index: 827
     tag: TYPEname
-    value: "T2"
+    value: "T1"
   }
   entries {
     index: 828
-    tag: VALsym
-    name: 389
-    owner: 117
-    flags: PARAM
-    info: 829
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 829
   }
   entries {
     index: 829
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 456
-    targs: 822
-    targs: 825
-  }
-  entries {
-    index: 830
-    tag: TERMname
-    value: "tuple3ToZippedOps"
-  }
-  entries {
-    index: 831
-    tag: POLYtpe
-    tpe: 832
-    params: 840
-    params: 842
-    params: 844
-  }
-  entries {
-    index: 832
-    tag: METHODtpe
-    ret: 833
-    params: 846
-  }
-  entries {
-    index: 833
-    tag: TYPEREFtpe
-    pre: 834
-    sym: 837
-    targs: 839
-    targs: 841
-    targs: 843
-  }
-  entries {
-    index: 834
-    tag: SINGLEtpe
-    pre: 813
-    sym: 835
-  }
-  entries {
-    index: 835
-    tag: EXTref
-    name: 836
-    owner: 818
-  }
-  entries {
-    index: 836
-    tag: TERMname
-    value: "Tuple3Zipped"
-  }
-  entries {
-    index: 837
-    tag: EXTref
-    name: 820
-    owner: 838
-  }
-  entries {
-    index: 838
-    tag: EXTMODCLASSref
-    name: 836
-    owner: 818
-  }
-  entries {
-    index: 839
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 840
-  }
-  entries {
-    index: 840
     tag: TYPEsym
-    name: 824
-    owner: 118
+    name: 830
+    owner: 117
     flags: DEFERRED | PARAM
     info: 233
   }
   entries {
-    index: 841
+    index: 830
+    tag: TYPEname
+    value: "T2"
+  }
+  entries {
+    index: 831
+    tag: VALsym
+    name: 390
+    owner: 117
+    flags: PARAM
+    info: 832
+  }
+  entries {
+    index: 832
     tag: TYPEREFtpe
-    pre: 230
-    sym: 842
+    pre: 204
+    sym: 457
+    targs: 825
+    targs: 828
+  }
+  entries {
+    index: 833
+    tag: TERMname
+    value: "tuple3ToZippedOps"
+  }
+  entries {
+    index: 834
+    tag: POLYtpe
+    tpe: 835
+    params: 843
+    params: 845
+    params: 847
+  }
+  entries {
+    index: 835
+    tag: METHODtpe
+    ret: 836
+    params: 849
+  }
+  entries {
+    index: 836
+    tag: TYPEREFtpe
+    pre: 837
+    sym: 840
+    targs: 842
+    targs: 844
+    targs: 846
+  }
+  entries {
+    index: 837
+    tag: SINGLEtpe
+    pre: 816
+    sym: 838
+  }
+  entries {
+    index: 838
+    tag: EXTref
+    name: 839
+    owner: 821
+  }
+  entries {
+    index: 839
+    tag: TERMname
+    value: "Tuple3Zipped"
+  }
+  entries {
+    index: 840
+    tag: EXTref
+    name: 823
+    owner: 841
+  }
+  entries {
+    index: 841
+    tag: EXTMODCLASSref
+    name: 839
+    owner: 821
   }
   entries {
     index: 842
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 843
+  }
+  entries {
+    index: 843
     tag: TYPEsym
     name: 827
     owner: 118
@@ -5710,100 +5738,114 @@ scalasig {
     info: 233
   }
   entries {
-    index: 843
+    index: 844
     tag: TYPEREFtpe
     pre: 230
-    sym: 844
+    sym: 845
   }
   entries {
-    index: 844
+    index: 845
     tag: TYPEsym
-    name: 845
+    name: 830
     owner: 118
     flags: DEFERRED | PARAM
     info: 233
   }
   entries {
-    index: 845
+    index: 846
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 847
+  }
+  entries {
+    index: 847
+    tag: TYPEsym
+    name: 848
+    owner: 118
+    flags: DEFERRED | PARAM
+    info: 233
+  }
+  entries {
+    index: 848
     tag: TYPEname
     value: "T3"
   }
   entries {
-    index: 846
+    index: 849
     tag: VALsym
-    name: 389
+    name: 390
     owner: 118
     flags: PARAM
-    info: 847
+    info: 850
   }
   entries {
-    index: 847
+    index: 850
     tag: TYPEREFtpe
     pre: 204
-    sym: 502
-    targs: 839
-    targs: 841
-    targs: 843
+    sym: 503
+    targs: 842
+    targs: 844
+    targs: 846
   }
   entries {
-    index: 848
+    index: 851
     tag: TERMname
     value: "genericArrayOps"
   }
   entries {
-    index: 849
-    tag: POLYtpe
-    tpe: 850
-    params: 858
-  }
-  entries {
-    index: 850
-    tag: METHODtpe
-    ret: 851
-    params: 859
-  }
-  entries {
-    index: 851
-    tag: TYPEREFtpe
-    pre: 852
-    sym: 855
-    targs: 857
-  }
-  entries {
     index: 852
-    tag: THIStpe
-    sym: 853
+    tag: POLYtpe
+    tpe: 853
+    params: 861
   }
   entries {
     index: 853
-    tag: EXTMODCLASSref
-    name: 854
-    owner: 262
+    tag: METHODtpe
+    ret: 854
+    params: 862
   }
   entries {
     index: 854
+    tag: TYPEREFtpe
+    pre: 855
+    sym: 858
+    targs: 860
+  }
+  entries {
+    index: 855
+    tag: THIStpe
+    sym: 856
+  }
+  entries {
+    index: 856
+    tag: EXTMODCLASSref
+    name: 857
+    owner: 262
+  }
+  entries {
+    index: 857
     tag: TERMname
     value: "mutable"
   }
   entries {
-    index: 855
+    index: 858
     tag: EXTref
-    name: 856
-    owner: 853
+    name: 859
+    owner: 856
   }
   entries {
-    index: 856
+    index: 859
     tag: TYPEname
     value: "ArrayOps"
   }
   entries {
-    index: 857
+    index: 860
     tag: TYPEREFtpe
     pre: 230
-    sym: 858
+    sym: 861
   }
   entries {
-    index: 858
+    index: 861
     tag: TYPEsym
     name: 232
     owner: 119
@@ -5811,1034 +5853,1015 @@ scalasig {
     info: 233
   }
   entries {
-    index: 859
+    index: 862
     tag: VALsym
-    name: 804
+    name: 807
     owner: 119
     flags: PARAM
-    info: 860
-  }
-  entries {
-    index: 860
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 754
-    targs: 857
-  }
-  entries {
-    index: 861
-    tag: TERMname
-    value: "booleanArrayOps"
-  }
-  entries {
-    index: 862
-    tag: METHODtpe
-    ret: 863
-    params: 870
+    info: 863
   }
   entries {
     index: 863
     tag: TYPEREFtpe
-    pre: 864
-    sym: 867
+    pre: 204
+    sym: 756
+    targs: 860
   }
   entries {
     index: 864
-    tag: SINGLEtpe
-    pre: 852
-    sym: 865
+    tag: TERMname
+    value: "booleanArrayOps"
   }
   entries {
     index: 865
-    tag: EXTref
-    name: 866
-    owner: 853
+    tag: METHODtpe
+    ret: 866
+    params: 873
   }
   entries {
     index: 866
+    tag: TYPEREFtpe
+    pre: 867
+    sym: 870
+  }
+  entries {
+    index: 867
+    tag: SINGLEtpe
+    pre: 855
+    sym: 868
+  }
+  entries {
+    index: 868
+    tag: EXTref
+    name: 869
+    owner: 856
+  }
+  entries {
+    index: 869
     tag: TERMname
     value: "ArrayOps"
   }
   entries {
-    index: 867
+    index: 870
     tag: EXTref
-    name: 868
-    owner: 869
+    name: 871
+    owner: 872
   }
   entries {
-    index: 868
+    index: 871
     tag: TYPEname
     value: "ofBoolean"
   }
   entries {
-    index: 869
-    tag: EXTMODCLASSref
-    name: 866
-    owner: 853
-  }
-  entries {
-    index: 870
-    tag: VALsym
-    name: 804
-    owner: 120
-    flags: PARAM
-    info: 871
-  }
-  entries {
-    index: 871
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 754
-    targs: 416
-  }
-  entries {
     index: 872
-    tag: TERMname
-    value: "byteArrayOps"
+    tag: EXTMODCLASSref
+    name: 869
+    owner: 856
   }
   entries {
     index: 873
-    tag: METHODtpe
-    ret: 874
-    params: 877
+    tag: VALsym
+    name: 807
+    owner: 120
+    flags: PARAM
+    info: 874
   }
   entries {
     index: 874
     tag: TYPEREFtpe
-    pre: 864
-    sym: 875
+    pre: 204
+    sym: 756
+    targs: 417
   }
   entries {
     index: 875
-    tag: EXTref
-    name: 876
-    owner: 869
+    tag: TERMname
+    value: "byteArrayOps"
   }
   entries {
     index: 876
+    tag: METHODtpe
+    ret: 877
+    params: 880
+  }
+  entries {
+    index: 877
+    tag: TYPEREFtpe
+    pre: 867
+    sym: 878
+  }
+  entries {
+    index: 878
+    tag: EXTref
+    name: 879
+    owner: 872
+  }
+  entries {
+    index: 879
     tag: TYPEname
     value: "ofByte"
   }
   entries {
-    index: 877
+    index: 880
     tag: VALsym
-    name: 804
+    name: 807
     owner: 121
     flags: PARAM
-    info: 878
-  }
-  entries {
-    index: 878
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 754
-    targs: 879
-  }
-  entries {
-    index: 879
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 880
-  }
-  entries {
-    index: 880
-    tag: EXTref
-    name: 881
-    owner: 200
+    info: 881
   }
   entries {
     index: 881
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 756
+    targs: 882
+  }
+  entries {
+    index: 882
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 883
+  }
+  entries {
+    index: 883
+    tag: EXTref
+    name: 884
+    owner: 200
+  }
+  entries {
+    index: 884
     tag: TYPEname
     value: "Byte"
   }
   entries {
-    index: 882
+    index: 885
     tag: TERMname
     value: "charArrayOps"
   }
   entries {
-    index: 883
-    tag: METHODtpe
-    ret: 884
-    params: 887
-  }
-  entries {
-    index: 884
-    tag: TYPEREFtpe
-    pre: 864
-    sym: 885
-  }
-  entries {
-    index: 885
-    tag: EXTref
-    name: 886
-    owner: 869
-  }
-  entries {
     index: 886
+    tag: METHODtpe
+    ret: 887
+    params: 890
+  }
+  entries {
+    index: 887
+    tag: TYPEREFtpe
+    pre: 867
+    sym: 888
+  }
+  entries {
+    index: 888
+    tag: EXTref
+    name: 889
+    owner: 872
+  }
+  entries {
+    index: 889
     tag: TYPEname
     value: "ofChar"
   }
   entries {
-    index: 887
+    index: 890
     tag: VALsym
-    name: 804
+    name: 807
     owner: 122
     flags: PARAM
-    info: 753
+    info: 755
   }
   entries {
-    index: 888
+    index: 891
     tag: TERMname
     value: "doubleArrayOps"
   }
   entries {
-    index: 889
-    tag: METHODtpe
-    ret: 890
-    params: 893
-  }
-  entries {
-    index: 890
-    tag: TYPEREFtpe
-    pre: 864
-    sym: 891
-  }
-  entries {
-    index: 891
-    tag: EXTref
-    name: 892
-    owner: 869
-  }
-  entries {
     index: 892
+    tag: METHODtpe
+    ret: 893
+    params: 896
+  }
+  entries {
+    index: 893
+    tag: TYPEREFtpe
+    pre: 867
+    sym: 894
+  }
+  entries {
+    index: 894
+    tag: EXTref
+    name: 895
+    owner: 872
+  }
+  entries {
+    index: 895
     tag: TYPEname
     value: "ofDouble"
   }
   entries {
-    index: 893
+    index: 896
     tag: VALsym
-    name: 804
+    name: 807
     owner: 123
     flags: PARAM
-    info: 894
-  }
-  entries {
-    index: 894
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 754
-    targs: 895
-  }
-  entries {
-    index: 895
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 896
-  }
-  entries {
-    index: 896
-    tag: EXTref
-    name: 897
-    owner: 200
+    info: 897
   }
   entries {
     index: 897
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 756
+    targs: 898
+  }
+  entries {
+    index: 898
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 899
+  }
+  entries {
+    index: 899
+    tag: EXTref
+    name: 900
+    owner: 200
+  }
+  entries {
+    index: 900
     tag: TYPEname
     value: "Double"
   }
   entries {
-    index: 898
+    index: 901
     tag: TERMname
     value: "floatArrayOps"
   }
   entries {
-    index: 899
-    tag: METHODtpe
-    ret: 900
-    params: 903
-  }
-  entries {
-    index: 900
-    tag: TYPEREFtpe
-    pre: 864
-    sym: 901
-  }
-  entries {
-    index: 901
-    tag: EXTref
-    name: 902
-    owner: 869
-  }
-  entries {
     index: 902
+    tag: METHODtpe
+    ret: 903
+    params: 906
+  }
+  entries {
+    index: 903
+    tag: TYPEREFtpe
+    pre: 867
+    sym: 904
+  }
+  entries {
+    index: 904
+    tag: EXTref
+    name: 905
+    owner: 872
+  }
+  entries {
+    index: 905
     tag: TYPEname
     value: "ofFloat"
   }
   entries {
-    index: 903
+    index: 906
     tag: VALsym
-    name: 804
+    name: 807
     owner: 124
     flags: PARAM
-    info: 904
-  }
-  entries {
-    index: 904
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 754
-    targs: 905
-  }
-  entries {
-    index: 905
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 906
-  }
-  entries {
-    index: 906
-    tag: EXTref
-    name: 907
-    owner: 200
+    info: 907
   }
   entries {
     index: 907
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 756
+    targs: 908
+  }
+  entries {
+    index: 908
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 909
+  }
+  entries {
+    index: 909
+    tag: EXTref
+    name: 910
+    owner: 200
+  }
+  entries {
+    index: 910
     tag: TYPEname
     value: "Float"
   }
   entries {
-    index: 908
+    index: 911
     tag: TERMname
     value: "intArrayOps"
   }
   entries {
-    index: 909
-    tag: METHODtpe
-    ret: 910
-    params: 913
-  }
-  entries {
-    index: 910
-    tag: TYPEREFtpe
-    pre: 864
-    sym: 911
-  }
-  entries {
-    index: 911
-    tag: EXTref
-    name: 912
-    owner: 869
-  }
-  entries {
     index: 912
+    tag: METHODtpe
+    ret: 913
+    params: 916
+  }
+  entries {
+    index: 913
+    tag: TYPEREFtpe
+    pre: 867
+    sym: 914
+  }
+  entries {
+    index: 914
+    tag: EXTref
+    name: 915
+    owner: 872
+  }
+  entries {
+    index: 915
     tag: TYPEname
     value: "ofInt"
   }
   entries {
-    index: 913
+    index: 916
     tag: VALsym
-    name: 804
+    name: 807
     owner: 125
     flags: PARAM
-    info: 914
-  }
-  entries {
-    index: 914
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 754
-    targs: 576
-  }
-  entries {
-    index: 915
-    tag: TERMname
-    value: "longArrayOps"
-  }
-  entries {
-    index: 916
-    tag: METHODtpe
-    ret: 917
-    params: 920
+    info: 917
   }
   entries {
     index: 917
     tag: TYPEREFtpe
-    pre: 864
-    sym: 918
+    pre: 204
+    sym: 756
+    targs: 577
   }
   entries {
     index: 918
-    tag: EXTref
-    name: 919
-    owner: 869
+    tag: TERMname
+    value: "longArrayOps"
   }
   entries {
     index: 919
+    tag: METHODtpe
+    ret: 920
+    params: 923
+  }
+  entries {
+    index: 920
+    tag: TYPEREFtpe
+    pre: 867
+    sym: 921
+  }
+  entries {
+    index: 921
+    tag: EXTref
+    name: 922
+    owner: 872
+  }
+  entries {
+    index: 922
     tag: TYPEname
     value: "ofLong"
   }
   entries {
-    index: 920
+    index: 923
     tag: VALsym
-    name: 804
+    name: 807
     owner: 126
     flags: PARAM
-    info: 921
-  }
-  entries {
-    index: 921
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 754
-    targs: 922
-  }
-  entries {
-    index: 922
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 923
-  }
-  entries {
-    index: 923
-    tag: EXTref
-    name: 924
-    owner: 200
+    info: 924
   }
   entries {
     index: 924
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 756
+    targs: 925
+  }
+  entries {
+    index: 925
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 926
+  }
+  entries {
+    index: 926
+    tag: EXTref
+    name: 927
+    owner: 200
+  }
+  entries {
+    index: 927
     tag: TYPEname
     value: "Long"
   }
   entries {
-    index: 925
+    index: 928
     tag: TERMname
     value: "refArrayOps"
   }
   entries {
-    index: 926
-    tag: POLYtpe
-    tpe: 927
-    params: 932
-  }
-  entries {
-    index: 927
-    tag: METHODtpe
-    ret: 928
-    params: 934
-  }
-  entries {
-    index: 928
-    tag: TYPEREFtpe
-    pre: 864
-    sym: 929
-    targs: 931
-  }
-  entries {
     index: 929
-    tag: EXTref
-    name: 930
-    owner: 869
+    tag: POLYtpe
+    tpe: 930
+    params: 935
   }
   entries {
     index: 930
-    tag: TYPEname
-    value: "ofRef"
+    tag: METHODtpe
+    ret: 931
+    params: 937
   }
   entries {
     index: 931
     tag: TYPEREFtpe
-    pre: 230
+    pre: 867
     sym: 932
+    targs: 934
   }
   entries {
     index: 932
+    tag: EXTref
+    name: 933
+    owner: 872
+  }
+  entries {
+    index: 933
+    tag: TYPEname
+    value: "ofRef"
+  }
+  entries {
+    index: 934
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 935
+  }
+  entries {
+    index: 935
     tag: TYPEsym
     name: 232
     owner: 127
     flags: DEFERRED | PARAM
-    info: 933
-  }
-  entries {
-    index: 933
-    tag: TYPEBOUNDStpe
-    lo: 234
-    hi: 470
-  }
-  entries {
-    index: 934
-    tag: VALsym
-    name: 804
-    owner: 127
-    flags: PARAM
-    info: 935
-  }
-  entries {
-    index: 935
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 754
-    targs: 931
+    info: 936
   }
   entries {
     index: 936
-    tag: TERMname
-    value: "shortArrayOps"
+    tag: TYPEBOUNDStpe
+    lo: 234
+    hi: 471
   }
   entries {
     index: 937
-    tag: METHODtpe
-    ret: 938
-    params: 941
+    tag: VALsym
+    name: 807
+    owner: 127
+    flags: PARAM
+    info: 938
   }
   entries {
     index: 938
     tag: TYPEREFtpe
-    pre: 864
-    sym: 939
+    pre: 204
+    sym: 756
+    targs: 934
   }
   entries {
     index: 939
-    tag: EXTref
-    name: 940
-    owner: 869
+    tag: TERMname
+    value: "shortArrayOps"
   }
   entries {
     index: 940
+    tag: METHODtpe
+    ret: 941
+    params: 944
+  }
+  entries {
+    index: 941
+    tag: TYPEREFtpe
+    pre: 867
+    sym: 942
+  }
+  entries {
+    index: 942
+    tag: EXTref
+    name: 943
+    owner: 872
+  }
+  entries {
+    index: 943
     tag: TYPEname
     value: "ofShort"
   }
   entries {
-    index: 941
+    index: 944
     tag: VALsym
-    name: 804
+    name: 807
     owner: 128
     flags: PARAM
-    info: 942
-  }
-  entries {
-    index: 942
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 754
-    targs: 943
-  }
-  entries {
-    index: 943
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 944
-  }
-  entries {
-    index: 944
-    tag: EXTref
-    name: 945
-    owner: 200
+    info: 945
   }
   entries {
     index: 945
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 756
+    targs: 946
+  }
+  entries {
+    index: 946
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 947
+  }
+  entries {
+    index: 947
+    tag: EXTref
+    name: 948
+    owner: 200
+  }
+  entries {
+    index: 948
     tag: TYPEname
     value: "Short"
   }
   entries {
-    index: 946
+    index: 949
     tag: TERMname
     value: "unitArrayOps"
   }
   entries {
-    index: 947
-    tag: METHODtpe
-    ret: 948
-    params: 951
-  }
-  entries {
-    index: 948
-    tag: TYPEREFtpe
-    pre: 864
-    sym: 949
-  }
-  entries {
-    index: 949
-    tag: EXTref
-    name: 950
-    owner: 869
-  }
-  entries {
     index: 950
+    tag: METHODtpe
+    ret: 951
+    params: 954
+  }
+  entries {
+    index: 951
+    tag: TYPEREFtpe
+    pre: 867
+    sym: 952
+  }
+  entries {
+    index: 952
+    tag: EXTref
+    name: 953
+    owner: 872
+  }
+  entries {
+    index: 953
     tag: TYPEname
     value: "ofUnit"
   }
   entries {
-    index: 951
-    tag: VALsym
-    name: 804
-    owner: 129
-    flags: PARAM
-    info: 952
-  }
-  entries {
-    index: 952
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 754
-    targs: 411
-  }
-  entries {
-    index: 953
-    tag: TERMname
-    value: "byte2Byte"
-  }
-  entries {
     index: 954
-    tag: METHODtpe
-    ret: 955
-    params: 957
-  }
-  entries {
-    index: 955
-    tag: TYPEREFtpe
-    pre: 223
-    sym: 956
-  }
-  entries {
-    index: 956
-    tag: EXTref
-    name: 881
-    owner: 224
-  }
-  entries {
-    index: 957
     tag: VALsym
-    name: 389
-    owner: 130
-    flags: PARAM
-    info: 879
-  }
-  entries {
-    index: 958
-    tag: TERMname
-    value: "short2Short"
-  }
-  entries {
-    index: 959
-    tag: METHODtpe
-    ret: 960
-    params: 962
-  }
-  entries {
-    index: 960
-    tag: TYPEREFtpe
-    pre: 223
-    sym: 961
-  }
-  entries {
-    index: 961
-    tag: EXTref
-    name: 945
-    owner: 224
-  }
-  entries {
-    index: 962
-    tag: VALsym
-    name: 389
-    owner: 131
-    flags: PARAM
-    info: 943
-  }
-  entries {
-    index: 963
-    tag: TERMname
-    value: "char2Character"
-  }
-  entries {
-    index: 964
-    tag: METHODtpe
-    ret: 965
-    params: 968
-  }
-  entries {
-    index: 965
-    tag: TYPEREFtpe
-    pre: 223
-    sym: 966
-  }
-  entries {
-    index: 966
-    tag: EXTref
-    name: 967
-    owner: 224
-  }
-  entries {
-    index: 967
-    tag: TYPEname
-    value: "Character"
-  }
-  entries {
-    index: 968
-    tag: VALsym
-    name: 389
-    owner: 132
-    flags: PARAM
-    info: 714
-  }
-  entries {
-    index: 969
-    tag: TERMname
-    value: "int2Integer"
-  }
-  entries {
-    index: 970
-    tag: METHODtpe
-    ret: 971
-    params: 974
-  }
-  entries {
-    index: 971
-    tag: TYPEREFtpe
-    pre: 223
-    sym: 972
-  }
-  entries {
-    index: 972
-    tag: EXTref
-    name: 973
-    owner: 224
-  }
-  entries {
-    index: 973
-    tag: TYPEname
-    value: "Integer"
-  }
-  entries {
-    index: 974
-    tag: VALsym
-    name: 389
-    owner: 133
-    flags: PARAM
-    info: 576
-  }
-  entries {
-    index: 975
-    tag: TERMname
-    value: "long2Long"
-  }
-  entries {
-    index: 976
-    tag: METHODtpe
-    ret: 977
-    params: 979
-  }
-  entries {
-    index: 977
-    tag: TYPEREFtpe
-    pre: 223
-    sym: 978
-  }
-  entries {
-    index: 978
-    tag: EXTref
-    name: 924
-    owner: 224
-  }
-  entries {
-    index: 979
-    tag: VALsym
-    name: 389
-    owner: 134
-    flags: PARAM
-    info: 922
-  }
-  entries {
-    index: 980
-    tag: TERMname
-    value: "float2Float"
-  }
-  entries {
-    index: 981
-    tag: METHODtpe
-    ret: 982
-    params: 984
-  }
-  entries {
-    index: 982
-    tag: TYPEREFtpe
-    pre: 223
-    sym: 983
-  }
-  entries {
-    index: 983
-    tag: EXTref
-    name: 907
-    owner: 224
-  }
-  entries {
-    index: 984
-    tag: VALsym
-    name: 389
-    owner: 135
-    flags: PARAM
-    info: 905
-  }
-  entries {
-    index: 985
-    tag: TERMname
-    value: "double2Double"
-  }
-  entries {
-    index: 986
-    tag: METHODtpe
-    ret: 987
-    params: 989
-  }
-  entries {
-    index: 987
-    tag: TYPEREFtpe
-    pre: 223
-    sym: 988
-  }
-  entries {
-    index: 988
-    tag: EXTref
-    name: 897
-    owner: 224
-  }
-  entries {
-    index: 989
-    tag: VALsym
-    name: 389
-    owner: 136
-    flags: PARAM
-    info: 895
-  }
-  entries {
-    index: 990
-    tag: TERMname
-    value: "boolean2Boolean"
-  }
-  entries {
-    index: 991
-    tag: METHODtpe
-    ret: 992
-    params: 994
-  }
-  entries {
-    index: 992
-    tag: TYPEREFtpe
-    pre: 223
-    sym: 993
-  }
-  entries {
-    index: 993
-    tag: EXTref
-    name: 418
-    owner: 224
-  }
-  entries {
-    index: 994
-    tag: VALsym
-    name: 389
-    owner: 137
-    flags: PARAM
-    info: 416
-  }
-  entries {
-    index: 995
-    tag: TERMname
-    value: "Byte2byte"
-  }
-  entries {
-    index: 996
-    tag: METHODtpe
-    ret: 879
-    params: 997
-  }
-  entries {
-    index: 997
-    tag: VALsym
-    name: 389
-    owner: 138
+    name: 807
+    owner: 129
     flags: PARAM
     info: 955
   }
   entries {
+    index: 955
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 756
+    targs: 412
+  }
+  entries {
+    index: 956
+    tag: TERMname
+    value: "byte2Byte"
+  }
+  entries {
+    index: 957
+    tag: METHODtpe
+    ret: 958
+    params: 960
+  }
+  entries {
+    index: 958
+    tag: TYPEREFtpe
+    pre: 223
+    sym: 959
+  }
+  entries {
+    index: 959
+    tag: EXTref
+    name: 884
+    owner: 224
+  }
+  entries {
+    index: 960
+    tag: VALsym
+    name: 390
+    owner: 130
+    flags: PARAM
+    info: 882
+  }
+  entries {
+    index: 961
+    tag: TERMname
+    value: "short2Short"
+  }
+  entries {
+    index: 962
+    tag: METHODtpe
+    ret: 963
+    params: 965
+  }
+  entries {
+    index: 963
+    tag: TYPEREFtpe
+    pre: 223
+    sym: 964
+  }
+  entries {
+    index: 964
+    tag: EXTref
+    name: 948
+    owner: 224
+  }
+  entries {
+    index: 965
+    tag: VALsym
+    name: 390
+    owner: 131
+    flags: PARAM
+    info: 946
+  }
+  entries {
+    index: 966
+    tag: TERMname
+    value: "char2Character"
+  }
+  entries {
+    index: 967
+    tag: METHODtpe
+    ret: 968
+    params: 971
+  }
+  entries {
+    index: 968
+    tag: TYPEREFtpe
+    pre: 223
+    sym: 969
+  }
+  entries {
+    index: 969
+    tag: EXTref
+    name: 970
+    owner: 224
+  }
+  entries {
+    index: 970
+    tag: TYPEname
+    value: "Character"
+  }
+  entries {
+    index: 971
+    tag: VALsym
+    name: 390
+    owner: 132
+    flags: PARAM
+    info: 715
+  }
+  entries {
+    index: 972
+    tag: TERMname
+    value: "int2Integer"
+  }
+  entries {
+    index: 973
+    tag: METHODtpe
+    ret: 974
+    params: 977
+  }
+  entries {
+    index: 974
+    tag: TYPEREFtpe
+    pre: 223
+    sym: 975
+  }
+  entries {
+    index: 975
+    tag: EXTref
+    name: 976
+    owner: 224
+  }
+  entries {
+    index: 976
+    tag: TYPEname
+    value: "Integer"
+  }
+  entries {
+    index: 977
+    tag: VALsym
+    name: 390
+    owner: 133
+    flags: PARAM
+    info: 577
+  }
+  entries {
+    index: 978
+    tag: TERMname
+    value: "long2Long"
+  }
+  entries {
+    index: 979
+    tag: METHODtpe
+    ret: 980
+    params: 982
+  }
+  entries {
+    index: 980
+    tag: TYPEREFtpe
+    pre: 223
+    sym: 981
+  }
+  entries {
+    index: 981
+    tag: EXTref
+    name: 927
+    owner: 224
+  }
+  entries {
+    index: 982
+    tag: VALsym
+    name: 390
+    owner: 134
+    flags: PARAM
+    info: 925
+  }
+  entries {
+    index: 983
+    tag: TERMname
+    value: "float2Float"
+  }
+  entries {
+    index: 984
+    tag: METHODtpe
+    ret: 985
+    params: 987
+  }
+  entries {
+    index: 985
+    tag: TYPEREFtpe
+    pre: 223
+    sym: 986
+  }
+  entries {
+    index: 986
+    tag: EXTref
+    name: 910
+    owner: 224
+  }
+  entries {
+    index: 987
+    tag: VALsym
+    name: 390
+    owner: 135
+    flags: PARAM
+    info: 908
+  }
+  entries {
+    index: 988
+    tag: TERMname
+    value: "double2Double"
+  }
+  entries {
+    index: 989
+    tag: METHODtpe
+    ret: 990
+    params: 992
+  }
+  entries {
+    index: 990
+    tag: TYPEREFtpe
+    pre: 223
+    sym: 991
+  }
+  entries {
+    index: 991
+    tag: EXTref
+    name: 900
+    owner: 224
+  }
+  entries {
+    index: 992
+    tag: VALsym
+    name: 390
+    owner: 136
+    flags: PARAM
+    info: 898
+  }
+  entries {
+    index: 993
+    tag: TERMname
+    value: "boolean2Boolean"
+  }
+  entries {
+    index: 994
+    tag: METHODtpe
+    ret: 995
+    params: 997
+  }
+  entries {
+    index: 995
+    tag: TYPEREFtpe
+    pre: 223
+    sym: 996
+  }
+  entries {
+    index: 996
+    tag: EXTref
+    name: 419
+    owner: 224
+  }
+  entries {
+    index: 997
+    tag: VALsym
+    name: 390
+    owner: 137
+    flags: PARAM
+    info: 417
+  }
+  entries {
     index: 998
     tag: TERMname
-    value: "Short2short"
+    value: "Byte2byte"
   }
   entries {
     index: 999
     tag: METHODtpe
-    ret: 943
+    ret: 882
     params: 1000
   }
   entries {
     index: 1000
     tag: VALsym
-    name: 389
-    owner: 139
+    name: 390
+    owner: 138
     flags: PARAM
-    info: 960
+    info: 958
   }
   entries {
     index: 1001
     tag: TERMname
-    value: "Character2char"
+    value: "Short2short"
   }
   entries {
     index: 1002
     tag: METHODtpe
-    ret: 714
+    ret: 946
     params: 1003
   }
   entries {
     index: 1003
     tag: VALsym
-    name: 389
-    owner: 140
+    name: 390
+    owner: 139
     flags: PARAM
-    info: 965
+    info: 963
   }
   entries {
     index: 1004
     tag: TERMname
-    value: "Integer2int"
+    value: "Character2char"
   }
   entries {
     index: 1005
     tag: METHODtpe
-    ret: 576
+    ret: 715
     params: 1006
   }
   entries {
     index: 1006
     tag: VALsym
-    name: 389
-    owner: 141
+    name: 390
+    owner: 140
     flags: PARAM
-    info: 971
+    info: 968
   }
   entries {
     index: 1007
     tag: TERMname
-    value: "Long2long"
+    value: "Integer2int"
   }
   entries {
     index: 1008
     tag: METHODtpe
-    ret: 922
+    ret: 577
     params: 1009
   }
   entries {
     index: 1009
     tag: VALsym
-    name: 389
-    owner: 142
+    name: 390
+    owner: 141
     flags: PARAM
-    info: 977
+    info: 974
   }
   entries {
     index: 1010
     tag: TERMname
-    value: "Float2float"
+    value: "Long2long"
   }
   entries {
     index: 1011
     tag: METHODtpe
-    ret: 905
+    ret: 925
     params: 1012
   }
   entries {
     index: 1012
     tag: VALsym
-    name: 389
-    owner: 143
+    name: 390
+    owner: 142
     flags: PARAM
-    info: 982
+    info: 980
   }
   entries {
     index: 1013
     tag: TERMname
-    value: "Double2double"
+    value: "Float2float"
   }
   entries {
     index: 1014
     tag: METHODtpe
-    ret: 895
+    ret: 908
     params: 1015
   }
   entries {
     index: 1015
     tag: VALsym
-    name: 389
-    owner: 144
+    name: 390
+    owner: 143
     flags: PARAM
-    info: 987
+    info: 985
   }
   entries {
     index: 1016
     tag: TERMname
-    value: "Boolean2boolean"
+    value: "Double2double"
   }
   entries {
     index: 1017
     tag: METHODtpe
-    ret: 416
+    ret: 898
     params: 1018
   }
   entries {
     index: 1018
     tag: VALsym
-    name: 389
-    owner: 145
+    name: 390
+    owner: 144
     flags: PARAM
-    info: 992
+    info: 990
   }
   entries {
     index: 1019
+    tag: TERMname
+    value: "Boolean2boolean"
+  }
+  entries {
+    index: 1020
+    tag: METHODtpe
+    ret: 417
+    params: 1021
+  }
+  entries {
+    index: 1021
+    tag: VALsym
+    name: 390
+    owner: 145
+    flags: PARAM
+    info: 995
+  }
+  entries {
+    index: 1022
     tag: TYPEname
     value: "$less$colon$less"
   }
   entries {
-    index: 1020
-    tag: POLYtpe
-    tpe: 1021
-    params: 1024
-    params: 1027
-  }
-  entries {
-    index: 1021
-    tag: CLASSINFOtpe
-    sym: 146
-    parents: 470
-    parents: 1022
-    parents: 1029
-  }
-  entries {
-    index: 1022
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 248
-    targs: 1023
-    targs: 1026
-  }
-  entries {
     index: 1023
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1024
+    tag: POLYtpe
+    tpe: 1024
+    params: 1027
+    params: 1030
   }
   entries {
     index: 1024
-    tag: TYPEsym
-    name: 1025
-    owner: 146
-    flags: DEFERRED | PARAM | CONTRAVARIANT
-    info: 233
+    tag: CLASSINFOtpe
+    sym: 146
+    parents: 471
+    parents: 1025
+    parents: 1032
   }
   entries {
     index: 1025
-    tag: TYPEname
-    value: "From"
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 248
+    targs: 1026
+    targs: 1029
   }
   entries {
     index: 1026
@@ -6851,134 +6874,153 @@ scalasig {
     tag: TYPEsym
     name: 1028
     owner: 146
-    flags: DEFERRED | PARAM | COVARIANT
+    flags: DEFERRED | PARAM | CONTRAVARIANT
     info: 233
   }
   entries {
     index: 1028
     tag: TYPEname
-    value: "To"
+    value: "From"
   }
   entries {
     index: 1029
     tag: TYPEREFtpe
-    pre: 204
+    pre: 230
     sym: 1030
   }
   entries {
     index: 1030
-    tag: EXTref
+    tag: TYPEsym
     name: 1031
-    owner: 200
+    owner: 146
+    flags: DEFERRED | PARAM | COVARIANT
+    info: 233
   }
   entries {
     index: 1031
     tag: TYPEname
-    value: "Serializable"
+    value: "To"
   }
   entries {
     index: 1032
-    tag: METHODtpe
-    ret: 1033
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 1033
   }
   entries {
     index: 1033
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 146
-    targs: 1023
-    targs: 1026
+    tag: EXTref
+    name: 1034
+    owner: 200
   }
   entries {
     index: 1034
-    tag: CHILDREN
-    sym: 146
-    children: 1035
+    tag: TYPEname
+    value: "Serializable"
   }
   entries {
     index: 1035
-    tag: CLASSsym
-    name: 1036
-    owner: 146
-    flags: 
-    info: 1037
+    tag: METHODtpe
+    ret: 1036
   }
   entries {
     index: 1036
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 146
+    targs: 1026
+    targs: 1029
+  }
+  entries {
+    index: 1037
+    tag: CHILDREN
+    sym: 146
+    children: 1038
+  }
+  entries {
+    index: 1038
+    tag: CLASSsym
+    name: 1039
+    owner: 146
+    flags: 
+    info: 1040
+  }
+  entries {
+    index: 1039
     tag: TYPEname
     value: "<local child>"
   }
   entries {
-    index: 1037
+    index: 1040
     tag: CLASSINFOtpe
-    sym: 1035
-    parents: 1033
+    sym: 1038
+    parents: 1036
   }
   entries {
-    index: 1038
+    index: 1041
     tag: SYMANNOT
     sym: 146
     tpe: 316
     args {
       tag: ANNOTARG
-      value: 1039
+      value: 1042
     }
   }
   entries {
-    index: 1039
-    tag: LITERALstring
-    name: 1040
-  }
-  entries {
-    index: 1040
-    tag: TERMname
-    value: "Cannot prove that ${From} <:< ${To}."
-  }
-  entries {
-    index: 1041
-    tag: TERMname
-    value: "singleton_$less$colon$less"
-  }
-  entries {
     index: 1042
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 146
-    targs: 237
-    targs: 237
+    tag: LITERALstring
+    name: 1043
   }
   entries {
     index: 1043
     tag: TERMname
-    value: "$conforms"
+    value: "Cannot prove that ${From} <:< ${To}."
   }
   entries {
     index: 1044
-    tag: POLYtpe
-    tpe: 1045
-    params: 1048
+    tag: TERMname
+    value: "singleton_$less$colon$less"
   }
   entries {
     index: 1045
-    tag: POLYtpe
-    tpe: 1046
-  }
-  entries {
-    index: 1046
     tag: TYPEREFtpe
     pre: 219
     sym: 146
-    targs: 1047
-    targs: 1047
+    targs: 237
+    targs: 237
+  }
+  entries {
+    index: 1046
+    tag: TERMname
+    value: "$conforms"
   }
   entries {
     index: 1047
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1048
+    tag: POLYtpe
+    tpe: 1048
+    params: 1051
   }
   entries {
     index: 1048
+    tag: POLYtpe
+    tpe: 1049
+  }
+  entries {
+    index: 1049
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 146
+    targs: 1050
+    targs: 1050
+  }
+  entries {
+    index: 1050
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1051
+  }
+  entries {
+    index: 1051
     tag: TYPEsym
     name: 252
     owner: 149
@@ -6986,37 +7028,37 @@ scalasig {
     info: 233
   }
   entries {
-    index: 1049
+    index: 1052
     tag: TERMname
     value: "conforms"
   }
   entries {
-    index: 1050
-    tag: POLYtpe
-    tpe: 1051
-    params: 1054
-  }
-  entries {
-    index: 1051
-    tag: POLYtpe
-    tpe: 1052
-  }
-  entries {
-    index: 1052
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 146
-    targs: 1053
-    targs: 1053
-  }
-  entries {
     index: 1053
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1054
+    tag: POLYtpe
+    tpe: 1054
+    params: 1057
   }
   entries {
     index: 1054
+    tag: POLYtpe
+    tpe: 1055
+  }
+  entries {
+    index: 1055
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 146
+    targs: 1056
+    targs: 1056
+  }
+  entries {
+    index: 1056
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1057
+  }
+  entries {
+    index: 1057
     tag: TYPEsym
     name: 252
     owner: 150
@@ -7024,79 +7066,65 @@ scalasig {
     info: 233
   }
   entries {
-    index: 1055
+    index: 1058
     tag: SYMANNOT
     sym: 150
     tpe: 308
     args {
       tag: ANNOTARG
-      value: 1056
+      value: 1059
     }
     args {
       tag: ANNOTARG
-      value: 465
+      value: 466
     }
   }
   entries {
-    index: 1056
+    index: 1059
     tag: LITERALstring
-    name: 1057
+    name: 1060
   }
   entries {
-    index: 1057
+    index: 1060
     tag: TERMname
     value: "use `implicitly[T <:< U]` or `identity` instead."
   }
   entries {
-    index: 1058
+    index: 1061
     tag: TYPEname
     value: "$eq$colon$eq"
   }
   entries {
-    index: 1059
-    tag: POLYtpe
-    tpe: 1060
-    params: 1063
-    params: 1065
-  }
-  entries {
-    index: 1060
-    tag: CLASSINFOtpe
-    sym: 151
-    parents: 470
-    parents: 1061
-    parents: 1029
-  }
-  entries {
-    index: 1061
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 248
-    targs: 1062
-    targs: 1064
-  }
-  entries {
     index: 1062
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1063
+    tag: POLYtpe
+    tpe: 1063
+    params: 1066
+    params: 1068
   }
   entries {
     index: 1063
-    tag: TYPEsym
-    name: 1025
-    owner: 151
-    flags: DEFERRED | PARAM
-    info: 233
+    tag: CLASSINFOtpe
+    sym: 151
+    parents: 471
+    parents: 1064
+    parents: 1032
   }
   entries {
     index: 1064
     tag: TYPEREFtpe
-    pre: 230
-    sym: 1065
+    pre: 204
+    sym: 248
+    targs: 1065
+    targs: 1067
   }
   entries {
     index: 1065
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1066
+  }
+  entries {
+    index: 1066
     tag: TYPEsym
     name: 1028
     owner: 151
@@ -7104,126 +7132,140 @@ scalasig {
     info: 233
   }
   entries {
-    index: 1066
-    tag: METHODtpe
-    ret: 1067
-  }
-  entries {
     index: 1067
     tag: TYPEREFtpe
-    pre: 219
-    sym: 151
-    targs: 1062
-    targs: 1064
+    pre: 230
+    sym: 1068
   }
   entries {
     index: 1068
-    tag: CHILDREN
-    sym: 151
-    children: 1069
+    tag: TYPEsym
+    name: 1031
+    owner: 151
+    flags: DEFERRED | PARAM
+    info: 233
   }
   entries {
     index: 1069
-    tag: CLASSsym
-    name: 1036
-    owner: 151
-    flags: 
-    info: 1070
+    tag: METHODtpe
+    ret: 1070
   }
   entries {
     index: 1070
-    tag: CLASSINFOtpe
-    sym: 1069
-    parents: 1067
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 151
+    targs: 1065
+    targs: 1067
   }
   entries {
     index: 1071
+    tag: CHILDREN
+    sym: 151
+    children: 1072
+  }
+  entries {
+    index: 1072
+    tag: CLASSsym
+    name: 1039
+    owner: 151
+    flags: 
+    info: 1073
+  }
+  entries {
+    index: 1073
+    tag: CLASSINFOtpe
+    sym: 1072
+    parents: 1070
+  }
+  entries {
+    index: 1074
     tag: SYMANNOT
     sym: 151
     tpe: 316
     args {
       tag: ANNOTARG
-      value: 1072
+      value: 1075
     }
   }
   entries {
-    index: 1072
-    tag: LITERALstring
-    name: 1073
-  }
-  entries {
-    index: 1073
-    tag: TERMname
-    value: "Cannot prove that ${From} =:= ${To}."
-  }
-  entries {
-    index: 1074
-    tag: TERMname
-    value: "singleton_$eq$colon$eq"
-  }
-  entries {
     index: 1075
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 151
-    targs: 237
-    targs: 237
+    tag: LITERALstring
+    name: 1076
   }
   entries {
     index: 1076
     tag: TERMname
-    value: "$eq$colon$eq"
+    value: "Cannot prove that ${From} =:= ${To}."
   }
   entries {
     index: 1077
+    tag: TERMname
+    value: "singleton_$eq$colon$eq"
+  }
+  entries {
+    index: 1078
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 151
+    targs: 237
+    targs: 237
+  }
+  entries {
+    index: 1079
+    tag: TERMname
+    value: "$eq$colon$eq"
+  }
+  entries {
+    index: 1080
     tag: TYPEREFtpe
     pre: 219
     sym: 155
   }
   entries {
-    index: 1078
+    index: 1081
     tag: CLASSINFOtpe
     sym: 155
-    parents: 470
-    parents: 1029
+    parents: 471
+    parents: 1032
   }
   entries {
-    index: 1079
+    index: 1082
     tag: METHODtpe
-    ret: 1077
+    ret: 1080
   }
   entries {
-    index: 1080
+    index: 1083
     tag: TERMname
     value: "tpEquals"
   }
   entries {
-    index: 1081
-    tag: POLYtpe
-    tpe: 1082
-    params: 1085
-  }
-  entries {
-    index: 1082
-    tag: POLYtpe
-    tpe: 1083
-  }
-  entries {
-    index: 1083
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 151
-    targs: 1084
-    targs: 1084
-  }
-  entries {
     index: 1084
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1085
+    tag: POLYtpe
+    tpe: 1085
+    params: 1088
   }
   entries {
     index: 1085
+    tag: POLYtpe
+    tpe: 1086
+  }
+  entries {
+    index: 1086
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 151
+    targs: 1087
+    targs: 1087
+  }
+  entries {
+    index: 1087
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1088
+  }
+  entries {
+    index: 1088
     tag: TYPEsym
     name: 252
     owner: 157
@@ -7231,288 +7273,288 @@ scalasig {
     info: 233
   }
   entries {
-    index: 1086
+    index: 1089
     tag: TERMname
     value: "readResolve"
   }
   entries {
-    index: 1087
+    index: 1090
     tag: METHODtpe
-    ret: 703
+    ret: 704
   }
   entries {
-    index: 1088
+    index: 1091
     tag: TYPEname
     value: "DummyImplicit"
   }
   entries {
-    index: 1089
+    index: 1092
     tag: CLASSINFOtpe
     sym: 159
-    parents: 470
+    parents: 471
   }
   entries {
-    index: 1090
+    index: 1093
     tag: METHODtpe
-    ret: 1091
+    ret: 1094
   }
   entries {
-    index: 1091
+    index: 1094
     tag: TYPEREFtpe
     pre: 219
     sym: 159
   }
   entries {
-    index: 1092
+    index: 1095
     tag: TERMname
     value: "DummyImplicit"
   }
   entries {
-    index: 1093
+    index: 1096
     tag: TYPEREFtpe
     pre: 219
     sym: 162
   }
   entries {
-    index: 1094
+    index: 1097
     tag: CLASSINFOtpe
     sym: 162
-    parents: 470
+    parents: 471
   }
   entries {
-    index: 1095
+    index: 1098
     tag: METHODtpe
-    ret: 1093
+    ret: 1096
   }
   entries {
-    index: 1096
+    index: 1099
     tag: TERMname
     value: "dummyImplicit"
   }
   entries {
-    index: 1097
+    index: 1100
     tag: POLYtpe
-    tpe: 1091
+    tpe: 1094
   }
   entries {
-    index: 1098
+    index: 1101
     tag: TYPEREFtpe
     pre: 219
     sym: 166
   }
   entries {
-    index: 1099
+    index: 1102
     tag: CLASSINFOtpe
     sym: 166
-    parents: 470
-  }
-  entries {
-    index: 1100
-    tag: METHODtpe
-    ret: 1098
-  }
-  entries {
-    index: 1101
-    tag: TERMname
-    value: "getStackTraceString$extension"
-  }
-  entries {
-    index: 1102
-    tag: METHODtpe
-    ret: 690
-    params: 1103
+    parents: 471
   }
   entries {
     index: 1103
-    tag: VALsym
-    name: 1104
-    owner: 168
-    flags: PARAM
-    info: 686
+    tag: METHODtpe
+    ret: 1101
   }
   entries {
     index: 1104
     tag: TERMname
-    value: "$this"
+    value: "getStackTraceString$extension"
   }
   entries {
     index: 1105
+    tag: METHODtpe
+    ret: 691
+    params: 1106
+  }
+  entries {
+    index: 1106
+    tag: VALsym
+    name: 1107
+    owner: 168
+    flags: PARAM
+    info: 687
+  }
+  entries {
+    index: 1107
+    tag: TERMname
+    value: "$this"
+  }
+  entries {
+    index: 1108
     tag: SYMANNOT
     sym: 168
     tpe: 308
     args {
       tag: ANNOTARG
-      value: 694
+      value: 695
     }
     args {
       tag: ANNOTARG
-      value: 465
+      value: 466
     }
-  }
-  entries {
-    index: 1106
-    tag: TERMname
-    value: "hashCode$extension"
-  }
-  entries {
-    index: 1107
-    tag: METHODtpe
-    ret: 575
-    params: 1108
-  }
-  entries {
-    index: 1108
-    tag: VALsym
-    name: 1104
-    owner: 169
-    flags: PARAM
-    info: 686
   }
   entries {
     index: 1109
     tag: TERMname
-    value: "equals$extension"
+    value: "hashCode$extension"
   }
   entries {
     index: 1110
     tag: METHODtpe
-    ret: 1111
-    params: 1113
+    ret: 576
+    params: 1111
   }
   entries {
     index: 1111
-    tag: METHODtpe
-    ret: 416
-    params: 1112
+    tag: VALsym
+    name: 1107
+    owner: 169
+    flags: PARAM
+    info: 687
   }
   entries {
     index: 1112
+    tag: TERMname
+    value: "equals$extension"
+  }
+  entries {
+    index: 1113
+    tag: METHODtpe
+    ret: 1114
+    params: 1116
+  }
+  entries {
+    index: 1114
+    tag: METHODtpe
+    ret: 417
+    params: 1115
+  }
+  entries {
+    index: 1115
     tag: VALsym
-    name: 582
+    name: 583
     owner: 170
     flags: PARAM | SYNTHETIC
     info: 237
   }
   entries {
-    index: 1113
+    index: 1116
     tag: VALsym
-    name: 1104
+    name: 1107
     owner: 170
     flags: PARAM
-    info: 686
+    info: 687
   }
   entries {
-    index: 1114
+    index: 1117
     tag: TYPEREFtpe
     pre: 219
     sym: 172
   }
   entries {
-    index: 1115
+    index: 1118
     tag: CLASSINFOtpe
     sym: 172
-    parents: 470
-  }
-  entries {
-    index: 1116
-    tag: METHODtpe
-    ret: 1114
-  }
-  entries {
-    index: 1117
-    tag: TERMname
-    value: "$plus$extension"
-  }
-  entries {
-    index: 1118
-    tag: POLYtpe
-    tpe: 1119
-    params: 1125
+    parents: 471
   }
   entries {
     index: 1119
     tag: METHODtpe
-    ret: 1120
-    params: 1122
+    ret: 1117
   }
   entries {
     index: 1120
-    tag: METHODtpe
-    ret: 637
-    params: 1121
+    tag: TERMname
+    value: "$plus$extension"
   }
   entries {
     index: 1121
-    tag: VALsym
-    name: 664
-    owner: 174
-    flags: PARAM
-    info: 637
-  }
-  entries {
-    index: 1122
-    tag: VALsym
-    name: 1104
-    owner: 174
-    flags: PARAM
-    info: 1123
-  }
-  entries {
-    index: 1123
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 75
-    targs: 1124
-  }
-  entries {
-    index: 1124
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1125
-  }
-  entries {
-    index: 1125
-    tag: TYPEsym
-    name: 252
-    owner: 174
-    flags: DEFERRED | PARAM
-    info: 233
-  }
-  entries {
-    index: 1126
     tag: POLYtpe
-    tpe: 1127
-    params: 1131
-  }
-  entries {
-    index: 1127
-    tag: METHODtpe
-    ret: 575
+    tpe: 1122
     params: 1128
   }
   entries {
-    index: 1128
-    tag: VALsym
-    name: 1104
-    owner: 175
-    flags: PARAM
-    info: 1129
+    index: 1122
+    tag: METHODtpe
+    ret: 1123
+    params: 1125
   }
   entries {
-    index: 1129
+    index: 1123
+    tag: METHODtpe
+    ret: 638
+    params: 1124
+  }
+  entries {
+    index: 1124
+    tag: VALsym
+    name: 665
+    owner: 174
+    flags: PARAM
+    info: 638
+  }
+  entries {
+    index: 1125
+    tag: VALsym
+    name: 1107
+    owner: 174
+    flags: PARAM
+    info: 1126
+  }
+  entries {
+    index: 1126
     tag: TYPEREFtpe
     pre: 219
     sym: 75
-    targs: 1130
+    targs: 1127
+  }
+  entries {
+    index: 1127
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1128
+  }
+  entries {
+    index: 1128
+    tag: TYPEsym
+    name: 252
+    owner: 174
+    flags: DEFERRED | PARAM
+    info: 233
+  }
+  entries {
+    index: 1129
+    tag: POLYtpe
+    tpe: 1130
+    params: 1134
   }
   entries {
     index: 1130
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1131
+    tag: METHODtpe
+    ret: 576
+    params: 1131
   }
   entries {
     index: 1131
+    tag: VALsym
+    name: 1107
+    owner: 175
+    flags: PARAM
+    info: 1132
+  }
+  entries {
+    index: 1132
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 75
+    targs: 1133
+  }
+  entries {
+    index: 1133
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1134
+  }
+  entries {
+    index: 1134
     tag: TYPEsym
     name: 252
     owner: 175
@@ -7520,131 +7562,131 @@ scalasig {
     info: 233
   }
   entries {
-    index: 1132
+    index: 1135
     tag: POLYtpe
-    tpe: 1133
+    tpe: 1136
+    params: 1142
+  }
+  entries {
+    index: 1136
+    tag: METHODtpe
+    ret: 1137
     params: 1139
   }
   entries {
-    index: 1133
+    index: 1137
     tag: METHODtpe
-    ret: 1134
-    params: 1136
+    ret: 417
+    params: 1138
   }
   entries {
-    index: 1134
-    tag: METHODtpe
-    ret: 416
-    params: 1135
-  }
-  entries {
-    index: 1135
+    index: 1138
     tag: VALsym
-    name: 582
+    name: 583
     owner: 176
     flags: PARAM | SYNTHETIC
     info: 237
   }
   entries {
-    index: 1136
+    index: 1139
     tag: VALsym
-    name: 1104
+    name: 1107
     owner: 176
     flags: PARAM
-    info: 1137
-  }
-  entries {
-    index: 1137
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 75
-    targs: 1138
-  }
-  entries {
-    index: 1138
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1139
-  }
-  entries {
-    index: 1139
-    tag: TYPEsym
-    name: 252
-    owner: 176
-    flags: DEFERRED | PARAM
-    info: 233
+    info: 1140
   }
   entries {
     index: 1140
     tag: TYPEREFtpe
     pre: 219
-    sym: 178
+    sym: 75
+    targs: 1141
   }
   entries {
     index: 1141
-    tag: CLASSINFOtpe
-    sym: 178
-    parents: 470
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1142
   }
   entries {
     index: 1142
-    tag: METHODtpe
-    ret: 1140
+    tag: TYPEsym
+    name: 252
+    owner: 176
+    flags: DEFERRED | PARAM
+    info: 233
   }
   entries {
     index: 1143
-    tag: TERMname
-    value: "formatted$extension"
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 178
   }
   entries {
     index: 1144
-    tag: POLYtpe
-    tpe: 1145
-    params: 1151
+    tag: CLASSINFOtpe
+    sym: 178
+    parents: 471
   }
   entries {
     index: 1145
     tag: METHODtpe
-    ret: 1146
-    params: 1148
+    ret: 1143
   }
   entries {
     index: 1146
-    tag: METHODtpe
-    ret: 637
-    params: 1147
+    tag: TERMname
+    value: "formatted$extension"
   }
   entries {
     index: 1147
-    tag: VALsym
-    name: 639
-    owner: 180
-    flags: PARAM
-    info: 637
+    tag: POLYtpe
+    tpe: 1148
+    params: 1154
   }
   entries {
     index: 1148
-    tag: VALsym
-    name: 1104
-    owner: 180
-    flags: PARAM
-    info: 1149
+    tag: METHODtpe
+    ret: 1149
+    params: 1151
   }
   entries {
     index: 1149
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 67
-    targs: 1150
+    tag: METHODtpe
+    ret: 638
+    params: 1150
   }
   entries {
     index: 1150
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1151
+    tag: VALsym
+    name: 640
+    owner: 180
+    flags: PARAM
+    info: 638
   }
   entries {
     index: 1151
+    tag: VALsym
+    name: 1107
+    owner: 180
+    flags: PARAM
+    info: 1152
+  }
+  entries {
+    index: 1152
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 67
+    targs: 1153
+  }
+  entries {
+    index: 1153
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1154
+  }
+  entries {
+    index: 1154
     tag: TYPEsym
     name: 252
     owner: 180
@@ -7652,46 +7694,46 @@ scalasig {
     info: 233
   }
   entries {
-    index: 1152
+    index: 1155
     tag: SYMANNOT
     sym: 180
-    tpe: 391
-  }
-  entries {
-    index: 1153
-    tag: POLYtpe
-    tpe: 1154
-    params: 1158
-  }
-  entries {
-    index: 1154
-    tag: METHODtpe
-    ret: 575
-    params: 1155
-  }
-  entries {
-    index: 1155
-    tag: VALsym
-    name: 1104
-    owner: 181
-    flags: PARAM
-    info: 1156
+    tpe: 392
   }
   entries {
     index: 1156
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 67
-    targs: 1157
+    tag: POLYtpe
+    tpe: 1157
+    params: 1161
   }
   entries {
     index: 1157
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1158
+    tag: METHODtpe
+    ret: 576
+    params: 1158
   }
   entries {
     index: 1158
+    tag: VALsym
+    name: 1107
+    owner: 181
+    flags: PARAM
+    info: 1159
+  }
+  entries {
+    index: 1159
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 67
+    targs: 1160
+  }
+  entries {
+    index: 1160
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1161
+  }
+  entries {
+    index: 1161
     tag: TYPEsym
     name: 252
     owner: 181
@@ -7699,108 +7741,108 @@ scalasig {
     info: 233
   }
   entries {
-    index: 1159
+    index: 1162
     tag: POLYtpe
-    tpe: 1160
+    tpe: 1163
+    params: 1169
+  }
+  entries {
+    index: 1163
+    tag: METHODtpe
+    ret: 1164
     params: 1166
   }
   entries {
-    index: 1160
+    index: 1164
     tag: METHODtpe
-    ret: 1161
-    params: 1163
+    ret: 417
+    params: 1165
   }
   entries {
-    index: 1161
-    tag: METHODtpe
-    ret: 416
-    params: 1162
-  }
-  entries {
-    index: 1162
+    index: 1165
     tag: VALsym
-    name: 582
+    name: 583
     owner: 182
     flags: PARAM | SYNTHETIC
     info: 237
   }
   entries {
-    index: 1163
+    index: 1166
     tag: VALsym
-    name: 1104
+    name: 1107
     owner: 182
     flags: PARAM
-    info: 1164
-  }
-  entries {
-    index: 1164
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 67
-    targs: 1165
-  }
-  entries {
-    index: 1165
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1166
-  }
-  entries {
-    index: 1166
-    tag: TYPEsym
-    name: 252
-    owner: 182
-    flags: DEFERRED | PARAM
-    info: 233
+    info: 1167
   }
   entries {
     index: 1167
     tag: TYPEREFtpe
     pre: 219
-    sym: 184
+    sym: 67
+    targs: 1168
   }
   entries {
     index: 1168
-    tag: CLASSINFOtpe
-    sym: 184
-    parents: 470
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1169
   }
   entries {
     index: 1169
-    tag: METHODtpe
-    ret: 1167
+    tag: TYPEsym
+    name: 252
+    owner: 182
+    flags: DEFERRED | PARAM
+    info: 233
   }
   entries {
     index: 1170
-    tag: TERMname
-    value: "ensuring$extension0"
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 184
   }
   entries {
     index: 1171
-    tag: POLYtpe
-    tpe: 1172
-    params: 1175
+    tag: CLASSINFOtpe
+    sym: 184
+    parents: 471
   }
   entries {
     index: 1172
     tag: METHODtpe
-    ret: 1173
-    params: 1177
+    ret: 1170
   }
   entries {
     index: 1173
-    tag: METHODtpe
-    ret: 1174
-    params: 1176
+    tag: TERMname
+    value: "ensuring$extension0"
   }
   entries {
     index: 1174
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1175
+    tag: POLYtpe
+    tpe: 1175
+    params: 1178
   }
   entries {
     index: 1175
+    tag: METHODtpe
+    ret: 1176
+    params: 1180
+  }
+  entries {
+    index: 1176
+    tag: METHODtpe
+    ret: 1177
+    params: 1179
+  }
+  entries {
+    index: 1177
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1178
+  }
+  entries {
+    index: 1178
     tag: TYPEsym
     name: 252
     owner: 186
@@ -7808,60 +7850,60 @@ scalasig {
     info: 233
   }
   entries {
-    index: 1176
+    index: 1179
     tag: VALsym
-    name: 604
+    name: 605
     owner: 186
     flags: PARAM
-    info: 416
+    info: 417
   }
   entries {
-    index: 1177
+    index: 1180
     tag: VALsym
-    name: 1104
+    name: 1107
     owner: 186
     flags: PARAM
-    info: 1178
+    info: 1181
   }
   entries {
-    index: 1178
+    index: 1181
     tag: TYPEREFtpe
     pre: 219
     sym: 56
-    targs: 1174
+    targs: 1177
   }
   entries {
-    index: 1179
+    index: 1182
     tag: TERMname
     value: "ensuring$extension1"
   }
   entries {
-    index: 1180
+    index: 1183
     tag: POLYtpe
-    tpe: 1181
-    params: 1184
-  }
-  entries {
-    index: 1181
-    tag: METHODtpe
-    ret: 1182
+    tpe: 1184
     params: 1187
   }
   entries {
-    index: 1182
+    index: 1184
     tag: METHODtpe
-    ret: 1183
-    params: 1185
-    params: 1186
+    ret: 1185
+    params: 1190
   }
   entries {
-    index: 1183
+    index: 1185
+    tag: METHODtpe
+    ret: 1186
+    params: 1188
+    params: 1189
+  }
+  entries {
+    index: 1186
     tag: TYPEREFtpe
     pre: 230
-    sym: 1184
+    sym: 1187
   }
   entries {
-    index: 1184
+    index: 1187
     tag: TYPEsym
     name: 252
     owner: 187
@@ -7869,136 +7911,136 @@ scalasig {
     info: 233
   }
   entries {
-    index: 1185
-    tag: VALsym
-    name: 604
-    owner: 187
-    flags: PARAM
-    info: 416
-  }
-  entries {
-    index: 1186
-    tag: VALsym
-    name: 608
-    owner: 187
-    flags: PARAM | BYNAMEPARAM
-    info: 428
-  }
-  entries {
-    index: 1187
-    tag: VALsym
-    name: 1104
-    owner: 187
-    flags: PARAM
-    info: 1188
-  }
-  entries {
     index: 1188
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 56
-    targs: 1183
+    tag: VALsym
+    name: 605
+    owner: 187
+    flags: PARAM
+    info: 417
   }
   entries {
     index: 1189
+    tag: VALsym
+    name: 609
+    owner: 187
+    flags: PARAM | BYNAMEPARAM
+    info: 429
+  }
+  entries {
+    index: 1190
+    tag: VALsym
+    name: 1107
+    owner: 187
+    flags: PARAM
+    info: 1191
+  }
+  entries {
+    index: 1191
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 56
+    targs: 1186
+  }
+  entries {
+    index: 1192
     tag: TERMname
     value: "ensuring$extension2"
   }
   entries {
-    index: 1190
+    index: 1193
     tag: POLYtpe
-    tpe: 1191
-    params: 1194
-  }
-  entries {
-    index: 1191
-    tag: METHODtpe
-    ret: 1192
+    tpe: 1194
     params: 1197
   }
   entries {
-    index: 1192
-    tag: METHODtpe
-    ret: 1193
-    params: 1195
-  }
-  entries {
-    index: 1193
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1194
-  }
-  entries {
     index: 1194
-    tag: TYPEsym
-    name: 252
-    owner: 188
-    flags: DEFERRED | PARAM
-    info: 233
+    tag: METHODtpe
+    ret: 1195
+    params: 1200
   }
   entries {
     index: 1195
-    tag: VALsym
-    name: 604
-    owner: 188
-    flags: PARAM
-    info: 1196
+    tag: METHODtpe
+    ret: 1196
+    params: 1198
   }
   entries {
     index: 1196
     tag: TYPEREFtpe
-    pre: 204
-    sym: 248
-    targs: 1193
-    targs: 416
+    pre: 230
+    sym: 1197
   }
   entries {
     index: 1197
-    tag: VALsym
-    name: 1104
+    tag: TYPEsym
+    name: 252
     owner: 188
-    flags: PARAM
-    info: 1198
+    flags: DEFERRED | PARAM
+    info: 233
   }
   entries {
     index: 1198
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 56
-    targs: 1193
+    tag: VALsym
+    name: 605
+    owner: 188
+    flags: PARAM
+    info: 1199
   }
   entries {
     index: 1199
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 248
+    targs: 1196
+    targs: 417
+  }
+  entries {
+    index: 1200
+    tag: VALsym
+    name: 1107
+    owner: 188
+    flags: PARAM
+    info: 1201
+  }
+  entries {
+    index: 1201
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 56
+    targs: 1196
+  }
+  entries {
+    index: 1202
     tag: TERMname
     value: "ensuring$extension3"
   }
   entries {
-    index: 1200
+    index: 1203
     tag: POLYtpe
-    tpe: 1201
-    params: 1204
-  }
-  entries {
-    index: 1201
-    tag: METHODtpe
-    ret: 1202
-    params: 1208
-  }
-  entries {
-    index: 1202
-    tag: METHODtpe
-    ret: 1203
-    params: 1205
+    tpe: 1204
     params: 1207
   }
   entries {
-    index: 1203
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1204
+    index: 1204
+    tag: METHODtpe
+    ret: 1205
+    params: 1211
   }
   entries {
-    index: 1204
+    index: 1205
+    tag: METHODtpe
+    ret: 1206
+    params: 1208
+    params: 1210
+  }
+  entries {
+    index: 1206
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1207
+  }
+  entries {
+    index: 1207
     tag: TYPEsym
     name: 252
     owner: 189
@@ -8006,33 +8048,9 @@ scalasig {
     info: 233
   }
   entries {
-    index: 1205
-    tag: VALsym
-    name: 604
-    owner: 189
-    flags: PARAM
-    info: 1206
-  }
-  entries {
-    index: 1206
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 248
-    targs: 1203
-    targs: 416
-  }
-  entries {
-    index: 1207
-    tag: VALsym
-    name: 608
-    owner: 189
-    flags: PARAM | BYNAMEPARAM
-    info: 428
-  }
-  entries {
     index: 1208
     tag: VALsym
-    name: 1104
+    name: 605
     owner: 189
     flags: PARAM
     info: 1209
@@ -8040,45 +8058,69 @@ scalasig {
   entries {
     index: 1209
     tag: TYPEREFtpe
-    pre: 219
-    sym: 56
-    targs: 1203
+    pre: 204
+    sym: 248
+    targs: 1206
+    targs: 417
   }
   entries {
     index: 1210
-    tag: POLYtpe
-    tpe: 1211
-    params: 1215
+    tag: VALsym
+    name: 609
+    owner: 189
+    flags: PARAM | BYNAMEPARAM
+    info: 429
   }
   entries {
     index: 1211
-    tag: METHODtpe
-    ret: 575
-    params: 1212
+    tag: VALsym
+    name: 1107
+    owner: 189
+    flags: PARAM
+    info: 1212
   }
   entries {
     index: 1212
-    tag: VALsym
-    name: 1104
-    owner: 190
-    flags: PARAM
-    info: 1213
-  }
-  entries {
-    index: 1213
     tag: TYPEREFtpe
     pre: 219
     sym: 56
-    targs: 1214
+    targs: 1206
+  }
+  entries {
+    index: 1213
+    tag: POLYtpe
+    tpe: 1214
+    params: 1218
   }
   entries {
     index: 1214
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1215
+    tag: METHODtpe
+    ret: 576
+    params: 1215
   }
   entries {
     index: 1215
+    tag: VALsym
+    name: 1107
+    owner: 190
+    flags: PARAM
+    info: 1216
+  }
+  entries {
+    index: 1216
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 56
+    targs: 1217
+  }
+  entries {
+    index: 1217
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1218
+  }
+  entries {
+    index: 1218
     tag: TYPEsym
     name: 252
     owner: 190
@@ -8086,131 +8128,131 @@ scalasig {
     info: 233
   }
   entries {
-    index: 1216
+    index: 1219
     tag: POLYtpe
-    tpe: 1217
+    tpe: 1220
+    params: 1226
+  }
+  entries {
+    index: 1220
+    tag: METHODtpe
+    ret: 1221
     params: 1223
   }
   entries {
-    index: 1217
+    index: 1221
     tag: METHODtpe
-    ret: 1218
-    params: 1220
+    ret: 417
+    params: 1222
   }
   entries {
-    index: 1218
-    tag: METHODtpe
-    ret: 416
-    params: 1219
-  }
-  entries {
-    index: 1219
+    index: 1222
     tag: VALsym
-    name: 582
+    name: 583
     owner: 191
     flags: PARAM | SYNTHETIC
     info: 237
   }
   entries {
-    index: 1220
+    index: 1223
     tag: VALsym
-    name: 1104
+    name: 1107
     owner: 191
     flags: PARAM
-    info: 1221
-  }
-  entries {
-    index: 1221
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 56
-    targs: 1222
-  }
-  entries {
-    index: 1222
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1223
-  }
-  entries {
-    index: 1223
-    tag: TYPEsym
-    name: 252
-    owner: 191
-    flags: DEFERRED | PARAM
-    info: 233
+    info: 1224
   }
   entries {
     index: 1224
     tag: TYPEREFtpe
     pre: 219
-    sym: 193
+    sym: 56
+    targs: 1225
   }
   entries {
     index: 1225
-    tag: CLASSINFOtpe
-    sym: 193
-    parents: 470
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1226
   }
   entries {
     index: 1226
-    tag: METHODtpe
-    ret: 1224
+    tag: TYPEsym
+    name: 252
+    owner: 191
+    flags: DEFERRED | PARAM
+    info: 233
   }
   entries {
     index: 1227
-    tag: TERMname
-    value: "$minus$greater$extension"
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 193
   }
   entries {
     index: 1228
-    tag: POLYtpe
-    tpe: 1229
-    params: 1235
-    params: 1233
+    tag: CLASSINFOtpe
+    sym: 193
+    parents: 471
   }
   entries {
     index: 1229
     tag: METHODtpe
-    ret: 1230
-    params: 1237
+    ret: 1227
   }
   entries {
     index: 1230
-    tag: METHODtpe
-    ret: 1231
-    params: 1236
+    tag: TERMname
+    value: "$minus$greater$extension"
   }
   entries {
     index: 1231
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 456
-    targs: 1232
-    targs: 1234
+    tag: POLYtpe
+    tpe: 1232
+    params: 1238
+    params: 1236
   }
   entries {
     index: 1232
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1233
+    tag: METHODtpe
+    ret: 1233
+    params: 1240
   }
   entries {
     index: 1233
-    tag: TYPEsym
-    name: 252
-    owner: 195
-    flags: DEFERRED | PARAM
-    info: 233
+    tag: METHODtpe
+    ret: 1234
+    params: 1239
   }
   entries {
     index: 1234
     tag: TYPEREFtpe
-    pre: 230
-    sym: 1235
+    pre: 204
+    sym: 457
+    targs: 1235
+    targs: 1237
   }
   entries {
     index: 1235
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1236
+  }
+  entries {
+    index: 1236
+    tag: TYPEsym
+    name: 252
+    owner: 195
+    flags: DEFERRED | PARAM
+    info: 233
+  }
+  entries {
+    index: 1237
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1238
+  }
+  entries {
+    index: 1238
     tag: TYPEsym
     name: 255
     owner: 195
@@ -8218,74 +8260,74 @@ scalasig {
     info: 233
   }
   entries {
-    index: 1236
-    tag: VALsym
-    name: 484
-    owner: 195
-    flags: PARAM
-    info: 1234
-  }
-  entries {
-    index: 1237
-    tag: VALsym
-    name: 1104
-    owner: 195
-    flags: PARAM
-    info: 1238
-  }
-  entries {
-    index: 1238
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 47
-    targs: 1232
-  }
-  entries {
     index: 1239
-    tag: SYMANNOT
-    sym: 195
-    tpe: 391
+    tag: VALsym
+    name: 485
+    owner: 195
+    flags: PARAM
+    info: 1237
   }
   entries {
     index: 1240
+    tag: VALsym
+    name: 1107
+    owner: 195
+    flags: PARAM
+    info: 1241
+  }
+  entries {
+    index: 1241
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 47
+    targs: 1235
+  }
+  entries {
+    index: 1242
+    tag: SYMANNOT
+    sym: 195
+    tpe: 392
+  }
+  entries {
+    index: 1243
     tag: TERMname
     value: "$u2192$extension"
   }
   entries {
-    index: 1241
+    index: 1244
     tag: POLYtpe
-    tpe: 1242
-    params: 1248
-    params: 1246
-  }
-  entries {
-    index: 1242
-    tag: METHODtpe
-    ret: 1243
-    params: 1250
-  }
-  entries {
-    index: 1243
-    tag: METHODtpe
-    ret: 1244
+    tpe: 1245
+    params: 1251
     params: 1249
   }
   entries {
-    index: 1244
-    tag: TYPEREFtpe
-    pre: 204
-    sym: 456
-    targs: 1245
-    targs: 1247
-  }
-  entries {
     index: 1245
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1246
+    tag: METHODtpe
+    ret: 1246
+    params: 1253
   }
   entries {
     index: 1246
+    tag: METHODtpe
+    ret: 1247
+    params: 1252
+  }
+  entries {
+    index: 1247
+    tag: TYPEREFtpe
+    pre: 204
+    sym: 457
+    targs: 1248
+    targs: 1250
+  }
+  entries {
+    index: 1248
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1249
+  }
+  entries {
+    index: 1249
     tag: TYPEsym
     name: 252
     owner: 196
@@ -8293,13 +8335,13 @@ scalasig {
     info: 233
   }
   entries {
-    index: 1247
+    index: 1250
     tag: TYPEREFtpe
     pre: 230
-    sym: 1248
+    sym: 1251
   }
   entries {
-    index: 1248
+    index: 1251
     tag: TYPEsym
     name: 255
     owner: 196
@@ -8307,63 +8349,63 @@ scalasig {
     info: 233
   }
   entries {
-    index: 1249
-    tag: VALsym
-    name: 484
-    owner: 196
-    flags: PARAM
-    info: 1247
-  }
-  entries {
-    index: 1250
-    tag: VALsym
-    name: 1104
-    owner: 196
-    flags: PARAM
-    info: 1251
-  }
-  entries {
-    index: 1251
-    tag: TYPEREFtpe
-    pre: 219
-    sym: 47
-    targs: 1245
-  }
-  entries {
     index: 1252
-    tag: POLYtpe
-    tpe: 1253
-    params: 1257
+    tag: VALsym
+    name: 485
+    owner: 196
+    flags: PARAM
+    info: 1250
   }
   entries {
     index: 1253
-    tag: METHODtpe
-    ret: 575
-    params: 1254
+    tag: VALsym
+    name: 1107
+    owner: 196
+    flags: PARAM
+    info: 1254
   }
   entries {
     index: 1254
-    tag: VALsym
-    name: 1104
-    owner: 197
-    flags: PARAM
-    info: 1255
-  }
-  entries {
-    index: 1255
     tag: TYPEREFtpe
     pre: 219
     sym: 47
-    targs: 1256
+    targs: 1248
+  }
+  entries {
+    index: 1255
+    tag: POLYtpe
+    tpe: 1256
+    params: 1260
   }
   entries {
     index: 1256
-    tag: TYPEREFtpe
-    pre: 230
-    sym: 1257
+    tag: METHODtpe
+    ret: 576
+    params: 1257
   }
   entries {
     index: 1257
+    tag: VALsym
+    name: 1107
+    owner: 197
+    flags: PARAM
+    info: 1258
+  }
+  entries {
+    index: 1258
+    tag: TYPEREFtpe
+    pre: 219
+    sym: 47
+    targs: 1259
+  }
+  entries {
+    index: 1259
+    tag: TYPEREFtpe
+    pre: 230
+    sym: 1260
+  }
+  entries {
+    index: 1260
     tag: TYPEsym
     name: 252
     owner: 197
@@ -8371,54 +8413,54 @@ scalasig {
     info: 233
   }
   entries {
-    index: 1258
+    index: 1261
     tag: POLYtpe
-    tpe: 1259
+    tpe: 1262
+    params: 1268
+  }
+  entries {
+    index: 1262
+    tag: METHODtpe
+    ret: 1263
     params: 1265
   }
   entries {
-    index: 1259
+    index: 1263
     tag: METHODtpe
-    ret: 1260
-    params: 1262
+    ret: 417
+    params: 1264
   }
   entries {
-    index: 1260
-    tag: METHODtpe
-    ret: 416
-    params: 1261
-  }
-  entries {
-    index: 1261
+    index: 1264
     tag: VALsym
-    name: 582
+    name: 583
     owner: 198
     flags: PARAM | SYNTHETIC
     info: 237
   }
   entries {
-    index: 1262
+    index: 1265
     tag: VALsym
-    name: 1104
+    name: 1107
     owner: 198
     flags: PARAM
-    info: 1263
+    info: 1266
   }
   entries {
-    index: 1263
+    index: 1266
     tag: TYPEREFtpe
     pre: 219
     sym: 47
-    targs: 1264
+    targs: 1267
   }
   entries {
-    index: 1264
+    index: 1267
     tag: TYPEREFtpe
     pre: 230
-    sym: 1265
+    sym: 1268
   }
   entries {
-    index: 1265
+    index: 1268
     tag: TYPEsym
     name: 252
     owner: 198
