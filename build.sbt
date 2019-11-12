@@ -2,7 +2,8 @@ lazy val V = new {
   val asm = "6.0"
   val scala = computeScalaVersionFromTravisYml("2.12")
   val scalafix = computeScalafixVersionFromBinScalafix()
-  val scalameta = "4.1.4"
+  val scalameta = "4.1.6"
+  val scalametaScalacPlugin = "4.2.5"
   val scalatest = "3.0.5"
 }
 
@@ -325,7 +326,8 @@ lazy val semanticdbSettings = Def.settings(
   scalacOptions -= "-feature",
   scalacOptions -= "-Ywarn-unused-import",
   scalacOptions -= "-Xfatal-warnings",
-  addCompilerPlugin("org.scalameta" %% "semanticdb-scalac" % V.scalameta cross CrossVersion.full),
+  addCompilerPlugin(
+    "org.scalameta" %% "semanticdb-scalac" % V.scalametaScalacPlugin cross CrossVersion.full),
   scalacOptions += "-Yrangepos",
   scalacOptions += "-P:semanticdb:text:off",
   scalacOptions += "-P:semanticdb:symbols:all",
