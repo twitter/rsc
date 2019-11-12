@@ -19,13 +19,13 @@ matrix:
     - env:
       - CI_COMMAND: ci-fmt
     - env:
-      - CI_SCALA_VERSION: 2.12.8
+      - CI_SCALA_VERSION: 2.12.10
       - CI_COMMAND: ci-fast
     - env:
-      - CI_SCALA_VERSION: 2.12.8
+      - CI_SCALA_VERSION: 2.12.10
       - CI_COMMAND: ci-slow
     - env:
-      - CI_SCALA_VERSION: 2.12.8
+      - CI_SCALA_VERSION: 2.12.10
       - CI_COMMAND: ci-scalafix
 
 script:
